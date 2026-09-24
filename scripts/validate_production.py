@@ -17,7 +17,7 @@ REQUIRED_CORE={
  "data/navigation.js","data/contests.js","data/materials.js","data/exam-schemas.js",
  "data/question-catalog.js","data/review-catalog.js","data/simulations.js","data/cloud-config.js"
 }
-REF_RE=re.compile(r'''["'](?!https?:|//|data:|mailto:|tel:|#)([^"'?#]+?\.(?:html|js|css|webmanifest|json|md|pdf))(?:[?#][^"']*)?["']''',re.I)
+REF_RE=re.compile(r'''["'`](?!https?:|//|data:|mailto:|tel:|#)((?:\.{0,2}/)?[A-Za-z0-9_./-]+\.(?:html|js|css|webmanifest|json|md|pdf))(?:[?#][^"'\`]*)?["'`]''',re.I)
 ID_RE=re.compile(r'''\bid=["']([^"']+)["']''',re.I)
 SECRET_PATTERNS={
  "Google API key":re.compile(r"AIza[0-9A-Za-z_-]{20,}"),
