@@ -1,7 +1,6 @@
 /* bloco compartilhado 01 */
 (()=>{'use strict';
 
-/* V132.0 — roteiro didático automático dos ramos. */
 (function(){
   const clean=t=>(t||'').replace(/\s+/g,' ').trim();
   function textOf(el){
@@ -125,7 +124,6 @@ normalize();applyFilters();window.MindMapApp={normalize,setView,focus:i=>focusBr
   addEventListener('scroll',update,{passive:true});addEventListener('resize',update,{passive:true});reduce.addEventListener?.('change',update);update();
 })();
 
-
 /* bloco compartilhado 03 */
 
 (()=>{
@@ -210,7 +208,6 @@ normalize();applyFilters();window.MindMapApp={normalize,setView,focus:i=>focusBr
   window.MINDMAP_V133=window.MINDMAP_V134;
 })();
 
-
 /* bloco compartilhado 04 */
 
 (()=>{
@@ -262,7 +259,7 @@ normalize();applyFilters();window.MindMapApp={normalize,setView,focus:i=>focusBr
   const resume=document.createElement('div');
   resume.className='resume-chip';
   resume.innerHTML=`<div class="resume-text"><span class="resume-title">Continuar de onde parei</span><span class="resume-label" id="resumeLabel">Último ponto salvo</span></div><button id="resumeGo" type="button">Abrir</button>`;
-  /* V132.4.3: função flutuante removida a pedido do usuário. */
+  
   const resumeLabel=E('#resumeLabel',resume), resumeGo=E('#resumeGo',resume);
 
   // enhance toolbar search/nav
@@ -333,8 +330,7 @@ normalize();applyFilters();window.MindMapApp={normalize,setView,focus:i=>focusBr
   });
 
   function persist(){
-    /* V151: o motor visual é legado, mas o storage é único. Mescla sempre o estado mais recente
-       para não apagar quizMeta/reviewMeta/v135 gravados pelo Teste-se ou pelo checkpoint. */
+    
     try{
       const latest=safeJSON(localStorage.getItem(KEY),{});
       const merged={...latest,...state,
@@ -351,7 +347,7 @@ normalize();applyFilters();window.MindMapApp={normalize,setView,focus:i=>focusBr
   }
   function topicLabel(topic){ const ramo=topic.dataset.ramoRoman||topic.dataset.ramoIndex; const ramoTitle=topic.dataset.ramoTitle||''; const name=topic.querySelector('.topic-name')?.textContent?.trim()||''; return `${ramo} · ${ramoTitle} · ${name}`; }
   function saveLastFrom(topic){ if(!topic) return; const label=topicLabel(topic); if(state.lastAnchor===topic.id&&state.lastLabel===label) return; state.lastAnchor=topic.id; state.lastLabel=label; persist(); }
-  function updateResumeChip(){ /* V132.4.3: chip flutuante desativado. */ return; }
+  function updateResumeChip(){  return; }
   function jumpTo(el){ if(!el) return; const dock=document.querySelector('.toolbar-dock'); const ctxH=ctx.getBoundingClientRect().height||0; const offset=Math.max((dock?.getBoundingClientRect().height||0)+ctxH+18,110); const top=Math.max(0, window.scrollY + el.getBoundingClientRect().top - offset); window.scrollTo({top, behavior:'smooth'}); }
   resumeGo.addEventListener('click',()=>{ const topic=state.lastAnchor ? document.getElementById(state.lastAnchor) : null; if(topic){ window.MindMapApp?.setView?.('detail'); if(topic.tagName.toLowerCase()==='details') topic.open=true; jumpTo(topic); }});
 
@@ -450,7 +446,6 @@ normalize();applyFilters();window.MindMapApp={normalize,setView,focus:i=>focusBr
   updateResumeChip(); updateProgress(); applyHardMode(); updateToolbarOffset(); updateContext(); refreshSearch();
 })();
 
-
 /* bloco compartilhado 05 */
 
 (()=>{
@@ -537,7 +532,6 @@ normalize();applyFilters();window.MindMapApp={normalize,setView,focus:i=>focusBr
   update();syncPanel();
 })();
 
-
 /* bloco compartilhado 06 */
 
 (()=>{
@@ -577,8 +571,7 @@ normalize();applyFilters();window.MindMapApp={normalize,setView,focus:i=>focusBr
   indexToggle.className='branch-index-toggle'; indexToggle.type='button'; indexToggle.setAttribute('aria-label','Abrir índice de ramos'); indexToggle.textContent='Ⅰ–Ⅻ';
   const index=document.createElement('aside'); index.className='branch-index'; index.setAttribute('aria-label','Índice de ramos');
   index.innerHTML='<div class="branch-index-head"><strong>Índice de ramos</strong><button class="branch-index-close" type="button" aria-label="Fechar índice">×</button></div><div class="branch-index-list"></div>';
-  /* V132.3: índice flutuante de ramos desativado na interface.
-     Mantemos os objetos apenas para compatibilidade interna da engine, sem inseri-los no DOM. */
+  
   indexToggle.hidden=true; index.hidden=true;
   const indexList=Q('.branch-index-list',index);
   indexToggle.setAttribute('aria-expanded','false');
