@@ -80,6 +80,10 @@ jobs:
         if: steps.package.outputs.ready == 'true'
         run: python3 scripts/validate_javascript.py
 
+      - name: Validar PWA e cache
+        if: steps.package.outputs.ready == 'true'
+        run: python3 scripts/validate_pwa_cache.py
+
       - name: Validar pacote de produção
         if: steps.package.outputs.ready == 'true'
         run: python3 scripts/validate_production.py --strict
