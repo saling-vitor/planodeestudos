@@ -69,18 +69,6 @@ async function cacheFirst(req){
   }
 }
 
-async function staleWhileRevalidate(req){
-  const runtime=await caches.open(RUNTIME);
-  const hit=await runtime.match(req)||await caches.match(req);
-  const fresh=fetch(req,{cache:'no-cache'}).then(async response=>{
-    if(response&&(response.ok||response.type==='opaque')){
-      try{await runtime.put(req,response.clone())}catch(_){}
-    }
-    return response;
-  }).catch(()=>null);
-  return hit||(await fresh)||Response.error();
-}
-
 self.addEventListener('install',event=>{
   event.waitUntil((async()=>{
     const cache=await caches.open(CORE);
@@ -133,7 +121,7 @@ self.addEventListener('fetch',event=>{
   }
 
   if(req.destination==='image'){
-    event.respondWith(staleWhileRevalidate(req));
+    event.respondWith(networkFirst(req));
     return;
   }
 
