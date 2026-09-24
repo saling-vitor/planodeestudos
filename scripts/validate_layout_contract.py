@@ -88,12 +88,32 @@ if shell.is_file():
         "PLANO ARQ · RÉGUA GRÁFICA MESTRE V01",
         "PLANO ARQ · RÉGUA GRÁFICA MESTRE V02",
         "PLANO ARQ · RÉGUA GRÁFICA MESTRE V03",
+        "PLANO ARQ · RÉGUA GRÁFICA MESTRE V04",
+        "PLANO ARQ · RÉGUA GRÁFICA MESTRE V05",
+        "PLANO ARQ · RÉGUA GRÁFICA MESTRE V06",
+        "PLANO ARQ · RÉGUA GRÁFICA MESTRE V07",
+        "PLANO ARQ · RÉGUA GRÁFICA MESTRE V08",
         "@media(max-width:900px)",
     ):
         if marker not in css:
             errors.append(f"pa-shell-v16.css: marcador do contrato ausente: {marker}")
 else:
     errors.append("assets/css/pa-shell-v16.css ausente")
+
+components=(ROOT/"assets/css/pa-components-v01.css")
+if components.is_file():
+    component_css=components.read_text("utf-8",errors="replace")
+    for marker in (
+        "PLANO ARQ · COMPONENTES DE PRODUÇÃO V02",
+        "PLANO ARQ · COMPONENTES DE PRODUÇÃO V03",
+        "PLANO ARQ · COMPONENTES DE PRODUÇÃO V04",
+        "PLANO ARQ · COMPONENTES DE PRODUÇÃO V05",
+        "PLANO ARQ · COMPONENTES DE PRODUÇÃO V06",
+    ):
+        if marker not in component_css:
+            errors.append(f"pa-components-v01.css: marcador do contrato ausente: {marker}")
+else:
+    errors.append("assets/css/pa-components-v01.css ausente")
 
 if errors:
     for e in errors:
