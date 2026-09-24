@@ -31,8 +31,6 @@ function closeCommonMenu(){const m=document.getElementById('paCommonMenu');if(m)
 function openCommonMenu(btn){ensureCommonMenu();const m=document.getElementById('paCommonMenu'),r=btn.getBoundingClientRect();m.hidden=false;const w=m.offsetWidth,h=m.offsetHeight,pad=10;let left=Math.min(innerWidth-w-pad,Math.max(pad,r.right-w)),top=r.bottom+6;if(top+h>innerHeight-pad)top=Math.max(pad,r.top-h-6);m.style.left=`${Math.round(left)}px`;m.style.top=`${Math.round(top)}px`}
 function bindCommonMore(){
  document.querySelectorAll('.pa-top-actions').forEach(actions=>{
-   /* Páginas com menu próprio (ex.: Arquivos) continuam responsáveis pelo próprio •••. */
-   if(actions.querySelector('#moreBtn')&&document.getElementById('actionMenu'))return;
    [...actions.querySelectorAll('button')].filter(b=>b.textContent.trim()==='•••').forEach(btn=>{
      if(btn.dataset.paMoreBound)return;
      btn.dataset.paMoreBound='1';
