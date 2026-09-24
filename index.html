@@ -424,6 +424,11 @@ const KEY='planoarq:contests:v1';
 const ACTIVE='planoarq:active-contest:v1';
 const $=id=>document.getElementById(id);
 let wizardStep=1;
+let contestRenderController=null,contestTimerHandle=null;
+function cleanupContestRender(){
+ contestRenderController?.abort();contestRenderController=null;
+ if(contestTimerHandle){clearInterval(contestTimerHandle);contestTimerHandle=null}
+}
 
 function slug(v){return String(v||'').trim().toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
 function readContests(){
@@ -472,6 +477,7 @@ function card(c){
  </article>`
 }
 function renderHome(){
+ cleanupContestRender();
  document.body.classList.remove('contest-mode','pa-internal-mode');
  $('mobileNav').hidden=true;
  const contests=readContests(),active=contests.filter(c=>c.status!=='archived'),archived=contests.filter(c=>c.status==='archived');
@@ -645,6 +651,8 @@ function automationPanel(id){
  return`<section class="today-section auto-section"><div class="today-section-head"><h2>Foco automático</h2><div class="auto-head-note"><span>motor de prioridades</span><i class="auto-count">${rows.length}</i></div></div><div class="auto-shell"><article class="auto-main" data-severity="${top.severity}"><div><div class="auto-k">Próxima ação sugerida</div><h3>${esc(top.title)}</h3><p>${esc(top.detail||'')}</p></div><button type="button" class="primary-btn" data-auto-href="${esc(top.href)}">${esc(top.cta||'Abrir')}</button></article><article class="auto-list">${rest.length?rest.map(x=>`<div class="auto-row" data-severity="${x.severity}"><i class="auto-dot"></i><div><strong>${esc(x.title)}</strong><span>${esc(x.detail||'')}</span></div><button type="button" data-auto-href="${esc(x.href)}">${esc(x.cta||'Abrir')}</button></div>`).join(''):'<div class="auto-empty">Nenhuma outra prioridade automática neste momento.</div>'}</article></div></section>`
 }
 function renderContest(id){
+ cleanupContestRender();
+ contestRenderController=new AbortController();const renderSignal=contestRenderController.signal;
  const c=readContests().find(x=>x.id===id);if(!c){location.hash='home';return}
  document.body.classList.add('pa-internal-mode');setActive(id);$('mobileNav').hidden=false;
 
@@ -755,6 +763,21 @@ function renderContest(id){
 
   <div class="session-action-menu" id="sessionActionMenu" role="menu" hidden></div>
 
+  <div class="modal" id="extraStudyModal" aria-hidden="true">
+   <div class="dialog" style="width:min(560px,100%)" role="dialog" aria-modal="true" aria-labelledby="extraStudyTitle">
+    <div class="dialog-head"><div><span class="eyebrow">Registro manual</span><h2 id="extraStudyTitle">Estudo extra</h2></div><button type="button" class="icon-btn" id="extraStudyClose" aria-label="Fechar">×</button></div>
+    <div class="dialog-body">
+     <div class="form-grid">
+      <div class="field full"><label for="extraMaterial">Mapa</label><select id="extraMaterial"></select></div>
+      <div class="field"><label for="extraMinutes">Duração</label><input id="extraMinutes" type="number" min="1" max="720" step="5" value="30" inputmode="numeric"></div>
+      <div class="field"><label for="extraType">Tipo</label><select id="extraType"><option value="study">Mapa / teoria</option><option value="questions">Questões</option><option value="review">Revisão</option></select></div>
+      <div class="field full"><small>O registro entra no tempo realizado de hoje sem alterar as sessões planejadas.</small></div>
+     </div>
+    </div>
+    <div class="dialog-foot"><span></span><div style="display:flex;gap:8px"><button type="button" class="ghost-btn" id="extraStudyCancel">Cancelar</button><button type="button" class="primary-btn" id="extraStudySave">Registrar estudo</button></div></div>
+   </div>
+  </div>
+
   <div class="day-close-layer" id="dayCloseLayer">
    <div class="day-close-card"><div class="day-close-head"><div><small>Fechamento do dia</small><strong>${esc(fmtDayLabel(today))}</strong></div><button type="button" class="icon-btn" id="dayCloseX">×</button></div><div class="day-close-body" id="dayCloseBody"></div><div class="close-actions"><button type="button" class="ghost-btn" id="dayCloseCancel">Cancelar</button><button type="button" class="primary-btn" id="dayCloseConfirm">Encerrar dia</button></div></div>
   </div>`;
@@ -774,7 +797,7 @@ function renderContest(id){
  $('paMenuBtn')?.addEventListener('click',openSide);backdrop?.addEventListener('click',closeSide);$('app').querySelectorAll('.pa-nav-item').forEach(b=>b.addEventListener('click',()=>{if(innerWidth<=820)closeSide()}));
 
  const sessionLookup=new Map([...todaySessions,...overdue].map(x=>[x.key,x]));
- let activeSession=null,timerHandle=null;
+ let activeSession=null;
 
  function persist(){saveSessionLog(id,log)}
  function getState(key){return log.sessions[key]||(log.sessions[key]={pauses:[]})}
@@ -805,9 +828,9 @@ function renderContest(id){
    const session=sessionLookup.get(key);if(!session)return;const state=getState(key);closeOpenPause(state,new Date());state.status='skipped';state.skippedAt=new Date().toISOString();state.updatedAt=state.skippedAt;persist();closeFocus();renderContest(id);toast('Sessão pulada')
  }
  function openFocus(session){
-   activeSession=session;$('focusLayer').classList.add('open');$('focusLayer').setAttribute('aria-hidden','false');$('focusTitle').textContent=`${session.shortCode||'MAPA'} · ${session.title||'Material'}`;$('focusKind').textContent=sessionTypeLabel(session.type);$('focusMeta').textContent=`${fmtShortDate(session.date)} · ${session.minutes} min`;clearInterval(timerHandle);timerHandle=setInterval(refreshFocus,1000);refreshFocus()
+   activeSession=session;$('focusLayer').classList.add('open');$('focusLayer').setAttribute('aria-hidden','false');$('focusTitle').textContent=`${session.shortCode||'MAPA'} · ${session.title||'Material'}`;$('focusKind').textContent=sessionTypeLabel(session.type);$('focusMeta').textContent=`${fmtShortDate(session.date)} · ${session.minutes} min`;clearInterval(contestTimerHandle);contestTimerHandle=setInterval(refreshFocus,1000);refreshFocus()
  }
- function closeFocus(){clearInterval(timerHandle);timerHandle=null;$('focusLayer')?.classList.remove('open');$('focusLayer')?.setAttribute('aria-hidden','true');activeSession=null}
+ function closeFocus(){clearInterval(contestTimerHandle);contestTimerHandle=null;$('focusLayer')?.classList.remove('open');$('focusLayer')?.setAttribute('aria-hidden','true');activeSession=null}
  function refreshFocus(){
    if(!activeSession)return;const state=getState(activeSession.key),elapsed=activeElapsedSeconds(state),total=Math.max(60,Number(activeSession.minutes||0)*60),remaining=total-elapsed,paused=state.status==='paused';
    $('focusCard')?.classList.toggle('focus-paused',paused);
@@ -862,17 +885,28 @@ function renderContest(id){
    if(action==='done')markDone(key);
    if(action==='skip')markSkipped(key)
  });
- document.addEventListener('pointerdown',e=>{if(!actionMenu.hidden&&!actionMenu.contains(e.target)&&!e.target.closest('[data-menu-toggle]'))closeActionMenu()});
- document.addEventListener('keydown',e=>{if(e.key==='Escape')closeActionMenu()});
- addEventListener('resize',closeActionMenu,{passive:true});
- addEventListener('scroll',closeActionMenu,{passive:true,capture:true});
+ document.addEventListener('pointerdown',e=>{if(!actionMenu.hidden&&!actionMenu.contains(e.target)&&!e.target.closest('[data-menu-toggle]'))closeActionMenu()},{signal:renderSignal});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeActionMenu();closeExtraStudy()}},{signal:renderSignal});
+ addEventListener('resize',closeActionMenu,{passive:true,signal:renderSignal});
+ addEventListener('scroll',closeActionMenu,{passive:true,capture:true,signal:renderSignal});
 
+ const extraModal=$('extraStudyModal'),extraMaterial=$('extraMaterial'),extraMinutes=$('extraMinutes'),extraType=$('extraType');
+ const extraMaterials=(window.PLANO_ARQ_MATERIALS?.materials||[]).filter(m=>!m.contestId||m.contestId===id);
+ function closeExtraStudy(){extraModal?.classList.remove('open');extraModal?.setAttribute('aria-hidden','true')}
  $('extraStudyBtn')?.addEventListener('click',()=>{
-   const list=(window.PLANO_ARQ_MATERIALS?.materials||[]).filter(m=>!m.contestId||m.contestId===id),material=prompt(`Sigla do mapa (${list.map(m=>m.shortCode).join(', ')}):`,'DCAS');if(!material)return;
-   const m=list.find(x=>(x.shortCode||'').toLowerCase()===material.trim().toLowerCase());if(!m){toast('Mapa não encontrado');return}
-   const minutes=Number(prompt('Quantos minutos?', '30'));if(!Number.isFinite(minutes)||minutes<=0)return;
-   const type=(prompt('Tipo: mapa, questões ou revisão?', 'mapa')||'mapa').toLowerCase(),normalized=type.startsWith('q')?'questions':type.startsWith('r')?'review':'study';
-   log.extras.push({id:`extra-${Date.now()}`,date:today,materialId:m.id,shortCode:m.shortCode,title:m.title,type:normalized,minutes:Math.round(minutes),createdAt:new Date().toISOString()});persist();renderContest(id);toast('Estudo extra registrado')
+   if(!extraMaterials.length){toast('Nenhum mapa disponível neste concurso');return}
+   extraMaterial.innerHTML=extraMaterials.map(m=>`<option value="${esc(m.id)}">${esc(m.shortCode||'MAPA')} · ${esc(m.title||'Material')}</option>`).join('');
+   extraMinutes.value='30';extraType.value='study';extraModal.classList.add('open');extraModal.setAttribute('aria-hidden','false');
+   setTimeout(()=>extraMaterial.focus(),0)
+ });
+ $('extraStudyClose')?.addEventListener('click',closeExtraStudy);$('extraStudyCancel')?.addEventListener('click',closeExtraStudy);
+ extraModal?.addEventListener('click',e=>{if(e.target===extraModal)closeExtraStudy()});
+ $('extraStudySave')?.addEventListener('click',()=>{
+   const m=extraMaterials.find(x=>x.id===extraMaterial.value),minutes=Number(extraMinutes.value),type=extraType.value;
+   if(!m){toast('Selecione um mapa');return}
+   if(!Number.isFinite(minutes)||minutes<=0||minutes>720){toast('Informe uma duração entre 1 e 720 minutos');extraMinutes.focus();return}
+   log.extras.push({id:`extra-${Date.now()}`,date:today,materialId:m.id,shortCode:m.shortCode,title:m.title,type:['study','questions','review'].includes(type)?type:'study',minutes:Math.round(minutes),createdAt:new Date().toISOString()});
+   persist();closeExtraStudy();renderContest(id);toast('Estudo extra registrado')
  });
 
  function closureMetrics(){
