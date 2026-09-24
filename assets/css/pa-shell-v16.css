@@ -676,3 +676,26 @@ body.pa-internal-mode .hero-actions{
   }
 }
 
+/* =========================================================
+   PLANO ARQ · RÉGUA GRÁFICA MESTRE V07
+   Altura-base estável dos heroes no desktop.
+   ========================================================= */
+@media(min-width:1241px){
+  body.pa-internal-mode .pa-content>.hero>.hero-main,
+  body.pa-internal-mode .pa-content>.page-hero>.hero-main,
+  body.pa-internal-mode .pa-content>.today-hero>.today-main-card{
+    min-height:200px!important;
+  }
+  body.pa-internal-mode .pa-content>.hero>.metric,
+  body.pa-internal-mode .pa-content>.page-hero>.metric,
+  body.pa-internal-mode .pa-content>.today-hero>.today-metric,
+  body.pa-internal-mode .pa-content>.hero>.stat{
+    min-height:200px!important;
+  }
+  body.pa-internal-mode[data-pa-page="simulations"] .pa-content>.hero>.hero-main,
+  body.pa-internal-mode[data-pa-page="errors"] .pa-content>.hero>.hero-main,
+  body.pa-internal-mode[data-pa-page="diagnostic"] .pa-content>.hero>.hero-main{
+    min-height:200px!important;
+  }
+}
+
