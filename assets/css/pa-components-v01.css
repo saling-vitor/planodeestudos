@@ -298,3 +298,36 @@ body.pa-internal-mode .table-wrap th{
   }
 }
 
+/* =========================================================
+   PLANO ARQ · COMPONENTES DE PRODUÇÃO V04
+   Refinos de toque / Safari / iPad.
+   ========================================================= */
+body.pa-internal-mode :is(button,a,input,select,textarea){
+  -webkit-tap-highlight-color:transparent;
+}
+body.pa-internal-mode :is(button,a){
+  touch-action:manipulation;
+}
+@media(pointer:coarse){
+  body.pa-internal-mode :is(input,select,textarea){
+    font-size:16px!important;
+  }
+  body.pa-internal-mode :is(.tools,.toolbar) :is(input,select,.search),
+  body.pa-internal-mode :is(input[type="search"],input.search){
+    font-size:16px!important;
+  }
+  body.pa-internal-mode select{
+    padding-right:30px!important;
+  }
+}
+@supports (-webkit-touch-callout:none){
+  @media(max-width:900px){
+    body.pa-internal-mode{
+      -webkit-text-size-adjust:100%;
+    }
+    body.pa-internal-mode :is(input,select,textarea){
+      font-size:16px!important;
+    }
+  }
+}
+
