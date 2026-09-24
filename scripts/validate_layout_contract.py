@@ -75,7 +75,7 @@ for name in PAGES:
             errors.append(f"{name}: bloco hero não encontrado")
         elif family:
             hero=hero_match.group(1)
-            metric_count=len(re.findall(r'<article\s+class=["\'][^"\']*\\b(?:metric|stat)\\b[^"\']*["\']',hero,re.I))
+            metric_count=len(re.findall(r'<article\s+class=["\'][^"\']*\b(?:metric|stat)\b[^"\']*["\']',hero,re.I))
             nested=bool(re.search(r'class=["\'](?:summary-grid|metric-grid|history-metrics)["\']',hero,re.I))
             expected_kind,expected_count=family
             if metric_count != expected_count:
