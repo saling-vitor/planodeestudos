@@ -9,6 +9,7 @@ PAGES=[
     "diagnostico.html","historico.html","arquivos.html","configuracoes.html"
 ]
 REQUIRED=[
+    'assets/css/pa-tokens-v01.css',
     'assets/css/pa-shell-v16.css',
     'assets/css/pa-components-v01.css',
     'assets/js/pa-shell-v16.js',
@@ -56,6 +57,12 @@ for name in PAGES:
             )
 
     base_css=inline.split("@media",1)[0]
+    legacy_root=re.search(r':root\s*\{[^}]*--(?:bg|surface|text|muted|champ|blue|green|red|yellow|line|sans|cond|mono)\s*:',base_css,re.I)
+    if legacy_root:
+        errors.append(
+            f"{name}: tokens visuais base redefinidos localmente; use pa-tokens-v01.css"
+        )
+
     for selector in sorted(SHARED_COMPONENT_SELECTORS):
         rx=re.compile(re.escape(selector)+r"\s*\{")
         if rx.search(base_css):
