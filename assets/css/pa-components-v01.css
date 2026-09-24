@@ -5,7 +5,7 @@ body.pa-internal-mode .ghost-btn:hover{border-color:#4a4f58;background:#15181d;c
 body.pa-internal-mode .primary-btn{border-color:rgba(109,130,152,.46);background:linear-gradient(180deg,rgba(109,130,152,.18),rgba(109,130,152,.09));color:#e3edf4}
 body.pa-internal-mode .icon-btn{border-color:rgba(255,255,255,.10);background:linear-gradient(180deg,#111318,#0d0f13);color:#c7cbd1}
 body.pa-internal-mode :is(input,select){border-radius:11px!important;border-color:rgba(255,255,255,.10)!important;background:#111319!important;color:#dfe1e4!important}
-body.pa-internal-mode :is(.panel,.hero-main,.metric,.stat,.today-main-card,.today-metric,.today-panel){border-color:rgba(255,255,255,.09)!important;background:radial-gradient(420px 160px at 0 0,rgba(109,130,152,.035),transparent 70%),linear-gradient(180deg,rgba(12,14,17,.91),rgba(7,9,12,.96))!important;box-shadow:0 15px 34px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.018)!important}
+body.pa-internal-mode :is(.panel,.hero-main,.metric,.stat,.today-main-card,.today-metric,.today-panel){border:1px solid rgba(255,255,255,.09)!important;background:radial-gradient(420px 160px at 0 0,rgba(109,130,152,.035),transparent 70%),linear-gradient(180deg,rgba(12,14,17,.91),rgba(7,9,12,.96))!important;box-shadow:0 15px 34px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.018)!important}
 body.pa-internal-mode .eyebrow{border-color:rgba(216,197,158,.20)!important;background:rgba(216,197,158,.035)!important;color:#c8b288!important}
 body.pa-internal-mode table th{background:#111318;color:#d6c39a}
 @media(pointer:coarse){body.pa-internal-mode :is(.ghost-btn,.primary-btn,.icon-btn,input,select){min-height:48px}}
@@ -442,6 +442,15 @@ body.pa-internal-mode :is(.current-doc,.recommendation):empty{
    Métricas da Biblioteca integradas ao sistema comum.
    ========================================================= */
 body.pa-internal-mode .pa-content>.hero>.stat{
+  border:1px solid rgba(255,255,255,.09)!important;
+  border-radius:var(--pa-ui-panel-radius)!important;
+}
+
+/* =========================================================
+   PLANO ARQ · COMPONENTES DE PRODUÇÃO V08
+   Superfícies de hero independentes do CSS local.
+   ========================================================= */
+body.pa-internal-mode :is(.hero-main,.metric,.stat,.today-main-card,.today-metric){
   border:1px solid rgba(255,255,255,.09)!important;
   border-radius:var(--pa-ui-panel-radius)!important;
 }
