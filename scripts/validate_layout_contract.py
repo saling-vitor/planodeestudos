@@ -23,8 +23,10 @@ FORBIDDEN_INLINE=[
     re.compile(r'\.pa-sidebar\s*\{'),
 ]
 SHARED_COMPONENT_SELECTORS={
-    ".eyebrow",".primary-btn",".ghost-btn",".icon-btn",
-    ".section-head",".section-head h2",".section-head span",
+    ".hero",".page-hero",".hero-main",".metric",".metric-grid",".summary-grid",".history-metrics",
+    ".eyebrow",".primary",".ghost",".primary-btn",".ghost-btn",".icon-btn",
+    ".tools",".toolbar",".filters",".filter",".filter.active",".chips",".chip",".chip.active",
+    ".section",".section-head",".section-head h2",".section-head span",
     ".section-head>span",".empty",".empty strong"
 }
 errors=[]
@@ -46,6 +48,17 @@ for name in PAGES:
     for token in REQUIRED:
         if token not in text:
             errors.append(f"{name}: contrato do shell ausente: {token}")
+
+    if not re.search(r'<aside class=["\']pa-sidebar["\']>\s*</aside>',text,re.I):
+        errors.append(f"{name}: sidebar deve estar vazia e ser gerada por pa-shell-v16.js")
+    if re.search(r'<aside class=["\']pa-sidebar["\'][^>]*>[^<]*<',text,re.I):
+        errors.append(f"{name}: conteúdo hardcoded detectado na sidebar")
+    if re.search(r'<(?:aside|button|div)[^>]+id=["\'](?:sidebar|menuBtn|backdrop)["\']',text,re.I):
+        errors.append(f"{name}: IDs legados de shell detectados")
+    if not re.search(r'<meta name=["\']plano-arq-internal-shell["\'] content=["\']canonical-2026-09["\']\s*/?>',text,re.I):
+        errors.append(f"{name}: meta do shell canônico ausente ou divergente")
+    if 'id="actionMenu"' in text:
+        errors.append(f"{name}: menu paralelo actionMenu detectado; use o menu global do shell")
     content_open=re.search(r'class=["\']pa-content["\'][^>]*>\s*<section\s+class=["\'](?:hero|page-hero)["\']',text,re.I)
     if not content_open:
         errors.append(
