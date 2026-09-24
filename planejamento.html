@@ -471,25 +471,12 @@ function initExistingPlan(){
  const plan=safeJSON(localStorage.getItem(PLAN_KEY),null);if(plan&&plan.contestId===contestId)renderPlan(plan)
 }
 
-function nav(){
- const sidebar=$('sidebar'),backdrop=$('backdrop'),open=()=>{sidebar.classList.add('open');backdrop.classList.add('show')},close=()=>{sidebar.classList.remove('open');backdrop.classList.remove('show')};
- $('menuBtn').addEventListener('click',open);backdrop.addEventListener('click',close);
- document.querySelectorAll('.pa-nav-item').forEach(btn=>{
-  const label=btn.textContent.trim();
-  if(label==='Hoje')btn.addEventListener('click',()=>location.href=`index.html#contest/${contestId}`);
-  if(label==='Mapas')btn.addEventListener('click',()=>location.href=`biblioteca.html?contest=${encodeURIComponent(contestId)}`);if(label==='Revisões')btn.addEventListener('click',()=>location.href=`revisoes.html?contest=${encodeURIComponent(contestId)}`);if(label==='Questões')btn.addEventListener('click',()=>location.href=`questoes.html?contest=${encodeURIComponent(contestId)}`);if(label==='Desempenho')btn.addEventListener('click',()=>location.href=`desempenho.html?contest=${encodeURIComponent(contestId)}`);if(label==='Arquivos')btn.addEventListener('click',()=>location.href=`arquivos.html?contest=${encodeURIComponent(contestId)}`);if(label==='Revisões')btn.addEventListener('click',()=>location.href=`revisoes.html?contest=${encodeURIComponent(contestId)}`);if(label==='Questões')btn.addEventListener('click',()=>location.href=`questoes.html?contest=${encodeURIComponent(contestId)}`);
-  if(label==='Edital')btn.addEventListener('click',()=>location.href=`edital.html?contest=${encodeURIComponent(contestId)}`);
-  if(label==='Trocar concurso')btn.addEventListener('click',()=>location.href='index.html#home');
-  if(['Configurações'].includes(label))btn.addEventListener('click',()=>location.href=`configuracoes.html?contest=${encodeURIComponent(contestId)}`);
-  btn.addEventListener('click',()=>{if(innerWidth<=820)close()});
- });
- $('moreBtn').addEventListener('click',()=>location.href=`configuracoes.html?contest=${encodeURIComponent(contestId)}`);
-}
+
 
 $('saveBtn').addEventListener('click',()=>saveConfig(true));
 $('saveOnlyBtn').addEventListener('click',()=>saveConfig(true));
 $('generateBtn').addEventListener('click',generate);
-applyContestIdentity();renderBlueprint();renderAvailability();renderPriorities();syncFields();initExistingPlan();nav();
+applyContestIdentity();renderBlueprint();renderAvailability();renderPriorities();syncFields();initExistingPlan();
 })();
 </script>
 <script src="assets/js/pa-pwa-v01.js"></script></body>
