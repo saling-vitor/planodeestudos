@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "version": "18.0-production",
+  "iconMode": "flaticon-png-remote",
+  "groups": [
+    {
+      "label": "Estudar",
+      "items": [
+        {"key":"today","label":"Hoje","icon":"https://cdn-icons-png.flaticon.com/512/9373/9373572.png","iconPage":"https://www.flaticon.com/free-icon/home_9373572","author":"Icon Smart","status":"live"},
+        {"key":"planning","label":"Planejamento","icon":"https://cdn-icons-png.flaticon.com/512/8539/8539901.png","iconPage":"https://www.flaticon.com/free-icon/calendar_8539901","author":"Ongicon","status":"live"},
+        {"key":"edital","label":"Edital","icon":"https://cdn-icons-png.flaticon.com/512/2697/2697816.png","iconPage":"https://www.flaticon.com/free-icon/file_2697816","author":"feen","status":"live"},
+        {"key":"maps","label":"Mapas","icon":"https://cdn-icons-png.flaticon.com/512/3969/3969582.png","iconPage":"https://www.flaticon.com/free-icon/map_3969582","author":"iconproject45","status":"live"},
+        {"key":"reviews","label":"Revisões","icon":"https://cdn-icons-png.flaticon.com/512/8799/8799517.png","iconPage":"https://www.flaticon.com/free-icon/refresh_8799517","author":"Icon Hubs","status":"live"},
+        {"key":"questions","label":"Questões","icon":"https://cdn-icons-png.flaticon.com/512/4139/4139530.png","iconPage":"https://www.flaticon.com/free-icon/checklist_4139530","author":"feen","status":"live"},
+        {"key":"simulations","label":"Simulados","icon":"https://cdn-icons-png.flaticon.com/512/6594/6594940.png","iconPage":"https://www.flaticon.com/free-icon/test_6594940","author":"Tanah Basah","status":"live"},
+        {"key":"errors","label":"Erros","icon":"https://cdn-icons-png.flaticon.com/512/2697/2697871.png","iconPage":"https://www.flaticon.com/free-icon/warning_2697871","author":"feen","status":"live"}
+      ]
+    },
+    {
+      "label":"Analisar",
+      "items":[
+        {"key":"performance","label":"Desempenho","icon":"https://cdn-icons-png.flaticon.com/512/5254/5254281.png","iconPage":"https://www.flaticon.com/free-icon/chart_5254281","author":"Rizki Ahmad Fauzi","status":"live"},
+        {"key":"diagnostic","label":"Diagnóstico","icon":"https://cdn-icons-png.flaticon.com/512/4230/4230329.png","iconPage":"https://www.flaticon.com/free-icon/target_4230329","author":"Irfansusanto20","status":"live"},
+        {"key":"history","label":"Histórico","icon":"https://cdn-icons-png.flaticon.com/512/2697/2697807.png","iconPage":"https://www.flaticon.com/free-icon/clock_2697807","author":"feen","status":"live"}
+      ]
+    },
+    {
+      "label":"Recursos",
+      "items":[
+        {"key":"files","label":"Arquivos","icon":"https://cdn-icons-png.flaticon.com/512/2697/2697819.png","iconPage":"https://www.flaticon.com/free-icon/folder_2697819","author":"feen","status":"live"}
+      ]
+    }
+  ],
+  "footer":[
+    {"key":"switch","label":"Trocar concurso","icon":"https://cdn-icons-png.flaticon.com/512/3838/3838662.png","iconPage":"https://www.flaticon.com/free-icon/left-and-right_3838662","author":"IconKanan","status":"live"},
+    {"key":"settings","label":"Configurações","icon":"https://cdn-icons-png.flaticon.com/512/4538/4538562.png","iconPage":"https://www.flaticon.com/free-icon/settings_4538562","author":"Hilmy Abiyyu A.","status":"live"}
+  ]
+}
