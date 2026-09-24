@@ -473,4 +473,13 @@ body.pa-internal-mode .hero-actions{
     font-size:clamp(29px,8vw,38px)!important;
   }
 }
+@media(max-width:900px){
+  body.pa-internal-mode:has(.pa-mobile-more.open)::after{
+    content:"";position:fixed;inset:0;z-index:210;
+    background:rgba(0,0,0,.38);
+    -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+  }
+  .pa-mobile-nav{z-index:220!important}
+  .pa-mobile-more{z-index:245!important}
+}
 
