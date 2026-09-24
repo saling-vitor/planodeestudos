@@ -1,0 +1,38 @@
+{
+  "schema": 3,
+  "version": "18.0-production",
+  "drive": {
+    "folderUrl": "",
+    "folderId": "",
+    "folderLabel": "Pasta de snapshots",
+    "mode": "snapshots",
+    "runtimeConnected": false,
+    "oauthClientId": "",
+    "apiKey": "",
+    "appId": "",
+    "scope": "https://www.googleapis.com/auth/drive.file",
+    "pickerRequired": true,
+    "snapshot": {
+      "autoDefault": true,
+      "afterSyncDefault": true,
+      "intervalHours": 24,
+      "retention": 10
+    }
+  },
+  "supabase": {
+    "enabled": false,
+    "url": "",
+    "publishableKey": "",
+    "anonKey": "",
+    "authMode": "email-otp",
+    "status": "not-configured"
+  },
+  "sync": {
+    "mode": "local-first",
+    "conflictStrategy": "updated-at-device-id",
+    "firstSyncStrategy": "cloud",
+    "autoSyncDefault": true,
+    "intervalSeconds": 60,
+    "cloudRuntime": "ready-after-configuration"
+  }
+}
