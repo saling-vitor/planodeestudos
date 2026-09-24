@@ -93,6 +93,7 @@ if shell.is_file():
         "PLANO ARQ · RÉGUA GRÁFICA MESTRE V06",
         "PLANO ARQ · RÉGUA GRÁFICA MESTRE V07",
         "PLANO ARQ · RÉGUA GRÁFICA MESTRE V08",
+        "PLANO ARQ · RÉGUA GRÁFICA MESTRE V09",
         "@media(max-width:900px)",
     ):
         if marker not in css:
@@ -109,6 +110,7 @@ if components.is_file():
         "PLANO ARQ · COMPONENTES DE PRODUÇÃO V04",
         "PLANO ARQ · COMPONENTES DE PRODUÇÃO V05",
         "PLANO ARQ · COMPONENTES DE PRODUÇÃO V06",
+        "PLANO ARQ · COMPONENTES DE PRODUÇÃO V07",
     ):
         if marker not in component_css:
             errors.append(f"pa-components-v01.css: marcador do contrato ausente: {marker}")
