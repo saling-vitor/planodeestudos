@@ -6,7 +6,8 @@ ROOT=Path(__file__).resolve().parents[1]
 PAGES=[
     "planejamento.html","edital.html","biblioteca.html","revisoes.html",
     "questoes.html","simulados.html","erros.html","desempenho.html",
-    "diagnostico.html","historico.html","arquivos.html","configuracoes.html"
+    "diagnostico.html","historico.html","arquivos.html","configuracoes.html",
+    "creditos.html"
 ]
 REQUIRED=[
     'assets/css/pa-tokens-v01.css',
