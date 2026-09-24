@@ -11,6 +11,13 @@
  --pa-radius-xs:8px;--pa-radius-sm:11px;--pa-radius-md:15px;--pa-radius-lg:18px;
  --pa-control-h:44px;--pa-control-h-touch:48px;--pa-shell-sidebar:264px;--pa-shell-topbar:76px;
  --pa-shell-content-max:1420px;--pa-shell-content-x:34px;--pa-shell-content-top:30px;
+
+ /* aliases legados — fonte única para os HTMLs internos */
+ --bg:var(--pa-bg);--surface:var(--pa-surface);--surface2:var(--pa-surface-2);--surface3:var(--pa-surface-3);
+ --text:var(--pa-text);--text2:var(--pa-text-2);--muted:var(--pa-muted);--muted2:var(--pa-muted-2);
+ --champ:var(--pa-champagne);--champ2:var(--pa-champagne-2);--blue:var(--pa-blue);--green:var(--pa-green);
+ --red:var(--pa-red);--yellow:var(--pa-yellow);--cyan:var(--pa-cyan);--line:var(--pa-line);--line2:var(--pa-line-2);
+ --sans:var(--pa-sans);--cond:var(--pa-condensed);--mono:var(--pa-mono);
 }
 html{background:var(--pa-bg)}
 body.pa-internal-mode{background:radial-gradient(1000px 650px at 7% 0%,rgba(14,26,41,.30),transparent 60%),radial-gradient(720px 520px at 93% 18%,rgba(216,197,158,.028),transparent 64%),linear-gradient(180deg,#030406,#040507 44%,#020304);color:var(--pa-text);font-family:var(--pa-sans);-webkit-font-smoothing:antialiased}
