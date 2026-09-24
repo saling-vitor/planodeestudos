@@ -890,21 +890,21 @@ function renderContest(id){
  addEventListener('resize',closeActionMenu,{passive:true,signal:renderSignal});
  addEventListener('scroll',closeActionMenu,{passive:true,capture:true,signal:renderSignal});
 
- const extraModal=$('extraStudyModal'),extraMaterial=$('extraMaterial'),extraMinutes=$('extraMinutes'),extraType=$('extraType');
+ const extraModal=$('extraStudyModal'),extraMaterial=$('extraMaterial'),extraMinutesInput=$('extraMinutes'),extraType=$('extraType');
  const extraMaterials=(window.PLANO_ARQ_MATERIALS?.materials||[]).filter(m=>!m.contestId||m.contestId===id);
  function closeExtraStudy(){extraModal?.classList.remove('open');extraModal?.setAttribute('aria-hidden','true')}
  $('extraStudyBtn')?.addEventListener('click',()=>{
    if(!extraMaterials.length){toast('Nenhum mapa disponível neste concurso');return}
    extraMaterial.innerHTML=extraMaterials.map(m=>`<option value="${esc(m.id)}">${esc(m.shortCode||'MAPA')} · ${esc(m.title||'Material')}</option>`).join('');
-   extraMinutes.value='30';extraType.value='study';extraModal.classList.add('open');extraModal.setAttribute('aria-hidden','false');
+   extraMinutesInput.value='30';extraType.value='study';extraModal.classList.add('open');extraModal.setAttribute('aria-hidden','false');
    setTimeout(()=>extraMaterial.focus(),0)
  });
  $('extraStudyClose')?.addEventListener('click',closeExtraStudy);$('extraStudyCancel')?.addEventListener('click',closeExtraStudy);
  extraModal?.addEventListener('click',e=>{if(e.target===extraModal)closeExtraStudy()});
  $('extraStudySave')?.addEventListener('click',()=>{
-   const m=extraMaterials.find(x=>x.id===extraMaterial.value),minutes=Number(extraMinutes.value),type=extraType.value;
+   const m=extraMaterials.find(x=>x.id===extraMaterial.value),minutes=Number(extraMinutesInput.value),type=extraType.value;
    if(!m){toast('Selecione um mapa');return}
-   if(!Number.isFinite(minutes)||minutes<=0||minutes>720){toast('Informe uma duração entre 1 e 720 minutos');extraMinutes.focus();return}
+   if(!Number.isFinite(minutes)||minutes<=0||minutes>720){toast('Informe uma duração entre 1 e 720 minutos');extraMinutesInput.focus();return}
    log.extras.push({id:`extra-${Date.now()}`,date:today,materialId:m.id,shortCode:m.shortCode,title:m.title,type:['study','questions','review'].includes(type)?type:'study',minutes:Math.round(minutes),createdAt:new Date().toISOString()});
    persist();closeExtraStudy();renderContest(id);toast('Estudo extra registrado')
  });
