@@ -211,7 +211,7 @@ body.pa-internal-mode .today-panel{
   body.pa-internal-mode .pa-content>.hero,
   body.pa-internal-mode .pa-content>.page-hero,
   body.pa-internal-mode .pa-content>.today-hero{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr))!important;
   }
   body.pa-internal-mode .pa-content>.hero>.hero-main,
   body.pa-internal-mode .pa-content>.page-hero>.hero-main,
