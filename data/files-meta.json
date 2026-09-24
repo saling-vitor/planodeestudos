@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "files": {
+    "edital/edital_abertura_001_2026_DEMHAB.pdf": {
+      "id": "demhab-edital-abertura-001-2026",
+      "contestId": "demhab-poa-arquiteto-2026",
+      "title": "Edital de Abertura 001/2026",
+      "shortTitle": "Edital 001/2026",
+      "category": "Edital",
+      "official": true,
+      "status": "vigente",
+      "version": "Original",
+      "organization": "Departamento Municipal de Habitação — DEMHAB",
+      "board": "FUNDATEC",
+      "description": "Edital de abertura dos Concursos Públicos 001 a 004 do DEMHAB. Para o Plano ARQ, o documento está vinculado ao cargo CP 01 — Arquiteto.",
+      "tags": ["edital","abertura","DEMHAB","FUNDATEC","Arquiteto"],
+      "linkedToEdital": true,
+      "date": "2026-07-21",
+      "disclosureDate": "2026-07-20",
+      "protocol": "619958",
+      "process": "24.14.000000310-3",
+      "sourceTitle": "Diário Oficial de Porto Alegre — Edição 7808",
+      "sourceUrl": "https://www2.portoalegre.rs.gov.br/dopa/ver_conteudo.php?protocolo=619958"
+    }
+  }
+}
