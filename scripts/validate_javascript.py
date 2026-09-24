@@ -71,7 +71,8 @@ def main():
     checked_external = 0
     checked_inline = 0
 
-    js_files = sorted((ROOT / "assets" / "js").glob("*.js"))
+    js_files = [ROOT / "service-worker.js"]
+    js_files += sorted((ROOT / "assets" / "js").glob("*.js"))
     js_files += sorted((ROOT / "data").glob("*.js"))
 
     for path in js_files:
