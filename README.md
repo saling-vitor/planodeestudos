@@ -37,9 +37,19 @@ Os nomes dos arquivos permanecem estáveis por compatibilidade de cache/referên
 
 - `data/*.json` — fontes estáticas canônicas.
 - `data/*.js` e catálogos grandes — gerados no deploy.
-- `materials/` — conteúdo específico dos mapas; runtime/visual comum ficam em `assets/`.
+- `materials/` — conteúdo específico dos mapas; runtime/visual comum ficam em `assets/`. Metadados de geração que não participam do runtime/build são removidos da fonte final.
 - `scripts/` — geradores e validadores de produção.
 - `cloud/` e `docs/` — manutenção; não são publicados no Pages.
+
+## PWA e cache
+
+- HTML, CSS, JavaScript, dados, mapas, simulados e edital usam **network first** quando há rede.
+- O cache funciona como fallback quando a rede falha.
+- Imagens locais usam atualização em segundo plano; imagens externas imutáveis podem usar cache.
+- Cada deploy versiona os caches de shell/runtime pelo SHA.
+- O Service Worker ativa a versão nova imediatamente, remove caches antigos e recarrega uma sessão já controlada quando o controller muda.
+- O pacote offline do usuário é preservado entre deploys e só é substituído depois de um novo download completo.
+- O registro do Service Worker usa `updateViaCache: none` e verifica atualização novamente ao retomar o app.
 
 ## Segurança
 
@@ -57,6 +67,7 @@ python scripts/build_offline_pack.py
 python scripts/validate_layout_contract.py
 python scripts/validate_css.py
 python scripts/validate_javascript.py
+python scripts/validate_pwa_cache.py
 python scripts/validate_production.py --strict
 python -m http.server 8080
 ```
