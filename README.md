@@ -5,37 +5,39 @@ Portal estático de estudos para concursos de Arquitetura, publicado por GitHub 
 ## Produção
 
 - URL: `https://saling-vitor.github.io/planodeestudos/`
-- Branch de produção: `main`
+- Branch: `main`
 - Deploy: `.github/workflows/pages.yml`
-- produção esperada: 14 mapas em `materials/`
-- produção esperada: 3 simulados em `simulados/`
+- 14 mapas em `materials/`
+- 3 simulados em `simulados/`
 - edital/documentos oficiais em `edital/`
 
-O workflow audita a estrutura, regenera os manifestos quando o pacote está completo e só então publica. Se alguma pasta obrigatória estiver ausente, o deploy é preservado em vez de substituir o Pages por uma versão quebrada. O artefato do Pages exclui arquivos de manutenção (`.github/`, `scripts/`, `cloud/`, `docs/`, README e arquivos temporários).
+O workflow valida a fonte, gera os dados derivados, executa um preflight estrito e só então publica. Se faltar uma parte obrigatória, a versão anterior do Pages é preservada.
 
-## Estrutura
+## Estrutura limpa
 
-- `index.html` — Hoje / portal
-- `biblioteca.html` — biblioteca de mapas
-- `planejamento.html` — planejamento
-- `edital.html` — central do edital
-- `revisoes.html`, `questoes.html`, `desempenho.html` — ciclo de estudo
-- `simulados.html`, `erros.html`, `diagnostico.html`, `historico.html` — acompanhamento
-- `configuracoes.html` — dados, nuvem e preferências
-- `assets/` — CSS/JavaScript compartilhado
-- `data/` — catálogos e manifestos gerados
-- `scripts/` — geradores e `validate_production.py`, usado no preflight do deploy
-- `cloud/` — schema/modelos sem credenciais
+- `assets/` — recursos compartilhados; CSS/JS/imagens comuns dos mapas não são duplicados em cada HTML.
+- `data/*.json` — fontes estáticas canônicas.
+- `data/*.js` e catálogos grandes — gerados no deploy, não precisam ser mantidos manualmente.
+- `materials/` — mapas contendo apenas conteúdo/dados específicos; runtime e visual comum ficam em `assets/`.
+- `scripts/` — geradores + preflight estrutural.
+- `cloud/` — schema/modelos sem credenciais; não é publicado no Pages.
 
-## Segurança e dados
+## Segurança
 
-Não há URL/chave Supabase, credenciais Google nem pasta pessoal do Drive gravadas no código de produção. Essas configurações são fornecidas pelo usuário no próprio Portal.
+Credenciais pessoais de Supabase/Google Drive não ficam gravadas no repositório. O preflight também procura padrões de chaves antes da publicação.
 
 ## Desenvolvimento local
 
-Service Worker e PWA exigem HTTP/HTTPS. Para testar localmente:
+Antes de servir a pasta, gere os dados derivados:
 
 ```bash
+python scripts/build_static_data.py
+python scripts/build_materials_manifest.py
+python scripts/build_topic_catalogs.py
+python scripts/build_simulations_manifest.py
+python scripts/build_files_manifest.py
+python scripts/build_offline_pack.py
+python scripts/validate_production.py --strict
 python -m http.server 8080
 ```
 
