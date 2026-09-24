@@ -750,3 +750,35 @@ body.pa-internal-mode .hero-actions{
   }
 }
 
+/* =========================================================
+   PLANO ARQ · RÉGUA GRÁFICA MESTRE V09
+   Configurações integrada à família de 3 métricas.
+   ========================================================= */
+@media(min-width:1501px){
+  body.pa-internal-mode[data-pa-page="settings"] .pa-content>.hero{
+    grid-template-columns:minmax(0,720px) repeat(3,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:1500px) and (min-width:901px){
+  body.pa-internal-mode[data-pa-page="settings"] .pa-content>.hero{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+  body.pa-internal-mode[data-pa-page="settings"] .pa-content>.hero>.hero-main{
+    grid-column:1/-1!important;
+    min-height:156px!important;
+  }
+}
+@media(max-width:900px){
+  body.pa-internal-mode[data-pa-page="settings"] .pa-content>.hero{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+  body.pa-internal-mode[data-pa-page="settings"] .pa-content>.hero>.hero-main{
+    grid-column:1/-1!important;
+  }
+}
+@media(max-width:600px){
+  body.pa-internal-mode[data-pa-page="settings"] .pa-content>.hero{
+    grid-template-columns:1fr!important;
+  }
+}
+
