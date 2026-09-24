@@ -30,7 +30,9 @@ SHARED_COMPONENT_SELECTORS={
     ".section",".section-head",".section-head h2",".section-head span",
     ".section-head>span",".panel",".empty",".empty strong",".empty span",
     ".viewer",".viewer.open",".viewer iframe",".viewer-head",".viewerbar",".viewer-actions",".viewer-foot",
-    ".toast",".toast.show"
+    ".toast",".toast.show",
+    ".small-btn",".badge",".tag",".track",".track i",".track span",".fill",".queue",
+    ".topic strong",".topic span",".field label",".field select"
 }
 errors=[]
 page_keys={}
@@ -88,9 +90,9 @@ for name in PAGES:
             errors.append(f"{name}: topbar deve ter exatamente um pa-top-title")
         if len(re.findall(r'\bpa-top-actions\b',top)) != 1:
             errors.append(f"{name}: topbar deve ter exatamente uma pa-top-actions")
-        dot=re.search(r'<button[^>]*class=["\']([^"\']*)["\'][^>]*>\s*•••\s*</button>',top,re.I)
-        if not dot or "icon-btn" not in dot.group(1).split():
-            errors.append(f"{name}: botão ••• da topbar deve usar icon-btn")
+        dots=re.findall(r'<button[^>]*class=["\']([^"\']*)["\'][^>]*>\s*•••\s*</button>',top,re.I)
+        if len(dots) != 1 or "icon-btn" not in dots[0].split():
+            errors.append(f"{name}: topbar deve ter exatamente um botão ••• usando icon-btn")
 
     body=re.search(r'<body[^>]*data-pa-page=["\']([^"\']+)["\']',text,re.I)
     if not body:
