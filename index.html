@@ -568,7 +568,7 @@ function renderContest(id){
  $('app').innerHTML=`<div class="pa-backdrop"></div><div class="pa-shell">
   <aside class="pa-sidebar"></aside>
   <main class="pa-main">
-   <header class="pa-topbar"><div class="pa-topbar-left"><button type="button" class="pa-menu-btn">☰</button><div><div class="pa-top-k">${esc(c.title)} · ${esc(c.position)}</div><div class="pa-top-title">Hoje</div></div></div><div class="pa-top-actions"><button type="button" class="ghost-btn" id="dashSwitch">Trocar concurso</button><button type="button" class="icon-btn" id="dashMore">•••</button></div></header>
+   <header class="pa-topbar"><div class="pa-topbar-left"><button type="button" class="pa-menu-btn">☰</button><div><div class="pa-top-k">${esc(c.title)} · ${esc(c.position)}</div><div class="pa-top-title">Hoje</div></div></div><div class="pa-top-actions"><button type="button" class="ghost-btn" id="dashSwitch">Trocar concurso</button><button type="button" class="icon-btn" aria-label="Mais opções">•••</button></div></header>
    <section class="pa-content">
     <section class="today-hero">
      <article class="today-main-card"><span class="eyebrow">Execução diária</span><h1>${esc(fmtDayLabel(today))}</h1><p>${hasPlan?'Planejado e realizado ficam separados. O tempo ativo desconta pausas e as sessões concluídas ficam recolhidas para manter o foco no que ainda falta.':'Ainda não existe um plano gerado para este concurso.'}</p><div class="today-main-actions">${hasPlan?`<button type="button" class="ghost-btn" id="editPlanBtn">Editar planejamento</button>`:`<button type="button" class="primary-btn" id="createPlanBtn">Criar planejamento</button>`}<button type="button" class="ghost-btn" id="extraStudyBtn">+ Estudo extra</button></div></article>
