@@ -547,3 +547,65 @@ body.pa-internal-mode .hero-actions{
   }
 }
 
+/* =========================================================
+   PLANO ARQ · RÉGUA GRÁFICA MESTRE V04
+   Silhueta estável entre páginas.
+   ========================================================= */
+body.pa-internal-mode .eyebrow{
+  text-transform:uppercase!important;
+}
+@media(min-width:1241px){
+  /* A coluna de leitura começa e termina no mesmo ponto em todos os módulos. */
+  body.pa-internal-mode[data-pa-page="planning"] .pa-content>.page-hero,
+  body.pa-internal-mode[data-pa-page="edital"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="maps"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="files"] .pa-content>.hero,
+  body.pa-internal-mode .pa-content>.today-hero{
+    grid-template-columns:minmax(0,720px) repeat(3,minmax(0,1fr))!important;
+  }
+  body.pa-internal-mode[data-pa-page="reviews"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="questions"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="performance"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="history"] .pa-content>.hero{
+    grid-template-columns:minmax(0,720px) repeat(4,minmax(0,1fr))!important;
+  }
+  body.pa-internal-mode[data-pa-page="simulations"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="errors"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="diagnostic"] .pa-content>.hero{
+    grid-template-columns:minmax(0,720px) minmax(0,1fr)!important;
+  }
+
+  /* Os módulos 2×2 deixam de inflar a altura do hero inteiro. */
+  body.pa-internal-mode[data-pa-page="simulations"] .pa-content>.hero>.hero-main,
+  body.pa-internal-mode[data-pa-page="errors"] .pa-content>.hero>.hero-main,
+  body.pa-internal-mode[data-pa-page="diagnostic"] .pa-content>.hero>.hero-main{
+    min-height:160px!important;
+  }
+  body.pa-internal-mode[data-pa-page="simulations"] .pa-content>.hero>.summary-grid,
+  body.pa-internal-mode[data-pa-page="errors"] .pa-content>.hero>.metric-grid,
+  body.pa-internal-mode[data-pa-page="diagnostic"] .pa-content>.hero>.metric-grid{
+    align-self:stretch!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-rows:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  body.pa-internal-mode[data-pa-page="simulations"] .pa-content>.hero>.summary-grid>.metric,
+  body.pa-internal-mode[data-pa-page="errors"] .pa-content>.hero>.metric-grid>.metric,
+  body.pa-internal-mode[data-pa-page="diagnostic"] .pa-content>.hero>.metric-grid>.metric{
+    min-height:82px!important;
+    padding:12px 13px!important;
+  }
+  body.pa-internal-mode[data-pa-page="simulations"] .pa-content>.hero>.summary-grid>.metric strong,
+  body.pa-internal-mode[data-pa-page="errors"] .pa-content>.hero>.metric-grid>.metric strong,
+  body.pa-internal-mode[data-pa-page="diagnostic"] .pa-content>.hero>.metric-grid>.metric strong{
+    font-size:24px!important;
+  }
+}
+
+/* O primeiro bloco após o hero obedece à mesma cadência em qualquer menu. */
+body.pa-internal-mode .pa-content>.hero + *,
+body.pa-internal-mode .pa-content>.page-hero + *,
+body.pa-internal-mode .pa-content>.today-hero + *{
+  margin-top:18px!important;
+}
+
