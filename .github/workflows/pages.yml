@@ -103,7 +103,11 @@ jobs:
             --exclude='README.md' \
             --exclude='.gitignore' \
             --exclude='*.zip' \
+            --exclude='data/*.json' \
+            --exclude='data/offline-pack.js' \
             ./ _site/
+          mkdir -p _site/data
+          cp data/offline-pack.json _site/data/offline-pack.json
 
       - name: Configurar GitHub Pages
         if: steps.package.outputs.ready == 'true'
