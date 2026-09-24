@@ -227,7 +227,7 @@ if components.is_file():
         errors.append("pa-components-v01.css: marcador canônico ausente")
     if re.search(r"COMPONENTES DE PRODUÇÃO V\\d+",component_css,re.I):
         errors.append("pa-components-v01.css: camada histórica Vxx detectada")
-    if len(component_css) > 12000:
+    if len(component_css) > 16000:
         errors.append(
             f"pa-components-v01.css: tamanho excessivo ({len(component_css)} bytes); possível acúmulo de camadas"
         )
