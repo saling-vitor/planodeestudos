@@ -247,11 +247,6 @@ function availableUntilExam(){
 }
 function remainingTopics(){return materials.reduce((a,m)=>a+materialProgress(m).remaining,0)}
 
-function applyContestIdentity(){
- document.querySelector('.pa-contest-card strong').textContent=`${contest.title||'Concurso'} · ${contest.position||''}`;
- document.querySelector('.pa-contest-card span').textContent=`${contest.board||'Banca não definida'} · ${contest.notice||'Edital não informado'}`;
- document.querySelector('.pa-top-k').textContent=`${contest.title||'Concurso'} · ${contest.position||''}`;
-}
 function renderBlueprint(){
  const secondary=(examSchema?.stages||[]).filter(s=>s.type!=='objective');
  $('secondaryStagesNote').innerHTML=secondary.length?`Outras etapas deste edital: <b>${secondary.map(s=>esc(s.label)).join(' · ')}</b>. Elas permanecem registradas na Central do Edital e não são transformadas automaticamente em horas de teoria.`:'Este edital não possui outra etapa registrada além da prova objetiva.';
@@ -460,7 +455,7 @@ function initExistingPlan(){
 $('saveBtn').addEventListener('click',()=>saveConfig(true));
 $('saveOnlyBtn').addEventListener('click',()=>saveConfig(true));
 $('generateBtn').addEventListener('click',generate);
-applyContestIdentity();renderBlueprint();renderAvailability();renderPriorities();syncFields();initExistingPlan();
+renderBlueprint();renderAvailability();renderPriorities();syncFields();initExistingPlan();
 })();
 </script>
 <script src="assets/js/pa-pwa-v01.js"></script></body>
