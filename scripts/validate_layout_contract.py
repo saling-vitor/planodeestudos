@@ -39,6 +39,12 @@ for name in PAGES:
     for token in REQUIRED:
         if token not in text:
             errors.append(f"{name}: contrato do shell ausente: {token}")
+    content_open=re.search(r'class=["\']pa-content["\'][^>]*>\s*<section\s+class=["\'](?:hero|page-hero)["\']',text,re.I)
+    if not content_open:
+        errors.append(
+            f"{name}: hero deve ser filho direto de .pa-content; remova wrappers geométricos intermediários"
+        )
+
     body=re.search(r'<body[^>]*data-pa-page=["\']([^"\']+)["\']',text,re.I)
     if not body:
         errors.append(f"{name}: data-pa-page ausente")
