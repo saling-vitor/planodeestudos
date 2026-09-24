@@ -24,7 +24,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Auditoria estrutural
+      - name: Auditoria estrutural da fonte
         run: python3 scripts/validate_production.py
 
       - name: Detectar pacote de produção
@@ -32,7 +32,7 @@ jobs:
         shell: bash
         run: |
           missing=()
-          for path in scripts/build_materials_manifest.py materials simulados assets data edital manifest.webmanifest; do
+          for path in materials simulados assets data edital manifest.webmanifest scripts/build_static_data.py scripts/build_materials_manifest.py scripts/build_topic_catalogs.py; do
             [[ -e "$path" ]] || missing+=("$path")
           done
           if (( ${#missing[@]} )); then
@@ -58,7 +58,7 @@ jobs:
             echo "Nenhum deploy foi executado; a última versão publicada continua intacta."
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Gerar manifestos
+      - name: Gerar dados de produção
         if: steps.package.outputs.ready == 'true'
         run: |
           python3 scripts/build_static_data.py
@@ -70,30 +70,7 @@ jobs:
 
       - name: Validar pacote de produção
         if: steps.package.outputs.ready == 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          required=(
-            index.html biblioteca.html planejamento.html edital.html revisoes.html
-            questoes.html desempenho.html arquivos.html simulados.html erros.html
-            diagnostico.html historico.html configuracoes.html creditos.html offline.html
-            404.html manifest.webmanifest service-worker.js .nojekyll
-            assets/css/pa-tokens-v01.css assets/css/pa-components-v01.css assets/css/pa-shell-v16.css
-            assets/js/pa-pwa-v01.js assets/js/pa-shell-v16.js assets/js/pa-data-v03.js
-            assets/js/pa-sync-v03.js assets/js/pa-drive-v01.js assets/js/pa-actions-v01.js
-            data/navigation.js data/contests.js data/materials.js data/exam-schemas.js
-            data/question-catalog.js data/review-catalog.js data/simulations.js
-            data/cloud-config.js data/offline-pack.json
-          )
-          for f in "${required[@]}"; do
-            test -f "$f" || { echo "ERRO: arquivo obrigatório ausente: $f"; exit 1; }
-          done
-          maps=$(find materials -maxdepth 1 -type f -name '*.html' | wc -l | tr -d ' ')
-          sims=$(find simulados -maxdepth 1 -type f -name '*.html' | wc -l | tr -d ' ')
-          test "$maps" -eq 14 || { echo "ERRO: esperados 14 mapas; encontrados $maps"; exit 1; }
-          test "$sims" -eq 3 || { echo "ERRO: esperados 3 simulados; encontrados $sims"; exit 1; }
-          echo "Preflight OK: $maps mapas e $sims simulados."
-          python3 scripts/validate_production.py --strict
+        run: python3 scripts/validate_production.py --strict
 
       - name: Versionar cache do PWA
         if: steps.package.outputs.ready == 'true'
@@ -105,7 +82,7 @@ jobs:
           from pathlib import Path
           p=Path("service-worker.js")
           text=p.read_text("utf-8")
-          version=f"19.0-{sys.argv[1]}"
+          version=f"19.1-{sys.argv[1]}"
           updated,n=re.subn(r"const VERSION='[^']+';",f"const VERSION='{version}';",text,count=1)
           if n!=1:
               raise SystemExit("Não foi possível versionar o service worker")
