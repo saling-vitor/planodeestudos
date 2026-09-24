@@ -200,7 +200,8 @@ if index_path.is_file():
     ):
         if forbidden in index_text:
             errors.append(f"index.html: legado de shell detectado: {forbidden}")
-    if not re.search(r'<aside class=\\?["\']pa-sidebar\\?["\']>\s*</aside>',index_text,re.I):
+    normalized_index=index_text.replace('\\\"','"').replace("\\'","'")
+    if '<aside class="pa-sidebar"></aside>' not in normalized_index:
         errors.append("index.html: Today deve renderizar sidebar vazia do shell canônico")
     if "document.body.dataset.paPage='today'" not in index_text:
         errors.append("index.html: render de Today deve declarar data-pa-page=\'today\'")
