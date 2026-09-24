@@ -834,3 +834,20 @@ body.pa-internal-mode .pa-content>.hero .stat>small{
   line-height:1.4!important;
 }
 
+/* =========================================================
+   PLANO ARQ · RÉGUA GRÁFICA MESTRE V12
+   Exceções semânticas da tela Hoje.
+   ========================================================= */
+body.pa-internal-mode .pa-content>.today-hero .today-main-card h1{
+  text-transform:none!important;
+  letter-spacing:-.01em!important;
+}
+body.pa-internal-mode .today-main-actions{
+  display:flex!important;
+  align-items:center!important;
+  flex-wrap:wrap!important;
+  gap:8px!important;
+  min-height:42px!important;
+  margin-top:18px!important;
+}
+
