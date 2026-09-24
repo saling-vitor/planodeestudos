@@ -1,0 +1,191 @@
+{
+  "schema": 1,
+  "engineVersion": "ExamSchemaV1",
+  "schemas": [
+    {
+      "id": "demhab-poa-arquiteto-2026",
+      "kind": "active",
+      "status": "verified",
+      "board": "FUNDATEC",
+      "organization": "DEMHAB Porto Alegre",
+      "position": "Arquiteto",
+      "notice": "Edital 001/2026",
+      "examDate": {
+        "date": "2026-10-18",
+        "status": "provável"
+      },
+      "stages": [
+        {
+          "id": "objective",
+          "type": "objective",
+          "label": "Prova Teórico-Objetiva",
+          "character": "Eliminatório e classificatório",
+          "planningMode": "weighted-sections",
+          "date": "2026-10-18",
+          "dateStatus": "provável",
+          "durationMinutes": 210,
+          "totalQuestions": 60,
+          "totalPoints": 100,
+          "alternatives": null,
+          "minimum": null,
+          "sections": [
+            {
+              "id": "specific",
+              "label": "Conhecimentos Específicos",
+              "questions": 40,
+              "pointsPerQuestion": 2,
+              "totalPoints": 80,
+              "minimumCorrect": null,
+              "mapGroups": ["Conhecimentos Específicos"]
+            },
+            {
+              "id": "legislation",
+              "label": "Legislação",
+              "questions": 10,
+              "pointsPerQuestion": 1,
+              "totalPoints": 10,
+              "minimumCorrect": null,
+              "mapGroups": ["Legislação"]
+            },
+            {
+              "id": "portuguese",
+              "label": "Língua Portuguesa",
+              "questions": 10,
+              "pointsPerQuestion": 1,
+              "totalPoints": 10,
+              "minimumCorrect": null,
+              "mapGroups": ["Língua Portuguesa"]
+            }
+          ]
+        }
+      ],
+      "schedule": [
+        {"date":"2026-10-18","label":"Aplicação da Prova Teórico-Objetiva","kind":"exam","status":"provável"}
+      ],
+      "rules": [
+        "A distribuição do planejamento é calculada pela pontuação de cada componente da prova.",
+        "A data da prova está marcada como provável e pode ser alterada por publicação posterior."
+      ],
+      "documents": [
+        {
+          "id":"opening","type":"opening","label":"Edital de Abertura 001/2026",
+          "file":"edital/edital_abertura_001_2026_DEMHAB.pdf","status":"vigente","publicationDate":"2026-07-21"
+        }
+      ],
+      "sourceNote":"Perfil ativo do concurso DEMHAB usado pelo Portal."
+    },
+    {
+      "id":"fixture-casan-aocp-arquiteto-2026",
+      "kind":"compatibility-fixture",
+      "status":"verified",
+      "board":"Instituto AOCP",
+      "organization":"CASAN",
+      "position":"Arquiteto e Urbanista",
+      "notice":"Edital 003/2026",
+      "examDate":{"date":"2026-11-22","status":"prevista"},
+      "stages":[
+        {
+          "id":"objective","type":"objective","label":"Prova Objetiva","character":"Eliminatório e classificatório",
+          "planningMode":"weighted-sections","date":"2026-11-22","dateStatus":"prevista","durationMinutes":null,
+          "totalQuestions":50,"totalPoints":50,"alternatives":5,
+          "minimum":{"kind":"points","value":25,"label":"mínimo de 25 pontos (50%)"},
+          "sections":[
+            {"id":"portuguese","label":"Língua Portuguesa","questions":10,"pointsPerQuestion":1,"totalPoints":10,"mapGroups":["Língua Portuguesa"]},
+            {"id":"logic","label":"Raciocínio Lógico-Matemático","questions":7,"pointsPerQuestion":1,"totalPoints":7,"mapGroups":["Raciocínio Lógico"]},
+            {"id":"general","label":"Conhecimentos Gerais - Atualidades","questions":3,"pointsPerQuestion":1,"totalPoints":3,"mapGroups":["Conhecimentos Gerais"]},
+            {"id":"legislation","label":"Legislação","questions":5,"pointsPerQuestion":1,"totalPoints":5,"mapGroups":["Legislação"]},
+            {"id":"specific","label":"Conhecimentos Específicos","questions":25,"pointsPerQuestion":1,"totalPoints":25,"mapGroups":["Conhecimentos Específicos"]}
+          ]
+        },
+        {"id":"titles","type":"titles","label":"Prova de Títulos","character":"Classificatório","planningMode":"administrative","maxPoints":10}
+      ],
+      "schedule":[
+        {"date":"2026-11-22","label":"Aplicação da Prova Objetiva","kind":"exam","status":"prevista"},
+        {"date":"2026-12-22","label":"Convocação dos habilitados para a Prova de Títulos","kind":"titles","status":"prevista"}
+      ],
+      "rules":[
+        "Prova objetiva com 50 questões e 5 alternativas; mínimo de 25 pontos.",
+        "Títulos valem até 10 pontos e compõem a nota final."
+      ],
+      "documents":[],
+      "sourceNote":"Fixture de compatibilidade extraído do edital CASAN/AOCP anexado pelo usuário."
+    },
+    {
+      "id":"fixture-tapera-fundatec-arquiteto-2026",
+      "kind":"compatibility-fixture",
+      "status":"verified",
+      "board":"FUNDATEC",
+      "organization":"Prefeitura Municipal de Tapera/RS",
+      "position":"Arquiteto",
+      "notice":"Concurso Público 01/2026 · Edital 217/2026",
+      "examDate":{"date":"2026-10-11","status":"provável"},
+      "stages":[
+        {
+          "id":"objective","type":"objective","label":"Prova Teórico-Objetiva","character":"Eliminatório e classificatório",
+          "planningMode":"weighted-sections","date":"2026-10-11","dateStatus":"provável","durationMinutes":null,
+          "totalQuestions":45,"totalPoints":90,"alternatives":null,
+          "minimum":{"kind":"points","value":45,"label":"mínimo de 45 pontos no total"},
+          "sections":[
+            {"id":"portuguese","label":"Língua Portuguesa","questions":10,"pointsPerQuestion":2,"totalPoints":20,"minimumCorrect":1,"mapGroups":["Língua Portuguesa"]},
+            {"id":"logic","label":"Matemática/Raciocínio Lógico","questions":5,"pointsPerQuestion":2,"totalPoints":10,"minimumCorrect":1,"mapGroups":["Matemática/Raciocínio Lógico"]},
+            {"id":"general","label":"Conhecimentos Gerais","questions":5,"pointsPerQuestion":2,"totalPoints":10,"minimumCorrect":1,"mapGroups":["Conhecimentos Gerais"]},
+            {"id":"legislation","label":"Legislação","questions":10,"pointsPerQuestion":2,"totalPoints":20,"minimumCorrect":1,"mapGroups":["Legislação"]},
+            {"id":"specific","label":"Conhecimentos Específicos","questions":10,"pointsPerQuestion":2,"totalPoints":20,"minimumCorrect":5,"mapGroups":["Conhecimentos Específicos"]},
+            {"id":"informatics","label":"Informática","questions":5,"pointsPerQuestion":2,"totalPoints":10,"minimumCorrect":1,"mapGroups":["Informática"]}
+          ]
+        },
+        {"id":"titles","type":"titles","label":"Prova de Títulos","character":"Classificatório","planningMode":"administrative","maxPoints":10},
+        {"id":"psych","type":"psychological","label":"Avaliação Psicológica","character":"Eliminatório","planningMode":"none","resultType":"apto/inapto"}
+      ],
+      "schedule":[
+        {"date":"2026-10-02","label":"Divulgação da data, hora e local da prova","kind":"notice","status":"prevista"},
+        {"date":"2026-10-11","label":"Aplicação da Prova Teórico-Objetiva","kind":"exam","status":"provável"},
+        {"date":"2026-11-23","endDate":"2026-11-24","label":"Período para entrega de títulos","kind":"titles","status":"prevista"}
+      ],
+      "rules":[
+        "A prova de nível superior possui 45 questões, todas de 2 pontos, totalizando 90 pontos.",
+        "Há mínimos por componente e mínimo total de 45 pontos.",
+        "Títulos valem até 10 pontos."
+      ],
+      "documents":[],
+      "sourceNote":"Fixture de compatibilidade extraído do edital Tapera/FUNDATEC anexado pelo usuário."
+    },
+    {
+      "id":"fixture-cangucu-objetiva-arquiteto-2026",
+      "kind":"compatibility-fixture",
+      "status":"verified",
+      "board":"Instituto Objetiva",
+      "organization":"Município de Canguçu/RS",
+      "position":"Arquiteto",
+      "notice":"Concurso Público 001/2026",
+      "examDate":{"date":"2026-11-01","status":"estimada"},
+      "stages":[
+        {
+          "id":"objective","type":"objective","label":"Prova Objetiva","character":"Eliminatório e classificatório",
+          "planningMode":"weighted-sections","date":"2026-11-01","dateStatus":"estimada","durationMinutes":null,
+          "totalQuestions":50,"totalPoints":100,"alternatives":"até 4","minimum":null,
+          "sections":[
+            {"id":"portuguese","label":"Língua Portuguesa","questions":12,"pointsPerQuestion":1.5,"totalPoints":18,"mapGroups":["Língua Portuguesa"]},
+            {"id":"logic","label":"Raciocínio Lógico","questions":8,"pointsPerQuestion":1,"totalPoints":8,"mapGroups":["Raciocínio Lógico"]},
+            {"id":"general","label":"Conhecimentos Gerais","questions":6,"pointsPerQuestion":1,"totalPoints":6,"mapGroups":["Conhecimentos Gerais"]},
+            {"id":"legislation","label":"Legislação","questions":8,"pointsPerQuestion":1.5,"totalPoints":12,"mapGroups":["Legislação"]},
+            {"id":"specific","label":"Conhecimentos Específicos","questions":16,"pointsPerQuestion":3.5,"totalPoints":56,"mapGroups":["Conhecimentos Específicos"]}
+          ]
+        },
+        {"id":"titles","type":"titles","label":"Prova de Títulos","character":"Classificatório","planningMode":"administrative","maxPoints":null}
+      ],
+      "schedule":[
+        {"date":"2026-10-23","label":"Convocação para a prova objetiva","kind":"notice","status":"prevista"},
+        {"date":"2026-11-01","label":"Aplicação da Prova Objetiva — Grupos 03 e 04","kind":"exam","status":"estimada"},
+        {"date":"2027-01-07","endDate":"2027-01-11","label":"Período para apresentação de títulos","kind":"titles","status":"prevista"}
+      ],
+      "rules":[
+        "Arquiteto pertence ao grupo de prova G04.",
+        "A prova objetiva da Tabela A totaliza 50 questões e 100 pontos, com pesos diferentes por disciplina.",
+        "Para Arquiteto há Prova de Títulos como etapa classificatória."
+      ],
+      "documents":[],
+      "sourceNote":"Fixture de compatibilidade extraído do edital Canguçu/Objetiva anexado pelo usuário."
+    }
+  ]
+}
