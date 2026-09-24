@@ -14,6 +14,8 @@ checks=[
     ("service worker: cache offline estável ausente", "const OFFLINE='plano-arq-offline-user-v1'" in sw),
     ("service worker: mapas/simulados/edital não entram no network-first", "/(materials|simulados|edital)/" in sw or "/\\/(materials|simulados|edital)\\//" in sw),
     ("service worker: CSS/JS/data não entram no network-first", "['style','script','font'].includes(req.destination)" in sw and "/data/" in sw),
+    ("service worker: imagens locais não entram no network-first", "if(req.destination==='image')" in sw and "event.respondWith(networkFirst(req))" in sw),
+    ("service worker: estratégia stale-while-revalidate antiga ainda existe", "staleWhileRevalidate" not in sw),
     ("PWA: registro não ignora cache HTTP do SW", "updateViaCache:'none'" in pwa),
     ("PWA: mudança de controller não recarrega versão existente", "controllerchange" in pwa and "location.reload()" in pwa),
 ]
