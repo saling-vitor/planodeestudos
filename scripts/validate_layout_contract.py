@@ -81,39 +81,51 @@ for name in PAGES:
                 f"{name}: componente compartilhado redefinido localmente: {selector}"
             )
 
+# Ordem canônica: CSS local primeiro; sistema compartilhado por último.
+for name in PAGES:
+    text=(ROOT/name).read_text("utf-8",errors="replace")
+    style_end=text.lower().find("</style>")
+    token_pos=text.find("assets/css/pa-tokens-v01.css")
+    shell_pos=text.find("assets/css/pa-shell-v16.css")
+    comp_pos=text.find("assets/css/pa-components-v01.css")
+    if min(style_end,token_pos,shell_pos,comp_pos) < 0:
+        errors.append(f"{name}: não foi possível validar a ordem da cascata CSS")
+    elif not (style_end < token_pos < shell_pos < comp_pos):
+        errors.append(
+            f"{name}: ordem CSS inválida; esperado <style> local -> tokens -> shell -> components"
+        )
+
 shell=(ROOT/"assets/css/pa-shell-v16.css")
 if shell.is_file():
     css=shell.read_text("utf-8",errors="replace")
-    for marker in (
-        "PLANO ARQ · RÉGUA GRÁFICA MESTRE V01",
-        "PLANO ARQ · RÉGUA GRÁFICA MESTRE V02",
-        "PLANO ARQ · RÉGUA GRÁFICA MESTRE V03",
-        "PLANO ARQ · RÉGUA GRÁFICA MESTRE V04",
-        "PLANO ARQ · RÉGUA GRÁFICA MESTRE V05",
-        "PLANO ARQ · RÉGUA GRÁFICA MESTRE V06",
-        "PLANO ARQ · RÉGUA GRÁFICA MESTRE V07",
-        "PLANO ARQ · RÉGUA GRÁFICA MESTRE V08",
-        "PLANO ARQ · RÉGUA GRÁFICA MESTRE V09",
+    required_shell=(
+        "Shell canônico de produção",
+        "--pa-shell-sidebar:276px",
+        "--pa-shell-content-max:1420px",
         "@media(max-width:900px)",
-    ):
+        ".pa-mobile-more.open",
+    )
+    for marker in required_shell:
         if marker not in css:
-            errors.append(f"pa-shell-v16.css: marcador do contrato ausente: {marker}")
+            errors.append(f"pa-shell-v16.css: contrato canônico ausente: {marker}")
+    if re.search(r"RÉGUA GRÁFICA MESTRE V\\d+",css,re.I):
+        errors.append("pa-shell-v16.css: camada histórica Vxx detectada")
+    if len(css) > 30000:
+        errors.append(f"pa-shell-v16.css: tamanho excessivo ({len(css)} bytes); possível acúmulo de camadas")
 else:
     errors.append("assets/css/pa-shell-v16.css ausente")
 
 components=(ROOT/"assets/css/pa-components-v01.css")
 if components.is_file():
     component_css=components.read_text("utf-8",errors="replace")
-    for marker in (
-        "PLANO ARQ · COMPONENTES DE PRODUÇÃO V02",
-        "PLANO ARQ · COMPONENTES DE PRODUÇÃO V03",
-        "PLANO ARQ · COMPONENTES DE PRODUÇÃO V04",
-        "PLANO ARQ · COMPONENTES DE PRODUÇÃO V05",
-        "PLANO ARQ · COMPONENTES DE PRODUÇÃO V06",
-        "PLANO ARQ · COMPONENTES DE PRODUÇÃO V07",
-    ):
-        if marker not in component_css:
-            errors.append(f"pa-components-v01.css: marcador do contrato ausente: {marker}")
+    if "Componentes canônicos de produção" not in component_css:
+        errors.append("pa-components-v01.css: marcador canônico ausente")
+    if re.search(r"COMPONENTES DE PRODUÇÃO V\\d+",component_css,re.I):
+        errors.append("pa-components-v01.css: camada histórica Vxx detectada")
+    if len(component_css) > 12000:
+        errors.append(
+            f"pa-components-v01.css: tamanho excessivo ({len(component_css)} bytes); possível acúmulo de camadas"
+        )
 else:
     errors.append("assets/css/pa-components-v01.css ausente")
 
