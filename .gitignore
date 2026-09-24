@@ -12,3 +12,21 @@ desktop.ini
 .idea/
 __pycache__/
 *.pyc
+
+# Dados derivados — gerados pelo GitHub Actions
+data/contests.js
+data/navigation.js
+data/exam-schemas.js
+data/cloud-config.js
+data/materials.js
+data/materials.json
+data/question-catalog.js
+data/question-catalog.json
+data/review-catalog.js
+data/review-catalog.json
+data/simulations.js
+data/simulations.json
+data/files.js
+data/files.json
+data/offline-pack.js
+data/offline-pack.json
