@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#030406"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3969/3969582.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Plano ARQ">
 <meta name="color-scheme" content="dark">
-<title>Plano ARQ · Planejamento de Estudos · Etapa 6</title>
+<title>Plano ARQ · Planejamento de Estudos</title>
 <style>
 :root{
  --bg:#030406;--surface:#090a0d;--surface2:#0d0f13;--surface3:#12151a;--text:#f5f5f7;--text2:#d3d4d8;--muted:#90939a;--muted2:#686c74;
@@ -84,7 +84,7 @@ button,input,select{font:inherit}button{cursor:pointer;touch-action:manipulation
 
 <div class="pa-content">
  <section class="page-hero">
-  <article class="hero-main"><span class="eyebrow">ETAPA 6 · Planejamento de Estudos</span><h1>Plano até a prova</h1><p>Configure sua disponibilidade e o sistema distribui os mapas respeitando o peso oficial da prova, os tópicos que ainda faltam e a prioridade de cada material.</p></article>
+  <article class="hero-main"><span class="eyebrow">Planejamento de Estudos</span><h1>Plano até a prova</h1><p>Configure sua disponibilidade e o sistema distribui os mapas respeitando o peso oficial da prova, os tópicos que ainda faltam e a prioridade de cada material.</p></article>
   <article class="metric"><span>Prova</span><strong id="metricExam">18/10</strong><small id="metricDays">— dias restantes</small></article>
   <article class="metric"><span>Semana</span><strong id="metricWeek">0h</strong><small>disponibilidade configurada</small></article>
   <article class="metric"><span>Até a prova</span><strong id="metricCapacity">0h</strong><small>capacidade estimada</small></article>
@@ -491,10 +491,10 @@ function nav(){
   if(label==='Mapas')btn.addEventListener('click',()=>location.href=`biblioteca.html?contest=${encodeURIComponent(contestId)}`);if(label==='Revisões')btn.addEventListener('click',()=>location.href=`revisoes.html?contest=${encodeURIComponent(contestId)}`);if(label==='Questões')btn.addEventListener('click',()=>location.href=`questoes.html?contest=${encodeURIComponent(contestId)}`);if(label==='Desempenho')btn.addEventListener('click',()=>location.href=`desempenho.html?contest=${encodeURIComponent(contestId)}`);if(label==='Arquivos')btn.addEventListener('click',()=>location.href=`arquivos.html?contest=${encodeURIComponent(contestId)}`);if(label==='Revisões')btn.addEventListener('click',()=>location.href=`revisoes.html?contest=${encodeURIComponent(contestId)}`);if(label==='Questões')btn.addEventListener('click',()=>location.href=`questoes.html?contest=${encodeURIComponent(contestId)}`);
   if(label==='Edital')btn.addEventListener('click',()=>location.href=`edital.html?contest=${encodeURIComponent(contestId)}`);
   if(label==='Trocar concurso')btn.addEventListener('click',()=>location.href='index.html#home');
-  if(['Configurações'].includes(label))btn.addEventListener('click',()=>toast('Esta área será conectada nas próximas etapas.'));
+  if(['Configurações'].includes(label))btn.addEventListener('click',()=>location.href=`configuracoes.html?contest=${encodeURIComponent(contestId)}`);
   btn.addEventListener('click',()=>{if(innerWidth<=820)close()});
  });
- $('moreBtn').addEventListener('click',()=>toast('Mais opções serão adicionadas nas próximas etapas.'));
+ $('moreBtn').addEventListener('click',()=>location.href=`configuracoes.html?contest=${encodeURIComponent(contestId)}`);
 }
 
 $('saveBtn').addEventListener('click',()=>saveConfig(true));

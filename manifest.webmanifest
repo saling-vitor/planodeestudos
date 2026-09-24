@@ -1,0 +1,47 @@
+{
+  "id": "./",
+  "name": "Plano ARQ · Estudos para Concursos",
+  "short_name": "Plano ARQ",
+  "description": "Planejamento, mapas, revisões, questões, simulados e diagnóstico para preparação de concursos de Arquitetura.",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "background_color": "#030406",
+  "theme_color": "#030406",
+  "orientation": "any",
+  "categories": [
+    "education",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3969/3969582.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Hoje",
+      "short_name": "Hoje",
+      "url": "./index.html"
+    },
+    {
+      "name": "Mapas",
+      "short_name": "Mapas",
+      "url": "./biblioteca.html"
+    },
+    {
+      "name": "Questões",
+      "short_name": "Questões",
+      "url": "./questoes.html"
+    }
+  ]
+}

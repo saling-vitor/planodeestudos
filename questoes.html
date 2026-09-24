@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#030406"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3969/3969582.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Plano ARQ"><meta name="color-scheme" content="dark">
-<title>Plano ARQ · Questões · Etapa 9</title>
+<title>Plano ARQ · Questões</title>
 <style>
 :root{--bg:#030406;--surface:#090a0d;--surface2:#0d0f13;--text:#f5f5f7;--muted:#90939a;--champ:#d8c59e;--champ2:#b99c68;--blue:#6d8298;--green:#62a978;--red:#d96773;--yellow:#d8b858;--line:rgba(255,255,255,.095);--line2:rgba(255,255,255,.055);--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;--cond:"Bahnschrift Condensed","Arial Narrow","Segoe UI",sans-serif;--mono:Consolas,Menlo,monospace}
 *{box-sizing:border-box}html{background:var(--bg)}body{margin:0;min-height:100vh;background:radial-gradient(900px 600px at 8% 0%,rgba(14,26,41,.30),transparent 60%),linear-gradient(180deg,#030406,#040507);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
@@ -18,7 +18,6 @@ button,input,select{font:inherit}button{cursor:pointer}.ghost-btn,.primary-btn,.
 @media(max-width:760px){.tools{grid-template-columns:1fr}.q-row{grid-template-columns:58px minmax(0,1fr);gap:8px}.map-code{grid-column:1}.topic{grid-column:2}.q-stat{grid-column:1;text-align:left}.row-actions{grid-column:1/-1;justify-content:flex-end}.level-cards{grid-template-columns:1fr 1fr 1fr}.stats-row{grid-template-columns:minmax(0,1fr) 60px 60px}.stats-row>:nth-child(4){display:none}.viewer.open{grid-template-rows:58px minmax(0,1fr) 54px}}
 
 /* =========================================================
-   ETAPA 9.1 · PENTE FINO DA CENTRAL DE QUESTÕES
    ========================================================= */
 .device-data{
  margin-top:12px;padding:11px 13px;border:1px solid var(--line);border-radius:12px;
@@ -77,7 +76,7 @@ button,input,select{font:inherit}button{cursor:pointer}.ghost-btn,.primary-btn,.
 <header class="pa-topbar"><div class="pa-topbar-left"><button type="button" class="pa-menu-btn" id="menuBtn">☰</button><div><div class="pa-top-k">Concurso</div><div class="pa-top-title">Questões</div></div></div><div class="pa-top-actions"><button type="button" class="ghost-btn" id="syncBtn">Atualizar dados</button><button type="button" class="icon-btn" id="moreBtn">•••</button></div></header>
 <div class="pa-content">
 <section class="hero">
-<article class="hero-main"><span class="eyebrow">ETAPA 9.1 · Questões</span><h1>Central de questões</h1><p>Resultados de Teste-se, checkpoints e sessões reunidos em um único painel. O Portal analisa o desempenho; responder continua usando o motor original de cada mapa.</p><div class="hero-actions"><button type="button" class="primary-btn" id="trainQueueBtn">Treinar próximo bloco</button><button type="button" class="ghost-btn" id="trainUntestedBtn">Diagnóstico em não testados</button><button type="button" class="ghost-btn" id="openErrorsBtn">Caderno de erros</button></div><div class="hero-tech" id="bankDetail">Microbanco · 1.843 variantes N1/N2/N3</div></article>
+<article class="hero-main"><span class="eyebrow">Questões</span><h1>Central de questões</h1><p>Resultados de Teste-se, checkpoints e sessões reunidos em um único painel. O Portal analisa o desempenho; responder continua usando o motor original de cada mapa.</p><div class="hero-actions"><button type="button" class="primary-btn" id="trainQueueBtn">Treinar próximo bloco</button><button type="button" class="ghost-btn" id="trainUntestedBtn">Diagnóstico em não testados</button><button type="button" class="ghost-btn" id="openErrorsBtn">Caderno de erros</button></div><div class="hero-tech" id="bankDetail">Microbanco · 1.843 variantes N1/N2/N3</div></article>
 <article class="metric"><span>Tentativas</span><strong id="mAttempts">0</strong><small>respostas registradas</small></article>
 <article class="metric"><span>Precisão</span><strong id="mAccuracy">—</strong><small>acertos / tentativas</small></article>
 <article class="metric"><span>Cobertura</span><strong id="mCoverage">0%</strong><small id="mTested">0 de 408 tópicos</small><div class="coverage-track"><i id="coverageFill" style="width:0%"></i></div></article>
