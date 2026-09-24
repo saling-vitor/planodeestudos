@@ -24,6 +24,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Auditoria estrutural
+        run: python3 scripts/validate_production.py
+
       - name: Detectar pacote de produção
         id: package
         shell: bash
@@ -68,6 +71,7 @@ jobs:
           test "$maps" -eq 14 || { echo "ERRO: esperados 14 mapas; encontrados $maps"; exit 1; }
           test "$sims" -eq 3 || { echo "ERRO: esperados 3 simulados; encontrados $sims"; exit 1; }
           echo "Preflight OK: $maps mapas e $sims simulados."
+          python3 scripts/validate_production.py --strict
 
       - name: Preparar site público
         if: steps.package.outputs.ready == 'true'
