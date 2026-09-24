@@ -67,9 +67,9 @@ function sectionPoints(sec){if(Number.isFinite(Number(sec.totalPoints)))return N
 function allocations(stage){const secs=stage?.sections||[],pts=secs.map(sectionPoints),all=pts.length&&pts.every(v=>v!==null),den=all?pts.reduce((a,b)=>a+b,0):secs.reduce((a,s)=>a+Number(s.questions||0),0);return Object.fromEntries(secs.map((s,i)=>[s.id,den?((all?pts[i]:Number(s.questions||0))/den):1/Math.max(1,secs.length)]))}
 const objective=schema?.stages?.find(s=>s.type==='objective')||null,alloc=allocations(objective);
 function render(){
- document.querySelector('.pa-contest-card strong').textContent=`${contest.title||schema?.organization||'Concurso'} · ${contest.position||schema?.position||''}`;
- document.querySelector('.pa-contest-card span').textContent=`${contest.board||schema?.board||'Banca'} · ${contest.notice||schema?.notice||'Edital'}`;
- document.querySelector('.pa-top-k').textContent=`${contest.title||schema?.organization||'Concurso'} · ${contest.position||schema?.position||''}`;
+ 
+ 
+ 
  $('heroTitle').textContent=`${contest.notice||schema?.notice||'Edital'} · ${contest.position||schema?.position||''}`;
  $('mDate').textContent=fmt(schema?.examDate?.date||objective?.date||contest.examDate);
  $('mDateStatus').textContent=schema?.examDate?.status||objective?.dateStatus||'data cadastrada';
