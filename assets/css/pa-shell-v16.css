@@ -659,3 +659,20 @@ body.pa-internal-mode .hero-actions{
   min-height:42px!important;
 }
 
+/* =========================================================
+   PLANO ARQ · RÉGUA GRÁFICA MESTRE V06
+   Topbar alinhada à mesma régua horizontal do conteúdo.
+   ========================================================= */
+@media(min-width:901px){
+  body.pa-internal-mode .pa-topbar{
+    padding-left:max(
+      var(--pa-shell-content-x),
+      calc((100% - var(--pa-shell-content-max))/2 + var(--pa-shell-content-x))
+    )!important;
+    padding-right:max(
+      var(--pa-shell-content-x),
+      calc((100% - var(--pa-shell-content-max))/2 + var(--pa-shell-content-x))
+    )!important;
+  }
+}
+
