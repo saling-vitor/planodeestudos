@@ -189,6 +189,30 @@ if home.is_file():
 else:
     errors.append("index.html ausente")
 
+# Index/Hoje também deve usar somente o shell canônico.
+index_path=ROOT/"index.html"
+if index_path.is_file():
+    index_text=index_path.read_text("utf-8",errors="replace")
+    for forbidden in (
+        "contest-shell","contest-sidebar","contest-topbar","contest-content",
+        "contest-mode","mobile-bottom","mobileNav","mobileMoreMenu",
+        "paBackdrop","paSidebar","paMenuBtn"
+    ):
+        if forbidden in index_text:
+            errors.append(f"index.html: legado de shell detectado: {forbidden}")
+    if '<aside class="pa-sidebar"></aside>' not in index_text:
+        errors.append("index.html: Today deve renderizar sidebar vazia do shell canônico")
+    if "document.body.dataset.paPage='today'" not in index_text:
+        errors.append("index.html: render de Today deve declarar data-pa-page=\'today\'")
+    style_end=index_text.lower().find("</style>")
+    token_pos=index_text.find("assets/css/pa-tokens-v01.css")
+    shell_pos=index_text.find("assets/css/pa-shell-v16.css")
+    comp_pos=index_text.find("assets/css/pa-components-v01.css")
+    if min(style_end,token_pos,shell_pos,comp_pos)<0 or not (style_end < token_pos < shell_pos < comp_pos):
+        errors.append("index.html: ordem CSS inválida; esperado <style> local -> tokens -> shell -> components")
+else:
+    errors.append("index.html ausente")
+
 shell=(ROOT/"assets/css/pa-shell-v16.css")
 if shell.is_file():
     css=shell.read_text("utf-8",errors="replace")
