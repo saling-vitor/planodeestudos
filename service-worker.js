@@ -141,20 +141,36 @@ self.addEventListener('fetch',event=>{
 });
 
 async function cacheUrls(urls){
-  await caches.delete(OFFLINE);
-  const cache=await caches.open(OFFLINE);
+  const temp=`${OFFLINE}-next`;
+  await caches.delete(temp);
+  const next=await caches.open(temp);
   let cached=0,failed=0;
+
   for(const rel of urls||[]){
     try{
       const url=new URL(rel,self.registration.scope).href;
       const response=await fetch(url,{cache:'no-store'});
       if(response.ok){
-        await cache.put(url,response.clone());
+        await next.put(url,response.clone());
         cached++;
       }else failed++;
     }catch(_){failed++}
   }
-  return{ok:true,cached,failed};
+
+  if(failed){
+    await caches.delete(temp);
+    return{ok:false,cached,failed,error:'Pacote offline não foi substituído porque alguns arquivos falharam.'};
+  }
+
+  const entries=await next.keys();
+  await caches.delete(OFFLINE);
+  const stable=await caches.open(OFFLINE);
+  for(const key of entries){
+    const response=await next.match(key);
+    if(response)await stable.put(key,response);
+  }
+  await caches.delete(temp);
+  return{ok:true,cached,failed:0};
 }
 
 async function cacheCounts(){
