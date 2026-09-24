@@ -21,6 +21,11 @@ FORBIDDEN_INLINE=[
     re.compile(r'\.pa-topbar\s*\{'),
     re.compile(r'\.pa-sidebar\s*\{'),
 ]
+SHARED_COMPONENT_SELECTORS={
+    ".eyebrow",".primary-btn",".ghost-btn",".icon-btn",
+    ".section-head",".section-head h2",".section-head span",
+    ".section-head>span",".empty",".empty strong"
+}
 errors=[]
 page_keys={}
 
@@ -48,6 +53,14 @@ for name in PAGES:
         if rx.search(inline):
             errors.append(
                 f"{name}: geometria do shell redefinida inline ({rx.pattern}); use pa-shell-v16.css"
+            )
+
+    base_css=inline.split("@media",1)[0]
+    for selector in sorted(SHARED_COMPONENT_SELECTORS):
+        rx=re.compile(re.escape(selector)+r"\s*\{")
+        if rx.search(base_css):
+            errors.append(
+                f"{name}: componente compartilhado redefinido localmente: {selector}"
             )
 
 shell=(ROOT/"assets/css/pa-shell-v16.css")
