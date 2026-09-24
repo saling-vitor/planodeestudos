@@ -83,7 +83,6 @@ for p in sorted(SIM.glob('Simulado_*.html')):
         'kind':'full-exam',
         'status':'available',
         'sections':secs,
-        'sourceTemplate':'Template_Prova_Concurso_Fundatec_V08_MESTRE_IMAGENS_REAIS.html',
         'nonOfficial':True
     })
 
