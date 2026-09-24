@@ -346,12 +346,12 @@ function renderMapTable(s){
 }
 function renderReviews(s){$('rDone').textContent=s.revEvents.length;$('rRight').textContent=s.revRight;$('rDoubt').textContent=s.revDoubt;$('rWrong').textContent=s.revWrong}
 function render(){const st=periodStats();renderHero(st,st.maps);renderInsight(st);renderKpis(st);renderChart(st);renderProgress(st);groupRows(st);renderMapTable(st);renderReviews(st)}
-function nav(){document.querySelector('.pa-contest-card strong').textContent=`${contest.title||'Concurso'} · ${contest.position||''}`;document.querySelector('.pa-contest-card span').textContent=`${contest.board||'Banca'} · ${contest.notice||'Edital'}`;document.querySelector('.pa-top-k').textContent=`${contest.title||'Concurso'} · ${contest.position||''}`;const side=$('sidebar'),back=$('backdrop'),open=()=>{side.classList.add('open');back.classList.add('show')},close=()=>{side.classList.remove('open');back.classList.remove('show')};$('menuBtn').onclick=open;back.onclick=close;document.querySelectorAll('.pa-nav-item').forEach(btn=>{const l=btn.textContent.trim();if(l==='Hoje')btn.onclick=()=>location.href=`index.html#contest/${contestId}`;if(l==='Planejamento')btn.onclick=()=>location.href=`planejamento.html?contest=${encodeURIComponent(contestId)}`;if(l==='Edital')btn.onclick=()=>location.href=`edital.html?contest=${encodeURIComponent(contestId)}`;if(l==='Mapas')btn.onclick=()=>location.href=`biblioteca.html?contest=${encodeURIComponent(contestId)}`;if(l==='Revisões')btn.onclick=()=>location.href=`revisoes.html?contest=${encodeURIComponent(contestId)}`;if(l==='Questões')btn.onclick=()=>location.href=`questoes.html?contest=${encodeURIComponent(contestId)}`;if(l==='Trocar concurso')btn.onclick=()=>location.href='index.html#home';btn.addEventListener('click',()=>{if(innerWidth<=820)close()})})}
+
 document.querySelectorAll('[data-map-view]').forEach(b=>b.onclick=()=>{mapView=b.dataset.mapView;document.querySelectorAll('[data-map-view]').forEach(x=>x.classList.toggle('active',x===b));render()});
 document.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>{period=b.dataset.period;document.querySelectorAll('[data-period]').forEach(x=>x.classList.toggle('active',x===b));render()});
 $('refreshBtn').onclick=render;$('goToday').onclick=()=>location.href=`index.html#contest/${contestId}`;$('goQuestions').onclick=()=>location.href=`questoes.html?contest=${encodeURIComponent(contestId)}`;$('goDiagnostic').onclick=()=>location.href=`diagnostico.html?contest=${encodeURIComponent(contestId)}`;$('backupBtn').onclick=()=>location.href=`questoes.html?contest=${encodeURIComponent(contestId)}`;
 addEventListener('focus',render);addEventListener('storage',e=>{if((e.key||'').startsWith('planoarq:')||(e.key||'').startsWith('mindmap_state::'))render()});document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
-nav();render();
+render();
 })();
 </script>
 <script src="assets/js/pa-pwa-v01.js"></script></body></html>
