@@ -61,6 +61,7 @@ jobs:
       - name: Gerar manifestos
         if: steps.package.outputs.ready == 'true'
         run: |
+          python3 scripts/build_static_data.py
           python3 scripts/build_materials_manifest.py
           python3 scripts/build_topic_catalogs.py
           python3 scripts/build_simulations_manifest.py
