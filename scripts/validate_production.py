@@ -56,6 +56,27 @@ PLACEHOLDER_ALLOW=(
  "AIza...","...apps.googleusercontent.com"
 )
 
+MATERIAL_META_ALLOWED={
+ "mindmap-storage-id","mindmap-storage-aliases",
+ "plano-arq-bridge-version","plano-arq-contest-id",
+ "plano-arq-legacy-storage-id","plano-arq-source-template",
+ "study-display-title","study-short-title","study-short-code",
+ "study-title-emoji","study-file-version","study-exam-board",
+ "study-exam-contest","study-exam-date","study-library-group",
+ "study-library-order"
+}
+MATERIAL_META_REQUIRED={
+ "mindmap-storage-id","plano-arq-bridge-version","plano-arq-contest-id",
+ "plano-arq-source-template","study-display-title","study-short-title",
+ "study-short-code","study-title-emoji","study-file-version",
+ "study-exam-board","study-exam-contest","study-exam-date",
+ "study-library-group","study-library-order"
+}
+CUSTOM_META_PREFIXES=(
+ "mindmap-","study-","plano-arq-","template-","touch-",
+ "storage-","branch-","memory-","didactic-","cover-"
+)
+
 def norm_ref(source,ref):
     if ref.startswith("./"):
         ref=ref[2:]
@@ -153,6 +174,26 @@ def main():
 
         for p in maps:
             text=p.read_text("utf-8",errors="ignore")
+            meta_names=set(re.findall(
+                r'<meta\\b[^>]*\\bname=["\\']([^"\\']+)["\\'][^>]*>',
+                text,re.I
+            ))
+            missing_meta=sorted(MATERIAL_META_REQUIRED-meta_names)
+            if missing_meta:
+                errors.append(
+                    f"{p.name}: metadados obrigatórios ausentes: {', '.join(missing_meta)}"
+                )
+            obsolete_meta=sorted(
+                name for name in meta_names
+                if name.startswith(CUSTOM_META_PREFIXES)
+                and name not in MATERIAL_META_ALLOWED
+            )
+            if obsolete_meta:
+                errors.append(
+                    f"{p.name}: metadados de geração/legado ainda presentes: "
+                    f"{', '.join(obsolete_meta[:8])}"
+                    + (f" +{len(obsolete_meta)-8}" if len(obsolete_meta)>8 else "")
+                )
             html_ids=ID_RE.findall(text)
             dup_html=sorted({x for x in html_ids if html_ids.count(x)>1})
             if dup_html:
