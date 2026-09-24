@@ -48,7 +48,6 @@
 <div class="filters" id="statusFilters"><button type="button" class="filter active" data-status="">Todos</button><button type="button" class="filter" data-status="not-started">Não iniciados</button><button type="button" class="filter" data-status="progress">Em andamento</button><button type="button" class="filter" data-status="attention">Revisar</button><button type="button" class="filter" data-status="studied">Estudados</button></div>
 <div id="library"></div><div class="empty" id="empty" hidden><strong>Nenhum mapa encontrado</strong><span>Ajuste os filtros ou adicione arquivos HTML à pasta <code>materials/</code>.</span></div>
 </div></main></div>
-<nav class="mobile-bottom"><button type="button">⌂<br>Hoje</button><button type="button">☷<br>Edital</button><button type="button" class="active">◇<br>Mapas</button><button type="button" id="moreBtn">•••<br>Mais</button></nav>
 <div class="viewer" id="viewer"><div class="viewerbar"><div class="viewer-title"><strong id="viewerName">Material</strong><span id="viewerProgress">Aguardando sincronização…</span></div><div class="viewer-actions"><button type="button" class="btn secondary newtab" id="externalBtn">Nova aba</button><button type="button" class="btn primary" id="closeBtn">Voltar</button></div></div><iframe id="frame" title="Material de estudo"></iframe></div><div class="toast" id="toast"></div>
 <script>
 (()=>{'use strict';
@@ -115,7 +114,7 @@ library.addEventListener('click',e=>{const a=e.target.closest('[data-open],[data
    const url=URL.createObjectURL(blob);window.open(url,'_blank','noopener');setTimeout(()=>URL.revokeObjectURL(url),30000)
  }else window.open(current.src,'_blank','noopener')
 });frame.addEventListener('load',()=>setTimeout(requestState,40));addEventListener('message',e=>{const d=e.data||{};if(d.channel!=='plano-arq'||d.type!=='material-state'||e.source!==frame.contentWindow||!current)return;if(d.material?.id&&d.material.id!==current.id)return;writeSummary(current.id,d);const p=d.progress||{},q=d.quiz||{};$('viewerProgress').textContent=`${p.pct||0}% estudado · ${p.done||0} OK · ${p.review||0} REV · ${p.difficult||0} DIF${q.attempts?` · ${q.accuracy}% questões`:''}`;render()});$('refreshBtn').addEventListener('click',()=>{render();if(current)requestState();showToast('Progresso atualizado')});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')render()});addEventListener('storage',render);
-const sidebar=$('sidebar'),backdrop=$('backdrop'),openSide=()=>{sidebar.classList.add('open');backdrop.classList.add('show')},closeSide=()=>{sidebar.classList.remove('open');backdrop.classList.remove('show')};$('menuBtn').addEventListener('click',openSide);$('moreBtn').addEventListener('click',openSide);backdrop.addEventListener('click',closeSide);applyContestIdentity();
+applyContestIdentity();
 document.querySelectorAll('.pa-nav-item').forEach(btn=>{
   const label=btn.textContent.trim();
   if(label==='Hoje')btn.addEventListener('click',()=>location.href=`index.html#contest/${contestParam}`);
