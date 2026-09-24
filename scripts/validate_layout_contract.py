@@ -29,6 +29,13 @@ SHARED_COMPONENT_SELECTORS={
 }
 errors=[]
 page_keys={}
+HERO_FAMILIES={
+    "planning":("direct",3),"edital":("direct",3),"maps":("direct",3),
+    "files":("direct",3),"settings":("direct",3),
+    "reviews":("direct",4),"questions":("direct",4),"performance":("direct",4),
+    "simulations":("nested",4),"errors":("nested",4),
+    "diagnostic":("nested",4),"history":("nested",4),
+}
 
 for name in PAGES:
     path=ROOT/name
@@ -61,6 +68,24 @@ for name in PAGES:
         if key in page_keys:
             errors.append(f"{name}: data-pa-page duplicado com {page_keys[key]}: {key}")
         page_keys[key]=name
+
+        family=HERO_FAMILIES.get(key)
+        hero_match=re.search(r'<section\s+class=["\'](?:hero|page-hero)["\']>([\s\S]*?)</section>',text,re.I)
+        if not hero_match:
+            errors.append(f"{name}: bloco hero não encontrado")
+        elif family:
+            hero=hero_match.group(1)
+            metric_count=len(re.findall(r'<article\s+class=["\'][^"\']*\\b(?:metric|stat)\\b[^"\']*["\']',hero,re.I))
+            nested=bool(re.search(r'class=["\'](?:summary-grid|metric-grid|history-metrics)["\']',hero,re.I))
+            expected_kind,expected_count=family
+            if metric_count != expected_count:
+                errors.append(
+                    f"{name}: hero deveria ter {expected_count} métricas; encontrado {metric_count}"
+                )
+            if expected_kind=="nested" and not nested:
+                errors.append(f"{name}: hero deveria usar wrapper de métricas aninhado")
+            if expected_kind=="direct" and nested:
+                errors.append(f"{name}: hero direto não deve usar wrapper de métricas aninhado")
 
     style_match=re.search(r'<style[^>]*>([\s\S]*?)</style>',text,re.I)
     inline=style_match.group(1) if style_match else ""
