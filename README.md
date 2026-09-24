@@ -1,26 +1,42 @@
 # Plano ARQ
 
-Portal de estudos para concursos de Arquitetura.
+Portal estático de estudos para concursos de Arquitetura, publicado por GitHub Pages e preparado para PWA/offline.
 
 ## Produção
 
-URL esperada do GitHub Pages:
+- URL: `https://saling-vitor.github.io/planodeestudos/`
+- Branch de produção: `main`
+- Deploy: `.github/workflows/pages.yml`
+- 14 mapas de estudo em `materials/`
+- 3 simulados em `simulados/`
+- edital oficial em `edital/`
 
-https://saling-vitor.github.io/planodeestudos/
+O workflow regenera os manifestos, executa um preflight estrutural e só então publica. O artefato do Pages exclui arquivos de manutenção (`.github/`, `scripts/`, `cloud/`, `docs/`, README e arquivos temporários).
 
-A publicação é feita por GitHub Actions a partir do branch `main`.
+## Estrutura
 
-## Arquitetura
+- `index.html` — Hoje / portal
+- `biblioteca.html` — biblioteca de mapas
+- `planejamento.html` — planejamento
+- `edital.html` — central do edital
+- `revisoes.html`, `questoes.html`, `desempenho.html` — ciclo de estudo
+- `simulados.html`, `erros.html`, `diagnostico.html`, `historico.html` — acompanhamento
+- `configuracoes.html` — dados, nuvem e preferências
+- `assets/` — CSS/JavaScript compartilhado
+- `data/` — catálogos e manifestos gerados
+- `scripts/` — geradores usados no deploy
+- `cloud/` — schema/modelos sem credenciais
 
-- HTML/CSS/JavaScript estático
-- PWA + Service Worker
-- local-first
-- sincronização preparada para Supabase
-- snapshots preparados para Google Drive
-- mapas, revisões, questões, simulados, erros, diagnóstico e histórico
+## Segurança e dados
 
-## Deploy
+Não há URL/chave Supabase, credenciais Google nem pasta pessoal do Drive gravadas no código de produção. Essas configurações são fornecidas pelo usuário no próprio Portal.
 
-O workflow `.github/workflows/pages.yml` usa GitHub Pages Actions.
+## Desenvolvimento local
 
-Produção preparada na ETAPA 19.
+Service Worker e PWA exigem HTTP/HTTPS. Para testar localmente:
+
+```bash
+python -m http.server 8080
+```
+
+Abra `http://localhost:8080/`.

@@ -1,0 +1,83 @@
+name: Publicar Plano ARQ
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Gerar manifestos
+        run: |
+          python3 scripts/build_materials_manifest.py
+          python3 scripts/build_simulations_manifest.py
+          python3 scripts/build_files_manifest.py
+          python3 scripts/build_offline_pack.py
+
+      - name: Validar pacote de produção
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            index.html biblioteca.html planejamento.html edital.html revisoes.html
+            questoes.html desempenho.html arquivos.html simulados.html erros.html
+            diagnostico.html historico.html configuracoes.html creditos.html offline.html
+            404.html manifest.webmanifest service-worker.js .nojekyll
+            assets/css/pa-tokens-v01.css assets/css/pa-components-v01.css assets/css/pa-shell-v16.css
+            assets/js/pa-pwa-v01.js assets/js/pa-shell-v16.js assets/js/pa-data-v03.js
+            assets/js/pa-sync-v03.js assets/js/pa-drive-v01.js assets/js/pa-actions-v01.js
+            data/navigation.js data/contests.js data/materials.js data/exam-schemas.js
+            data/question-catalog.js data/review-catalog.js data/simulations.js
+            data/cloud-config.js data/offline-pack.json
+          )
+          for f in "${required[@]}"; do
+            test -f "$f" || { echo "ERRO: arquivo obrigatório ausente: $f"; exit 1; }
+          done
+          maps=$(find materials -maxdepth 1 -type f -name '*.html' | wc -l | tr -d ' ')
+          sims=$(find simulados -maxdepth 1 -type f -name '*.html' | wc -l | tr -d ' ')
+          test "$maps" -eq 14 || { echo "ERRO: esperados 14 mapas; encontrados $maps"; exit 1; }
+          test "$sims" -eq 3 || { echo "ERRO: esperados 3 simulados; encontrados $sims"; exit 1; }
+          echo "Preflight OK: $maps mapas e $sims simulados."
+
+      - name: Preparar site público
+        run: |
+          mkdir -p _site
+          rsync -a \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='scripts/' \
+            --exclude='cloud/' \
+            --exclude='docs/' \
+            --exclude='README.md' \
+            --exclude='.gitignore' \
+            --exclude='*.zip' \
+            ./ _site/
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Enviar artefato
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4
