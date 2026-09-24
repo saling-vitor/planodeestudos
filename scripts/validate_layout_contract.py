@@ -128,6 +128,29 @@ for name in PAGES:
             f"{name}: ordem CSS inválida; esperado <style> local -> tokens -> shell -> components"
         )
 
+# Hoje é renderizado dinamicamente, mas deve obedecer ao mesmo shell.
+home=(ROOT/"index.html")
+if home.is_file():
+    home_text=home.read_text("utf-8",errors="replace")
+    if '<aside class="pa-sidebar" id="paSidebar"></aside>' not in home_text:
+        errors.append("index.html: Hoje deve renderizar sidebar vazia para o shell compartilhado")
+    for legacy_id in (
+        "sidePlan","sideEdital","sideMaps","sideReviews","sideQuestions",
+        "sidePerformance","sideFiles","switchContest","settingsBtn"
+    ):
+        if legacy_id in home_text:
+            errors.append(f"index.html: navegação legada detectada em Hoje: {legacy_id}")
+    if re.search(r'openSide|closeSide|innerWidth\s*<=\s*820',home_text):
+        errors.append("index.html: controlador de drawer legado detectado em Hoje")
+    style_end=home_text.lower().find("</style>")
+    token_pos=home_text.find("assets/css/pa-tokens-v01.css")
+    shell_pos=home_text.find("assets/css/pa-shell-v16.css")
+    comp_pos=home_text.find("assets/css/pa-components-v01.css")
+    if min(style_end,token_pos,shell_pos,comp_pos)<0 or not (style_end < token_pos < shell_pos < comp_pos):
+        errors.append("index.html: ordem CSS inválida; esperado <style> local -> tokens -> shell -> components")
+else:
+    errors.append("index.html ausente")
+
 shell=(ROOT/"assets/css/pa-shell-v16.css")
 if shell.is_file():
     css=shell.read_text("utf-8",errors="replace")
