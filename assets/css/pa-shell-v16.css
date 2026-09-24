@@ -246,7 +246,7 @@ body.pa-internal-mode .pa-content :is(.metric,.stat,.today-metric)>small{
 /* Desktop amplo: mesma coluna de leitura em qualquer módulo. */
 @media(min-width:1501px){
   body.pa-internal-mode .pa-content>.today-hero,
-  body.pa-internal-mode[data-pa-page="planning"] .pa-content>.page-hero,
+  body.pa-internal-mode[data-pa-page="planning"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="edital"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="maps"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="files"] .pa-content>.hero,
@@ -288,7 +288,7 @@ body.pa-internal-mode .pa-content :is(.metric,.stat,.today-metric)>small{
     grid-column:1/-1;min-height:156px
   }
   body.pa-internal-mode .pa-content>.today-hero,
-  body.pa-internal-mode[data-pa-page="planning"] .pa-content>.page-hero,
+  body.pa-internal-mode[data-pa-page="planning"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="edital"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="maps"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="files"] .pa-content>.hero,
@@ -428,7 +428,7 @@ body.pa-internal-mode .pa-content>.today-section{margin-top:24px}
   body.pa-internal-mode .pa-content :is(.hero-main,.today-main-card)>p{min-height:0}
   body.pa-internal-mode :is(.hero-actions,.today-main-actions){min-height:0}
   body.pa-internal-mode .pa-content>.today-hero,
-  body.pa-internal-mode[data-pa-page="planning"] .pa-content>.page-hero,
+  body.pa-internal-mode[data-pa-page="planning"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="edital"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="maps"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="files"] .pa-content>.hero,
@@ -469,7 +469,7 @@ body.pa-internal-mode .pa-content>.today-section{margin-top:24px}
 }
 @media(max-width:600px){
   body.pa-internal-mode .pa-content>.today-hero,
-  body.pa-internal-mode[data-pa-page="planning"] .pa-content>.page-hero,
+  body.pa-internal-mode[data-pa-page="planning"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="edital"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="maps"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="files"] .pa-content>.hero,
