@@ -49,8 +49,56 @@ function bindCommonMore(){
  window.addEventListener('scroll',closeCommonMenu,{passive:true,capture:true})
 }
 function mobileItem(key,label){const item=allItems().find(x=>x.key===key),active=pageKey()===key;if(!item)return'';return `<a class="${active?'active':''}" href="${esc(href(item,contestId()))}">${iconHTML(item)}<span>${esc(label||item.label)}</span></a>`}
-function bindMobileMoreCloser(){if(document.documentElement.dataset.paMobileCloserBound)return;document.documentElement.dataset.paMobileCloserBound='1';document.addEventListener('pointerdown',e=>{const more=document.getElementById('paMobileMore');if(more?.classList.contains('open')&&!more.contains(e.target)&&!e.target.closest?.('#paMobileMoreBtn'))more.classList.remove('open')})}
-function ensureMobileNav(){document.querySelectorAll('.mobile-bottom').forEach(x=>x.style.setProperty('display','none','important'));if(document.getElementById('paMobileNav'))return;document.body.insertAdjacentHTML('beforeend',`<nav class="pa-mobile-nav" id="paMobileNav">${mobileItem('today','Hoje')}${mobileItem('edital','Edital')}${mobileItem('maps','Mapas')}<button type="button" id="paMobileMoreBtn">•••<span>Mais</span></button></nav><div class="pa-mobile-more" id="paMobileMore"></div>`);const more=document.getElementById('paMobileMore'),current=pageKey(),keys=['planning','reviews','questions','performance','files','settings'];more.innerHTML=keys.map(k=>{const i=allItems().find(x=>x.key===k);if(!i)return'';return `<a class="${current===k?'active':''}" href="${esc(href(i,contestId()))}">${esc(i.label)}</a>`}).join('');document.getElementById('paMobileMoreBtn').onclick=()=>more.classList.toggle('open');bindMobileMoreCloser()}
+function bindMobileMoreCloser(){
+ if(document.documentElement.dataset.paMobileCloserBound)return;
+ document.documentElement.dataset.paMobileCloserBound='1';
+ document.addEventListener('pointerdown',e=>{
+   const more=document.getElementById('paMobileMore'),btn=document.getElementById('paMobileMoreBtn');
+   if(more?.classList.contains('open')&&!more.contains(e.target)&&!e.target.closest?.('#paMobileMoreBtn')){
+     more.classList.remove('open');btn?.setAttribute('aria-expanded','false')
+   }
+ });
+ document.addEventListener('keydown',e=>{
+   if(e.key!=='Escape')return;
+   const more=document.getElementById('paMobileMore'),btn=document.getElementById('paMobileMoreBtn');
+   if(more?.classList.contains('open')){more.classList.remove('open');btn?.setAttribute('aria-expanded','false');btn?.focus()}
+ })
+}
+function mobileMoreEntry(item,current){
+ const active=current===item.key,classes=active?'active':'';
+ if(item.status==='future'){
+   return `<button type="button" class="${classes}" data-pa-mobile-future="${esc(item.key)}">${iconHTML(item)}<span>${esc(item.label)}</span></button>`
+ }
+ return `<a class="${classes}" href="${esc(href(item,contestId()))}" ${active?'aria-current="page"':''}>${iconHTML(item)}<span>${esc(item.label)}</span></a>`
+}
+function mobileMoreHTML(){
+ const current=pageKey(),excluded=new Set(['today','edital','maps']);
+ const groups=(NAV.groups||[]).map(group=>{
+   const items=(group.items||[]).filter(item=>!excluded.has(item.key));
+   if(!items.length)return'';
+   return `<section class="pa-mobile-more-group"><div class="pa-mobile-more-label">${esc(group.label)}</div><div class="pa-mobile-more-grid">${items.map(i=>mobileMoreEntry(i,current)).join('')}</div></section>`
+ }).join('');
+ const footer=(NAV.footer||[]).filter(i=>['switch','settings'].includes(i.key));
+ return `<div class="pa-mobile-more-head"><div><strong>Mais</strong><span>Navegação do concurso</span></div></div>${groups}<section class="pa-mobile-more-group pa-mobile-more-footer"><div class="pa-mobile-more-grid">${footer.map(i=>mobileMoreEntry(i,current)).join('')}</div></section>`
+}
+function ensureMobileNav(){
+ document.querySelectorAll('.mobile-bottom').forEach(x=>x.remove());
+ if(document.getElementById('paMobileNav'))return;
+ document.body.insertAdjacentHTML('beforeend',
+   `<nav class="pa-mobile-nav" id="paMobileNav">${mobileItem('today','Hoje')}${mobileItem('edital','Edital')}${mobileItem('maps','Mapas')}<button type="button" id="paMobileMoreBtn" aria-expanded="false" aria-controls="paMobileMore">•••<span>Mais</span></button></nav><div class="pa-mobile-more" id="paMobileMore" aria-label="Mais áreas do concurso"></div>`
+ );
+ const more=document.getElementById('paMobileMore'),btn=document.getElementById('paMobileMoreBtn');
+ more.innerHTML=mobileMoreHTML();
+ more.querySelectorAll('[data-pa-mobile-future]').forEach(b=>b.addEventListener('click',()=>{
+   const item=allItems().find(x=>x.key===b.dataset.paMobileFuture);
+   info(item?.label||'Área indisponível',`${item?.label||'Esta área'} ainda não está disponível nesta versão.`,'Indisponível')
+ }));
+ btn.onclick=()=>{
+   const open=more.classList.toggle('open');
+   btn.setAttribute('aria-expanded',open?'true':'false')
+ };
+ bindMobileMoreCloser()
+}
 function init(){applyPrefs();ensureModal();scan();syncTopbar();bindDrawer();bindCommonMore();ensureMobileNav();new MutationObserver(m=>{let needShell=false,needMore=false;for(const x of m){for(const n of x.addedNodes){if(n.nodeType!==1)continue;if(n.matches?.('.pa-sidebar')||n.querySelector?.('.pa-sidebar'))needShell=true;if(n.matches?.('.pa-top-actions')||n.querySelector?.('.pa-top-actions'))needMore=true;if(needShell&&needMore)break}if(needShell&&needMore)break}if(needShell)requestAnimationFrame(scan);if(needMore)requestAnimationFrame(bindCommonMore)}).observe(document.documentElement,{childList:true,subtree:true});window.addEventListener('planoarq:preferences',applyPrefs);window.addEventListener('storage',e=>{if(e.key==='planoarq:preferences:v1')applyPrefs()});window.addEventListener('hashchange',()=>{closeCommonMenu();document.querySelectorAll('.pa-sidebar').forEach(x=>delete x.dataset.paShellBuilt);scan();syncTopbar();bindCommonMore();document.getElementById('paMobileNav')?.remove();document.getElementById('paMobileMore')?.remove();ensureMobileNav()})}
 window.PLANO_ARQ_SHELL={version:VERSION,info,confirm:confirmAction,scan,closeDrawer,closeCommonMenu};
 window.addEventListener('planoarq:sync-status',e=>{document.documentElement.dataset.paSyncState=e.detail?.state||''});window.addEventListener('planoarq:drive-status',e=>{document.documentElement.dataset.paDriveState=e.detail?.state||''});window.addEventListener('planoarq:pwa-status',e=>{document.documentElement.dataset.paOnline=e.detail?.online?'online':'offline';document.documentElement.dataset.paInstalled=e.detail?.installed?'1':'0'});
