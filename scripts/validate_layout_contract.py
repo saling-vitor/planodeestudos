@@ -10,6 +10,7 @@ PAGES=[
 ]
 REQUIRED=[
     'assets/css/pa-shell-v16.css',
+    'assets/css/pa-components-v01.css',
     'assets/js/pa-shell-v16.js',
     'class="pa-main"',
     'class="pa-content"',
