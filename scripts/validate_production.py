@@ -175,7 +175,7 @@ def main():
         for p in maps:
             text=p.read_text("utf-8",errors="ignore")
             meta_names=set(re.findall(
-                r"<meta\\b[^>]*\\bname=['\\\"]([^'\\\"]+)['\\\"][^>]*>",
+                r"<meta\b[^>]*\bname=['\"]([^'\"]+)['\"][^>]*>",
                 text,re.I
             ))
             missing_meta=sorted(MATERIAL_META_REQUIRED-meta_names)
