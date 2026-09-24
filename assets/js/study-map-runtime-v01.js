@@ -24,7 +24,6 @@
   requestAnimationFrame(sync);
 })();
 
-
 /* bloco compartilhado 02 */
 
 (function(){
@@ -128,7 +127,6 @@
   else init();
 })();
 
-
 /* bloco compartilhado 03 */
 
 (()=>{
@@ -201,7 +199,6 @@
   requestAnimationFrame(reconcile);
   setTimeout(reconcile,120);
 })();
-
 
 /* bloco compartilhado 04 */
 
@@ -330,7 +327,6 @@
   });
 })();
 
-/* V131.9.12 — refinamento editorial/comportamental leve */
 (function(){
   'use strict';
   const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
@@ -419,17 +415,8 @@
   });
 })();
 
-
-
 /* bloco compartilhado 05 */
 
-/* =========================================================
-   V132.10.14.3.4 — TÓPICOS FECHADOS POR PADRÃO
-   Estado inicial de qualquer mapa gerado a partir desta template:
-   todos os <details.topic-card> começam fechados.
-   Aberturas posteriores por busca/revisão/véspera/retomar/expandir
-   continuam funcionando normalmente.
-   ========================================================= */
 (function(){
   const closeAllGeneratedTopics = () => {
     document.querySelectorAll('details.topic-card').forEach(topic => {
@@ -446,7 +433,6 @@
     closeAllGeneratedTopics();
   }
 })();
-
 
 /* bloco compartilhado 06 */
 
@@ -526,7 +512,6 @@
   else run();
 })();
 
-
 /* bloco compartilhado 07 */
 
 (()=>{
@@ -565,7 +550,6 @@
   update();
 })();
 
-
 /* bloco compartilhado 08 */
 
 (()=>{
@@ -599,7 +583,6 @@
   /* expõe para geradores/rotinas que substituam o conteúdo */
   window.applyBranchPalette=applyBranchPalette;
 })();
-
 
 /* bloco compartilhado 09 */
 
@@ -700,7 +683,6 @@
   window.fitBranchTitlesSingleLine=schedule;
 })();
 
-
 /* bloco compartilhado 10 */
 
 (()=>{
@@ -749,7 +731,6 @@
 
   update();
 })();
-
 
 /* bloco compartilhado 11 */
 
@@ -940,7 +921,6 @@
   sync();
 })();
 
-
 /* bloco compartilhado 12 */
 
 (()=>{
@@ -989,7 +969,6 @@
     passam a incluir automaticamente as duas barras.
   */
 })();
-
 
 /* bloco compartilhado 13 */
 
@@ -1041,7 +1020,6 @@
   mq.addEventListener?.('change',clear);
 })();
 
-
 /* bloco compartilhado 14 */
 
 (()=>{
@@ -1066,7 +1044,6 @@
   syncMoreLabel();
   mq.addEventListener?.('change',syncMoreLabel);
 })();
-
 
 /* bloco compartilhado 15 */
 
@@ -1111,7 +1088,6 @@
   }
 })();
 
-
 /* bloco compartilhado 16 */
 
 (()=>{
@@ -1136,7 +1112,6 @@
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mark,{once:true});else mark();
   }
 })();
-
 
 /* bloco compartilhado 17 */
 
@@ -1186,7 +1161,6 @@
   const obs=new MutationObserver(()=>enhanceAll()); obs.observe(document.documentElement,{subtree:true,childList:true});
   enhanceAll(); requestAnimationFrame(enhanceAll); setTimeout(enhanceAll,80);
 })();
-
 
 /* bloco compartilhado 19 */
 
@@ -1347,7 +1321,6 @@
   refreshHub();window.MINDMAP_V134=Object.assign(window.MINDMAP_V134||API,{refresh:refreshHub,audit});window.MINDMAP_V133=window.MINDMAP_V134;
 })();
 
-
 /* bloco compartilhado 22 */
 
 (()=>{
@@ -1435,7 +1408,6 @@
   window.MINDMAP_V139=Object.assign(window.MINDMAP_V139,{startSession,buildPlan,coverage,sync:syncAll,syncCheckpointButtons,masteryOf}); window.MINDMAP_V135=window.MINDMAP_V139;
 })();
 
-
 /* bloco compartilhado 23 */
 
 (()=>{
@@ -1473,7 +1445,6 @@
   document.documentElement.dataset.identityAudit=result.ok?'ok':'review';
   if(!result.ok&&!hasPlaceholder(title)) console.warn('[V141 · auditoria de identidade]',issues);
 })();
-
 
 /* bloco compartilhado 24 */
 
@@ -1554,7 +1525,6 @@
   });
 })();
 
-
 /* bloco compartilhado 25 */
 
 (()=>{
@@ -1619,7 +1589,6 @@
   setTimeout(schedule,300);
 })();
 
-
 /* bloco compartilhado 26 */
 
 (()=>{
@@ -1633,7 +1602,6 @@
     source.click();
   });
 })();
-
 
 /* bloco compartilhado 27 */
 
