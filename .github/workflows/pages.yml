@@ -73,6 +73,24 @@ jobs:
           echo "Preflight OK: $maps mapas e $sims simulados."
           python3 scripts/validate_production.py --strict
 
+      - name: Versionar cache do PWA
+        if: steps.package.outputs.ready == 'true'
+        shell: bash
+        run: |
+          short_sha="${GITHUB_SHA:0:8}"
+          python3 - "$short_sha" <<'PY'
+          import re, sys
+          from pathlib import Path
+          p=Path("service-worker.js")
+          text=p.read_text("utf-8")
+          version=f"19.0-{sys.argv[1]}"
+          updated,n=re.subn(r"const VERSION='[^']+';",f"const VERSION='{version}';",text,count=1)
+          if n!=1:
+              raise SystemExit("Não foi possível versionar o service worker")
+          p.write_text(updated,"utf-8")
+          print(f"Service Worker: {version}")
+          PY
+
       - name: Preparar site público
         if: steps.package.outputs.ready == 'true'
         run: |
