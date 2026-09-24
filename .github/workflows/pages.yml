@@ -31,12 +31,32 @@ jobs:
         id: package
         shell: bash
         run: |
-          if [[ ! -f scripts/build_materials_manifest.py || ! -d materials || ! -d simulados || ! -d assets || ! -d data || ! -d edital || ! -f manifest.webmanifest ]]; then
+          missing=()
+          for path in scripts/build_materials_manifest.py materials simulados assets data edital manifest.webmanifest; do
+            [[ -e "$path" ]] || missing+=("$path")
+          done
+          if (( ${#missing[@]} )); then
             echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Pacote de produção ainda não está completo no branch main. Deploy preservado até o upload do pacote final."
+            printf 'missing=%s\n' "$(IFS=', '; echo "${missing[*]}")" >> "$GITHUB_OUTPUT"
+            echo "::notice::Pacote de produção incompleto. Publicação anterior preservada."
             exit 0
           fi
           echo "ready=true" >> "$GITHUB_OUTPUT"
+          echo "missing=" >> "$GITHUB_OUTPUT"
+
+      - name: Resumo do pacote incompleto
+        if: steps.package.outputs.ready != 'true'
+        shell: bash
+        run: |
+          {
+            echo "## GitHub Pages preservado"
+            echo
+            echo "O branch `main` ainda não contém todo o pacote necessário para uma publicação segura."
+            echo
+            echo "**Ausentes:** `${{ steps.package.outputs.missing }}`"
+            echo
+            echo "Nenhum deploy foi executado; a última versão publicada continua intacta."
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Gerar manifestos
         if: steps.package.outputs.ready == 'true'
