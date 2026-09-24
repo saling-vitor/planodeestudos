@@ -49,9 +49,10 @@ for name in PAGES:
         if token not in text:
             errors.append(f"{name}: contrato do shell ausente: {token}")
 
-    if not re.search(r'<aside class=["\']pa-sidebar["\']>\s*</aside>',text,re.I):
-        errors.append(f"{name}: sidebar deve estar vazia e ser gerada por pa-shell-v16.js")
-    if re.search(r'<aside class=["\']pa-sidebar["\'][^>]*>[^<]*<',text,re.I):
+    aside_match=re.search(r'<aside class=["\']pa-sidebar["\']>([\s\S]*?)</aside>',text,re.I)
+    if not aside_match:
+        errors.append(f"{name}: sidebar canônica ausente")
+    elif aside_match.group(1).strip():
         errors.append(f"{name}: conteúdo hardcoded detectado na sidebar")
     if re.search(r'<(?:aside|button|div)[^>]+id=["\'](?:sidebar|menuBtn|backdrop)["\']',text,re.I):
         errors.append(f"{name}: IDs legados de shell detectados")
@@ -135,9 +136,18 @@ for name in PAGES:
             f"{name}: tokens visuais base redefinidos localmente; use pa-tokens-v01.css"
         )
 
+    local_selectors=set()
+    for match in re.finditer(r'([^{}]+)\{[^{}]*\}',inline):
+        selector_text=re.sub(r'/\*[\s\S]*?\*/','',match.group(1)).strip()
+        if selector_text.startswith("@"):
+            continue
+        for selector in selector_text.split(","):
+            selector=" ".join(selector.strip().split())
+            if selector:
+                local_selectors.add(selector)
+
     for selector in sorted(SHARED_COMPONENT_SELECTORS):
-        rx=re.compile(re.escape(selector)+r"\s*\{")
-        if rx.search(base_css):
+        if selector in local_selectors:
             errors.append(
                 f"{name}: componente compartilhado redefinido localmente: {selector}"
             )
