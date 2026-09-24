@@ -609,3 +609,53 @@ body.pa-internal-mode .pa-content>.today-hero + *{
   margin-top:18px!important;
 }
 
+/* =========================================================
+   PLANO ARQ · RÉGUA GRÁFICA MESTRE V05
+   Alinhamento interno dos heroes e métricas.
+   ========================================================= */
+body.pa-internal-mode .pa-content>.hero .hero-main,
+body.pa-internal-mode .pa-content>.page-hero .hero-main,
+body.pa-internal-mode .pa-content>.today-hero .today-main-card{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+}
+body.pa-internal-mode .pa-content>.hero>.metric,
+body.pa-internal-mode .pa-content>.page-hero>.metric,
+body.pa-internal-mode .pa-content>.today-hero>.today-metric,
+body.pa-internal-mode .pa-content>.hero>.stat{
+  padding:15px 16px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:space-between!important;
+}
+body.pa-internal-mode .pa-content>.hero>.metric>span,
+body.pa-internal-mode .pa-content>.page-hero>.metric>span,
+body.pa-internal-mode .pa-content>.today-hero>.today-metric>span,
+body.pa-internal-mode .pa-content>.hero>.stat>span,
+body.pa-internal-mode[data-pa-page="simulations"] .pa-content>.hero>.summary-grid>.metric>span,
+body.pa-internal-mode[data-pa-page="errors"] .pa-content>.hero>.metric-grid>.metric>span,
+body.pa-internal-mode[data-pa-page="diagnostic"] .pa-content>.hero>.metric-grid>.metric>span{
+  display:block!important;
+  color:#7d838c!important;
+  font:800 7.4px/1.2 var(--pa-mono)!important;
+  letter-spacing:.105em!important;
+  text-transform:uppercase!important;
+}
+body.pa-internal-mode .pa-content>.hero>.metric>small,
+body.pa-internal-mode .pa-content>.page-hero>.metric>small,
+body.pa-internal-mode .pa-content>.today-hero>.today-metric>small,
+body.pa-internal-mode .pa-content>.hero>.stat>small{
+  display:block!important;
+  margin-top:5px!important;
+  color:#7f858d!important;
+  font-size:9.4px!important;
+  line-height:1.4!important;
+}
+body.pa-internal-mode .hero-actions{
+  display:flex!important;
+  align-items:center!important;
+  flex-wrap:wrap!important;
+  min-height:42px!important;
+}
+
