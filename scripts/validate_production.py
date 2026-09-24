@@ -20,10 +20,12 @@ SOURCE_REQUIRED={
  "scripts/build_files_manifest.py","scripts/build_offline_pack.py",
  "assets/css/pa-tokens-v01.css","assets/css/pa-components-v01.css",
  "assets/css/pa-shell-v16.css","assets/css/study-map-shared-v01.css",
+ "assets/css/simulation-shared-v01.css",
  "assets/js/pa-pwa-v01.js","assets/js/pa-shell-v16.js",
  "assets/js/pa-data-v03.js","assets/js/pa-sync-v03.js",
  "assets/js/pa-drive-v01.js","assets/js/pa-actions-v01.js",
  "assets/js/pa-history-v01.js","assets/js/study-map-bootstrap-v01.js",
+ "assets/js/simulation-runtime-v01.js",
  "assets/js/study-map-preconfig-v01.js","assets/js/study-map-runtime-v01.js",
  "assets/img/study-map-bg.png","assets/img/study-map-hero.jpg"
 }
@@ -161,6 +163,21 @@ def main():
             if "data:image/jpeg;base64," in text:
                 errors.append(
                     f"{p.name}: imagem hero ainda embutida em base64"
+                )
+
+        for p in sims:
+            text=p.read_text("utf-8",errors="ignore")
+            if "../assets/css/simulation-shared-v01.css" not in text:
+                errors.append(
+                    f"{p.name}: CSS compartilhado dos simulados não referenciado"
+                )
+            if "../assets/js/simulation-runtime-v01.js" not in text:
+                errors.append(
+                    f"{p.name}: runtime compartilhado dos simulados não referenciado"
+                )
+            if "FIM — ÁREA EDITÁVEL PELO GERADOR" in text:
+                errors.append(
+                    f"{p.name}: instruções internas do gerador ainda embarcadas"
                 )
 
     print(
