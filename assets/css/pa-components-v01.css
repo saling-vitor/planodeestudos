@@ -1,19 +1,5 @@
-/* Plano ARQ Components V01 · visual bridge to TemplateEstudos V166 */
-body.pa-internal-mode :is(.ghost-btn,.primary-btn,.icon-btn){min-height:44px;border-radius:11px;box-shadow:inset 0 1px rgba(255,255,255,.018)}
-body.pa-internal-mode .ghost-btn{border-color:rgba(255,255,255,.10);background:linear-gradient(180deg,#111318,#0d0f13);color:#c9c5bd}
-body.pa-internal-mode .ghost-btn:hover{border-color:#4a4f58;background:#15181d;color:#f0ede6}
-body.pa-internal-mode .primary-btn{border-color:rgba(109,130,152,.46);background:linear-gradient(180deg,rgba(109,130,152,.18),rgba(109,130,152,.09));color:#e3edf4}
-body.pa-internal-mode .icon-btn{border-color:rgba(255,255,255,.10);background:linear-gradient(180deg,#111318,#0d0f13);color:#c7cbd1}
-body.pa-internal-mode :is(input,select){border-radius:11px!important;border-color:rgba(255,255,255,.10)!important;background:#111319!important;color:#dfe1e4!important}
-body.pa-internal-mode :is(.panel,.hero-main,.metric,.stat,.today-main-card,.today-metric,.today-panel){border:1px solid rgba(255,255,255,.09)!important;background:radial-gradient(420px 160px at 0 0,rgba(109,130,152,.035),transparent 70%),linear-gradient(180deg,rgba(12,14,17,.91),rgba(7,9,12,.96))!important;box-shadow:0 15px 34px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.018)!important}
-body.pa-internal-mode .eyebrow{border-color:rgba(216,197,158,.20)!important;background:rgba(216,197,158,.035)!important;color:#c8b288!important}
-body.pa-internal-mode table th{background:#111318;color:#d6c39a}
-@media(pointer:coarse){body.pa-internal-mode :is(.ghost-btn,.primary-btn,.icon-btn,input,select){min-height:48px}}
-
-/* =========================================================
-   PLANO ARQ · COMPONENTES DE PRODUÇÃO V02
-   Controles, toolbars, filtros, painéis, vazios e linhas.
-   ========================================================= */
+/* Plano ARQ · Componentes canônicos de produção · 2026-09
+   Única fonte de botões, campos, filtros, painéis, tabelas e estados. */
 body.pa-internal-mode{
   --pa-ui-control-h:42px;
   --pa-ui-control-radius:10px;
@@ -22,436 +8,168 @@ body.pa-internal-mode{
   --pa-ui-toolbar-gap:8px;
 }
 
-/* Botões: um único sistema visual, mantendo minis separados. */
-body.pa-internal-mode :is(.primary-btn,button.primary:not(.mini)){
-  min-height:var(--pa-ui-control-h)!important;
-  padding:0 15px!important;
-  border:1px solid rgba(109,130,152,.50)!important;
-  border-radius:var(--pa-ui-control-radius)!important;
-  background:linear-gradient(180deg,rgba(109,130,152,.20),rgba(109,130,152,.10))!important;
-  color:#e3edf4!important;
-  font-size:10.5px!important;
-  font-weight:780!important;
-  line-height:1!important;
-  box-shadow:inset 0 1px rgba(255,255,255,.025)!important;
+/* ===== Botões ===== */
+body.pa-internal-mode :is(.primary-btn,button.primary:not(.mini),.btn.primary){
+  min-height:var(--pa-ui-control-h);padding:0 15px;
+  border:1px solid rgba(109,130,152,.50);border-radius:var(--pa-ui-control-radius);
+  background:linear-gradient(180deg,rgba(109,130,152,.20),rgba(109,130,152,.10));
+  color:#e3edf4;font-size:10.5px;font-weight:780;line-height:1;
+  box-shadow:inset 0 1px rgba(255,255,255,.025)
 }
-body.pa-internal-mode :is(.ghost-btn,button.ghost:not(.mini)){
-  min-height:var(--pa-ui-control-h)!important;
-  padding:0 13px!important;
-  border:1px solid rgba(255,255,255,.10)!important;
-  border-radius:var(--pa-ui-control-radius)!important;
-  background:linear-gradient(180deg,#111318,#0d0f13)!important;
-  color:#c9cbd0!important;
-  font-size:10.5px!important;
-  font-weight:750!important;
-  line-height:1!important;
+body.pa-internal-mode :is(.ghost-btn,button.ghost:not(.mini),.btn.secondary){
+  min-height:var(--pa-ui-control-h);padding:0 13px;
+  border:1px solid rgba(255,255,255,.10);border-radius:var(--pa-ui-control-radius);
+  background:linear-gradient(180deg,#111318,#0d0f13);
+  color:#c9cbd0;font-size:10.5px;font-weight:750;line-height:1
 }
 body.pa-internal-mode .icon-btn{
-  width:42px!important;
-  min-width:42px!important;
-  height:var(--pa-ui-control-h)!important;
-  min-height:var(--pa-ui-control-h)!important;
-  padding:0!important;
-  border:1px solid rgba(255,255,255,.10)!important;
-  border-radius:var(--pa-ui-control-radius)!important;
-  background:linear-gradient(180deg,#111318,#0d0f13)!important;
-  color:#c7cbd1!important;
+  width:42px;min-width:42px;height:var(--pa-ui-control-h);min-height:var(--pa-ui-control-h);padding:0;
+  border:1px solid rgba(255,255,255,.10);border-radius:var(--pa-ui-control-radius);
+  background:linear-gradient(180deg,#111318,#0d0f13);color:#c7cbd1
 }
-body.pa-internal-mode :is(.primary-btn,button.primary:not(.mini),.ghost-btn,button.ghost:not(.mini),.icon-btn):hover{
-  border-color:rgba(145,163,181,.42)!important;
-  filter:brightness(1.08);
+body.pa-internal-mode :is(.primary-btn,button.primary:not(.mini),.btn.primary,.ghost-btn,button.ghost:not(.mini),.btn.secondary,.icon-btn):hover{
+  border-color:rgba(145,163,181,.42);filter:brightness(1.08)
 }
-body.pa-internal-mode :is(.primary-btn,button.primary:not(.mini),.ghost-btn,button.ghost:not(.mini),.icon-btn):disabled{
-  opacity:.42!important;
-  cursor:not-allowed!important;
-  filter:none!important;
+body.pa-internal-mode :is(.primary-btn,button.primary:not(.mini),.btn.primary,.ghost-btn,button.ghost:not(.mini),.btn.secondary,.icon-btn):disabled{
+  opacity:.42;cursor:not-allowed;filter:none
 }
-body.pa-internal-mode .mini{
-  min-height:34px!important;
-  padding:0 9px!important;
-  border-radius:8px!important;
-  font-size:8.8px!important;
-  font-weight:760!important;
+body.pa-internal-mode :is(.mini,.mini-btn,.small){
+  min-height:34px;padding:0 9px;border-radius:8px;font-size:8.8px;font-weight:760
 }
 
-/* Campos e barras de ferramentas. A grade continua definida pelo módulo. */
+/* ===== Campos / toolbars ===== */
 body.pa-internal-mode :is(.tools,.toolbar){
-  margin-top:16px!important;
-  gap:var(--pa-ui-toolbar-gap)!important;
-  padding:9px!important;
-  border:1px solid rgba(255,255,255,.09)!important;
-  border-radius:13px!important;
-  background:rgba(8,10,13,.82)!important;
-  box-shadow:inset 0 1px rgba(255,255,255,.014)!important;
+  margin-top:16px;gap:var(--pa-ui-toolbar-gap);padding:9px;
+  border:1px solid rgba(255,255,255,.09);border-radius:13px;
+  background:rgba(8,10,13,.82);box-shadow:inset 0 1px rgba(255,255,255,.014)
 }
 body.pa-internal-mode :is(.tools,.toolbar) :is(input,select,.search),
 body.pa-internal-mode :is(input[type="search"],input.search){
-  height:var(--pa-ui-control-h)!important;
-  min-height:var(--pa-ui-control-h)!important;
-  padding-inline:12px!important;
-  border:1px solid rgba(255,255,255,.10)!important;
-  border-radius:var(--pa-ui-control-radius)!important;
-  background:#111319!important;
-  color:#dfe1e4!important;
-  font-size:10.5px!important;
+  height:var(--pa-ui-control-h);min-height:var(--pa-ui-control-h);padding-inline:12px;
+  border:1px solid rgba(255,255,255,.10);border-radius:var(--pa-ui-control-radius);
+  background:#111319;color:#dfe1e4;font-size:10.5px
 }
-body.pa-internal-mode :is(input,select)::placeholder{
-  color:#6f747c!important;
-  opacity:1!important;
-}
+body.pa-internal-mode :is(input,select,textarea)::placeholder{color:#6f747c;opacity:1}
 
-/* Filtros interativos; chips informativos em cards ficam intactos. */
-body.pa-internal-mode :is(.chips,.filters){
-  gap:7px!important;
+/* ===== Filtros / chips / tabs ===== */
+body.pa-internal-mode :is(.chips,.filters,.period-tabs,.map-toolbar-left){
+  gap:7px;scrollbar-width:none
 }
-body.pa-internal-mode button.chip{
-  min-height:34px!important;
-  padding:0 10px!important;
-  display:inline-flex!important;
-  align-items:center!important;
-  gap:6px!important;
-  border:1px solid rgba(255,255,255,.09)!important;
-  border-radius:999px!important;
-  background:#090b0e!important;
-  color:#969ba2!important;
-  font:760 8.4px var(--pa-mono)!important;
-  white-space:nowrap!important;
+body.pa-internal-mode :is(.chips,.filters,.period-tabs,.map-toolbar-left)::-webkit-scrollbar{display:none}
+body.pa-internal-mode :is(button.chip,button.filter,button.map-filter,.period-tabs button){
+  min-height:34px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  border:1px solid rgba(255,255,255,.09);border-radius:999px;background:#090b0e;
+  color:#969ba2;font:760 8.4px var(--pa-mono);white-space:nowrap
 }
-body.pa-internal-mode button.chip.active{
-  border-color:rgba(109,130,152,.48)!important;
-  background:rgba(109,130,152,.11)!important;
-  color:#d5e2eb!important;
+body.pa-internal-mode :is(button.chip,button.filter,button.map-filter,.period-tabs button).active{
+  border-color:rgba(109,130,152,.48);background:rgba(109,130,152,.11);color:#d5e2eb
+}
+body.pa-internal-mode :is(button.chip,button.filter,button.map-filter,.period-tabs button):hover{
+  border-color:rgba(145,163,181,.35);color:#d5d8dc
 }
 body.pa-internal-mode button.chip :is(.chip-count,b){
-  display:grid!important;
-  place-items:center!important;
-  min-width:18px!important;
-  height:18px!important;
-  padding:0 4px!important;
-  border-radius:999px!important;
-  background:rgba(255,255,255,.055)!important;
-  color:#aeb4bb!important;
-  font-size:7.5px!important;
+  display:grid;place-items:center;min-width:18px;height:18px;padding:0 4px;border-radius:999px;
+  background:rgba(255,255,255,.055);color:#aeb4bb;font-size:7.5px
 }
 body.pa-internal-mode button.chip.active :is(.chip-count,b){
-  background:rgba(109,130,152,.18)!important;
-  color:#d9e5ed!important;
+  background:rgba(109,130,152,.18);color:#d9e5ed
+}
+body.pa-internal-mode .tabs{
+  display:flex;align-items:center;gap:5px;padding:7px;
+  border:1px solid rgba(255,255,255,.09);border-radius:13px;background:rgba(8,10,13,.82);
+  overflow-x:auto;scrollbar-width:none
+}
+body.pa-internal-mode .tabs::-webkit-scrollbar{display:none}
+body.pa-internal-mode .tab{
+  min-height:38px;padding:0 12px;flex:0 0 auto;
+  border:1px solid transparent;border-radius:9px;background:transparent;
+  color:#8d9299;font-size:9px;font-weight:750
+}
+body.pa-internal-mode .tab.active{
+  border-color:rgba(109,130,152,.38);background:rgba(109,130,152,.10);color:#dce7ee
 }
 
-/* Painéis e estados vazios. */
-body.pa-internal-mode :is(.panel,.today-panel,.next-card,.priority-card,.analysis-card){
-  border-color:rgba(255,255,255,.09)!important;
-  border-radius:var(--pa-ui-panel-radius)!important;
+/* ===== Painéis / cards ===== */
+body.pa-internal-mode :is(.panel,.today-panel,.next-card,.priority-card,.analysis-card,.card){
+  border-color:rgba(255,255,255,.09);border-radius:var(--pa-ui-panel-radius)
 }
+body.pa-internal-mode .panel{background:rgba(8,10,13,.84)}
 body.pa-internal-mode .empty{
-  min-height:132px!important;
-  padding:28px 20px!important;
-  display:grid!important;
-  place-items:center!important;
-  align-content:center!important;
-  border:1px dashed rgba(216,197,158,.17)!important;
-  border-radius:14px!important;
-  background:rgba(255,255,255,.006)!important;
-  color:#858991!important;
-  text-align:center!important;
-  line-height:1.5!important;
+  min-height:132px;padding:28px 20px;
+  display:grid;place-items:center;align-content:center;
+  border:1px dashed rgba(216,197,158,.17);border-radius:14px;
+  background:rgba(255,255,255,.006);color:#858991;text-align:center;line-height:1.5
 }
-body.pa-internal-mode .empty strong{
-  color:#d8c59e!important;
-  margin-bottom:6px!important;
-}
+body.pa-internal-mode .empty strong{color:#d8c59e;margin-bottom:6px}
 
-/* Cabeçalhos de seção. */
+/* ===== Seções ===== */
 body.pa-internal-mode .section-head{
-  min-height:22px!important;
-  margin-bottom:10px!important;
-  display:flex!important;
-  align-items:flex-end!important;
-  justify-content:space-between!important;
-  gap:12px!important;
+  min-height:22px;margin-bottom:10px;
+  display:flex;align-items:flex-end;justify-content:space-between;gap:12px
 }
 body.pa-internal-mode .section-head h2{
-  margin:0!important;
-  color:#d7d8dc!important;
-  font:800 10px/1.2 var(--pa-mono)!important;
-  letter-spacing:.12em!important;
-  text-transform:uppercase!important;
+  margin:0;color:#d7d8dc;font:800 10px/1.2 var(--pa-mono);
+  letter-spacing:.12em;text-transform:uppercase
 }
-body.pa-internal-mode .section-head>span{
-  color:#747982!important;
-  font-size:9.5px!important;
-}
+body.pa-internal-mode .section-head>span{color:#747982;font-size:9.5px}
 
-/* Linhas/listas: mesma superfície; grid permanece específico. */
-body.pa-internal-mode :is(.review-row,.q-row,.error-row,.topic-row,.file-row,.history-row,.stats-row){
-  border-color:rgba(255,255,255,.055)!important;
-  border-radius:var(--pa-ui-row-radius)!important;
-  background:rgba(255,255,255,.010)!important;
-  box-shadow:inset 0 1px rgba(255,255,255,.008)!important;
-  transition:border-color .15s ease,background .15s ease,transform .15s ease!important;
+/* ===== Linhas e listas ===== */
+body.pa-internal-mode :is(.review-row,.q-row,.error-row,.topic-row,.file-row,.history-row,.priority-row,.stats-row){
+  min-height:62px;padding:11px 12px;gap:10px;
+  border-color:rgba(255,255,255,.055);border-radius:var(--pa-ui-row-radius);
+  background:rgba(255,255,255,.010);box-shadow:inset 0 1px rgba(255,255,255,.008);
+  transition:border-color .15s ease,background .15s ease,transform .15s ease
 }
+body.pa-internal-mode :is(.review-row,.q-row){min-height:64px;padding-left:15px}
 body.pa-internal-mode :is(.review-row,.q-row,.error-row,.topic-row,.file-row,.history-row):hover{
-  border-color:rgba(255,255,255,.13)!important;
-  background:rgba(255,255,255,.018)!important;
+  border-color:rgba(255,255,255,.13);background:rgba(255,255,255,.018)
+}
+body.pa-internal-mode :is(.review-row,.q-row,.error-row,.topic-row,.file-row,.history-row,.priority-row,.stats-row) strong{
+  line-height:1.3
 }
 
-/* Tablet/iPad: busca em linha inteira + filtros em duas colunas. */
+/* ===== Tabelas ===== */
+body.pa-internal-mode .table-wrap{
+  max-width:100%;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
+  border-color:rgba(255,255,255,.065);border-radius:12px
+}
+body.pa-internal-mode .table-wrap table{margin:0}
+body.pa-internal-mode .table-wrap th{position:sticky;top:0;z-index:1}
+
+/* ===== Tablet / iPad ===== */
 @media(max-width:900px){
   body.pa-internal-mode :is(.tools,.toolbar){
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    gap:8px!important;
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:8px
   }
-  body.pa-internal-mode :is(.tools,.toolbar)>:first-child{
-    grid-column:1/-1!important;
+  body.pa-internal-mode :is(.tools,.toolbar)>:first-child{grid-column:1/-1}
+  body.pa-internal-mode :is(.chips,.filters,.period-tabs,.map-toolbar-left){
+    display:flex;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;padding-bottom:2px
   }
-  body.pa-internal-mode :is(.chips,.filters){
-    flex-wrap:nowrap!important;
-    overflow-x:auto!important;
-    overscroll-behavior-x:contain!important;
-    scrollbar-width:none!important;
-    padding-bottom:2px!important;
+  body.pa-internal-mode :is(button.chip,button.filter,button.map-filter,.period-tabs button){flex:0 0 auto}
+  body.pa-internal-mode :is(.review-row,.q-row,.error-row,.topic-row,.file-row,.history-row,.priority-row,.stats-row){
+    min-height:0;padding:11px;gap:8px
   }
-  body.pa-internal-mode :is(.chips,.filters)::-webkit-scrollbar{display:none!important}
-  body.pa-internal-mode button.chip{flex:0 0 auto!important}
+  body.pa-internal-mode :is(.review-row,.q-row){padding-left:14px}
 }
 @media(max-width:600px){
-  body.pa-internal-mode :is(.tools,.toolbar){
-    grid-template-columns:1fr!important;
-  }
-  body.pa-internal-mode :is(.tools,.toolbar)>*{
-    grid-column:1!important;
-    width:100%!important;
-  }
+  body.pa-internal-mode :is(.tools,.toolbar){grid-template-columns:1fr}
+  body.pa-internal-mode :is(.tools,.toolbar)>*{grid-column:1;width:100%}
 }
 @media(pointer:coarse){
-  body.pa-internal-mode{
-    --pa-ui-control-h:48px;
-  }
-  body.pa-internal-mode button.chip{min-height:38px!important}
-  body.pa-internal-mode .mini{min-height:38px!important}
-}
-
-/* =========================================================
-   PLANO ARQ · COMPONENTES DE PRODUÇÃO V03
-   Filtros, tabelas e navegação secundária.
-   ========================================================= */
-body.pa-internal-mode :is(button.filter,button.map-filter,.period-tabs button){
-  min-height:34px!important;
-  padding:0 10px!important;
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  gap:6px!important;
-  border:1px solid rgba(255,255,255,.09)!important;
-  border-radius:999px!important;
-  background:#090b0e!important;
-  color:#969ba2!important;
-  font:760 8.4px var(--pa-mono)!important;
-  white-space:nowrap!important;
-}
-body.pa-internal-mode :is(button.filter,button.map-filter,.period-tabs button).active{
-  border-color:rgba(109,130,152,.48)!important;
-  background:rgba(109,130,152,.11)!important;
-  color:#d5e2eb!important;
-}
-body.pa-internal-mode :is(button.filter,button.map-filter,.period-tabs button):hover{
-  border-color:rgba(145,163,181,.35)!important;
-  color:#d5d8dc!important;
-}
-body.pa-internal-mode :is(.filters,.period-tabs,.map-toolbar-left){
-  scrollbar-width:none!important;
-}
-body.pa-internal-mode :is(.filters,.period-tabs,.map-toolbar-left)::-webkit-scrollbar{
-  display:none!important;
-}
-body.pa-internal-mode .table-wrap{
-  max-width:100%!important;
-  overflow:auto!important;
-  -webkit-overflow-scrolling:touch!important;
-  overscroll-behavior-x:contain!important;
-  border-color:rgba(255,255,255,.065)!important;
-  border-radius:12px!important;
-}
-body.pa-internal-mode .table-wrap table{
-  margin:0!important;
-}
-body.pa-internal-mode .table-wrap th{
-  position:sticky;
-  top:0;
-  z-index:1;
-}
-@media(max-width:900px){
-  body.pa-internal-mode :is(.period-tabs,.map-toolbar-left){
-    display:flex!important;
-    flex-wrap:nowrap!important;
-    overflow-x:auto!important;
-    gap:7px!important;
-    padding-bottom:2px!important;
-  }
-  body.pa-internal-mode :is(button.filter,button.map-filter,.period-tabs button){
-    flex:0 0 auto!important;
-  }
-}
-@media(pointer:coarse){
-  body.pa-internal-mode :is(button.filter,button.map-filter,.period-tabs button){
-    min-height:38px!important;
-  }
-}
-
-/* =========================================================
-   PLANO ARQ · COMPONENTES DE PRODUÇÃO V04
-   Refinos de toque / Safari / iPad.
-   ========================================================= */
-body.pa-internal-mode :is(button,a,input,select,textarea){
-  -webkit-tap-highlight-color:transparent;
-}
-body.pa-internal-mode :is(button,a){
-  touch-action:manipulation;
-}
-@media(pointer:coarse){
-  body.pa-internal-mode :is(input,select,textarea){
-    font-size:16px!important;
-  }
+  body.pa-internal-mode{--pa-ui-control-h:48px}
+  body.pa-internal-mode :is(input,select,textarea){font-size:16px}
   body.pa-internal-mode :is(.tools,.toolbar) :is(input,select,.search),
-  body.pa-internal-mode :is(input[type="search"],input.search){
-    font-size:16px!important;
-  }
-  body.pa-internal-mode select{
-    padding-right:30px!important;
+  body.pa-internal-mode :is(input[type="search"],input.search){font-size:16px}
+  body.pa-internal-mode select{padding-right:30px}
+  body.pa-internal-mode :is(button.chip,button.filter,button.map-filter,.period-tabs button){min-height:38px}
+  body.pa-internal-mode :is(.mini,.mini-btn,.small){min-height:38px}
+  body.pa-internal-mode :is(.review-row,.q-row,.error-row,.topic-row,.file-row,.history-row,.priority-row,.stats-row){
+    padding-block:13px
   }
 }
 @supports (-webkit-touch-callout:none){
   @media(max-width:900px){
-    body.pa-internal-mode{
-      -webkit-text-size-adjust:100%;
-    }
-    body.pa-internal-mode :is(input,select,textarea){
-      font-size:16px!important;
-    }
+    body.pa-internal-mode{-webkit-text-size-adjust:100%}
+    body.pa-internal-mode :is(input,select,textarea){font-size:16px}
   }
 }
-
-/* =========================================================
-   PLANO ARQ · COMPONENTES DE PRODUÇÃO V05
-   Densidade de linhas/listas.
-   ========================================================= */
-body.pa-internal-mode :is(.review-row,.q-row){
-  min-height:64px!important;
-  padding:11px 12px 11px 15px!important;
-  gap:10px!important;
-}
-body.pa-internal-mode :is(.error-row,.topic-row,.file-row,.history-row,.priority-row,.stats-row){
-  min-height:62px!important;
-  padding:11px 12px!important;
-  gap:10px!important;
-}
-body.pa-internal-mode :is(.review-row,.q-row,.error-row,.topic-row,.file-row,.history-row,.priority-row,.stats-row){
-  border-radius:11px!important;
-}
-body.pa-internal-mode :is(.review-row,.q-row,.error-row,.topic-row,.file-row,.history-row,.priority-row,.stats-row) strong{
-  line-height:1.3;
-}
-@media(max-width:900px){
-  body.pa-internal-mode :is(.review-row,.q-row,.error-row,.topic-row,.file-row,.history-row,.priority-row,.stats-row){
-    min-height:0!important;
-    padding:11px!important;
-    gap:8px!important;
-  }
-  body.pa-internal-mode :is(.review-row,.q-row){
-    padding-left:14px!important;
-  }
-}
-@media(pointer:coarse){
-  body.pa-internal-mode :is(.review-row,.q-row,.error-row,.topic-row,.file-row,.history-row,.priority-row,.stats-row){
-    padding-block:13px!important;
-  }
-}
-
-/* =========================================================
-   PLANO ARQ · COMPONENTES DE PRODUÇÃO V06
-   Barras secundárias e painéis de contexto.
-   ========================================================= */
-body.pa-internal-mode :is(.tabs,.tools,.toolbar,.period-bar){
-  width:100%!important;
-  min-height:60px!important;
-  padding:9px!important;
-  gap:8px!important;
-  border:1px solid rgba(255,255,255,.09)!important;
-  border-radius:13px!important;
-  background:rgba(8,10,13,.82)!important;
-  box-sizing:border-box!important;
-}
-body.pa-internal-mode .tabs{
-  display:flex!important;
-  align-items:center!important;
-}
-body.pa-internal-mode .tabs :is(.tab,button){
-  min-height:42px!important;
-  padding:0 13px!important;
-  border:1px solid transparent!important;
-  border-radius:10px!important;
-  background:transparent!important;
-  color:#969ba2!important;
-  font-size:10px!important;
-  font-weight:760!important;
-  white-space:nowrap!important;
-}
-body.pa-internal-mode .tabs :is(.tab,button).active{
-  border-color:rgba(109,130,152,.42)!important;
-  background:rgba(109,130,152,.11)!important;
-  color:#dbe6ee!important;
-}
-body.pa-internal-mode :is(.next-panel,.next-card,.priority-card,.current-doc,.device-data,.device-note){
-  width:100%!important;
-  min-height:72px!important;
-  padding:13px 15px!important;
-  border-radius:14px!important;
-  box-sizing:border-box!important;
-}
-body.pa-internal-mode :is(.next-panel,.next-card,.priority-card,.current-doc) h3{
-  margin-top:3px!important;
-  margin-bottom:3px!important;
-  line-height:1.25!important;
-}
-body.pa-internal-mode :is(.next-panel,.next-card,.priority-card,.current-doc) p{
-  margin-top:3px!important;
-  line-height:1.45!important;
-}
-body.pa-internal-mode :is(.current-doc,.recommendation):empty{
-  display:none!important;
-}
-@media(max-width:900px){
-  body.pa-internal-mode .tabs{
-    flex-wrap:nowrap!important;
-    overflow-x:auto!important;
-    overscroll-behavior-x:contain!important;
-    scrollbar-width:none!important;
-  }
-  body.pa-internal-mode .tabs::-webkit-scrollbar{display:none!important}
-  body.pa-internal-mode .tabs :is(.tab,button){flex:0 0 auto!important}
-  body.pa-internal-mode :is(.next-panel,.next-card,.priority-card,.current-doc,.device-data,.device-note){
-    padding:12px 13px!important;
-  }
-}
-@media(pointer:coarse){
-  body.pa-internal-mode .tabs :is(.tab,button){min-height:48px!important}
-}
-
-/* =========================================================
-   PLANO ARQ · COMPONENTES DE PRODUÇÃO V07
-   Métricas da Biblioteca integradas ao sistema comum.
-   ========================================================= */
-body.pa-internal-mode .pa-content>.hero>.stat{
-  border:1px solid rgba(255,255,255,.09)!important;
-  border-radius:var(--pa-ui-panel-radius)!important;
-}
-
-/* =========================================================
-   PLANO ARQ · COMPONENTES DE PRODUÇÃO V08
-   Superfícies de hero independentes do CSS local.
-   ========================================================= */
-body.pa-internal-mode :is(.hero-main,.metric,.stat,.today-main-card,.today-metric){
-  border:1px solid rgba(255,255,255,.09)!important;
-  border-radius:var(--pa-ui-panel-radius)!important;
-}
-
