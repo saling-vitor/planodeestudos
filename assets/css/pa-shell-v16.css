@@ -483,3 +483,67 @@ body.pa-internal-mode .hero-actions{
   .pa-mobile-more{z-index:245!important}
 }
 
+/* =========================================================
+   PLANO ARQ · RÉGUA GRÁFICA MESTRE V03
+   Densidade específica para iPad retrato.
+   ========================================================= */
+@media(max-width:900px){
+  /* 3 métricas: hero + faixa 3 colunas. */
+  body.pa-internal-mode[data-pa-page="planning"] .pa-content>.page-hero,
+  body.pa-internal-mode[data-pa-page="edital"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="maps"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="files"] .pa-content>.hero,
+  body.pa-internal-mode .pa-content>.today-hero{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+  body.pa-internal-mode[data-pa-page="planning"] .pa-content>.page-hero>.hero-main,
+  body.pa-internal-mode[data-pa-page="edital"] .pa-content>.hero>.hero-main,
+  body.pa-internal-mode[data-pa-page="maps"] .pa-content>.hero>.hero-main,
+  body.pa-internal-mode[data-pa-page="files"] .pa-content>.hero>.hero-main,
+  body.pa-internal-mode .pa-content>.today-hero>.today-main-card{
+    grid-column:1/-1!important;
+  }
+
+  /* 4 métricas: hero + grade 2×2. */
+  body.pa-internal-mode[data-pa-page="reviews"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="questions"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="performance"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="history"] .pa-content>.hero{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  body.pa-internal-mode[data-pa-page="reviews"] .pa-content>.hero>.hero-main,
+  body.pa-internal-mode[data-pa-page="questions"] .pa-content>.hero>.hero-main,
+  body.pa-internal-mode[data-pa-page="performance"] .pa-content>.hero>.hero-main,
+  body.pa-internal-mode[data-pa-page="history"] .pa-content>.hero>.hero-main{
+    grid-column:1/-1!important;
+  }
+
+  /* Altura das métricas menor no iPad para preservar densidade. */
+  body.pa-internal-mode .pa-content>.hero>.metric,
+  body.pa-internal-mode .pa-content>.page-hero>.metric,
+  body.pa-internal-mode .pa-content>.today-hero>.today-metric,
+  body.pa-internal-mode .pa-content>.hero>.stat{
+    min-height:104px!important;
+    padding:14px!important;
+  }
+}
+@media(max-width:600px){
+  body.pa-internal-mode[data-pa-page="planning"] .pa-content>.page-hero,
+  body.pa-internal-mode[data-pa-page="edital"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="maps"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="files"] .pa-content>.hero,
+  body.pa-internal-mode .pa-content>.today-hero,
+  body.pa-internal-mode[data-pa-page="reviews"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="questions"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="performance"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="history"] .pa-content>.hero{
+    grid-template-columns:1fr!important;
+  }
+  body.pa-internal-mode .pa-content>.hero>.metric,
+  body.pa-internal-mode .pa-content>.page-hero>.metric,
+  body.pa-internal-mode .pa-content>.today-hero>.today-metric,
+  body.pa-internal-mode .pa-content>.hero>.stat{
+    min-height:96px!important;
+  }
+}
+
