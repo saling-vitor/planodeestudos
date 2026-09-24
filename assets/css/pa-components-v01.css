@@ -218,6 +218,23 @@ body.pa-internal-mode .toast{
 }
 body.pa-internal-mode .toast.show{opacity:1;transform:none}
 
+/* ===== Estados auxiliares ===== */
+body.pa-internal-mode .empty-actions{
+  display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:14px
+}
+body.pa-internal-mode :is(.filter i,.chip b){
+  margin-left:5px;font-style:normal;color:#b6bec5;font:800 8px var(--pa-mono)
+}
+body.pa-internal-mode :is(.filter.active i,.chip.active b){color:#e1ebf2}
+body.pa-internal-mode .pattern-empty{
+  padding:19px;border:1px dashed rgba(255,255,255,.09);border-radius:10px;
+  color:#777d84;font-size:9.3px;line-height:1.5;text-align:center
+}
+body.pa-internal-mode .viewer-status{color:#81868e;font-size:9.5px;line-height:1.4}
+body.pa-internal-mode .small-btn.primary{
+  border-color:rgba(109,130,152,.48);background:rgba(109,130,152,.12);color:#dce7ee
+}
+
 /* ===== Tabelas ===== */
 body.pa-internal-mode .table-wrap{
   max-width:100%;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
