@@ -510,27 +510,34 @@ function contestMenu(id,btn){
    <button type="button" class="home-menu-item" data-home-action="set-active"><span>${activeStored?'Já é o concurso ativo':'Definir como concurso ativo'}</span><span class="meta">${activeStored?'ativo':'fixar'}</span></button>
    <button type="button" class="home-menu-item ${c.status==='archived'?'':'danger'}" data-home-action="toggle-archive"><span>${c.status==='archived'?'Reativar concurso':'Arquivar concurso'}</span><span class="meta">${c.status==='archived'?'reativar':'arquivar'}</span></button>`;
  listEl.querySelectorAll('[data-home-action]').forEach(el=>el.addEventListener('click',()=>performContestAction(id,el.dataset.homeAction)));
- const anchor=(btn||window.__homeMenuBtn||document.body);
- const rect=anchor.getBoundingClientRect();
- menu.classList.add('open');
- menu.setAttribute('aria-hidden','false');
- menu.style.visibility='hidden';
- menu.style.left='-9999px';
- menu.style.top='-9999px';
- const menuRect=menu.getBoundingClientRect();
- const menuW=Math.max(220,Math.ceil(menuRect.width)||220);
- const menuH=Math.max(140,Math.ceil(menuRect.height)||140);
- const gap=8;
- let left=Math.max(16,Math.min(window.innerWidth-menuW-16,rect.right-menuW));
- let top=rect.bottom+gap;
- if(top+menuH>window.innerHeight-16){ top=rect.top-menuH-gap; }
- if(top<16){ top=Math.max(16,Math.min(window.innerHeight-menuH-16,rect.bottom+gap)); }
- menu.style.left=`${left}px`;
- menu.style.top=`${top}px`;
- menu.style.visibility='visible';
+ positionHomeMenu(btn||window.__homeMenuBtn,140);
+}
+function positionHomeMenu(btn,minHeight=140){
+ const menu=$('homeMenu'),anchor=btn||document.body,rect=anchor.getBoundingClientRect();
+ menu.classList.add('open');menu.setAttribute('aria-hidden','false');menu.style.visibility='hidden';menu.style.left='-9999px';menu.style.top='-9999px';
+ const menuRect=menu.getBoundingClientRect(),menuW=Math.max(220,Math.ceil(menuRect.width)||220),menuH=Math.max(minHeight,Math.ceil(menuRect.height)||minHeight),gap=8;
+ let left=Math.max(16,Math.min(window.innerWidth-menuW-16,rect.right-menuW)),top=rect.bottom+gap;
+ if(top+menuH>window.innerHeight-16)top=rect.top-menuH-gap;
+ if(top<16)top=Math.max(16,Math.min(window.innerHeight-menuH-16,rect.bottom+gap));
+ menu.style.left=`${left}px`;menu.style.top=`${top}px`;menu.style.visibility='visible'
+}
+function mobileMoreMenu(id,btn){
+ if(!id){location.href='configuracoes.html';return}
+ const menu=$('homeMenu'),head=$('homeMenuHead'),listEl=$('homeMenuList');
+ const same=window.__homeMenuContest==='__mobile_more__'&&menu.classList.contains('open');
+ if(same){closeHomeMenu();return}
+ window.__homeMenuContest='__mobile_more__';window.__homeMenuBtn=btn||null;
+ head.innerHTML='<strong>Mais</strong><span>Navegação do concurso</span>';
+ const items=[
+  ['Planejamento','planejamento.html'],['Revisões','revisoes.html'],['Questões','questoes.html'],
+  ['Desempenho','desempenho.html'],['Arquivos','arquivos.html'],['Configurações','configuracoes.html']
+ ];
+ listEl.innerHTML=items.map(([label,href])=>`<button type="button" class="home-menu-item" data-mobile-more="${href}"><span>${label}</span><span class="meta">abrir</span></button>`).join('');
+ listEl.querySelectorAll('[data-mobile-more]').forEach(el=>el.addEventListener('click',()=>{const href=el.dataset.mobileMore;closeHomeMenu();location.href=`${href}?contest=${encodeURIComponent(id)}`}));
+ positionHomeMenu(btn,300)
 }
 function goContest(id){setActive(id);location.hash='contest/'+id}
-document.addEventListener('click',e=>{const menu=$('homeMenu');if(!menu||!menu.classList.contains('open'))return;if(e.target.closest('#homeMenu')||e.target.closest('[data-menu]'))return;closeHomeMenu()});
+document.addEventListener('click',e=>{const menu=$('homeMenu');if(!menu||!menu.classList.contains('open'))return;if(e.target.closest('#homeMenu')||e.target.closest('[data-menu]')||e.target.closest('[data-mobile="more"]'))return;closeHomeMenu()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHomeMenu()});
 
 function safeJSON(v,f){try{return JSON.parse(v)??f}catch(_){return f}}
@@ -928,7 +935,7 @@ function updateWizard(){document.querySelectorAll('[data-step]').forEach(x=>x.hi
 function validateStep(){const d=wizardData();if(wizardStep===1&&!d.title){toast('Informe o nome curto do concurso.');$('fTitle').focus();return false}if(wizardStep===1&&!d.position){toast('Informe o cargo.');$('fPosition').focus();return false}return true}
 function nextWizard(){if(!validateStep())return;if(wizardStep<3){wizardStep++;updateWizard();return}const d=wizardData(),year=(d.examDate||d.notice.match(/20\d{2}/)?.[0]||new Date().getFullYear()),base=slug(`${d.title}-${d.position}-${year}`)||`concurso-${Date.now()}`;let id=base,contests=readContests(),n=2;while(contests.some(c=>c.id===id))id=`${base}-${n++}`;const c={id,title:d.title,organization:d.organization||d.title,position:d.position,board:d.board,notice:d.notice,city:d.city,examDate:d.examDate,status:'active',edital:'',note:d.note,createdAt:new Date().toISOString().slice(0,10),source:'user'};contests.push(c);saveContests(contests);setActive(id);closeWizard();toast('Novo concurso criado.');location.hash='contest/'+id}
 $('newBtn').addEventListener('click',openWizard);$('homeBtn').addEventListener('click',()=>location.hash='home');$('closeModal').addEventListener('click',closeWizard);$('cancelBtn').addEventListener('click',closeWizard);$('nextStep').addEventListener('click',nextWizard);$('backStep').addEventListener('click',()=>{if(wizardStep>1){wizardStep--;updateWizard()}});$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeWizard()});
-$('mobileNav').addEventListener('click',e=>{const b=e.target.closest('[data-mobile]');if(!b)return;const id=getActive();if(b.dataset.mobile==='maps'&&id)location.href=`biblioteca.html?contest=${encodeURIComponent(id)}`;else if(b.dataset.mobile==='edital'&&id)location.href=`edital.html?contest=${encodeURIComponent(id)}`;else if(b.dataset.mobile==='more')location.href=id?`configuracoes.html?contest=${encodeURIComponent(id)}`:'configuracoes.html'});
+$('mobileNav').addEventListener('click',e=>{const b=e.target.closest('[data-mobile]');if(!b)return;const id=getActive();if(b.dataset.mobile==='maps'&&id)location.href=`biblioteca.html?contest=${encodeURIComponent(id)}`;else if(b.dataset.mobile==='edital'&&id)location.href=`edital.html?contest=${encodeURIComponent(id)}`;else if(b.dataset.mobile==='more'){e.stopPropagation();mobileMoreMenu(id,b)}});
 addEventListener('hashchange',render);addEventListener('focus',()=>{if((location.hash||'').startsWith('#contest/'))render()});addEventListener('storage',e=>{if((location.hash||'').startsWith('#contest/')&&(String(e.key||'').startsWith('planoarq:')||String(e.key||'').startsWith('mindmap_state::')))render()});window.addEventListener('planoarq:automation-settings',()=>{if((location.hash||'').startsWith('#contest/'))render()});render();
 })();
 </script>
