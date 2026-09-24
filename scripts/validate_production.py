@@ -43,6 +43,7 @@ def main()->int:
             (errors if args.strict else warnings).append(f"dependência ausente: {rel}")
 
     htmls=sorted(ROOT.glob("*.html"))
+    missing_refs={}
     for p in htmls:
         text=p.read_text("utf-8",errors="replace")
         ids=ID_RE.findall(text)
@@ -54,8 +55,16 @@ def main()->int:
             except ValueError:
                 errors.append(f"{p.name}: referência escapa da raiz: {ref}"); continue
             if not target.exists():
-                msg=f"{p.name}: referência local ausente: {ref}"
-                (errors if args.strict else warnings).append(msg)
+                missing_refs.setdefault(ref,set()).add(p.name)
+
+    core_missing={rel for rel in REQUIRED_CORE if not (ROOT/rel).is_file()}
+    for ref,sources in sorted(missing_refs.items()):
+        if ref in core_missing:
+            continue
+        sample=", ".join(sorted(sources)[:4])
+        suffix=f" +{len(sources)-4}" if len(sources)>4 else ""
+        msg=f"referência local ausente: {ref} (usada por {len(sources)} página(s): {sample}{suffix})"
+        (errors if args.strict else warnings).append(msg)
 
     scan_files=[p for p in ROOT.rglob("*") if p.is_file() and p.suffix.lower() in {".html",".js",".json",".md",".yml",".yaml",".css"}]
     for p in scan_files:
