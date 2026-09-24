@@ -43,7 +43,8 @@ REF_RE=re.compile(
  r'''["'`](?!https?:|//|data:|mailto:|tel:|#)((?:\.{0,2}/)?[A-Za-z0-9_./-]+\.(?:html|js|css|webmanifest|json|md|pdf|png|jpg|jpeg|webp))(?:[?#][^"'`]*)?["'`]''',
  re.I
 )
-ID_RE=re.compile(r'''\bid=["']([^"']+)["']''',re.I)
+ID_RE=re.compile(r'''(?<![\\w-])id=["']([^"']+)["']''',re.I)
+TOPIC_ID_RE=re.compile(r'''(?<![\\w-])data-topic-id=["']([^"']+)["']''',re.I)
 SECRET_PATTERNS={
  "Google API key":re.compile(r"AIza[0-9A-Za-z_-]{20,}"),
  "Google OAuth client":re.compile(r"[0-9]{8,}-[0-9A-Za-z_-]+\.apps\.googleusercontent\.com"),
@@ -152,6 +153,20 @@ def main():
 
         for p in maps:
             text=p.read_text("utf-8",errors="ignore")
+            html_ids=ID_RE.findall(text)
+            dup_html=sorted({x for x in html_ids if html_ids.count(x)>1})
+            if dup_html:
+                errors.append(
+                    f"{p.name}: IDs HTML duplicados: {', '.join(dup_html[:10])}"
+                )
+            topic_ids=TOPIC_ID_RE.findall(text)
+            dup_topics=sorted({x for x in topic_ids if topic_ids.count(x)>1})
+            if dup_topics:
+                errors.append(
+                    f"{p.name}: data-topic-id duplicados: {', '.join(dup_topics[:10])}"
+                )
+            if not topic_ids:
+                errors.append(f"{p.name}: nenhum data-topic-id encontrado")
             if "../assets/css/study-map-shared-v01.css" not in text:
                 errors.append(
                     f"{p.name}: CSS compartilhado dos mapas não referenciado"
