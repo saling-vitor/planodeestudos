@@ -7,11 +7,11 @@ Portal estático de estudos para concursos de Arquitetura, publicado por GitHub 
 - URL: `https://saling-vitor.github.io/planodeestudos/`
 - Branch de produção: `main`
 - Deploy: `.github/workflows/pages.yml`
-- 14 mapas de estudo em `materials/`
-- 3 simulados em `simulados/`
-- edital oficial em `edital/`
+- produção esperada: 14 mapas em `materials/`
+- produção esperada: 3 simulados em `simulados/`
+- edital/documentos oficiais em `edital/`
 
-O workflow regenera os manifestos, executa um preflight estrutural e só então publica. O artefato do Pages exclui arquivos de manutenção (`.github/`, `scripts/`, `cloud/`, `docs/`, README e arquivos temporários).
+O workflow audita a estrutura, regenera os manifestos quando o pacote está completo e só então publica. Se alguma pasta obrigatória estiver ausente, o deploy é preservado em vez de substituir o Pages por uma versão quebrada. O artefato do Pages exclui arquivos de manutenção (`.github/`, `scripts/`, `cloud/`, `docs/`, README e arquivos temporários).
 
 ## Estrutura
 
@@ -24,7 +24,7 @@ O workflow regenera os manifestos, executa um preflight estrutural e só então 
 - `configuracoes.html` — dados, nuvem e preferências
 - `assets/` — CSS/JavaScript compartilhado
 - `data/` — catálogos e manifestos gerados
-- `scripts/` — geradores usados no deploy
+- `scripts/` — geradores e `validate_production.py`, usado no preflight do deploy
 - `cloud/` — schema/modelos sem credenciais
 
 ## Segurança e dados
