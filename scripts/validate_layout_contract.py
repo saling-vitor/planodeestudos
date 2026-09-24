@@ -60,6 +60,21 @@ for name in PAGES:
             f"{name}: sidebar hardcoded detectada; o menu deve ser gerado somente por pa-shell-v16.js"
         )
 
+    topbar=re.search(r'<header\s+class=["\']pa-topbar["\']>([\s\S]*?)</header>',text,re.I)
+    if not topbar:
+        errors.append(f"{name}: .pa-topbar ausente")
+    else:
+        top=topbar.group(1)
+        if len(re.findall(r'\bpa-menu-btn\b',top)) != 1:
+            errors.append(f"{name}: topbar deve ter exatamente um pa-menu-btn")
+        if len(re.findall(r'\bpa-top-title\b',top)) != 1:
+            errors.append(f"{name}: topbar deve ter exatamente um pa-top-title")
+        if len(re.findall(r'\bpa-top-actions\b',top)) != 1:
+            errors.append(f"{name}: topbar deve ter exatamente uma pa-top-actions")
+        dot=re.search(r'<button[^>]*class=["\']([^"\']*)["\'][^>]*>\s*•••\s*</button>',top,re.I)
+        if not dot or "icon-btn" not in dot.group(1).split():
+            errors.append(f"{name}: botão ••• da topbar deve usar icon-btn")
+
     body=re.search(r'<body[^>]*data-pa-page=["\']([^"\']+)["\']',text,re.I)
     if not body:
         errors.append(f"{name}: data-pa-page ausente")
