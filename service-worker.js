@@ -1,4 +1,4 @@
-const VERSION='19.0-prod';
+const VERSION='19.1-source';
 const CORE=`plano-arq-core-${VERSION}`,RUNTIME=`plano-arq-runtime-${VERSION}`,OFFLINE=`plano-arq-offline-${VERSION}`;
 const CORE_URLS=['./','./index.html','./offline.html','./manifest.webmanifest','./assets/css/pa-tokens-v01.css','./assets/css/pa-components-v01.css','./assets/css/pa-shell-v16.css','./assets/js/pa-pwa-v01.js','./assets/js/pa-shell-v16.js','./assets/js/pa-data-v03.js','./assets/js/pa-sync-v03.js','./assets/js/pa-drive-v01.js','./assets/js/pa-actions-v01.js','./data/navigation.js','./data/contests.js','./data/materials.js','./data/exam-schemas.js','./data/question-catalog.js','./data/review-catalog.js','./data/simulations.js','./data/cloud-config.js','./data/offline-pack.json'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CORE).then(async c=>{for(const url of CORE_URLS){try{const r=await fetch(url,{cache:'reload'});if(r.ok)await c.put(url,r)}catch(_){}}}))});
