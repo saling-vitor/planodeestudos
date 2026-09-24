@@ -782,3 +782,31 @@ body.pa-internal-mode .hero-actions{
   }
 }
 
+/* =========================================================
+   PLANO ARQ · RÉGUA GRÁFICA MESTRE V10
+   Primitivos de hero centralizados no shell.
+   ========================================================= */
+body.pa-internal-mode .pa-content>.hero,
+body.pa-internal-mode .pa-content>.page-hero,
+body.pa-internal-mode .pa-content>.today-hero{
+  display:grid!important;
+  box-sizing:border-box!important;
+}
+body.pa-internal-mode .pa-content>.hero .hero-main,
+body.pa-internal-mode .pa-content>.page-hero .hero-main,
+body.pa-internal-mode .pa-content>.today-hero .today-main-card{
+  box-sizing:border-box!important;
+}
+body.pa-internal-mode .pa-content>.hero .hero-main h1,
+body.pa-internal-mode .pa-content>.page-hero .hero-main h1,
+body.pa-internal-mode .pa-content>.today-hero .today-main-card h1{
+  color:#ead7b0!important;
+  text-transform:uppercase!important;
+}
+body.pa-internal-mode .pa-content>.hero>.metric,
+body.pa-internal-mode .pa-content>.page-hero>.metric,
+body.pa-internal-mode .pa-content>.today-hero>.today-metric,
+body.pa-internal-mode .pa-content>.hero>.stat{
+  box-sizing:border-box!important;
+}
+
