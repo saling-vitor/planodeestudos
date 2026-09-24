@@ -699,3 +699,54 @@ body.pa-internal-mode .hero-actions{
   }
 }
 
+/* =========================================================
+   PLANO ARQ · RÉGUA GRÁFICA MESTRE V08
+   Faixa intermediária para notebooks / tablet paisagem.
+   ========================================================= */
+@media(max-width:1500px) and (min-width:901px){
+  body.pa-internal-mode .pa-content>.hero,
+  body.pa-internal-mode .pa-content>.page-hero,
+  body.pa-internal-mode .pa-content>.today-hero{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  }
+  body.pa-internal-mode .pa-content>.hero>.hero-main,
+  body.pa-internal-mode .pa-content>.page-hero>.hero-main,
+  body.pa-internal-mode .pa-content>.today-hero>.today-main-card{
+    grid-column:1/-1!important;
+    min-height:156px!important;
+  }
+
+  /* Páginas com três métricas deixam uma faixa equilibrada de três colunas. */
+  body.pa-internal-mode[data-pa-page="planning"] .pa-content>.page-hero,
+  body.pa-internal-mode[data-pa-page="edital"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="maps"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="files"] .pa-content>.hero,
+  body.pa-internal-mode .pa-content>.today-hero{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+
+  /* Painéis 2×2 viram uma única faixa de quatro métricas. */
+  body.pa-internal-mode[data-pa-page="simulations"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="errors"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="diagnostic"] .pa-content>.hero{
+    grid-template-columns:1fr!important;
+  }
+  body.pa-internal-mode[data-pa-page="simulations"] .pa-content>.hero>.summary-grid,
+  body.pa-internal-mode[data-pa-page="errors"] .pa-content>.hero>.metric-grid,
+  body.pa-internal-mode[data-pa-page="diagnostic"] .pa-content>.hero>.metric-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    grid-template-rows:none!important;
+  }
+
+  body.pa-internal-mode .pa-content>.hero>.metric,
+  body.pa-internal-mode .pa-content>.page-hero>.metric,
+  body.pa-internal-mode .pa-content>.today-hero>.today-metric,
+  body.pa-internal-mode .pa-content>.hero>.stat,
+  body.pa-internal-mode[data-pa-page="simulations"] .pa-content>.hero>.summary-grid>.metric,
+  body.pa-internal-mode[data-pa-page="errors"] .pa-content>.hero>.metric-grid>.metric,
+  body.pa-internal-mode[data-pa-page="diagnostic"] .pa-content>.hero>.metric-grid>.metric{
+    min-height:108px!important;
+    padding:14px 15px!important;
+  }
+}
+
