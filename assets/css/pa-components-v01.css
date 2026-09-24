@@ -231,3 +231,70 @@ body.pa-internal-mode :is(.review-row,.q-row,.error-row,.topic-row,.file-row,.hi
   body.pa-internal-mode .mini{min-height:38px!important}
 }
 
+/* =========================================================
+   PLANO ARQ · COMPONENTES DE PRODUÇÃO V03
+   Filtros, tabelas e navegação secundária.
+   ========================================================= */
+body.pa-internal-mode :is(button.filter,button.map-filter,.period-tabs button){
+  min-height:34px!important;
+  padding:0 10px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  border-radius:999px!important;
+  background:#090b0e!important;
+  color:#969ba2!important;
+  font:760 8.4px var(--pa-mono)!important;
+  white-space:nowrap!important;
+}
+body.pa-internal-mode :is(button.filter,button.map-filter,.period-tabs button).active{
+  border-color:rgba(109,130,152,.48)!important;
+  background:rgba(109,130,152,.11)!important;
+  color:#d5e2eb!important;
+}
+body.pa-internal-mode :is(button.filter,button.map-filter,.period-tabs button):hover{
+  border-color:rgba(145,163,181,.35)!important;
+  color:#d5d8dc!important;
+}
+body.pa-internal-mode :is(.filters,.period-tabs,.map-toolbar-left){
+  scrollbar-width:none!important;
+}
+body.pa-internal-mode :is(.filters,.period-tabs,.map-toolbar-left)::-webkit-scrollbar{
+  display:none!important;
+}
+body.pa-internal-mode .table-wrap{
+  max-width:100%!important;
+  overflow:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-x:contain!important;
+  border-color:rgba(255,255,255,.065)!important;
+  border-radius:12px!important;
+}
+body.pa-internal-mode .table-wrap table{
+  margin:0!important;
+}
+body.pa-internal-mode .table-wrap th{
+  position:sticky;
+  top:0;
+  z-index:1;
+}
+@media(max-width:900px){
+  body.pa-internal-mode :is(.period-tabs,.map-toolbar-left){
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    overflow-x:auto!important;
+    gap:7px!important;
+    padding-bottom:2px!important;
+  }
+  body.pa-internal-mode :is(button.filter,button.map-filter,.period-tabs button){
+    flex:0 0 auto!important;
+  }
+}
+@media(pointer:coarse){
+  body.pa-internal-mode :is(button.filter,button.map-filter,.period-tabs button){
+    min-height:38px!important;
+  }
+}
+
