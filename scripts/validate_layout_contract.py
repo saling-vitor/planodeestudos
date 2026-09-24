@@ -62,6 +62,11 @@ for name in PAGES:
                 f"{name}: geometria do shell redefinida inline ({rx.pattern}); use pa-shell-v16.css"
             )
 
+    if re.search(r"querySelectorAll\(['\"]\.pa-nav-item",text):
+        errors.append(f"{name}: navegação lateral manual duplicada; use pa-shell-v16.js")
+    if re.search(r"(?:menuBtn|sidebar|backdrop).{0,80}(?:addEventListener|\.onclick)",text,re.S):
+        errors.append(f"{name}: controlador local de drawer/menu detectado; use pa-shell-v16.js")
+
     base_css=inline.split("@media",1)[0]
     legacy_root=re.search(r':root\s*\{[^}]*--(?:bg|surface|text|muted|champ|blue|green|red|yellow|line|sans|cond|mono)\s*:',base_css,re.I)
     if legacy_root:
