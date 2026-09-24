@@ -23,11 +23,14 @@ FORBIDDEN_INLINE=[
     re.compile(r'\.pa-sidebar\s*\{'),
 ]
 SHARED_COMPONENT_SELECTORS={
+    "*","body","button",
     ".hero",".page-hero",".hero-main",".metric",".metric-grid",".summary-grid",".history-metrics",
-    ".eyebrow",".primary",".ghost",".primary-btn",".ghost-btn",".icon-btn",
+    ".eyebrow",".primary",".ghost",".primary-btn",".ghost-btn",".icon-btn",".mini",
     ".tools",".toolbar",".filters",".filter",".filter.active",".chips",".chip",".chip.active",
     ".section",".section-head",".section-head h2",".section-head span",
-    ".section-head>span",".empty",".empty strong"
+    ".section-head>span",".panel",".empty",".empty strong",".empty span",
+    ".viewer",".viewer.open",".viewer iframe",".viewer-head",".viewerbar",".viewer-actions",".viewer-foot",
+    ".toast",".toast.show"
 }
 errors=[]
 page_keys={}
@@ -128,6 +131,10 @@ for name in PAGES:
         errors.append(f"{name}: navegação lateral manual duplicada; use pa-shell-v16.js")
     if re.search(r"(?:menuBtn|sidebar|backdrop).{0,80}(?:addEventListener|\.onclick)",text,re.S):
         errors.append(f"{name}: controlador local de drawer/menu detectado; use pa-shell-v16.js")
+    if re.search(r"querySelector(?:All)?\(['\"]\.pa-contest-card",text):
+        errors.append(f"{name}: identidade do cartão do concurso escrita localmente; use pa-shell-v16.js")
+    if re.search(r"(?:querySelector\(['\"]\.pa-top-k['\"]\)|\$\(['\"]topK['\"]\))\.textContent\s*=",text):
+        errors.append(f"{name}: identidade da topbar escrita localmente; use pa-shell-v16.js")
 
     base_css=inline.split("@media",1)[0]
     legacy_root=re.search(r':root\s*\{[^}]*--(?:bg|surface|text|muted|champ|blue|green|red|yellow|line|sans|cond|mono)\s*:',base_css,re.I)
