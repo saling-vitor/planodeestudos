@@ -55,12 +55,7 @@ function currentContest(){
   const local=(()=>{try{return JSON.parse(localStorage.getItem('planoarq:contests:v1')||'[]')}catch(_){return[]}})();
   return local.find(c=>c.id===contestParam)||(contestCatalog.contests||[]).find(c=>c.id===contestParam)||null;
 }
-function applyContestIdentity(){
-  const c=currentContest(); if(!c)return;
-  document.querySelectorAll('.pa-contest-card strong').forEach(el=>el.textContent=`${c.title} · ${c.position}`);
-  document.querySelectorAll('.pa-contest-card span').forEach(el=>el.textContent=`${c.board||'Banca não definida'} · ${c.notice||'Edital não informado'}`);
-  const tk=document.querySelector('.pa-top-k'); if(tk)tk.textContent=`${c.title} · ${c.position}`;
-}
+
 
 function showToast(t){toast.textContent=t;toast.classList.add('show');clearTimeout(window.__tt);window.__tt=setTimeout(()=>toast.classList.remove('show'),1800)}
 function stateSummaryFromLocalStorage(m){const ns=m.storageNamespace||slug(m.id),s=safeJSON(localStorage.getItem('mindmap_state::'+ns),null);if(!s)return null;const vals=Object.values(s.topicStates||{}),total=Number(m.topicCount||0),done=vals.filter(v=>v==='done').length,review=vals.filter(v=>v==='review').length,difficult=vals.filter(v=>v==='difficult').length,studied=done+review+difficult;let attempts=0,correct=0;Object.values(s.quizMeta||{}).forEach(q=>{attempts+=Number(q?.attempts||0);correct+=Number(q?.correct||0)});let due=0,errors=0,now=Date.now();Object.values(s.reviewMeta||{}).forEach(r=>{if(r?.nextReview){const t=Date.parse(r.nextReview);if(Number.isFinite(t)&&t<=now)due++}errors+=Number(r?.errorCount||0)});return{channel:'plano-arq',type:'material-state',material:{id:m.id},progress:{total,done,review,difficult,studied,pending:Math.max(0,total-studied),pct:total?Math.round(studied*100/total):0},quiz:{attempts,correct,accuracy:attempts?Math.round(correct*100/attempts):0},review:{due,errorCount:errors},resume:{anchor:s.lastAnchor||'',label:s.lastLabel||''},updatedAt:new Date().toISOString(),source:'readonly-localStorage'}}
