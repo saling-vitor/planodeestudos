@@ -1,0 +1,26 @@
+(()=>{
+'use strict';
+const VERSION='19.1';
+let deferredPrompt=null,registration=null,updateReady=false,activationRequested=false;
+const $=id=>document.getElementById(id);
+const isStandalone=()=>window.matchMedia?.('(display-mode: standalone)').matches===true||window.navigator.standalone===true;
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(/Macintosh/i.test(navigator.userAgent)&&navigator.maxTouchPoints>1);
+const supportedProtocol=()=>location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1';
+function emit(){const detail=status();window.dispatchEvent(new CustomEvent('planoarq:pwa-status',{detail}));renderNotice();return detail}
+function status(){return{version:VERSION,online:navigator.onLine,protocol:location.protocol,supportedProtocol:supportedProtocol(),serviceWorker:'serviceWorker'in navigator,registered:!!registration,installed:isStandalone(),installable:!!deferredPrompt,ios:isIOS(),updateReady}}
+function ensureNotice(){if($('paPwaNotice'))return;document.body.insertAdjacentHTML('beforeend','<button type="button" class="pa-pwa-notice" id="paPwaNotice" hidden></button>');$('paPwaNotice').onclick=()=>{if(updateReady){activateUpdate();return}location.href='configuracoes.html'+(new URLSearchParams(location.search).get('contest')?'?contest='+encodeURIComponent(new URLSearchParams(location.search).get('contest')):'')+'#pwa'}}
+function renderNotice(){ensureNotice();const b=$('paPwaNotice');if(!b)return;if(!navigator.onLine){b.hidden=false;b.dataset.kind='offline';b.textContent='Offline · dados locais ativos';return}if(updateReady){b.hidden=false;b.dataset.kind='update';b.textContent='Nova versão disponível · atualizar';return}b.hidden=true;b.textContent=''}
+async function register(){if(!supportedProtocol()||!('serviceWorker'in navigator)){emit();return null}try{registration=await navigator.serviceWorker.register('./service-worker.js',{scope:'./'});bindRegistration(registration);await navigator.serviceWorker.ready;emit();return registration}catch(err){console.warn('[Plano ARQ PWA] service worker:',err);emit();return null}}
+function bindRegistration(reg){if(!reg)return;if(reg.waiting){updateReady=true;emit()}reg.addEventListener('updatefound',()=>{const w=reg.installing;if(!w)return;w.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller){updateReady=true;emit()}})})}
+async function install(){if(isStandalone())return{ok:true,installed:true};if(deferredPrompt){const p=deferredPrompt;deferredPrompt=null;await p.prompt();const choice=await p.userChoice;emit();return{ok:choice.outcome==='accepted',outcome:choice.outcome}}if(isIOS())return{ok:false,manual:true,message:'No iPhone/iPad: abra o menu Compartilhar do Safari e escolha “Adicionar à Tela de Início”.'};return{ok:false,manual:true,message:'A instalação aparece quando o navegador considerar o site instalável. Publique no GitHub Pages ou abra por localhost e tente novamente.'}}
+async function send(type,payload={}){const reg=registration||await navigator.serviceWorker?.ready;if(!reg?.active)throw new Error('Service worker ainda não está ativo. Recarregue a página após a primeira instalação.');return new Promise((resolve,reject)=>{const ch=new MessageChannel(),timer=setTimeout(()=>reject(new Error('Tempo esgotado ao comunicar com o cache offline.')),120000);ch.port1.onmessage=e=>{clearTimeout(timer);e.data?.ok===false?reject(new Error(e.data.error||'Falha no service worker')):resolve(e.data)};reg.active.postMessage({type,payload},[ch.port2])})}
+async function pack(kind='full'){const r=await fetch('./data/offline-pack.json',{cache:'no-store'});if(!r.ok)throw new Error('Manifesto offline indisponível.');const data=await r.json(),items=(kind==='essential'?data.essential:data.full)||[];const result=await send('CACHE_URLS',{urls:items.map(x=>x.path),kind});return{...result,bytes:kind==='essential'?data.essentialBytes:data.fullBytes,total:items.length}}
+async function clearOffline(){return send('CLEAR_OFFLINE')}
+async function cacheInfo(){try{return await send('CACHE_INFO')}catch(_){return{ok:false,offlineCount:0,runtimeCount:0}}}
+async function storageEstimate(){if(!navigator.storage?.estimate)return null;try{return await navigator.storage.estimate()}catch(_){return null}}
+async function checkUpdate(){if(!registration)await register();await registration?.update?.();if(registration?.waiting){updateReady=true;emit()}return status()}
+async function activateUpdate(){if(!registration?.waiting)return{ok:false};activationRequested=true;registration.waiting.postMessage({type:'SKIP_WAITING'});return{ok:true}}
+function init(){ensureNotice();window.addEventListener('online',emit);window.addEventListener('offline',emit);window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;emit()});window.addEventListener('appinstalled',()=>{deferredPrompt=null;emit()});if('serviceWorker'in navigator)navigator.serviceWorker.addEventListener('controllerchange',()=>{if(activationRequested)location.reload();else emit()});register();emit()}
+window.PLANO_ARQ_PWA={version:VERSION,init,status,install,pack,clearOffline,cacheInfo,storageEstimate,checkUpdate,activateUpdate};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
