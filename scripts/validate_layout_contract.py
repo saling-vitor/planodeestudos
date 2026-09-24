@@ -162,6 +162,14 @@ for name in PAGES:
                 f"{name}: componente compartilhado redefinido localmente: {selector}"
             )
 
+    max_widths=[int(x) for x in re.findall(r'@media\s*\(max-width:\s*(\d+)px\)',inline,re.I)]
+    if len(max_widths) != len(set(max_widths)):
+        errors.append(f"{name}: breakpoints max-width duplicados: {max_widths}")
+    if max_widths != sorted(max_widths,reverse=True):
+        errors.append(
+            f"{name}: breakpoints max-width fora de ordem decrescente: {max_widths}"
+        )
+
 # Ordem canônica: CSS local primeiro; sistema compartilhado por último.
 for name in PAGES:
     text=(ROOT/name).read_text("utf-8",errors="replace")
