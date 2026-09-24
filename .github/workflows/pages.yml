@@ -68,6 +68,10 @@ jobs:
           python3 scripts/build_files_manifest.py
           python3 scripts/build_offline_pack.py
 
+      - name: Validar JavaScript
+        if: steps.package.outputs.ready == 'true'
+        run: python3 scripts/validate_javascript.py
+
       - name: Validar pacote de produção
         if: steps.package.outputs.ready == 'true'
         run: python3 scripts/validate_production.py --strict
