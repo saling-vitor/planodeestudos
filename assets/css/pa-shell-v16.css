@@ -407,15 +407,32 @@ body.pa-internal-mode .pa-content>.today-section{margin-top:24px}
     border:1px solid rgba(255,255,255,.11);border-radius:16px;background:rgba(9,11,15,.985);
     box-shadow:0 26px 70px rgba(0,0,0,.72)
   }
-  .pa-mobile-more.open{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-  .pa-mobile-more :is(a,button){
-    min-height:48px;padding:0 12px;border:1px solid rgba(255,255,255,.06);
-    border-radius:10px;background:#0d1014;color:#aeb4bc;text-align:left;text-decoration:none;
-    font-size:10.5px;font-weight:720
+  .pa-mobile-more.open{display:block}
+  .pa-mobile-more-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:3px 4px 10px;border-bottom:1px solid rgba(255,255,255,.07)
   }
-  .pa-mobile-more a.active{
+  .pa-mobile-more-head strong{display:block;color:#e6e8eb;font-size:12px}
+  .pa-mobile-more-head span{display:block;margin-top:3px;color:#777e87;font-size:9px}
+  .pa-mobile-more-group{padding-top:10px}
+  .pa-mobile-more-group+.pa-mobile-more-group{margin-top:9px;border-top:1px solid rgba(255,255,255,.05)}
+  .pa-mobile-more-label{
+    padding:0 4px 7px;color:#686f78;font:800 7px/1 var(--pa-mono);
+    letter-spacing:.16em;text-transform:uppercase
+  }
+  .pa-mobile-more-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .pa-mobile-more :is(a,button){
+    min-width:0;min-height:49px;padding:0 10px;display:grid;
+    grid-template-columns:24px minmax(0,1fr);gap:8px;align-items:center;
+    border:1px solid rgba(255,255,255,.06);border-radius:10px;background:#0d1014;
+    color:#aeb4bc;text-align:left;text-decoration:none;font-size:10px;font-weight:720
+  }
+  .pa-mobile-more :is(a,button) .pa-nav-icon-wrap{width:24px;height:24px}
+  .pa-mobile-more :is(a,button) .pa-nav-icon{width:18px;height:18px}
+  .pa-mobile-more :is(a,button).active{
     color:#d9e5ed;border-color:rgba(109,130,152,.30);background:rgba(109,130,152,.08)
   }
+  .pa-mobile-more-footer{padding-top:10px}
   body.pa-internal-mode:has(.pa-mobile-more.open)::after{
     content:"";position:fixed;inset:0;z-index:210;background:rgba(0,0,0,.38);
     -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)
