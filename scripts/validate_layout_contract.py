@@ -45,6 +45,14 @@ for name in PAGES:
             f"{name}: hero deve ser filho direto de .pa-content; remova wrappers geométricos intermediários"
         )
 
+    sidebar=re.search(r'<aside\s+class=["\']pa-sidebar["\'][^>]*>([\s\S]*?)</aside>',text,re.I)
+    if not sidebar:
+        errors.append(f"{name}: .pa-sidebar ausente")
+    elif sidebar.group(1).strip():
+        errors.append(
+            f"{name}: sidebar hardcoded detectada; o menu deve ser gerado somente por pa-shell-v16.js"
+        )
+
     body=re.search(r'<body[^>]*data-pa-page=["\']([^"\']+)["\']',text,re.I)
     if not body:
         errors.append(f"{name}: data-pa-page ausente")
