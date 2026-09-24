@@ -255,24 +255,26 @@ body.pa-internal-mode .pa-content :is(.metric,.stat,.today-metric)>small{
   }
   body.pa-internal-mode[data-pa-page="reviews"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="questions"] .pa-content>.hero,
-  body.pa-internal-mode[data-pa-page="performance"] .pa-content>.hero,
-  body.pa-internal-mode[data-pa-page="history"] .pa-content>.hero{
+  body.pa-internal-mode[data-pa-page="performance"] .pa-content>.hero{
     grid-template-columns:minmax(0,720px) repeat(4,minmax(0,1fr))
   }
   body.pa-internal-mode[data-pa-page="simulations"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="errors"] .pa-content>.hero,
-  body.pa-internal-mode[data-pa-page="diagnostic"] .pa-content>.hero{
+  body.pa-internal-mode[data-pa-page="diagnostic"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="history"] .pa-content>.hero{
     grid-template-columns:minmax(0,720px) minmax(0,1fr)
   }
-  body.pa-internal-mode[data-pa-page="simulations"] .pa-content>.hero>:is(.summary-grid),
-  body.pa-internal-mode[data-pa-page="errors"] .pa-content>.hero>:is(.metric-grid),
-  body.pa-internal-mode[data-pa-page="diagnostic"] .pa-content>.hero>:is(.metric-grid){
+  body.pa-internal-mode[data-pa-page="simulations"] .pa-content>.hero>.summary-grid,
+  body.pa-internal-mode[data-pa-page="errors"] .pa-content>.hero>.metric-grid,
+  body.pa-internal-mode[data-pa-page="diagnostic"] .pa-content>.hero>.metric-grid,
+  body.pa-internal-mode[data-pa-page="history"] .pa-content>.hero>.history-metrics{
     height:var(--pa-hero-h);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
     grid-template-rows:repeat(2,minmax(0,1fr));gap:8px
   }
   body.pa-internal-mode[data-pa-page="simulations"] .summary-grid>.metric,
   body.pa-internal-mode[data-pa-page="errors"] .metric-grid>.metric,
-  body.pa-internal-mode[data-pa-page="diagnostic"] .metric-grid>.metric{
+  body.pa-internal-mode[data-pa-page="diagnostic"] .metric-grid>.metric,
+  body.pa-internal-mode[data-pa-page="history"] .history-metrics>.metric{
     min-height:0;padding:12px 13px
   }
 }
@@ -295,12 +297,14 @@ body.pa-internal-mode .pa-content :is(.metric,.stat,.today-metric)>small{
   }
   body.pa-internal-mode[data-pa-page="simulations"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="errors"] .pa-content>.hero,
-  body.pa-internal-mode[data-pa-page="diagnostic"] .pa-content>.hero{
+  body.pa-internal-mode[data-pa-page="diagnostic"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="history"] .pa-content>.hero{
     grid-template-columns:1fr
   }
   body.pa-internal-mode[data-pa-page="simulations"] .summary-grid,
   body.pa-internal-mode[data-pa-page="errors"] .metric-grid,
-  body.pa-internal-mode[data-pa-page="diagnostic"] .metric-grid{
+  body.pa-internal-mode[data-pa-page="diagnostic"] .metric-grid,
+  body.pa-internal-mode[data-pa-page="history"] .history-metrics{
     display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px
   }
   body.pa-internal-mode .pa-content :is(.metric,.stat,.today-metric){
@@ -441,8 +445,7 @@ body.pa-internal-mode .pa-content>.today-section{margin-top:24px}
   }
   body.pa-internal-mode[data-pa-page="reviews"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="questions"] .pa-content>.hero,
-  body.pa-internal-mode[data-pa-page="performance"] .pa-content>.hero,
-  body.pa-internal-mode[data-pa-page="history"] .pa-content>.hero{
+  body.pa-internal-mode[data-pa-page="performance"] .pa-content>.hero{
     grid-template-columns:repeat(2,minmax(0,1fr))
   }
   body.pa-internal-mode[data-pa-page="reviews"] .hero>.hero-main,
@@ -453,7 +456,8 @@ body.pa-internal-mode .pa-content>.today-section{margin-top:24px}
   }
   body.pa-internal-mode[data-pa-page="simulations"] .summary-grid,
   body.pa-internal-mode[data-pa-page="errors"] .metric-grid,
-  body.pa-internal-mode[data-pa-page="diagnostic"] .metric-grid{
+  body.pa-internal-mode[data-pa-page="diagnostic"] .metric-grid,
+  body.pa-internal-mode[data-pa-page="history"] .history-metrics{
     height:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px
   }
   body.pa-internal-mode .pa-content :is(.metric,.stat,.today-metric){
@@ -472,8 +476,7 @@ body.pa-internal-mode .pa-content>.today-section{margin-top:24px}
   body.pa-internal-mode[data-pa-page="settings"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="reviews"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="questions"] .pa-content>.hero,
-  body.pa-internal-mode[data-pa-page="performance"] .pa-content>.hero,
-  body.pa-internal-mode[data-pa-page="history"] .pa-content>.hero{
+  body.pa-internal-mode[data-pa-page="performance"] .pa-content>.hero{
     grid-template-columns:1fr
   }
 }
