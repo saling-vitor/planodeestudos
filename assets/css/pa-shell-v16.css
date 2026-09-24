@@ -810,3 +810,27 @@ body.pa-internal-mode .pa-content>.hero>.stat{
   box-sizing:border-box!important;
 }
 
+/* =========================================================
+   PLANO ARQ · RÉGUA GRÁFICA MESTRE V11
+   Métricas diretas e aninhadas usam o mesmo primitivo.
+   ========================================================= */
+body.pa-internal-mode .pa-content>.hero .metric,
+body.pa-internal-mode .pa-content>.page-hero .metric,
+body.pa-internal-mode .pa-content>.today-hero .today-metric,
+body.pa-internal-mode .pa-content>.hero .stat{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:space-between!important;
+  box-sizing:border-box!important;
+}
+body.pa-internal-mode .pa-content>.hero .metric>small,
+body.pa-internal-mode .pa-content>.page-hero .metric>small,
+body.pa-internal-mode .pa-content>.today-hero .today-metric>small,
+body.pa-internal-mode .pa-content>.hero .stat>small{
+  display:block!important;
+  margin-top:5px!important;
+  color:#7f858d!important;
+  font-size:9.4px!important;
+  line-height:1.4!important;
+}
+
