@@ -148,11 +148,31 @@ def measure(page):
         const r=el.getBoundingClientRect();return r.right>vw+2||r.left<-2||r.width>vw+2;
       }).slice(0,12).map(el=>({tag:el.tagName.toLowerCase(),rect:rect(el)}));
       const shifts=(window.__planoArqLayoutShifts||[]).reduce((a,x)=>a+Number(x.value||0),0);
+      const sidebars=[...document.querySelectorAll('.pa-sidebar')];
+      const menuButtons=[...document.querySelectorAll('.pa-menu-btn')];
+      const mobileNavs=[...document.querySelectorAll('#paMobileNav')];
+      const mobileMores=[...document.querySelectorAll('#paMobileMore')];
+      const legacyMobile=[...document.querySelectorAll('.mobile-bottom')];
+      const mobileTargets=mobileNavs.flatMap(nav=>[...nav.querySelectorAll('a,button')]).filter(visible).map(el=>rect(el));
+      const navigation={
+        sidebarCount:sidebars.length,
+        menuButtonCount:menuButtons.length,
+        mobileNavCount:mobileNavs.length,
+        mobileMoreCount:mobileMores.length,
+        legacyMobileCount:legacyMobile.length,
+        sidebarVisible:sidebars.some(visible),
+        menuVisible:menuButtons.some(visible),
+        mobileNavVisible:mobileNavs.some(visible),
+        mobileMoreVisible:mobileMores.some(visible),
+        sidebarOpen:sidebars.some(x=>x.classList.contains('open')),
+        mobileMoreOpen:mobileMores.some(x=>x.classList.contains('open')),
+        mobileTargets
+      };
       return{
         page,vw,vh,scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight,
         horizontalOverflow:document.documentElement.scrollWidth>vw+2,
         offenders,overlaps,smallButtons:smallButtons.slice(0,20),interactiveOverflow:interactiveOverflow.slice(0,20),
-        clippedControls,graphicsOutside:graphics,layoutShiftScore:shifts,
+        clippedControls,graphicsOutside:graphics,layoutShiftScore:shifts,navigation,
         topbar:topbar?rect(topbar):null,content:content?rect(content):null,sidebar:sidebar?rect(sidebar):null,topTitle:h1?(h1.textContent||'').trim():'',topbarOverlap,
         map:{
           grid:document.querySelector('.library-grid')?rect(document.querySelector('.library-grid')):null,
@@ -176,6 +196,30 @@ def append_errors(data,label,errors):
         errors.append(f"{label}: grafico fora da viewport")
     if float(data.get("layoutShiftScore") or 0)>0.25:
         errors.append(f"{label}: layout shift alto ({data['layoutShiftScore']:.3f})")
+    if data.get("page")!="hoje":
+        nav=data.get("navigation") or {}
+        for key,expected in (
+            ("sidebarCount",1),("menuButtonCount",1),("mobileNavCount",1),("mobileMoreCount",1),("legacyMobileCount",0)
+        ):
+            if int(nav.get(key,-1))!=expected:
+                errors.append(f"{label}: contrato de navegação divergente em {key}={nav.get(key)!r}; esperado {expected}")
+        if int(data.get("vw") or 0)<=900:
+            if not nav.get("menuVisible"):
+                errors.append(f"{label}: botão do drawer não está visível em tablet/mobile")
+            if not nav.get("mobileNavVisible"):
+                errors.append(f"{label}: navegação mobile canônica não está visível")
+            if nav.get("sidebarVisible") or nav.get("sidebarOpen"):
+                errors.append(f"{label}: sidebar iniciou aberta junto da navegação mobile")
+            tiny=[r for r in nav.get("mobileTargets") or [] if r.get("height",0)<44 or r.get("width",0)<44]
+            if tiny:
+                errors.append(f"{label}: alvo da navegação mobile menor que 44px")
+        else:
+            if not nav.get("sidebarVisible"):
+                errors.append(f"{label}: sidebar desktop não está visível")
+            if nav.get("menuVisible"):
+                errors.append(f"{label}: botão do drawer apareceu no desktop")
+            if nav.get("mobileNavVisible"):
+                errors.append(f"{label}: navegação mobile apareceu no desktop")
 
 def rect_inside_viewport(rect,vw,vh,tolerance=2):
     if not rect:return False
@@ -189,6 +233,7 @@ long_text_cases=[]
 zoom_cases=[]
 scale_cases=[]
 interactive_cases=[]
+touch_cases=[]
 
 try:
     # Matriz completa: todas as páginas são abertas/renderizadas e fotografadas.
@@ -221,6 +266,79 @@ try:
         sidebar_cases.append(info)
         if not info["ok"]:errors.append(f"sidebar@{width}x{height}: painel fora da viewport")
         driver.save_screenshot(str(out_dir/f"sidebar-open-{width}x{height}.png"))
+
+    # Interação real por toque em iPad/celular: um único menu mobile, drawer e "Mais" sem sobreposição.
+    for width,height in ((834,1112),(390,844)):
+        driver.execute_cdp_cmd("Emulation.setDeviceMetricsOverride",{"width":width,"height":height,"deviceScaleFactor":2,"mobile":False})
+        driver.execute_cdp_cmd("Emulation.setTouchEmulationEnabled",{"enabled":True,"maxTouchPoints":5})
+        for page,rel in (
+            ("planejamento",f"planejamento.html?contest={contest}"),
+            ("mapas",f"biblioteca.html?contest={contest}"),
+            ("configuracoes",f"configuracoes.html?contest={contest}"),
+        ):
+            driver.get(urljoin(base,rel));wait_ready()
+            base_state=driver.execute_script("""
+              const visible=e=>{if(!e)return false;const s=getComputedStyle(e),r=e.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>1&&r.height>1};
+              const targets=[...document.querySelectorAll('#paMobileNav a,#paMobileNav button')].filter(visible).map(e=>{const r=e.getBoundingClientRect();return{width:r.width,height:r.height}});
+              return {
+                coarse:matchMedia('(pointer: coarse)').matches,
+                touchPoints:navigator.maxTouchPoints||0,
+                sidebarCount:document.querySelectorAll('.pa-sidebar').length,
+                menuCount:document.querySelectorAll('.pa-menu-btn').length,
+                mobileNavCount:document.querySelectorAll('#paMobileNav').length,
+                mobileMoreCount:document.querySelectorAll('#paMobileMore').length,
+                legacyCount:document.querySelectorAll('.mobile-bottom').length,
+                mobileVisible:visible(document.getElementById('paMobileNav')),
+                menuVisible:visible(document.querySelector('.pa-menu-btn')),
+                targets
+              };
+            """)
+            driver.find_element(By.CSS_SELECTOR,".pa-menu-btn").click()
+            WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.querySelector('.pa-sidebar')?.classList.contains('open')===true"))
+            drawer_state=driver.execute_script("""
+              return {
+                sidebarOpen:document.querySelector('.pa-sidebar')?.classList.contains('open')===true,
+                moreOpen:document.getElementById('paMobileMore')?.classList.contains('open')===true
+              };
+            """)
+            driver.execute_script("document.querySelector('.pa-backdrop')?.click()")
+            WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.querySelector('.pa-sidebar')?.classList.contains('open')!==true"))
+            driver.find_element(By.ID,"paMobileMoreBtn").click()
+            WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.getElementById('paMobileMore')?.classList.contains('open')===true"))
+            more_state=driver.execute_script("""
+              const m=document.getElementById('paMobileMore'),r=m.getBoundingClientRect(),vw=document.documentElement.clientWidth,vh=document.documentElement.clientHeight;
+              return {
+                moreOpen:m?.classList.contains('open')===true,
+                sidebarOpen:document.querySelector('.pa-sidebar')?.classList.contains('open')===true,
+                rect:{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height},
+                vw,vh
+              };
+            """)
+            ok=(
+                base_state.get("coarse") is True
+                and int(base_state.get("touchPoints") or 0)>0
+                and base_state.get("sidebarCount")==1
+                and base_state.get("menuCount")==1
+                and base_state.get("mobileNavCount")==1
+                and base_state.get("mobileMoreCount")==1
+                and base_state.get("legacyCount")==0
+                and base_state.get("mobileVisible") is True
+                and base_state.get("menuVisible") is True
+                and all(t.get("width",0)>=44 and t.get("height",0)>=44 for t in base_state.get("targets") or [])
+                and drawer_state.get("sidebarOpen") is True
+                and drawer_state.get("moreOpen") is False
+                and more_state.get("moreOpen") is True
+                and more_state.get("sidebarOpen") is False
+                and rect_inside_viewport(more_state.get("rect"),more_state.get("vw"),more_state.get("vh"))
+            )
+            case={"page":page,"viewport":{"width":width,"height":height},"base":base_state,"drawer":drawer_state,"more":more_state,"ok":ok}
+            touch_cases.append(case)
+            if not ok:
+                errors.append(f"touch-{page}@{width}x{height}: contrato de navegação responsiva falhou")
+            driver.save_screenshot(str(out_dir/f"touch-{page}-{width}x{height}.png"))
+            driver.find_element(By.ID,"paMobileMoreBtn").click()
+        driver.execute_cdp_cmd("Emulation.setTouchEmulationEnabled",{"enabled":False,"maxTouchPoints":1})
+        driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride",{})
 
     # Wizard Novo Concurso: três etapas, sem concluir a criação.
     for width,height in ((1440,1000),(834,1112),(430,932),(375,812)):
@@ -480,7 +598,7 @@ try:
             append_errors(data,f"escala-{page}@{dpr}",errors)
     driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride",{})
 
-    report={"base":base,"rows":rows,"modalCases":modal_cases,"sidebarCases":sidebar_cases,"longTextCases":long_text_cases,"zoomCases":zoom_cases,"zoomEffective":zoom_effective,"scaleCases":scale_cases,"interactiveCases":interactive_cases,"errors":errors}
+    report={"base":base,"rows":rows,"modalCases":modal_cases,"sidebarCases":sidebar_cases,"touchCases":touch_cases,"longTextCases":long_text_cases,"zoomCases":zoom_cases,"zoomEffective":zoom_effective,"scaleCases":scale_cases,"interactiveCases":interactive_cases,"errors":errors}
     (out_dir/"report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2),"utf-8")
     summary={
         "base":base,
@@ -489,6 +607,9 @@ try:
         "cases":len(rows),
         "modalCases":len(modal_cases),
         "sidebarCases":len(sidebar_cases),
+        "touchCases":len(touch_cases),
+        "touchFailures":[x for x in touch_cases if not x.get("ok")],
+        "navigationFailures":[{"page":r["page"],"viewport":r["requestedViewport"],"navigation":r.get("navigation")} for r in rows if any("navegação" in e and f"{r['page']}@{r['requestedViewport']['width']}x{r['requestedViewport']['height']}" in e for e in errors)],
         "longTextCases":len(long_text_cases),
         "zoomCases":len(zoom_cases),
         "zoomEffective":zoom_effective,
@@ -506,6 +627,8 @@ try:
     if strict and errors:
         raise SystemExit(1)
 finally:
+    try: driver.execute_cdp_cmd("Emulation.setTouchEmulationEnabled",{"enabled":False,"maxTouchPoints":1})
+    except Exception: pass
     try: driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride",{})
     except Exception: pass
     driver.quit()

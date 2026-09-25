@@ -55,6 +55,9 @@ for name in PAGES:
         if token not in text:
             errors.append(f"{name}: contrato do shell ausente: {token}")
 
+    aside_count=len(re.findall(r'<aside\b[^>]*class=["\'][^"\']*\bpa-sidebar\b[^"\']*["\'][^>]*>',text,re.I))
+    if aside_count != 1:
+        errors.append(f"{name}: deve existir exatamente uma sidebar canônica; encontrado {aside_count}")
     aside_match=re.search(r'<aside class=["\']pa-sidebar["\']>([\s\S]*?)</aside>',text,re.I)
     if not aside_match:
         errors.append(f"{name}: sidebar canônica ausente")
@@ -66,6 +69,10 @@ for name in PAGES:
         errors.append(f"{name}: meta do shell canônico ausente ou divergente")
     if 'id="actionMenu"' in text:
         errors.append(f"{name}: menu paralelo actionMenu detectado; use o menu global do shell")
+    if re.search(r'class=["\'][^"\']*\bmobile-bottom\b',text,re.I):
+        errors.append(f"{name}: menu mobile legado detectado; use somente paMobileNav do shell")
+    if re.search(r'id=["\'](?:mobileNav|mobileMoreMenu)["\']',text,re.I):
+        errors.append(f"{name}: IDs de navegação mobile legada detectados")
     content_open=re.search(r'class=["\']pa-content["\'][^>]*>\s*<section\s+class=["\'](?:hero|page-hero)["\']',text,re.I)
     if not content_open:
         errors.append(
@@ -209,6 +216,19 @@ if index_path.is_file():
 else:
     errors.append("index.html ausente")
 
+shell_js=(ROOT/"assets/js/pa-shell-v16.js")
+if not shell_js.is_file():
+    errors.append("assets/js/pa-shell-v16.js ausente")
+else:
+    shell_js_text=shell_js.read_text("utf-8",errors="replace")
+    for marker in (
+        'id="paMobileNav"',
+        'id="paMobileMore"',
+        "if(document.getElementById('paMobileNav'))return",
+    ):
+        if marker not in shell_js_text:
+            errors.append(f"pa-shell-v16.js: contrato de navegação mobile canônica ausente: {marker}")
+
 shell=(ROOT/"assets/css/pa-shell-v16.css")
 if shell.is_file():
     css=shell.read_text("utf-8",errors="replace")
@@ -218,6 +238,7 @@ if shell.is_file():
         "--pa-shell-content-max:1420px",
         "@media(max-width:900px)",
         ".pa-mobile-more.open",
+        "document.querySelectorAll('.mobile-bottom').forEach(x=>x.remove())",
     )
     for marker in required_shell:
         if marker not in css:
