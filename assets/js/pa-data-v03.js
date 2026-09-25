@@ -1,7 +1,8 @@
 (()=>{
 'use strict';
-const API={version:'3.1'};
+const API={version:'3.2'};
 const RUNTIME_KEY='planoarq:runtime-flags:v1';
+const CONTESTS_KEY='planoarq:contests:v1',EXAM_SCHEMA_PREFIX='planoarq:exam-schema::',CONTEST_FILES_PREFIX='planoarq:contest-files::',IMPORT_DRAFT_PREFIX='planoarq:contest-import-draft::';
 const safeJSON=(v,f)=>{try{return JSON.parse(v)??f}catch(_){return f}};
 const iso=()=>new Date().toISOString();
 function runtimeFlags(){
@@ -30,8 +31,24 @@ function deviceId(){let id=localStorage.getItem('planoarq:device-id:v1');if(!id)
 function deviceName(){let n=localStorage.getItem('planoarq:device-name:v1');if(n)return n;const ua=navigator.userAgent||'';const os=/Windows/i.test(ua)?'Windows':/iPad|Macintosh.*Mobile/i.test(ua)?'iPad':/iPhone/i.test(ua)?'iPhone':/Macintosh/i.test(ua)?'Mac':/Android/i.test(ua)?'Android':'Dispositivo';const br=/Edg\//.test(ua)?'Edge':/Chrome\//.test(ua)?'Chrome':/Safari\//.test(ua)?'Safari':/Firefox\//.test(ua)?'Firefox':'Navegador';n=`${br} · ${os}`;localStorage.setItem('planoarq:device-name:v1',n);return n}
 function setDeviceName(n){n=String(n||'').trim();if(n)localStorage.setItem('planoarq:device-name:v1',n);else localStorage.removeItem('planoarq:device-name:v1');return deviceName()}
 function keys(){const out=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(tracked(k))out.push(k)}return out.sort()}
+function localContests(){const v=safeJSON(localStorage.getItem(CONTESTS_KEY),[]);return Array.isArray(v)?v.filter(x=>x&&typeof x==='object'&&x.id):[]}
+function contests(){const seed=window.PLANO_ARQ_CONTESTS?.contests||[],by=new Map(seed.filter(x=>x?.id).map(x=>[x.id,{...x}]));localContests().forEach(x=>by.set(x.id,{...(by.get(x.id)||{}),...x}));return [...by.values()]}
+function contestById(cid){return contests().find(x=>x.id===cid)||null}
+function saveContest(record){if(!record||!record.id)throw new Error('Concurso sem ID');const local=localContests(),i=local.findIndex(x=>x.id===record.id),next={...(i>=0?local[i]:{}),...record,updatedAt:iso()};if(i>=0)local[i]=next;else local.push(next);localStorage.setItem(CONTESTS_KEY,JSON.stringify(local));return next}
+function examSchemaKey(cid){return EXAM_SCHEMA_PREFIX+cid}
+function examSchemaForContest(cid){const local=safeJSON(localStorage.getItem(examSchemaKey(cid)),null);if(local&&typeof local==='object')return local;const c=contestById(cid)||{},id=c.examSchemaId||cid;return (window.PLANO_ARQ_EXAM_SCHEMAS?.schemas||[]).find(x=>x.id===id)||null}
+function saveExamSchema(cid,schema){if(!cid||!schema||typeof schema!=='object'||Array.isArray(schema))throw new Error('Estrutura da prova inválida');const next={...schema,id:schema.id||cid,contestId:cid,source:schema.source||'user-import',updatedAt:iso()};localStorage.setItem(examSchemaKey(cid),JSON.stringify(next));return next}
+function contestFilesKey(cid){return CONTEST_FILES_PREFIX+cid}
+function contestFiles(cid){const staticFiles=(window.PLANO_ARQ_FILES?.files||[]).filter(f=>!f.contestId||f.contestId===cid),local=safeJSON(localStorage.getItem(contestFilesKey(cid)),[]),by=new Map();staticFiles.forEach(f=>by.set(f.id||f.path,{...f}));(Array.isArray(local)?local:[]).forEach(f=>{if(f&&typeof f==='object'){const id=f.id||f.path||f.storageKey;if(id)by.set(id,{...(by.get(id)||{}),...f,contestId:cid})}});return [...by.values()]}
+function saveContestFiles(cid,files){if(!cid||!Array.isArray(files))throw new Error('Lista de documentos inválida');const clean=files.filter(f=>f&&typeof f==='object'&&(f.id||f.path||f.storageKey)).map(f=>({...f,contestId:cid}));localStorage.setItem(contestFilesKey(cid),JSON.stringify(clean));return clean}
+function upsertContestFile(cid,file){const files=safeJSON(localStorage.getItem(contestFilesKey(cid)),[]),list=Array.isArray(files)?files:[],id=file?.id||file?.path||file?.storageKey;if(!cid||!id)throw new Error('Documento sem identificação');const i=list.findIndex(x=>(x.id||x.path||x.storageKey)===id),next={...(i>=0?list[i]:{}),...file,contestId:cid,updatedAt:iso()};if(i>=0)list[i]=next;else list.push(next);saveContestFiles(cid,list);return next}
+function importDraftKey(id){return IMPORT_DRAFT_PREFIX+id}
+function loadImportDraft(id){return safeJSON(localStorage.getItem(importDraftKey(id)),null)}
+function saveImportDraft(id,draft){if(!id||!draft||typeof draft!=='object')throw new Error('Rascunho de importação inválido');const next={...draft,id,updatedAt:iso()};localStorage.setItem(importDraftKey(id),JSON.stringify(next));return next}
+function clearImportDraft(id){localStorage.removeItem(importDraftKey(id))}
+function contestBundle(cid){return {contest:contestById(cid),examSchema:examSchemaForContest(cid),files:contestFiles(cid),materials:materialsForContest(cid)}}
 function materialsForContest(cid){return (window.PLANO_ARQ_MATERIALS?.materials||[]).filter(m=>!m.contestId||m.contestId===cid)}
-function contestKeys(cid){const materials=materialsForContest(cid),exact=[`planoarq:planning::${cid}`,`planoarq:generated-plan::${cid}`,`planoarq:session-log::${cid}`,`planoarq:review-activity::${cid}`,`planoarq:file-favorites::${cid}`],namespaces=new Set(materials.map(m=>m.storageNamespace).filter(Boolean)),materialIds=new Set(materials.map(m=>m.id).filter(Boolean));const dynamic=keys().filter(k=>exact.includes(k)||[...namespaces].some(ns=>k===`mindmap_state::${ns}`||k===`mindmap_notes::${ns}`)||[...materialIds].some(id=>k===`planoarq:material-summary::${id}`)||k.includes(`::${cid}`));return [...new Set(dynamic)].sort()}
+function contestKeys(cid){const materials=materialsForContest(cid),exact=[`planoarq:planning::${cid}`,`planoarq:generated-plan::${cid}`,`planoarq:session-log::${cid}`,`planoarq:review-activity::${cid}`,`planoarq:file-favorites::${cid}`,examSchemaKey(cid),contestFilesKey(cid)],namespaces=new Set(materials.map(m=>m.storageNamespace).filter(Boolean)),materialIds=new Set(materials.map(m=>m.id).filter(Boolean));const dynamic=keys().filter(k=>exact.includes(k)||[...namespaces].some(ns=>k===`mindmap_state::${ns}`||k===`mindmap_notes::${ns}`)||[...materialIds].some(id=>k===`planoarq:material-summary::${id}`)||k.includes(`::${cid}`));return [...new Set(dynamic)].sort()}
 function collect(scope='all',cid=''){const wanted=scope==='contest'?contestKeys(cid):keys(),data={};wanted.forEach(k=>data[k]=localStorage.getItem(k));return data}
 function byteSize(data){return new Blob([JSON.stringify(data)]).size}
 function buildBackup(scope='all',cid=''){const data=collect(scope,cid);return {schema:'planoarq-backup-v2',version:2,exportedAt:iso(),scope,contestId:scope==='contest'?cid:null,device:{id:deviceId(),name:deviceName()},app:{stage:'12.2',origin:location.origin||'file://'},data,summary:{keys:Object.keys(data).length,bytes:byteSize(data)}}}
@@ -43,6 +60,6 @@ function importEntries(entries){entries.filter(([k])=>tracked(k)).forEach(([k,v]
 function dataHealth(){let parseErrors=0,jsonKeys=0;keys().forEach(k=>{const v=localStorage.getItem(k);if(v&&(/^[\[{]/.test(v.trim()))){jsonKeys++;try{JSON.parse(v)}catch(_){parseErrors++}}});const all=collect();return {keys:Object.keys(all).length,bytes:byteSize(all),parseErrors,jsonKeys,lastExport:localStorage.getItem('planoarq:last-backup-export')||'',lastImport:localStorage.getItem('planoarq:last-backup-import')||''}}
 function resetContest(cid){const ks=contestKeys(cid);ks.forEach(k=>localStorage.removeItem(k));localStorage.setItem(`planoarq:reset::${cid}`,iso());return ks.length}
 function resetDeviceId(){const id=uuid();localStorage.setItem('planoarq:device-id:v1',id);return id}
-Object.assign(API,{RUNTIME_KEY,runtimeFlags,isMaintenanceMode,canRunBackgroundServices,setMaintenanceMode,deviceId,deviceName,setDeviceName,keys,tracked,privateKey,contestKeys,collect,buildBackup,exportBackup,inspect,readFile,importEntries,dataHealth,resetContest,resetDeviceId,materialsForContest});
+Object.assign(API,{RUNTIME_KEY,CONTESTS_KEY,EXAM_SCHEMA_PREFIX,CONTEST_FILES_PREFIX,IMPORT_DRAFT_PREFIX,runtimeFlags,isMaintenanceMode,canRunBackgroundServices,setMaintenanceMode,deviceId,deviceName,setDeviceName,keys,tracked,privateKey,contestKeys,collect,buildBackup,exportBackup,inspect,readFile,importEntries,dataHealth,resetContest,resetDeviceId,materialsForContest,localContests,contests,contestById,saveContest,examSchemaKey,examSchemaForContest,saveExamSchema,contestFilesKey,contestFiles,saveContestFiles,upsertContestFile,importDraftKey,loadImportDraft,saveImportDraft,clearImportDraft,contestBundle});
 window.PLANO_ARQ_DATA=API;
 })();

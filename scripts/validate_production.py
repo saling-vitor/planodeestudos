@@ -300,6 +300,11 @@ def main():
             errors.append("pa-drive-v01.js: snapshot automático não usa a chave canônica do concurso ativo")
         if "Backup contém registros inválidos" not in data_js:
             errors.append("pa-data-v03.js: importação não rejeita registros de backup inválidos")
+        for token in ("examSchemaForContest","saveExamSchema","contestFiles","upsertContestFile","saveImportDraft","contestBundle"):
+            if token not in data_js:
+                errors.append(f"pa-data-v03.js: contrato Novo Concurso ausente: {token}")
+        if "planoarq:contests:v1" not in sync_js or "Array.isArray(local)?local:[]" not in sync_js:
+            errors.append("pa-sync-v03.js: concursos dinâmicos não entram no isolamento de sincronização")
 
         for p in sims:
             text=p.read_text("utf-8",errors="ignore")
