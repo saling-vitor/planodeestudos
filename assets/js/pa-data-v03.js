@@ -21,7 +21,7 @@ if(localStorage.getItem(RUNTIME_KEY)===null)localStorage.setItem(RUNTIME_KEY,JSO
 document.documentElement.dataset.paMaintenance=isMaintenanceMode()?'1':'0';
 const privateKey=k=>!!k&&(
   k==='planoarq:device-id:v1'||k==='planoarq:device-name:v1'||k==='planoarq:active-contest:v1'||k==='planoarq:active-contest'||k==='planoarq:activeContest'||
-  k===RUNTIME_KEY||k==='planoarq:preferences:v1'||k.startsWith('planoarq:supabase-')||k.startsWith('planoarq:sync-')||k.startsWith('planoarq:drive-')||k.startsWith('planoarq:last-drive')||
+  k===RUNTIME_KEY||k==='planoarq:settings-lock:v1'||k==='planoarq:preferences:v1'||k.startsWith('planoarq:supabase-')||k.startsWith('planoarq:sync-')||k.startsWith('planoarq:drive-')||k.startsWith('planoarq:last-drive')||
   k.startsWith('planoarq:last-sync')||k.startsWith('planoarq:reset::')||k.startsWith('planoarq:preview-demo')
 );
 const tracked=k=>!!k&&(k.startsWith('planoarq:')||k.startsWith('mindmap_state::')||k.startsWith('mindmap_notes::'))&&!privateKey(k);
