@@ -48,6 +48,19 @@ def wait_probe(driver,timeout=30):
         raise RuntimeError(f"probe terminou em {state}: {raw}")
     return json.loads(raw)
 
+def probe_with_retry(driver,attempts=6,timeout=30,delay=3):
+    last=None
+    for attempt in range(1,attempts+1):
+        try:
+            return wait_probe(driver,timeout)
+        except Exception as exc:
+            last=exc
+            if attempt==attempts:
+                raise
+            print(f"probe tentativa {attempt}/{attempts}: {exc}")
+            time.sleep(delay)
+    raise last
+
 def async_js(driver,script,timeout=120):
     driver.set_script_timeout(timeout)
     return driver.execute_async_script(script)
@@ -102,10 +115,8 @@ if phase=="before":
     profile.mkdir(parents=True,exist_ok=True)
     driver=new_driver()
     try:
-        first=wait_probe(driver)
-        driver.refresh()
-        WebDriverWait(driver,25).until(lambda d:d.execute_script("return document.documentElement.dataset.pwaProbe")=="done")
-        second=json.loads(driver.execute_script("return document.getElementById('result').textContent"))
+        first=probe_with_retry(driver)
+        second=probe_with_retry(driver)
         errors=basic_assertions(second)
         ci=cache_info(driver)
         baseline={
