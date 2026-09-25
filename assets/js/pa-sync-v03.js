@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='3.0';
+const VERSION='3.1';
 const CONFIG_KEY='planoarq:supabase-config:v1',SESSION_KEY='planoarq:supabase-session:v1',SETTINGS_KEY='planoarq:sync-settings:v1';
 const D=()=>window.PLANO_ARQ_DATA;
 const maintenance=()=>D()?.isMaintenanceMode?.()===true;
@@ -9,7 +9,7 @@ const safeJSON=(v,f)=>{try{return JSON.parse(v)??f}catch(_){return f}};
 const now=()=>new Date().toISOString();
 let syncing=false,timer=null,queued=null,applyingRemote=false,patched=false;
 function normalizeUrl(v){return String(v||'').trim().replace(/\/+$/,'')}
-function config(){const l=safeJSON(localStorage.getItem(CONFIG_KEY),{}),s=staticCfg().supabase||{};return {url:normalizeUrl(l.url||s.url||''),key:String(l.key||l.publishableKey||l.anonKey||s.publishableKey||s.anonKey||'').trim()}}
+function config(){const l=safeJSON(localStorage.getItem(CONFIG_KEY),{}),s=staticCfg().supabase||{},storage=s.storage||{};return {url:normalizeUrl(l.url||s.url||''),key:String(l.key||l.publishableKey||l.anonKey||s.publishableKey||s.anonKey||'').trim(),storage:{enabled:storage.enabled!==false,bucket:String(storage.bucket||'plano-arq-contest-files').trim(),private:storage.private!==false,maxFileSizeBytes:Number(storage.maxFileSizeBytes||83886080)}}}
 function saveConfig(c){const v={url:normalizeUrl(c.url),key:String(c.key||'').trim(),savedAt:now()};localStorage.setItem(CONFIG_KEY,JSON.stringify(v));const sess=session();if(sess&&sess.projectUrl!==v.url)clearSession();emit('config');return v}
 function clearConfig(){localStorage.removeItem(CONFIG_KEY);clearSession();emit('config')}
 function settings(){return {...{autoSync:true,intervalSeconds:60,firstSyncStrategy:'cloud'},...safeJSON(localStorage.getItem(SETTINGS_KEY),{})}}
@@ -19,6 +19,54 @@ function saveSession(raw){if(!raw)return null;const c=config(),expiresAt=raw.exp
 function clearSession(){localStorage.removeItem(SESSION_KEY);emit('auth')}
 function configured(){const c=config();return /^https:\/\/.+\.supabase\.co$/i.test(c.url)&&c.key.length>20}
 function headers(auth=false){const c=config(),h={'apikey':c.key,'Content-Type':'application/json'};const s=session();if(auth&&s?.access_token)h.Authorization=`Bearer ${s.access_token}`;return h}
+function storageHeaders(contentType=''){const c=config(),s=session(),h={'apikey':c.key};if(s?.access_token)h.Authorization=`Bearer ${s.access_token}`;if(contentType)h['Content-Type']=contentType;return h}
+function storageConfigured(){const c=config();return configured()&&c.storage.enabled&&!!c.storage.bucket}
+function storagePath(path){return String(path||'').split('/').filter(Boolean).map(encodeURIComponent).join('/')}
+function storageSegment(v,fallback='file'){const s=String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/^-+|-+$/g,'');return s||fallback}
+function cloudPathFor(uid,cid,file){const name=storageSegment(file?.filename||file?.name||((file?.id||'arquivo')+'.pdf'),'arquivo.pdf');return [storageSegment(uid,'user'),storageSegment(cid,'contest'),storageSegment(file?.id||'file','file'),name].join('/')}
+async function storageUpload(path,blob,contentType='application/octet-stream'){
+ const c=config();if(!storageConfigured())throw new Error('Supabase Storage não configurado');await ensureSession();
+ let r;try{r=await fetch(`${c.url}/storage/v1/object/${encodeURIComponent(c.storage.bucket)}/${storagePath(path)}`,{method:'POST',headers:{...storageHeaders(contentType),'x-upsert':'true','cache-control':'3600'},body:blob})}catch(_){throw new Error(navigator.onLine===false?'Sem conexão com a internet':'Não foi possível enviar o arquivo ao Supabase Storage')}
+ let body=null,text='';try{text=await r.text();body=text?JSON.parse(text):null}catch(_){body=text}
+ if(!r.ok){const msg=body?.message||body?.error||body?.msg||`Storage HTTP ${r.status}`;const e=new Error(String(msg));e.status=r.status;throw e}
+ return body||{path}
+}
+async function storageDownload(path){
+ const c=config();if(!storageConfigured())throw new Error('Supabase Storage não configurado');await ensureSession();
+ let r;try{r=await fetch(`${c.url}/storage/v1/object/authenticated/${encodeURIComponent(c.storage.bucket)}/${storagePath(path)}`,{headers:storageHeaders()})}catch(_){throw new Error(navigator.onLine===false?'Sem conexão com a internet':'Não foi possível baixar o arquivo do Supabase Storage')}
+ if(!r.ok){let msg=`Storage HTTP ${r.status}`;try{const b=await r.json();msg=b?.message||b?.error||b?.msg||msg}catch(_){}const e=new Error(String(msg));e.status=r.status;throw e}
+ return await r.blob()
+}
+async function ensureContestFileLocal(cid,file){
+ const d=D();if(!d?.contestBlob||!d?.storeContestBlob)throw new Error('Armazenamento local de arquivos indisponível');
+ let rec=await d.contestBlob(cid,file.id);if(rec?.blob)return rec;
+ if(!file.cloudPath)throw new Error('Este arquivo ainda existe somente no dispositivo de origem');
+ const blob=await storageDownload(file.cloudPath);
+ await d.storeContestBlob(cid,file.id,blob,{name:file.filename||file.title||file.id,type:file.mimeType||blob.type||'application/pdf',size:blob.size});
+ return await d.contestBlob(cid,file.id)
+}
+async function reconcileContestFiles(uid){
+ const d=D(),out={ok:true,uploaded:0,downloaded:0,alreadyLocal:0,metadataChanged:0,errors:[]};if(!d?.contests||!d?.contestFiles||!d?.contestBlob)return out;
+ if(!storageConfigured())return {...out,ok:false,reason:'storage-not-configured'};
+ for(const contest of d.contests()){
+  const cid=contest?.id;if(!cid)continue;
+  const files=d.contestFiles(cid).filter(f=>f&&(String(f.storage||'').includes('indexeddb')||f.cloudPath||f.localOnly));
+  for(const file of files){
+   try{
+    const local=await d.contestBlob(cid,file.id),contentAt=Date.parse(file.contentUpdatedAt||0)||0,cloudAt=Date.parse(file.cloudSyncedAt||0)||0;
+    if(local?.blob&&(!file.cloudPath||!file.cloudSyncedAt||contentAt>cloudAt)){
+      const path=file.cloudPath||cloudPathFor(uid,cid,file);
+      await storageUpload(path,local.blob,file.mimeType||local.type||local.blob.type||'application/pdf');
+      d.upsertContestFile(cid,{...file,storage:'supabase+indexeddb',cloudBucket:config().storage.bucket,cloudPath:path,cloudSyncedAt:now(),localOnly:false});
+      out.uploaded++;out.metadataChanged++;continue
+    }
+    if(!local?.blob&&file.cloudPath){await ensureContestFileLocal(cid,file);out.downloaded++;continue}
+    if(local?.blob)out.alreadyLocal++
+   }catch(err){out.ok=false;out.errors.push({contestId:cid,fileId:file.id,message:err?.message||String(err),status:err?.status||0})}
+  }
+ }
+ localStorage.setItem('planoarq:last-file-sync-summary',JSON.stringify({...out,at:now()}));return out
+}
 async function jsonFetch(url,opts={}){let r;try{r=await fetch(url,opts)}catch(err){throw new Error(navigator.onLine===false?'Sem conexão com a internet':'Não foi possível acessar o Supabase')};let body=null,text='';try{text=await r.text();body=text?JSON.parse(text):null}catch(_){body=text};if(!r.ok){const msg=body?.msg||body?.message||body?.error_description||body?.error||`Erro HTTP ${r.status}`;const e=new Error(String(msg));e.status=r.status;e.body=body;throw e}return body}
 async function testConnection(){if(!configured())throw new Error('Informe a Project URL e a Publishable key');const c=config();await jsonFetch(`${c.url}/auth/v1/settings`,{headers:headers(false)});return {ok:true,url:c.url}}
 async function sendOtp(email){email=String(email||'').trim().toLowerCase();if(!email||!email.includes('@'))throw new Error('Informe um e-mail válido');if(!configured())throw new Error('Configure o projeto Supabase primeiro');const c=config();await jsonFetch(`${c.url}/auth/v1/otp`,{method:'POST',headers:headers(false),body:JSON.stringify({email,create_user:true})});localStorage.setItem('planoarq:supabase-pending-email:v1',email);emit('otp-sent',{email});return {ok:true,email}}
@@ -46,9 +94,20 @@ function applyRemoteRow(row,meta){const k=row.record_key,r=meta.records[k]||{};a
 async function syncNow(opts={}){if(maintenance())return {ok:false,reason:'maintenance',maintenance:true};if(syncing)return {ok:false,reason:'already-syncing'};if(!configured())return {ok:false,reason:'not-configured'};let s;try{s=await ensureSession()}catch(err){emit('error',{message:err.message});throw err}if(!s?.user?.id)return {ok:false,reason:'not-authenticated'};syncing=true;emit('syncing',{reason:opts.reason||'manual'});const uid=s.user.id,meta=scanLocal(loadMeta(uid)),summary={ok:true,pulled:0,pushed:0,remoteApplied:0,localKept:0,conflicts:0,deletions:0,startedAt:now()};try{const remote=await pullRemote();summary.pulled=remote.length;const byRemote=new Map(remote.map(r=>[r.record_key,r])),push=[];const keys=new Set([...Object.keys(meta.records),...byRemote.keys()]);for(const k of keys){if(!syncable(k))continue;const lr=meta.records[k],rr=byRemote.get(k);if(rr&&lr){const remoteChanged=!lr.remoteUpdatedAt||lr.remoteUpdatedAt!==rr.updated_at||lr.remoteDeviceId!==rr.device_id;const localDirty=!!lr.dirty;if(!meta.firstSyncCompleted&&remoteChanged){applyRemoteRow(rr,meta);summary.remoteApplied++;if(rr.deleted)summary.deletions++;continue}if(localDirty&&remoteChanged){summary.conflicts++;const c=cmp(lr.updatedAt,lr.deviceId,rr.updated_at,rr.device_id);if(c>0){push.push(rowFromLocal(k,lr));summary.localKept++}else{applyRemoteRow(rr,meta);summary.remoteApplied++;if(rr.deleted)summary.deletions++}continue}if(remoteChanged&&!localDirty){applyRemoteRow(rr,meta);summary.remoteApplied++;if(rr.deleted)summary.deletions++;continue}if(localDirty&&!remoteChanged){push.push(rowFromLocal(k,lr));continue}lr.remoteUpdatedAt=rr.updated_at;lr.remoteDeviceId=rr.device_id;lr.dirty=false
  }else if(lr&&!rr){if(!lr.deleted||lr.dirty)push.push(rowFromLocal(k,lr))}else if(rr&&!lr){applyRemoteRow(rr,meta);summary.remoteApplied++;if(rr.deleted)summary.deletions++}}
  if(push.length){await pushRemote(push);summary.pushed=push.length;const authoritative=await pullRemote();const authMap=new Map(authoritative.map(r=>[r.record_key,r]));for(const row of authoritative){const lr=meta.records[row.record_key];if(!lr||cmp(row.updated_at,row.device_id,lr.updatedAt,lr.deviceId)>=0)applyRemoteRow(row,meta);else if(lr){lr.remoteUpdatedAt=row.updated_at;lr.remoteDeviceId=row.device_id}}}
+ const fileSummary=await reconcileContestFiles(uid);summary.files=fileSummary;
+ if(fileSummary.metadataChanged){
+  scanLocal(meta);
+  const fileRows=Object.entries(meta.records).filter(([k,r])=>k.startsWith('planoarq:contest-files::')&&r.dirty).map(([k,r])=>rowFromLocal(k,r));
+  if(fileRows.length){
+   await pushRemote(fileRows);
+   const refreshed=await pullRemote(),keys=new Set(fileRows.map(r=>r.record_key));
+   refreshed.filter(r=>keys.has(r.record_key)).forEach(r=>applyRemoteRow(r,meta));
+   summary.pushed+=fileRows.length
+  }
+ }
  meta.firstSyncCompleted=true;meta.lastSyncAt=now();saveMeta(uid,meta);localStorage.setItem('planoarq:last-sync-at',meta.lastSyncAt);localStorage.setItem('planoarq:last-sync-summary',JSON.stringify(summary));summary.finishedAt=meta.lastSyncAt;emit('synced',summary);return summary
  }catch(err){emit('error',{message:err.message,status:err.status||0});throw err}finally{syncing=false}}
-function status(){const c=config(),s=session(),set=settings(),last=safeJSON(localStorage.getItem('planoarq:last-sync-summary'),null),paused=maintenance();return {version:VERSION,mode:paused?'maintenance-local':'local-first',maintenance:paused,configured:configured(),project:{url:c.url,keyPresent:!!c.key},auth:{signedIn:!!s?.user?.id,email:s?.user?.email||'',userId:s?.user?.id||'',expiresAt:s?.expires_at||0},sync:{running:syncing,autoSync:paused?false:!!set.autoSync,configuredAutoSync:!!set.autoSync,paused,intervalSeconds:set.intervalSeconds,lastSyncAt:localStorage.getItem('planoarq:last-sync-at')||'',last},local:{keys:allLocalKeys().length},device:{id:D()?.deviceId?.()||'',name:D()?.deviceName?.()||''}}}
+function status(){const c=config(),s=session(),set=settings(),last=safeJSON(localStorage.getItem('planoarq:last-sync-summary'),null),fileLast=safeJSON(localStorage.getItem('planoarq:last-file-sync-summary'),null),paused=maintenance();return {version:VERSION,mode:paused?'maintenance-local':'local-first',maintenance:paused,configured:configured(),project:{url:c.url,keyPresent:!!c.key},auth:{signedIn:!!s?.user?.id,email:s?.user?.email||'',userId:s?.user?.id||'',expiresAt:s?.expires_at||0},sync:{running:syncing,autoSync:paused?false:!!set.autoSync,configuredAutoSync:!!set.autoSync,paused,intervalSeconds:set.intervalSeconds,lastSyncAt:localStorage.getItem('planoarq:last-sync-at')||'',last},storage:{configured:storageConfigured(),bucket:c.storage.bucket,private:c.storage.private,last:fileLast},local:{keys:allLocalKeys().length},device:{id:D()?.deviceId?.()||'',name:D()?.deviceName?.()||''}}}
 function emit(state,detail={}){const d={state,...detail,status:status()};window.dispatchEvent(new CustomEvent('planoarq:sync-status',{detail:d}))}
 function queueAutoSync(delay=3500){if(maintenance()||applyingRemote||!settings().autoSync||!configured()||!session()?.user?.id)return;clearTimeout(queued);queued=setTimeout(()=>{if(document.visibilityState==='visible'&&navigator.onLine!==false)syncNow({reason:'local-change'}).catch(()=>{})},delay)}
 function patchStorage(){if(patched)return;patched=true;const proto=Storage.prototype,origSet=proto.setItem,origRemove=proto.removeItem;proto.setItem=function(k,v){const old=this===localStorage?this.getItem(k):null,ret=origSet.call(this,k,v);if(this===localStorage&&syncable(k)&&old!==String(v)&&!applyingRemote)queueAutoSync();return ret};proto.removeItem=function(k){const had=this===localStorage?this.getItem(k)!==null:false,ret=origRemove.call(this,k);if(this===localStorage&&syncable(k)&&had&&!applyingRemote)queueAutoSync();return ret}}
@@ -56,5 +115,5 @@ function restartTimer(){if(timer)clearInterval(timer);timer=null;if(maintenance(
 function startAutoSync(){if(maintenance()){stopAutoSync();emit('maintenance',{paused:true});return status()}patchStorage();restartTimer();if(!document.documentElement.dataset.paSyncLifecycle){document.documentElement.dataset.paSyncLifecycle='1';window.addEventListener('online',()=>queueAutoSync(500));window.addEventListener('focus',()=>queueAutoSync(800));document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueAutoSync(900)});window.addEventListener('storage',e=>{if(syncable(e.key))queueAutoSync(1200)})}if(settings().autoSync&&configured()&&session()?.user?.id)queueAutoSync(1400);return status()}
 function stopAutoSync(){if(timer)clearInterval(timer);timer=null;clearTimeout(queued);queued=null}
 window.addEventListener('planoarq:runtime-flags',e=>{if(e.detail?.maintenanceMode){stopAutoSync();emit('maintenance',{paused:true})}else startAutoSync()});
-window.PLANO_ARQ_SYNC={version:VERSION,config,saveConfig,clearConfig,settings,saveSettings,status,testConnection,sendOtp,verifyOtp,refreshSession,ensureSession,signOut,session,clearSession,syncNow,startAutoSync,stopAutoSync,syncable};
+window.PLANO_ARQ_SYNC={version:VERSION,config,saveConfig,clearConfig,settings,saveSettings,status,testConnection,sendOtp,verifyOtp,refreshSession,ensureSession,signOut,session,clearSession,syncNow,startAutoSync,stopAutoSync,syncable,storageConfigured,storageUpload,storageDownload,ensureContestFileLocal,reconcileContestFiles};
 })();
