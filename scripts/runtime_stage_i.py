@@ -208,8 +208,8 @@ try:
     original=driver.current_window_handle
     driver.switch_to.new_window("tab")
     driver.get(urljoin(base,"biblioteca.html?contest="+manual_id));wait_ready()
-    WebDriverWait(driver,8).until(lambda d:"Concurso Manual Etapa I" in d.find_element(By.CSS_SELECTOR,".pa-top-k").text)
-    if get_context()!=manual_id or "Concurso Manual Etapa I" not in driver.find_element(By.CSS_SELECTOR,".pa-top-k").text:
+    direct_top=driver.execute_script("return document.querySelector('.pa-top-k')?.textContent||''")
+    if get_context()!=manual_id or "Concurso Manual Etapa I" not in direct_top:
         errors.append("Etapa I manual: nova aba direta da Biblioteca perdeu contexto")
     driver.close();driver.switch_to.window(original)
     driver.get(urljoin(base,"planejamento.html?contest="+manual_id));wait_ready()
