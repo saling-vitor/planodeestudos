@@ -2,7 +2,15 @@
 'use strict';
 const VERSION='19.3';
 const MAINTENANCE_RELOAD_KEY='planoarq:maintenance-sw-reload:v1';
-const maintenance=()=>window.PLANO_ARQ_DATA?.isMaintenanceMode?.()===true;
+const RUNTIME_KEY='planoarq:runtime-flags:v1';
+const maintenance=()=>{
+  if(window.PLANO_ARQ_DATA?.isMaintenanceMode)return window.PLANO_ARQ_DATA.isMaintenanceMode()===true;
+  try{
+    const raw=localStorage.getItem(RUNTIME_KEY);
+    if(raw===null)return true;
+    return JSON.parse(raw)?.maintenanceMode!==false;
+  }catch(_){return true}
+};
 let deferredPrompt=null;
 let registration=null;
 let updateReady=false;
