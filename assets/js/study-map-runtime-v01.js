@@ -1705,9 +1705,15 @@ function build(){
     updatedAt:new Date().toISOString()
   };
 }
+function bridgeTargetOrigin(){
+  if(location.protocol==='file:')return '*';
+  if(location.origin&&location.origin!=='null')return location.origin;
+  try{const ref=document.referrer?new URL(document.referrer):null;if(ref?.origin&&ref.origin!=='null')return ref.origin}catch(_){}
+  return '*';
+}
 function emit(reason='update'){
   const payload=build();payload.reason=reason;
-  if(parent&&parent!==window)parent.postMessage(payload,location.protocol==='file:'?'*':location.origin);
+  if(parent&&parent!==window)parent.postMessage(payload,bridgeTargetOrigin());
 }
 function boot(){
   const migrated=selectiveLegacyMigration();
@@ -1731,7 +1737,7 @@ function boot(){
       if(api?.startSession&&queue.length){
         api.startSession(queue,{title:d.title||'Treino de questões',duration:Number(d.duration||15)});
         const payload=build();payload.type='question-session-started';payload.requestId=d.requestId||'';payload.topicIds=ids;
-        if(parent&&parent!==window)parent.postMessage(payload,location.protocol==='file:'?'*':location.origin);
+        if(parent&&parent!==window)parent.postMessage(payload,bridgeTargetOrigin());
       }
     }
 
@@ -1743,13 +1749,13 @@ function boot(){
   document.addEventListener('mindmap:quiz-updated',e=>{
     const d=e.detail||{},payload=build();
     payload.type='quiz-topic-result';payload.topicId=d.topicId||'';payload.correct=typeof d.correct==='boolean'?d.correct:null;payload.source=d.source||'';payload.variantId=d.variantId||'';payload.choice=d.choice||'';payload.confidence=d.confidence||'';
-    if(parent&&parent!==window)parent.postMessage(payload,location.protocol==='file:'?'*':location.origin);
+    if(parent&&parent!==window)parent.postMessage(payload,bridgeTargetOrigin());
   });
 
   document.addEventListener('plano-arq:review-grade-applied',e=>{
     const d=e.detail||{},payload=build();
     payload.type='review-grade-result';payload.reason='review-grade';payload.topicId=d.topicId||'';payload.grade=d.grade||'';payload.requestId=d.requestId||'';
-    if(parent&&parent!==window)parent.postMessage(payload,location.protocol==='file:'?'*':location.origin);
+    if(parent&&parent!==window)parent.postMessage(payload,bridgeTargetOrigin());
   });
 
   const mo=new MutationObserver(ms=>{
