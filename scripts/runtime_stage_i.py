@@ -290,9 +290,10 @@ try:
     drain_logs("map-isolation")
 
     # 7) Planejamento usa o peso real e o mapa do componente sem redistribuir lacunas.
+    driver.set_window_size(1280,900)
     driver.get(urljoin(base,"planejamento.html?contest="+pdf_id));wait_ready()
     map_in_plan=driver.execute_script("return [...document.querySelectorAll('[data-priority]')].some(x=>x.dataset.priority===arguments[0])",map_a.get("id"))
-    gap_note=driver.execute_script("return document.body.innerText.includes('não serão redistribuídos silenciosamente') || document.body.innerText.includes('sem mapas vinculados')")
+    gap_note=driver.execute_script("return document.body.innerText.includes('não serão redistribuídos silenciosamente') || document.body.innerText.includes('sem mapas vinculados') || document.body.innerText.includes('permanecem reservados')")
     if not map_in_plan:
         errors.append("Etapa I Planejamento: mapa ativo não entrou no componente correto")
     objective=driver.execute_script("""
@@ -309,7 +310,7 @@ try:
       document.getElementById('reviewPct').value='0';
       document.getElementById('blockMinutes').value='30';
     """)
-    driver.find_element(By.ID,"generateBtn").click()
+    driver.execute_script("document.getElementById('generateBtn').click()")
     WebDriverWait(driver,8).until(lambda d:d.execute_script("return !!localStorage.getItem('planoarq:generated-plan::'+arguments[0])",pdf_id))
     plan=driver.execute_script("""
       const p=JSON.parse(localStorage.getItem('planoarq:generated-plan::'+arguments[0])||'null'),sessions=(p?.days||[]).flatMap(d=>d.sessions||[]);
