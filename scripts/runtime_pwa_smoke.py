@@ -199,7 +199,7 @@ try:
     driver.get(config_url)
     WebDriverWait(driver,25).until(lambda d:d.execute_script("return !!window.PLANO_ARQ_PWA && !!navigator.serviceWorker.controller"))
     WebDriverWait(driver,25).until(lambda d:d.find_element(By.ID,"pwaExecution").text!="VERIFICANDO")
-    ui={i:driver.find_element(By.ID,i).text for i in ("pwaExecution","pwaInstallState","pwaVersion","pwaOfflineState","pwaUpdateState","pwaManifestState","pwaSwState","pwaControlState","pwaHttpsState")}
+    ui={i:driver.execute_script("return document.getElementById(arguments[0])?.textContent?.trim() || ''",i) for i in ("pwaExecution","pwaInstallState","pwaVersion","pwaOfflineState","pwaUpdateState","pwaManifestState","pwaSwState","pwaControlState","pwaHttpsState")}
     if ui["pwaExecution"] in ("—","VERIFICANDO",""): errors.append("UI de Execução não resolveu estado")
     if ui["pwaInstallState"] in ("—","VERIFICANDO",""): errors.append("UI de Instalação não resolveu estado")
     if expected and expected not in ui["pwaVersion"]: errors.append(f"UI mostra versão divergente: {ui['pwaVersion']}")
