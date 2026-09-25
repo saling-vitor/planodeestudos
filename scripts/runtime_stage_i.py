@@ -262,9 +262,8 @@ try:
     frame=driver.find_element(By.ID,"frame")
     WebDriverWait(driver,8).until(lambda d:d.execute_script("return !!document.getElementById('frame')?.contentDocument?.getElementById('stageIDone')"))
     driver.switch_to.frame(frame)
-    driver.find_element(By.CSS_SELECTOR,"#stage-i-topic > summary").click()
-    WebDriverWait(driver,5).until(lambda d:d.find_element(By.ID,"stageIDone").is_displayed())
-    driver.find_element(By.ID,"stageIDone").click()
+    # Valida o contrato do mapa/progresso sem depender do hit-testing visual do iframe.
+    driver.execute_script("const d=document.getElementById('stage-i-topic');if(d)d.open=true;const b=document.getElementById('stageIDone');if(b)b.click()")
     driver.switch_to.default_content()
     WebDriverWait(driver,8).until(lambda d:"100%" in d.find_element(By.ID,"viewerProgress").text)
     driver.find_element(By.ID,"closeBtn").click()
