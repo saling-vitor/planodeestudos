@@ -336,7 +336,7 @@ function renderReviews(s){$('rDone').textContent=s.revEvents.length;$('rRight').
 function render(){const st=periodStats();renderHero(st,st.maps);renderInsight(st);renderKpis(st);renderChart(st);renderProgress(st);groupRows(st);renderMapTable(st);renderReviews(st)}
 
 document.querySelectorAll('[data-map-view]').forEach(b=>b.onclick=()=>{mapView=b.dataset.mapView;document.querySelectorAll('[data-map-view]').forEach(x=>x.classList.toggle('active',x===b));render()});
-document.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>{period=b.dataset.performance-period;document.querySelectorAll('[data-period]').forEach(x=>x.classList.toggle('active',x===b));render()});
+document.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>{period=b.dataset.period;document.querySelectorAll('[data-period]').forEach(x=>x.classList.toggle('active',x===b));render()});
 $('refreshBtn').onclick=render;$('goToday').onclick=()=>location.href=`index.html#contest/${contestId}`;$('goQuestions').onclick=()=>location.href=`questoes.html?contest=${encodeURIComponent(contestId)}`;$('goDiagnostic').onclick=()=>location.href=`diagnostico.html?contest=${encodeURIComponent(contestId)}`;$('backupBtn').onclick=()=>location.href=`questoes.html?contest=${encodeURIComponent(contestId)}`;
 addEventListener('focus',render);addEventListener('storage',e=>{if((e.key||'').startsWith('planoarq:')||(e.key||'').startsWith('mindmap_state::'))render()});document.addEventListener('visibilitychange',()=>{if(!document.hidden)render()});
 render();

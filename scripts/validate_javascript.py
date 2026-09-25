@@ -4,6 +4,7 @@ from __future__ import annotations
 from html.parser import HTMLParser
 from pathlib import Path
 import shutil
+import re
 import subprocess
 import tempfile
 
@@ -64,6 +65,16 @@ def check_node(path: Path, label: str):
         raise RuntimeError(f"{label}:\n{detail}")
 
 
+def check_invalid_dataset_notation(text: str, label: str):
+    for match in re.finditer(r"dataset\.[A-Za-z_$][A-Za-z0-9_$]*-", text):
+        line = text.count("\n", 0, match.start()) + 1
+        snippet = text[match.start():match.start()+48].split("\n",1)[0]
+        raise RuntimeError(
+            f"{label}: acesso dataset inválido na linha {line}: {snippet!r}; "
+            "use dataset.camelCase ou dataset['nome-com-hifen']"
+        )
+
+
 def main():
     if not shutil.which("node"):
         raise SystemExit("Node.js não encontrado; validação JavaScript indisponível.")
@@ -76,6 +87,8 @@ def main():
     js_files += sorted((ROOT / "data").glob("*.js"))
 
     for path in js_files:
+        text = path.read_text("utf-8", errors="replace")
+        check_invalid_dataset_notation(text, str(path.relative_to(ROOT)))
         check_node(path, str(path.relative_to(ROOT)))
         checked_external += 1
 
@@ -87,8 +100,10 @@ def main():
         tmpdir = Path(tmp)
         seq = 0
         for html in html_files:
+            html_text = html.read_text("utf-8", errors="replace")
+            check_invalid_dataset_notation(html_text, str(html.relative_to(ROOT)))
             parser = ScriptParser()
-            parser.feed(html.read_text("utf-8", errors="replace"))
+            parser.feed(html_text)
             for line, code in parser.scripts:
                 seq += 1
                 temp = tmpdir / f"inline-{seq:04d}.js"

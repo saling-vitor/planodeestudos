@@ -531,6 +531,40 @@ try:
             nav_ok=False
         add_functional("navegacao",width,height,{"planejamentoParaEdital":nav_ok})
 
+    # J8.3: telas analíticas restantes — filtros/períodos em desktop, iPad e celular.
+    for width,height in ((1440,1000),(834,1112),(390,844)):
+        driver.set_window_size(width,height)
+
+        driver.get(urljoin(base,f"simulados.html?contest={contest}"));wait_ready()
+        click_centered(driver.find_element(By.CSS_SELECTOR,'[data-filter="new"]'))
+        sim_ok=driver.execute_script("""return document.querySelector('[data-filter="new"]')?.classList.contains('active')===true && !!document.getElementById('simGrid')""")
+        add_functional("simulados",width,height,{"filtroNaoRealizados":sim_ok})
+
+        driver.get(urljoin(base,f"erros.html?contest={contest}"));wait_ready()
+        click_centered(driver.find_element(By.CSS_SELECTOR,'.filter[data-status="all"]'))
+        driver.execute_script("""const s=document.getElementById('search');s.value='__auditoria_sem_erro__';s.dispatchEvent(new Event('input',{bubbles:true}));""")
+        err_ok=driver.execute_script("""return document.querySelector('.filter[data-status="all"]')?.classList.contains('active')===true && !!document.getElementById('errorList')""")
+        add_functional("erros",width,height,{"filtroTodosPesquisa":err_ok})
+
+        driver.get(urljoin(base,f"desempenho.html?contest={contest}"));wait_ready()
+        click_centered(driver.find_element(By.CSS_SELECTOR,'[data-period="30"]'))
+        perf_ok=driver.execute_script("""return document.querySelector('[data-period="30"]')?.classList.contains('active')===true && /30/.test(document.getElementById('periodNote')?.textContent||'')""")
+        add_functional("desempenho",width,height,{"periodo30Dias":perf_ok})
+
+        driver.get(urljoin(base,f"diagnostico.html?contest={contest}"));wait_ready()
+        click_centered(driver.find_element(By.CSS_SELECTOR,'[data-filter="all"]'))
+        driver.execute_script("""const s=document.getElementById('search');s.value='__auditoria_sem_mapa__';s.dispatchEvent(new Event('input',{bubbles:true}));""")
+        diag_empty=driver.execute_script("""return !!document.querySelector('#diagList .empty') && !!document.getElementById('clearDiagFilters')""")
+        if diag_empty:
+            click_centered(driver.find_element(By.ID,"clearDiagFilters"))
+        diag_clear=driver.execute_script("""return document.getElementById('search')?.value==='' && document.querySelector('[data-filter="all"]')?.classList.contains('active')===true""")
+        add_functional("diagnostico",width,height,{"buscaVazia":diag_empty,"limpaFiltros":diag_clear})
+
+        driver.get(urljoin(base,f"historico.html?contest={contest}"));wait_ready()
+        click_centered(driver.find_element(By.CSS_SELECTOR,'[data-period="30"]'))
+        hist_ok=driver.execute_script("""return document.querySelector('[data-period="30"]')?.classList.contains('active')===true && /30/.test(document.getElementById('coverage')?.textContent||'')""")
+        add_functional("historico",width,height,{"periodo30Dias":hist_ok})
+
     # Wizard Novo Concurso: três etapas, sem concluir a criação.
     for width,height in ((1440,1000),(834,1112),(430,932),(375,812)):
         driver.set_window_size(width,height)
