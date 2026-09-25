@@ -260,6 +260,20 @@ def main():
                     f"mindmap-storage-id duplicado ({storage_id}): {', '.join(names)}"
                 )
 
+        data_js=(ROOT/"assets/js/pa-data-v03.js").read_text("utf-8",errors="ignore")
+        sync_js=(ROOT/"assets/js/pa-sync-v03.js").read_text("utf-8",errors="ignore")
+        drive_js=(ROOT/"assets/js/pa-drive-v01.js").read_text("utf-8",errors="ignore")
+        if "mindmap_notes::" not in data_js:
+            errors.append("pa-data-v03.js: anotações dos mapas não entram em backup/reset")
+        if "mindmap_notes::" not in sync_js:
+            errors.append("pa-sync-v03.js: anotações dos mapas não entram na sincronização")
+        if "planoarq:active-contest:v1" not in data_js or "planoarq:active-contest:v1" not in sync_js:
+            errors.append("dados/sync: chave canônica de concurso ativo sem isolamento")
+        if "planoarq:active-contest:v1" not in drive_js:
+            errors.append("pa-drive-v01.js: snapshot automático não usa a chave canônica do concurso ativo")
+        if "Backup contém registros inválidos" not in data_js:
+            errors.append("pa-data-v03.js: importação não rejeita registros de backup inválidos")
+
         for p in sims:
             text=p.read_text("utf-8",errors="ignore")
             if "../assets/css/simulation-shared-v01.css" not in text:
