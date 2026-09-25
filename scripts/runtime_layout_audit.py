@@ -342,6 +342,11 @@ try:
         driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride",{})
 
     # J8.2: interações funcionais principais em desktop, iPad e celular.
+    def click_centered(el):
+        driver.execute_script("arguments[0].scrollIntoView({block:'center',inline:'nearest'})",el)
+        time.sleep(.08)
+        el.click()
+
     def add_functional(page,width,height,checks):
         ok=all(bool(v) for v in checks.values())
         case={"page":page,"viewport":{"width":width,"height":height},"checks":checks,"ok":ok}
@@ -355,12 +360,12 @@ try:
 
         # Central do Edital: tabs precisam alternar conteúdo sem trocar de página.
         driver.get(urljoin(base,f"edital.html?contest={contest}"));wait_ready()
-        driver.find_element(By.CSS_SELECTOR,'[data-tab="exam"]').click()
+        click_centered(driver.find_element(By.CSS_SELECTOR,'[data-tab="exam"]'))
         exam_tab=driver.execute_script("""
           const b=document.querySelector('[data-tab="exam"]'),v=document.querySelector('[data-view="exam"]');
           return !!b?.classList.contains('active') && !!v && v.hidden===false;
         """)
-        driver.find_element(By.CSS_SELECTOR,'[data-tab="files"]').click()
+        click_centered(driver.find_element(By.CSS_SELECTOR,'[data-tab="files"]'))
         files_tab=driver.execute_script("""
           const b=document.querySelector('[data-tab="files"]'),v=document.querySelector('[data-view="files"]');
           return !!b?.classList.contains('active') && !!v && v.hidden===false;
@@ -383,20 +388,20 @@ try:
         filters=driver.find_elements(By.CSS_SELECTOR,"#statusFilters [data-status]")
         filter_ok=False
         if filters:
-            filters[0].click()
+            click_centered(filters[0])
             filter_ok=driver.execute_script("return document.querySelector('#statusFilters .filter.active')?.dataset.status===''")
         openers=driver.find_elements(By.CSS_SELECTOR,".library-card [data-open]")
         viewer_open=False
         viewer_closed=False
         if openers:
-            openers[0].click()
+            click_centered(openers[0])
             try:
                 WebDriverWait(driver,8).until(lambda d:d.execute_script("return document.getElementById('viewer')?.classList.contains('open')===true"))
                 viewer_open=driver.execute_script("""
                   const v=document.getElementById('viewer'),f=document.getElementById('frame'),n=document.getElementById('viewerName');
                   return v?.classList.contains('open')===true && !!f && (f.src!=='about:blank'||(f.srcdoc||'').length>100) && (n?.textContent||'').trim()!=='Material';
                 """)
-                driver.find_element(By.ID,"closeBtn").click()
+                click_centered(driver.find_element(By.ID,"closeBtn"))
                 WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.getElementById('viewer')?.classList.contains('open')!==true"))
                 viewer_closed=driver.execute_script("return document.body.style.overflow!=='hidden' && document.getElementById('frame')?.src==='about:blank'")
             except Exception:
@@ -411,7 +416,7 @@ try:
         preset_ok=False
         input_ok=False
         if preset and first_hours:
-            preset[0].click()
+            click_centered(preset[0])
             preset_ok=driver.execute_script("return [...document.querySelectorAll('[data-hours]')].some(x=>Number(x.value)>=3)")
             el=driver.find_elements(By.CSS_SELECTOR,"[data-hours]")[0]
             key=el.get_attribute("data-hours")
@@ -431,7 +436,7 @@ try:
         q_view=False
         q_close=False
         if all_chip:
-            all_chip[0].click()
+            click_centered(all_chip[0])
             q_filter=driver.execute_script("""return document.querySelector('[data-filter="all"]')?.classList.contains('active')===true""")
             driver.execute_script("""
               const s=document.getElementById('search');s.value='__sem_topico__';s.dispatchEvent(new Event('input',{bubbles:true}));
@@ -442,11 +447,11 @@ try:
             """)
             trainers=driver.find_elements(By.CSS_SELECTOR,"#queue [data-train]")
             if trainers:
-                trainers[0].click()
+                click_centered(trainers[0])
                 try:
                     WebDriverWait(driver,8).until(lambda d:d.execute_script("return document.getElementById('viewer')?.classList.contains('open')===true"))
                     q_view=driver.execute_script("return document.getElementById('questionFrame')?.src!=='about:blank'")
-                    driver.find_element(By.ID,"viewerClose").click()
+                    click_centered(driver.find_element(By.ID,"viewerClose"))
                     q_close=driver.execute_script("return document.getElementById('viewer')?.classList.contains('open')!==true")
                 except Exception:
                     q_view=False
@@ -459,7 +464,7 @@ try:
         rev_filter=False
         rev_search=False
         if rev_all:
-            rev_all[0].click()
+            click_centered(rev_all[0])
             rev_filter=driver.execute_script("""return document.querySelector('[data-filter="all"]')?.classList.contains('active')===true""")
             driver.execute_script("""
               const s=document.getElementById('search');s.value='auditoria';s.dispatchEvent(new Event('input',{bubbles:true}));
@@ -475,15 +480,15 @@ try:
         file_open=False
         file_close=False
         if official:
-            official[0].click()
+            click_centered(official[0])
             file_filter=driver.execute_script("""return document.querySelector('[data-filter="official"]')?.classList.contains('active')===true && document.querySelectorAll('.file-row').length>=1""")
             open_btn=driver.find_elements(By.CSS_SELECTOR,".file-row [data-open]")
             if open_btn:
-                open_btn[0].click()
+                click_centered(open_btn[0])
                 try:
                     WebDriverWait(driver,6).until(lambda d:d.execute_script("return document.getElementById('viewer')?.classList.contains('open')===true"))
                     file_open=driver.execute_script("return document.getElementById('fileFrame')?.src!=='about:blank' && (document.getElementById('viewerTitle')?.textContent||'').trim().length>0")
-                    driver.find_element(By.ID,"viewerClose").click()
+                    click_centered(driver.find_element(By.ID,"viewerClose"))
                     file_close=driver.execute_script("return document.getElementById('viewer')?.classList.contains('open')!==true")
                 except Exception:
                     file_open=False
@@ -500,9 +505,9 @@ try:
           const p=JSON.parse(localStorage.getItem('planoarq:preferences:v1')||'{}');
           return p.density==='compact' && document.documentElement.dataset.paDensity==='compact';
         """)
-        driver.find_element(By.ID,"resetContest").click()
+        click_centered(driver.find_element(By.ID,"resetContest"))
         dialog_open=driver.execute_script("return document.getElementById('dialog')?.classList.contains('open')===true && document.getElementById('dialogInput')?.hidden===false")
-        driver.find_element(By.ID,"dialogCancel").click()
+        click_centered(driver.find_element(By.ID,"dialogCancel"))
         dialog_close=driver.execute_script("return document.getElementById('dialog')?.classList.contains('open')!==true")
         driver.execute_script("""
           const raw=arguments[0];
@@ -518,7 +523,7 @@ try:
             nav=driver.find_element(By.CSS_SELECTOR,'.pa-sidebar [data-pa-nav="edital"]')
         else:
             nav=driver.find_element(By.CSS_SELECTOR,'#paMobileNav a[href*="edital.html"]')
-        nav.click()
+        click_centered(nav)
         try:
             WebDriverWait(driver,6).until(lambda d:"edital.html" in d.current_url)
             nav_ok=driver.execute_script("return document.body.dataset.paPage==='edital'")
