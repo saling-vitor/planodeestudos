@@ -97,6 +97,52 @@ def basic_assertions(data,expected_sha=""):
     if expected_sha and expected_sha not in version: errors.append(f"worker publicado {version!r} não corresponde ao SHA {expected_sha}")
     return errors
 
+def maintenance_assertions(data,expected_sha=""):
+    manifest=data.get("manifest") or {}
+    sw=data.get("serviceWorker") or {}
+    icons=manifest.get("icons") or []
+    errors=[]
+    if not (data.get("maintenance") or (data.get("pwaStatus") or {}).get("maintenance")):
+        errors.append("modo manutenção não está ativo no runtime")
+    if not base.startswith("https://"): errors.append("deploy não usa HTTPS")
+    if not manifest.get("ok"): errors.append("manifest não respondeu 200")
+    if "manifest" not in manifest.get("mime","") and "json" not in manifest.get("mime",""): errors.append("MIME do manifest inesperado")
+    mdata=manifest.get("data") or {}
+    for key in ("id","name","short_name","start_url","scope","display"):
+        if not mdata.get(key): errors.append(f"manifest sem {key}")
+    if not icons or any(not i.get("ok") for i in icons): errors.append("ícone do manifest indisponível")
+    if sw.get("registered"): errors.append("Service Worker permaneceu registrado em manutenção")
+    if sw.get("active"): errors.append("Service Worker permaneceu ativo em manutenção")
+    if sw.get("controller"): errors.append("Service Worker ainda controla a página em manutenção")
+    technical=[c for c in (data.get("caches") or []) if (c.get("name") or "").startswith("plano-arq-")]
+    if technical: errors.append(f"caches técnicos permaneceram ativos: {[c.get('name') for c in technical]}")
+    version=((data.get("serviceWorkerFile") or {}).get("version") or "")
+    if expected_sha and expected_sha not in version: errors.append(f"arquivo worker publicado {version!r} não corresponde ao SHA {expected_sha}")
+    return errors
+
+def verify_maintenance_persistence(driver):
+    sentinel="maintenance-preserve-"+str(int(time.time()*1000))
+    driver.get(config_url)
+    WebDriverWait(driver,25).until(lambda d:d.execute_script("return !!window.PLANO_ARQ_DATA && window.PLANO_ARQ_DATA.isMaintenanceMode()===true"))
+    driver.execute_script("localStorage.setItem('planoarq:maintenance-test:v1',arguments[0]);localStorage.setItem('planoarq:maintenance-pin-sentinel:v1','preserve-pin');",sentinel)
+    driver.refresh()
+    WebDriverWait(driver,25).until(lambda d:d.execute_script("return !!window.PLANO_ARQ_DATA && window.PLANO_ARQ_DATA.isMaintenanceMode()===true"))
+    value=driver.execute_script("return localStorage.getItem('planoarq:maintenance-test:v1')")
+    pin=driver.execute_script("return localStorage.getItem('planoarq:maintenance-pin-sentinel:v1')")
+    runtime=driver.execute_script("return window.PLANO_ARQ_DATA.runtimeFlags()")
+    regs=driver.execute_script("return navigator.serviceWorker.getRegistrations().then(rs=>rs.map(r=>r.scope))")
+    controller=driver.execute_script("return navigator.serviceWorker.controller?.scriptURL || null")
+    caches_now=driver.execute_script("return caches.keys()")
+    driver.execute_script("localStorage.removeItem('planoarq:maintenance-test:v1');localStorage.removeItem('planoarq:maintenance-pin-sentinel:v1')")
+    return {
+        "sentinelPreserved":value==sentinel,
+        "pinSentinelPreserved":pin=="preserve-pin",
+        "runtime":runtime,
+        "registrations":regs,
+        "controller":controller,
+        "caches":caches_now,
+    }
+
 def relevant_severe(logs):
     ignored=("favicon.ico",)
     out=[]
@@ -117,9 +163,15 @@ if phase=="before":
     try:
         first=probe_with_retry(driver)
         second=probe_with_retry(driver)
-        errors=basic_assertions(second)
-        ci=cache_info(driver)
+        maintenance=bool(second.get("maintenance") or (second.get("pwaStatus") or {}).get("maintenance"))
+        if maintenance:
+            errors=maintenance_assertions(second)
+            ci={"version":(second.get("serviceWorkerFile") or {}).get("version")}
+        else:
+            errors=basic_assertions(second)
+            ci=cache_info(driver)
         baseline={
+            "maintenance":maintenance,
             "serviceWorkerVersion":ci.get("version") or (second.get("serviceWorkerFile") or {}).get("version"),
             "caches":second.get("caches") or [],
             "timestamp":time.time()
@@ -132,7 +184,7 @@ if phase=="before":
         if errors:
             for e in errors: print("ERRO:",e,file=sys.stderr)
             raise SystemExit(1)
-        print("BASELINE PWA OK: versão anterior registrada e controlando o navegador real.")
+        print("BASELINE MANUTENÇÃO OK: Service Worker e caches técnicos isolados." if maintenance else "BASELINE PWA OK: versão anterior registrada e controlando o navegador real.")
     finally:
         driver.quit()
     raise SystemExit(0)
@@ -155,6 +207,46 @@ try:
             if attempt==8: raise
             print(f"tentativa {attempt}/8: {exc}")
             time.sleep(5)
+
+    maintenance=bool(last.get("maintenance") or (last.get("pwaStatus") or {}).get("maintenance"))
+    if maintenance:
+        errors=maintenance_assertions(last,expected)
+        persistence=verify_maintenance_persistence(driver)
+        if not persistence.get("sentinelPreserved"): errors.append("localStorage não foi preservado após reload em manutenção")
+        if not persistence.get("pinSentinelPreserved"): errors.append("sentinela equivalente ao PIN não foi preservado")
+        if not (persistence.get("runtime") or {}).get("maintenanceMode"): errors.append("flag de manutenção não persistiu após reload")
+        if persistence.get("registrations"): errors.append(f"há Service Worker registrado após reload: {persistence.get('registrations')}")
+        if persistence.get("controller"): errors.append(f"há Service Worker controlador após reload: {persistence.get('controller')}")
+        tech=[x for x in persistence.get("caches") or [] if str(x).startswith("plano-arq-")]
+        if tech: errors.append(f"caches técnicos reapareceram após reload: {tech}")
+        assets=driver.execute_async_script("""
+          const done=arguments[0];
+          Promise.all(['configuracoes.html','assets/js/pa-data-v03.js','assets/js/pa-sync-v03.js','assets/js/pa-drive-v01.js','assets/js/pa-pwa-v01.js'].map(async p=>{
+            try{const r=await fetch(p,{cache:'no-store'});return{path:p,ok:r.ok,status:r.status}}catch(e){return{path:p,ok:false,error:String(e)}}
+          })).then(done)
+        """)
+        if any(not x.get("ok") for x in assets): errors.append("asset atual do GitHub Pages falhou em manutenção")
+        severe=relevant_severe(driver.get_log("browser"))
+        if severe: errors.append(f"console contém {len(severe)} erro(s) SEVERE em manutenção")
+        report={
+            "phase":"after",
+            "maintenance":True,
+            "url":base,
+            "serviceWorkerFile":last.get("serviceWorkerFile"),
+            "manifest":last.get("manifest"),
+            "serviceWorker":last.get("serviceWorker"),
+            "caches":last.get("caches"),
+            "pwaStatus":last.get("pwaStatus"),
+            "persistence":persistence,
+            "assets":assets,
+            "browserSevere":severe,
+        }
+        print(json.dumps(report,ensure_ascii=False,indent=2))
+        if errors:
+            for e in errors: print("ERRO:",e,file=sys.stderr)
+            raise SystemExit(1)
+        print("RUNTIME MANUTENÇÃO OK: flag persistiu, dados locais foram preservados, Service Worker ficou sem registro/controle e caches técnicos permaneceram limpos.")
+        raise SystemExit(0)
 
     errors=basic_assertions(last,expected)
     old_version=baseline.get("serviceWorkerVersion") or ""
