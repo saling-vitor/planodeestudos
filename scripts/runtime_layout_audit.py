@@ -43,7 +43,8 @@ viewports=[
     (430,932),(390,844),(375,812)
 ]
 screenshot_widths={1920,1440,1024,834,430,375}
-screenshot_pages={"mapas","configuracoes","hoje","planejamento","edital"}
+screenshot_pages={"hoje","planejamento","edital","mapas","revisoes","questoes","simulados","erros","desempenho","diagnostico","historico","arquivos","configuracoes"}
+critical_pages={"mapas","configuracoes","hoje","planejamento","edital"}
 
 options=Options()
 options.add_argument("--headless=new")
@@ -103,13 +104,18 @@ def measure(page):
       const content=document.querySelector('.pa-content');
       const sidebar=document.querySelector('.pa-sidebar');
       const h1=document.querySelector('.pa-top-title');
+      const topLeft=document.querySelector('.pa-topbar-left'),topActions=document.querySelector('.pa-top-actions');
+      const topbarOverlap=topLeft&&topActions&&visible(topLeft)&&visible(topActions)?(()=>{
+        const x=topLeft.getBoundingClientRect(),y=topActions.getBoundingClientRect();
+        return Math.max(0,Math.min(x.right,y.right)-Math.max(x.left,y.left))>1&&Math.max(0,Math.min(x.bottom,y.bottom)-Math.max(x.top,y.top))>1;
+      })():false;
       const buttons=[...document.querySelectorAll('button')].filter(visible).map((el,i)=>({i,text:(el.textContent||'').trim().slice(0,80),rect:rect(el)})).filter(x=>x.rect.width<28||x.rect.height<28);
       const interactiveOverflow=[...document.querySelectorAll('button,input,select,a')].filter(visible).map(el=>({tag:el.tagName.toLowerCase(),text:(el.textContent||el.getAttribute('placeholder')||'').trim().slice(0,80),rect:rect(el)})).filter(x=>x.rect.right>vw+2||x.rect.left<-2);
       return{
         page,vw,vh,scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight,
         horizontalOverflow:document.documentElement.scrollWidth>vw+2,
         offenders,overlaps,smallButtons:buttons.slice(0,20),interactiveOverflow:interactiveOverflow.slice(0,20),
-        topbar:topbar?rect(topbar):null,content:content?rect(content):null,sidebar:sidebar?rect(sidebar):null,topTitle:h1?(h1.textContent||'').trim():'',
+        topbar:topbar?rect(topbar):null,content:content?rect(content):null,sidebar:sidebar?rect(sidebar):null,topTitle:h1?(h1.textContent||'').trim():'',topbarOverlap,
         map:{
           grid:document.querySelector('.library-grid')?rect(document.querySelector('.library-grid')):null,
           cards:[...document.querySelectorAll('.library-card')].filter(visible).slice(0,12).map(rect)
@@ -135,7 +141,9 @@ try:
                 errors.append(f"{page}@{width}: controle fora da viewport")
             if data["overlaps"]:
                 errors.append(f"{page}@{width}: {len(data['overlaps'])} sobreposicao(oes) de cards")
-            if width in screenshot_widths and page in screenshot_pages:
+            if data.get("topbarOverlap"):
+                errors.append(f"{page}@{width}: topbar com colisao entre titulo e acoes")
+            if page in screenshot_pages and (width in {1440,834,430} or (page in critical_pages and width in screenshot_widths)):
                 driver.save_screenshot(str(out_dir/f"{page}-{width}.png"))
     (out_dir/"report.json").write_text(json.dumps({"base":base,"rows":rows,"errors":errors},ensure_ascii=False,indent=2),"utf-8")
     summary={
