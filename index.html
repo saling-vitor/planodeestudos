@@ -336,7 +336,7 @@ function setActive(id){try{localStorage.setItem(ACTIVE,id)}catch(_){}}
 function getActive(){try{return localStorage.getItem(ACTIVE)||''}catch(_){return''}}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function toast(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(window.__to);window.__to=setTimeout(()=>el.classList.remove('show'),1800)}
-function contestMaterials(id){return MATERIALS.filter(m=>m.contestId===id)}
+function contestMaterials(id){let local=[];try{local=JSON.parse(localStorage.getItem('planoarq:contest-materials::'+id)||'[]')||[]}catch(_){}const by=new Map(MATERIALS.filter(m=>!m.contestId||m.contestId===id).filter(m=>m?.id).map(m=>[m.id,{...m}]));(Array.isArray(local)?local:[]).forEach(m=>{if(m?.id)by.set(m.id,{...(by.get(m.id)||{}),...m,contestId:id,dynamic:true})});return[...by.values()]}
 function summaryForMaterial(m){
  const ns=m.storageNamespace||slug(m.id),key='mindmap_state::'+ns;let s={};try{s=JSON.parse(localStorage.getItem(key)||'{}')||{}}catch(_){}
  const vals=Object.values(s.topicStates||{}),total=Number(m.topicCount||0),studied=vals.filter(v=>['done','review','difficult'].includes(v)).length;
@@ -462,7 +462,7 @@ function actualMinutesFromState(state,planned){
  return Math.max(1,Math.round(activeElapsedSeconds(state)/60))
 }
 function currentPauseMinutes(state){return Math.round(pauseSeconds(state)/60)}
-function materialById(id,contestId){return (window.PLANO_ARQ_MATERIALS?.materials||[]).find(m=>m.id===id&&(!m.contestId||m.contestId===contestId))}
+function materialById(id,contestId){return contestMaterials(contestId).find(m=>m.id===id)||null}
 function dayDoneMinutes(sessions,log){return sessions.reduce((sum,s)=>{const st=log.sessions[s.key];return sum+(st?.status==='done'?actualMinutesFromState(st,s.minutes):0)},0)}
 function dayActiveSeconds(sessions,log){
  return sessions.reduce((sum,s)=>{const st=log.sessions[s.key];if(!st)return sum;if(st.status==='done'||st.status==='running'||st.status==='paused')return sum+activeElapsedSeconds(st);return sum},0)
