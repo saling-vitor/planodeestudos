@@ -1,12 +1,13 @@
 (()=>{'use strict';
 const VERSION='1.0';
 const SETTINGS_KEY='planoarq:automation-settings:v1';
+const maintenance=()=>window.PLANO_ARQ_DATA?.isMaintenanceMode?.()===true;
 const safe=(v,f)=>{try{return JSON.parse(v)??f}catch(_){return f}};
 const dayStart=()=>{const d=new Date();d.setHours(0,0,0,0);return d.getTime()};
 const dayEnd=()=>{const d=new Date();d.setHours(23,59,59,999);return d.getTime()};
 const localDate=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
 const defaults={enabled:true,maxActions:4,rules:{planning:true,reviews:true,errors:true,simulations:true,questions:true}};
-function settings(){const x=safe(localStorage.getItem(SETTINGS_KEY),{});return{...defaults,...x,rules:{...defaults.rules,...(x.rules||{})}}}
+function settings(){const x=safe(localStorage.getItem(SETTINGS_KEY),{}),cfg={...defaults,...x,rules:{...defaults.rules,...(x.rules||{})}};return{...cfg,maintenance:maintenance(),effectiveEnabled:maintenance()?false:cfg.enabled}}
 function saveSettings(patch){const cur=settings(),next={...cur,...patch,rules:{...cur.rules,...(patch.rules||{})}};localStorage.setItem(SETTINGS_KEY,JSON.stringify(next));window.dispatchEvent(new CustomEvent('planoarq:automation-settings',{detail:next}));return next}
 function mats(id){return(window.PLANO_ARQ_MATERIALS?.materials||[]).filter(m=>!m.contestId||m.contestId===id)}
 function reviewTopics(id){return(window.PLANO_ARQ_REVIEW_CATALOG?.topics||[]).filter(t=>!t.contestId||t.contestId===id)}
@@ -30,7 +31,7 @@ function simulationActions(id){const out=[],cfg=settings();if(!cfg.rules.simulat
  const contest=(window.PLANO_ARQ_CONTESTS?.contests||[]).find(c=>c.id===id)||{},exam=contest.examDate?new Date(contest.examDate+'T12:00:00'):null,days=exam&&Number.isFinite(exam.getTime())?Math.ceil((exam-Date.now())/86400000):null;let last=0;for(const h of history||[])last=Math.max(last,Date.parse(h.finishedAt||h.completedAt||'')||0);const daysSince=last?Math.floor((Date.now()-last)/86400000):999;if(days!=null&&days>=0&&days<=21&&defs.length&&(daysSince>=7||!history?.length))out.push(action({id:'simulation-due',type:'simulations',priority:86+(days<=7?18:0),severity:days<=7?'warning':'normal',title:'Fazer um simulado completo',detail:`${days} dia${days===1?'':'s'} para a prova${history?.length?` · último simulado há ${daysSince} dias`:' · ainda sem tentativa concluída'}.`,cta:'Abrir simulados',href:`simulados.html?contest=${encodeURIComponent(id)}`}));return out}
 function questionActions(id){const out=[],cfg=settings();if(!cfg.rules.questions)return out;let low=0,tested=0,wrong=0;for(const t of questionTopics(id)){const s=state(t.storageNamespace),q=s.quizMeta?.[t.topicId]||{},attempts=Number(q.attempts||0),correct=Number(q.correct||0);if(attempts){tested++;wrong+=Math.max(0,attempts-correct);const acc=correct*100/attempts;if(attempts>=3&&acc<70)low++}}
  if(low)out.push(action({id:'questions-low',type:'questions',priority:90,severity:'warning',title:`${low} tópico${low===1?' com':'s com'} baixa precisão`,detail:`Há tópicos testados abaixo de 70% de acerto.`,cta:'Treinar prioridade',href:`questoes.html?contest=${encodeURIComponent(id)}`,count:low}));else if(!tested&&questionTopics(id).length)out.push(action({id:'questions-measure',type:'questions',priority:72,severity:'normal',title:'Medir o conteúdo com questões',detail:'Ainda não há respostas suficientes para identificar baixa precisão.',cta:'Fazer questões',href:`questoes.html?contest=${encodeURIComponent(id)}&autostart=1`}));return out}
-function build(id){const cfg=settings();if(!cfg.enabled)return[];const rows=[...planActions(id),...reviewActions(id),...errorActions(id),...simulationActions(id),...questionActions(id)].sort((a,b)=>b.priority-a.priority||String(a.title).localeCompare(String(b.title)));return rows.slice(0,Math.max(1,Number(cfg.maxActions)||4))}
+function build(id){const cfg=settings();if(maintenance()||!cfg.enabled)return[];const rows=[...planActions(id),...reviewActions(id),...errorActions(id),...simulationActions(id),...questionActions(id)].sort((a,b)=>b.priority-a.priority||String(a.title).localeCompare(String(b.title)));return rows.slice(0,Math.max(1,Number(cfg.maxActions)||4))}
 function top(id){return build(id)[0]||null}
 function summary(id){const rows=build(id);return{count:rows.length,high:rows.filter(x=>x.severity==='high').length,warning:rows.filter(x=>x.severity==='warning').length,top:rows[0]||null,actions:rows}}
 window.PlanoARQActions={version:VERSION,settings,saveSettings,build,top,summary};
