@@ -65,6 +65,15 @@ def measure(page):
     return driver.execute_script(r"""
       const page=arguments[0],vw=document.documentElement.clientWidth,vh=document.documentElement.clientHeight;
       const visible=el=>{
+        if(el.closest('[hidden]'))return false;
+        const closedSidebar=el.closest('.pa-sidebar');
+        if(vw<=900&&closedSidebar&&!closedSidebar.classList.contains('open'))return false;
+        const closedMore=el.closest('.pa-mobile-more');
+        if(closedMore&&!closedMore.classList.contains('open'))return false;
+        const closedViewer=el.closest('.viewer');
+        if(closedViewer&&!closedViewer.classList.contains('open'))return false;
+        const closedModal=el.closest('.pa-shell-modal,.dialog-layer,.settings-lock-layer');
+        if(closedModal&&!(closedModal.classList.contains('open'))&&!closedModal.matches('.settings-lock-layer:not([hidden])'))return false;
         const s=getComputedStyle(el),r=el.getBoundingClientRect();
         return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity||1)>0&&r.width>1&&r.height>1;
       };
