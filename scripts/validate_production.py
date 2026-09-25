@@ -322,6 +322,19 @@ def main():
             errors.append("Planejamento: schema dinâmico do concurso não é consumido")
         if "planoarq:contest-files::'+contestId" not in arquivos_text or "contestBlob" not in arquivos_text:
             errors.append("Arquivos: edital local do concurso não é consumido")
+        cloud_cfg=json.loads((ROOT/"data/cloud-config.json").read_text("utf-8"))
+        storage_cfg=(cloud_cfg.get("supabase") or {}).get("storage") or {}
+        if storage_cfg.get("bucket")!="plano-arq-contest-files" or storage_cfg.get("private") is not True:
+            errors.append("Etapa F: bucket privado do Supabase Storage não está configurado")
+        storage_sql=(ROOT/"cloud/supabase_schema_V1.sql").read_text("utf-8",errors="ignore")
+        for token in ("plano-arq-contest-files","plano_arq_files_select_own","plano_arq_files_insert_own","plano_arq_files_update_own","plano_arq_files_delete_own"):
+            if token not in storage_sql:
+                errors.append(f"Etapa F: SQL Storage ausente: {token}")
+        for token in ("storageUpload","storageDownload","ensureContestFileLocal","reconcileContestFiles","cloudPathFor"):
+            if token not in sync_js:
+                errors.append(f"Etapa F: sincronização binária ausente: {token}")
+        if "Supabase Storage" not in (ROOT/"configuracoes.html").read_text("utf-8",errors="ignore"):
+            errors.append("Etapa F: status do Supabase Storage não está visível em Configurações")
         index_text=(ROOT/"index.html").read_text("utf-8",errors="ignore")
         for token in ("pa-edict-pdf-v01.js","pa-edict-parser-v01.js","pa-edict-flow-v01.js","pa-contest-import-v01.js"):
             if token not in index_text:

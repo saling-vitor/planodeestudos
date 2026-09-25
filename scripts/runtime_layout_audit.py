@@ -299,6 +299,30 @@ try:
       }catch(e){done({ok:false,error:String(e)})}})();
     """)
     if not persisted.get("ok"):errors.append("novo-concurso Etapa E: schema/PDF não persistidos")
+    file_sync=driver.execute_async_script("""
+      const done=arguments[arguments.length-1],id=new URLSearchParams(location.search).get('contest'),D=window.PLANO_ARQ_DATA,S=window.PLANO_ARQ_SYNC,oldFetch=window.fetch;
+      const uid='00000000-0000-4000-8000-000000000001',objects=new Map(),base=S.config().url;
+      localStorage.setItem('planoarq:supabase-session:v1',JSON.stringify({access_token:'audit-token',refresh_token:'audit-refresh',expires_at:Math.floor(Date.now()/1000)+3600,user:{id:uid,email:'audit@example.com'},projectUrl:base}));
+      window.fetch=async(url,opts={})=>{
+        const u=String(url),marker='/plano-arq-contest-files/';
+        if(u.includes('/storage/v1/object/authenticated/')&&u.includes(marker)){
+          const path=decodeURIComponent(u.slice(u.indexOf(marker)+marker.length)),bytes=objects.get(path);
+          return bytes?new Response(bytes,{status:200,headers:{'Content-Type':'application/pdf'}}):new Response(JSON.stringify({message:'not found'}),{status:404,headers:{'Content-Type':'application/json'}});
+        }
+        if(u.includes('/storage/v1/object/plano-arq-contest-files/')&&String(opts.method||'GET').toUpperCase()==='POST'){
+          const path=decodeURIComponent(u.slice(u.indexOf(marker)+marker.length)),buf=await new Response(opts.body).arrayBuffer();objects.set(path,buf);
+          return new Response(JSON.stringify({Key:path}),{status:200,headers:{'Content-Type':'application/json'}});
+        }
+        return oldFetch(url,opts);
+      };
+      (async()=>{try{
+        const first=await S.reconcileContestFiles(uid),meta=D.contestFiles(id).find(f=>f.id==='edital-principal');
+        await D.deleteContestBlob(id,'edital-principal');
+        const rec=await S.ensureContestFileLocal(id,meta);
+        done({ok:first.uploaded===1&&!!meta?.cloudPath&&meta?.localOnly===false&&rec?.blob?.size>0,uploaded:first.uploaded,cloudPath:meta?.cloudPath||'',restored:rec?.blob?.size||0});
+      }catch(e){done({ok:false,error:String(e)})}finally{window.fetch=oldFetch;localStorage.removeItem('planoarq:supabase-session:v1')}})();
+    """)
+    if not file_sync.get("ok"):errors.append("novo-concurso Etapa F: upload/download multi-dispositivo falhou: "+str(file_sync))
     driver.get(urljoin(base,"planejamento.html?contest="+dynamic_contest));wait_ready()
     if driver.execute_script("return document.querySelectorAll('#blueprint .blue-card').length")<2:errors.append("novo-concurso Etapa E: Planejamento não consumiu schema dinâmico")
     driver.get(urljoin(base,"arquivos.html?contest="+dynamic_contest));wait_ready()
