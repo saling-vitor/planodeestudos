@@ -289,6 +289,10 @@ try:
     report["mapIsolation"]={"pdf":titles_a,"manual":titles_b,"aProgress":a_progress,"bProgress":b_progress,"mapA":map_a,"mapB":map_b}
     drain_logs("map-isolation")
 
+    # O teste anterior comprovou o estado 100%. Para validar a agenda, volta o mapa A a pendente:
+    # o Planejamento não deve agendar teoria de um mapa já concluído.
+    driver.execute_script("localStorage.removeItem('mindmap_state::'+arguments[0]);localStorage.removeItem('planoarq:material-summary::'+arguments[1])",map_a.get("ns"),map_a.get("id"))
+
     # 7) Planejamento usa o peso real e o mapa do componente sem redistribuir lacunas.
     driver.set_window_size(1280,900)
     driver.get(urljoin(base,"planejamento.html?contest="+pdf_id));wait_ready()
@@ -318,9 +322,14 @@ try:
     """,pdf_id,map_a.get("id"))
     if not plan.get("ok") or plan.get("sessions",0)<1 or not plan.get("hasMap"):
         errors.append("Etapa I Planejamento: plano gerado não consumiu mapa/peso do edital")
-    driver.get(urljoin(base,"index.html#contest/"+pdf_id));wait_ready()
-    WebDriverWait(driver,8).until(lambda d:"Mapa Isolado A" in d.find_element(By.TAG_NAME,"body").text)
-    today_ok="Mapa Isolado A" in driver.find_element(By.TAG_NAME,"body").text
+    today_ok=False
+    if plan.get("ok") and plan.get("hasMap"):
+        driver.get(urljoin(base,"index.html#contest/"+pdf_id));wait_ready()
+        try:
+            WebDriverWait(driver,8).until(lambda d:"Mapa Isolado A" in d.find_element(By.TAG_NAME,"body").text)
+            today_ok="Mapa Isolado A" in driver.find_element(By.TAG_NAME,"body").text
+        except Exception:
+            today_ok=False
     if not today_ok:
         errors.append("Etapa I Hoje: plano do novo concurso não apareceu")
     report["planning"]={"objective":objective,"mapInPlan":map_in_plan,"gapNote":gap_note,"plan":plan,"today":today_ok}
