@@ -82,6 +82,28 @@ def norm_ref(source,ref):
         ref=ref[2:]
     return (source.parent/ref).resolve()
 
+def meta_content(text,name):
+    for tag in re.findall(r"<meta\b[^>]*>",text,re.I):
+        n=re.search(r"\bname=['\"]([^'\"]+)['\"]",tag,re.I)
+        if not n or n.group(1)!=name:
+            continue
+        c=re.search(r"\bcontent=['\"]([^'\"]*)['\"]",tag,re.I)
+        return c.group(1).strip() if c else ""
+    return ""
+
+def head_text_residue(text):
+    m=re.search(r"<head\b[^>]*>([\s\S]*?)</head>",text,re.I)
+    if not m:
+        return "__HEAD_AUSENTE__"
+    head=m.group(1)
+    head=re.sub(r"<title\b[^>]*>[\s\S]*?</title>","",head,flags=re.I)
+    head=re.sub(r"<script\b[^>]*>[\s\S]*?</script>","",head,flags=re.I)
+    head=re.sub(r"<style\b[^>]*>[\s\S]*?</style>","",head,flags=re.I)
+    head=re.sub(r"<!--[\s\S]*?-->","",head)
+    head=re.sub(r"<[^>]+>","",head)
+    return " ".join(head.split())
+
+
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--strict",action="store_true")
@@ -172,8 +194,19 @@ def main():
                 f"esperados 3 simulados; encontrados {len(sims)}"
             )
 
+        storage_ids={}
         for p in maps:
             text=p.read_text("utf-8",errors="ignore")
+            residue=head_text_residue(text)
+            if residue=="__HEAD_AUSENTE__":
+                errors.append(f"{p.name}: elemento <head> ausente")
+            elif residue:
+                errors.append(
+                    f"{p.name}: texto solto inválido dentro de <head>: {residue[:120]}"
+                )
+            storage_id=meta_content(text,"mindmap-storage-id")
+            if storage_id:
+                storage_ids.setdefault(storage_id,[]).append(p.name)
             meta_names=set(re.findall(
                 r"<meta\b[^>]*\bname=['\"]([^'\"]+)['\"][^>]*>",
                 text,re.I
@@ -219,6 +252,12 @@ def main():
             if "data:image/jpeg;base64," in text:
                 errors.append(
                     f"{p.name}: imagem hero ainda embutida em base64"
+                )
+
+        for storage_id,names in sorted(storage_ids.items()):
+            if len(names)>1:
+                errors.append(
+                    f"mindmap-storage-id duplicado ({storage_id}): {', '.join(names)}"
                 )
 
         for p in sims:
