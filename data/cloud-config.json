@@ -1,23 +1,24 @@
 {
-  "schema": 3,
-  "version": "19.1-production",
+  "schema": 4,
+  "version": "19.2-drive-preset",
   "drive": {
-    "folderUrl": "",
-    "folderId": "",
-    "folderLabel": "Pasta de snapshots",
+    "folderUrl": "https://drive.google.com/drive/folders/1mn22V3ohdAHE1znqP98O6lqdaDSxntBT",
+    "folderId": "1mn22V3ohdAHE1znqP98O6lqdaDSxntBT",
+    "folderLabel": "#SITEPLANODEESTUDOS",
     "mode": "snapshots",
     "runtimeConnected": false,
-    "oauthClientId": "",
+    "oauthClientId": "696682140585-8fdpvh4i67ocmm3ik0haa07kqmbt43bp.apps.googleusercontent.com",
     "apiKey": "",
-    "appId": "",
+    "appId": "696682140585",
     "scope": "https://www.googleapis.com/auth/drive.file",
-    "pickerRequired": true,
+    "pickerRequired": false,
     "snapshot": {
       "autoDefault": true,
       "afterSyncDefault": true,
       "intervalHours": 24,
       "retention": 10
-    }
+    },
+    "presetFolder": true
   },
   "supabase": {
     "enabled": false,
