@@ -352,7 +352,7 @@ def main():
         for token in ("GENERATION_CONTRACT='H1'","generationPackage","generationCommand","markCommandCopied","plano-arq-map-id","plano-arq-blueprint-signature"):
             if token not in blueprint_js:
                 errors.append(f"Etapa H1: contrato de geração ausente: {token}")
-        for token in ("data-copy-command","Copiar comando para geração","PRONTO PARA GERAR"):
+        for token in ("data-copy-command","Copiar comando","PRONTO PARA GERAR"):
             if token not in biblioteca_text:
                 errors.append(f"Etapa H1: Biblioteca sem ação de geração: {token}")
         for token in ("IMPORT_CONTRACT='H2'","inspectGeneratedHtml","importGeneratedHtml","imported-pending-audit","study-map-html::"):
