@@ -9,7 +9,8 @@ pwa=(ROOT/"assets/js/pa-pwa-v01.js").read_text("utf-8",errors="replace")
 errors=[]
 
 checks=[
-    ("service worker: skipWaiting no install", "await self.skipWaiting()" in sw),
+    ("service worker: install não deve forçar skipWaiting", "self.addEventListener('install'" in sw and "await self.skipWaiting()" not in sw[sw.find("self.addEventListener('install'"):sw.find("self.addEventListener('activate'")]),
+    ("service worker: mensagem SKIP_WAITING ausente", "msg.type==='SKIP_WAITING'" in sw and "self.skipWaiting()" in sw),
     ("service worker: clients.claim ausente", "await self.clients.claim()" in sw),
     ("service worker: fetch online não usa no-store", "fetch(req,{cache:'no-store'})" in sw),
     ("service worker: cache offline estável ausente", "const OFFLINE='plano-arq-offline-user-v1'" in sw),
