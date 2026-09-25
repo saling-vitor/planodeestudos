@@ -8,10 +8,8 @@ sw=(ROOT/"service-worker.js").read_text("utf-8",errors="replace")
 pwa=(ROOT/"assets/js/pa-pwa-v01.js").read_text("utf-8",errors="replace")
 errors=[]
 
-checks=[
-    ("service worker: install não deve forçar skipWaiting", "self.addEventListener('install'" in sw and "await self.skipWaiting()" not in sw[sw.find("self.addEventListener('install'"):sw.find("self.addEventListener('activate'")]),
-    ("service worker: mensagem SKIP_WAITING ausente", "msg.type==='SKIP_WAITING'" in sw and "self.skipWaiting()" in sw),
-    ("service worker: clients.claim ausente", "await self.clients.claim()" in sw),
+maintenance="const MAINTENANCE_MODE=true;" in sw
+common_checks=[
     ("service worker: fetch online não usa no-store", "fetch(req,{cache:'no-store'})" in sw),
     ("service worker: cache offline estável ausente", "const OFFLINE='plano-arq-offline-user-v1'" in sw),
     ("service worker: mapas/simulados/edital não entram no network-first", "/(materials|simulados|edital)/" in sw or "/\\/(materials|simulados|edital)\\//" in sw),
@@ -21,6 +19,20 @@ checks=[
     ("PWA: registro não ignora cache HTTP do SW", "updateViaCache:'none'" in pwa),
     ("PWA: mudança de controller não recarrega versão existente", "controllerchange" in pwa and "location.reload()" in pwa),
 ]
+if maintenance:
+    install_block=sw[sw.find("self.addEventListener('install'"):sw.find("self.addEventListener('activate'")]
+    checks=[
+        ("service worker manutenção: skipWaiting ausente", "self.skipWaiting()" in install_block),
+        ("service worker manutenção: unregister ausente", "self.registration.unregister()" in sw),
+        ("service worker manutenção: limpeza de caches ausente", "if(isPlanoCache(name))await caches.delete(name)" in sw),
+        ("service worker manutenção: navegação dos clientes não força saída do controller", "client.navigate(client.url)" in sw),
+    ]+common_checks
+else:
+    checks=[
+        ("service worker: install não deve forçar skipWaiting", "self.addEventListener('install'" in sw and "await self.skipWaiting()" not in sw[sw.find("self.addEventListener('install'"):sw.find("self.addEventListener('activate'")]),
+        ("service worker: mensagem SKIP_WAITING ausente", "msg.type==='SKIP_WAITING'" in sw and "self.skipWaiting()" in sw),
+        ("service worker: clients.claim ausente", "await self.clients.claim()" in sw),
+    ]+common_checks
 for label,ok in checks:
     if not ok:
         errors.append(label)
