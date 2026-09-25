@@ -170,15 +170,18 @@ body.pa-internal-mode :is(button,a,input,select,textarea):focus-visible{
   background:rgba(5,7,10,.90);box-shadow:0 10px 34px rgba(0,0,0,.12);
   -webkit-backdrop-filter:blur(18px) saturate(115%);backdrop-filter:blur(18px) saturate(115%)
 }
-.pa-topbar-left{display:flex;align-items:center;gap:12px;min-width:0}
+.pa-topbar-left{display:flex;align-items:center;gap:12px;min-width:0;flex:1 1 auto;overflow:hidden}
+.pa-topbar-left>div{min-width:0;max-width:100%}
 .pa-top-k{
   color:#777d85;font:800 7.4px var(--pa-mono);letter-spacing:.13em;text-transform:uppercase
 }
 .pa-top-title{
-  margin-top:3px;color:#eceef1;font:800 20px/1 var(--pa-condensed);
+  max-width:100%;margin-top:3px;color:#eceef1;font:800 20px/1 var(--pa-condensed);
   letter-spacing:.01em;text-transform:uppercase
 }
+.pa-top-k{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pa-top-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.pa-top-actions .ghost-btn{white-space:nowrap}
 .pa-menu-btn{
   display:none;min-width:42px;width:42px;height:42px;padding:0;
   border:1px solid var(--pa-line);border-radius:11px;background:rgba(255,255,255,.025);color:#c5c7cc
@@ -497,9 +500,16 @@ body.pa-internal-mode .pa-content>.today-section{margin-top:24px}
     grid-template-columns:1fr
   }
 }
+@media(max-width:600px){
+  body.pa-internal-mode[data-pa-page="settings"] .pa-top-actions #refreshBtn{display:none}
+}
 @media(max-width:480px){
   body.pa-internal-mode{--pa-shell-sidebar:278px;--pa-shell-content-x:10px}
   .pa-brand-title{font-size:23px}
+  .pa-topbar{gap:10px;padding-inline:10px}
+  .pa-topbar-left{gap:9px}
+  .pa-top-actions{gap:6px}
+  .pa-top-title{font-size:17px}
   .pa-mobile-more{left:8px;right:8px}
 }
 
