@@ -179,6 +179,8 @@ def main():
                     continue
                 if label=="Google OAuth client" and rel in {"data/cloud-config.json","data/cloud-config.js"}:
                     continue
+                if label=="Supabase publishable key" and rel in {"data/cloud-config.json","data/cloud-config.js"}:
+                    continue
                 errors.append(
                     f"{p.relative_to(ROOT)}: possível segredo ({label})"
                 )
@@ -200,6 +202,12 @@ def main():
                 errors.append("cloud-config: pasta padrão do Drive ausente")
             if str(drive.get("apiKey") or "").strip():
                 errors.append("cloud-config: API key do Picker não deve ser versionada no fonte")
+            supabase=cloud.get("supabase") or {}
+            if supabase.get("enabled") and not re.fullmatch(r"https://[a-z0-9]+\.supabase\.co",str(supabase.get("url") or "")):
+                errors.append("cloud-config: Project URL do Supabase ausente ou inválida")
+            pub=str(supabase.get("publishableKey") or "")
+            if pub and not pub.startswith("sb_publishable_"):
+                errors.append("cloud-config: Publishable key do Supabase inválida")
         except (OSError,ValueError,TypeError) as exc:
             errors.append(f"cloud-config inválido ({exc})")
 
