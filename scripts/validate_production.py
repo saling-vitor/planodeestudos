@@ -192,6 +192,76 @@ def main():
     maps=list((ROOT/"materials").glob("*.html")) if (ROOT/"materials").is_dir() else []
     sims=list((ROOT/"simulados").glob("*.html")) if (ROOT/"simulados").is_dir() else []
 
+    # Contrato canônico das fontes estáticas: IDs, referências e versão de dados.
+    try:
+        contests_data=json.loads((ROOT/"data/contests.json").read_text("utf-8"))
+        schemas_data=json.loads((ROOT/"data/exam-schemas.json").read_text("utf-8"))
+        nav_data=json.loads((ROOT/"data/navigation.json").read_text("utf-8"))
+        files_meta=json.loads((ROOT/"data/files-meta.json").read_text("utf-8"))
+
+        contests=contests_data.get("contests") or []
+        schemas=schemas_data.get("schemas") or []
+        contest_ids=[str(x.get("id") or "") for x in contests]
+        schema_ids=[str(x.get("id") or "") for x in schemas]
+        if "" in contest_ids or len(contest_ids)!=len(set(contest_ids)):
+            errors.append("dados: IDs de concursos ausentes ou duplicados")
+        if "" in schema_ids or len(schema_ids)!=len(set(schema_ids)):
+            errors.append("dados: IDs de exam schemas ausentes ou duplicados")
+
+        schema_set=set(schema_ids)
+        contest_set=set(contest_ids)
+        for contest in contests:
+            cid=str(contest.get("id") or "")
+            schema_id=str(contest.get("examSchemaId") or cid)
+            if schema_id not in schema_set:
+                errors.append(f"dados: concurso {cid} referencia exam schema ausente: {schema_id}")
+            edital=str(contest.get("edital") or "")
+            if edital and not (ROOT/edital).is_file():
+                errors.append(f"dados: concurso {cid} referencia edital ausente: {edital}")
+
+        for schema in schemas:
+            sid=str(schema.get("id") or "")
+            for doc in schema.get("documents") or []:
+                file=str(doc.get("file") or "")
+                if file and not (ROOT/file).is_file():
+                    errors.append(f"dados: schema {sid} referencia documento ausente: {file}")
+
+        overrides=files_meta.get("files") or {}
+        for rel,meta in overrides.items():
+            if not (ROOT/rel).is_file():
+                errors.append(f"dados: files-meta referencia arquivo ausente: {rel}")
+            cid=str((meta or {}).get("contestId") or "")
+            if cid and cid not in contest_set:
+                errors.append(f"dados: files-meta referencia concurso ausente: {cid}")
+
+        nav_items=[]
+        for group in nav_data.get("groups") or []:
+            nav_items.extend(group.get("items") or [])
+        nav_items.extend(nav_data.get("footer") or [])
+        nav_keys=[str(x.get("key") or "") for x in nav_items]
+        expected_nav={
+            "today","planning","edital","maps","reviews","questions","simulations","errors",
+            "performance","diagnostic","history","files","switch","settings"
+        }
+        if "" in nav_keys or len(nav_keys)!=len(set(nav_keys)):
+            errors.append("dados: chaves de navegação ausentes ou duplicadas")
+        unknown=set(nav_keys)-expected_nav
+        missing_nav=expected_nav-set(nav_keys)
+        if unknown:
+            errors.append("dados: chaves de navegação desconhecidas: "+", ".join(sorted(unknown)))
+        if missing_nav:
+            errors.append("dados: chaves de navegação ausentes: "+", ".join(sorted(missing_nav)))
+
+        pwa_text=(ROOT/"assets/js/pa-pwa-v01.js").read_text("utf-8",errors="ignore")
+        vm=re.search(r"const VERSION=['\"]([^'\"]+)['\"];",pwa_text)
+        expected_data_version=f"{vm.group(1)}-production" if vm else ""
+        if expected_data_version and nav_data.get("version")!=expected_data_version:
+            errors.append(
+                f"dados: navigation.version {nav_data.get('version')!r} diverge do runtime {expected_data_version!r}"
+            )
+    except (OSError,ValueError,TypeError) as exc:
+        errors.append(f"dados canônicos inválidos ({exc})")
+
     cloud_path=ROOT/"data/cloud-config.json"
     if cloud_path.is_file():
         try:

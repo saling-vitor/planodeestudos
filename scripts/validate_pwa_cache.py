@@ -78,6 +78,11 @@ if not pack_path.is_file():
 else:
     try:
         pack=json.loads(pack_path.read_text("utf-8"))
+        expected_pack_version=f"{pwa_version}-production" if pwa_version else ""
+        if expected_pack_version and pack.get("version")!=expected_pack_version:
+            errors.append(
+                f"PWA: versão do pacote offline ({pack.get('version')}) diverge do runtime ({expected_pack_version})"
+            )
         full=pack.get("full") or []
         full_paths=[x.get("path","") for x in full if isinstance(x,dict)]
         full_set=set(full_paths)
