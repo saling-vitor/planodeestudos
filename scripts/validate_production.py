@@ -344,6 +344,11 @@ def main():
         for token in ("study-blueprint::","buildAndSave","splitTopics","mapsForSection","createdFrom:'programa-do-edital'"):
             if token not in blueprint_js:
                 errors.append(f"Etapa G: contrato de pós-importação ausente: {token}")
+        biblioteca_text=(ROOT/"biblioteca.html").read_text("utf-8",errors="ignore")
+        if "data-planned-map" not in biblioteca_text or "Estrutura preparada pelo edital" not in biblioteca_text:
+            errors.append("Etapa G: Biblioteca não exibe a estrutura preparada")
+        if "data-study-blueprint-note" not in planning_text:
+            errors.append("Etapa G: Planejamento não reconhece mapas preparados")
         if "planoarq:contests:v1" not in sync_js or "Array.isArray(local)?local:[]" not in sync_js:
             errors.append("pa-sync-v03.js: concursos dinâmicos não entram no isolamento de sincronização")
 

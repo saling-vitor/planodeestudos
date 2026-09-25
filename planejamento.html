@@ -32,6 +32,7 @@ input,select{font:inherit}button:focus-visible,input:focus-visible,select:focus-
 <script src="data/materials.js"></script>
 <script src="data/exam-schemas.js"></script>
 <script src="data/navigation.js"></script>
+<script src="assets/js/pa-study-blueprint-v01.js"></script>
 <link rel="stylesheet" href="assets/css/pa-tokens-v01.css"><link rel="stylesheet" href="assets/css/pa-shell-v16.css">
 
 <link rel="stylesheet" href="assets/css/pa-components-v01.css">
@@ -174,6 +175,7 @@ const localExamSchema=safeJSON(localStorage.getItem('planoarq:exam-schema::'+con
 const examSchema=(localExamSchema&&typeof localExamSchema==='object'?localExamSchema:null)||schemaCatalog.find(s=>s.id===(contest.examSchemaId||contest.id))||legacySchemaFromContest(contest);
 const objectiveStage=examSchema?.stages?.find(s=>s.type==='objective')||null;
 const blueprint=objectiveStage?.sections||[];
+const studyBlueprint=window.PLANO_ARQ_STUDY_BLUEPRINT?.load?.(contestId)||null;
 function sectionPoints(sec){
  if(Number.isFinite(Number(sec.totalPoints)))return Number(sec.totalPoints);
  if(Number.isFinite(Number(sec.questions))&&Number.isFinite(Number(sec.pointsPerQuestion)))return Number(sec.questions)*Number(sec.pointsPerQuestion);
@@ -293,7 +295,8 @@ function renderPriorities(){
  $('priorities').innerHTML=blueprint.map(sec=>{
    const list=groupMaterials(sec);
    const pct=Math.round((officialAllocation[sec.id]||0)*1000)/10;
-   const body=list.length?list.map(m=>{const pr=materialProgress(m);return `<div class="priority-row"><div class="priority-code">${esc(m.shortCode||'MAPA')}</div><div class="priority-title"><strong>${esc(m.title)}</strong><span>${pr.remaining} tópicos pendentes de ${pr.total}</span></div><div class="priority-progress">${pr.pct}% estudado</div><select class="priority-select" data-priority="${esc(m.id)}"><option value="low" ${cfg.priorities[m.id]==='low'?'selected':''}>Baixa</option><option value="normal" ${cfg.priorities[m.id]==='normal'?'selected':''}>Normal</option><option value="high" ${cfg.priorities[m.id]==='high'?'selected':''}>Alta</option></select></div>`}).join(''):`<div class="info-note">Nenhum mapa vinculado a este componente. Os ${String(pct).replace('.',',')}% correspondentes não serão redistribuídos silenciosamente.</div>`;
+   const prepared=window.PLANO_ARQ_STUDY_BLUEPRINT?.mapsForSection?.(studyBlueprint,sec)||[],preparedTopics=prepared.reduce((a,x)=>a+Number(x.topicCount||0),0);
+   const body=list.length?list.map(m=>{const pr=materialProgress(m);return `<div class="priority-row"><div class="priority-code">${esc(m.shortCode||'MAPA')}</div><div class="priority-title"><strong>${esc(m.title)}</strong><span>${pr.remaining} tópicos pendentes de ${pr.total}</span></div><div class="priority-progress">${pr.pct}% estudado</div><select class="priority-select" data-priority="${esc(m.id)}"><option value="low" ${cfg.priorities[m.id]==='low'?'selected':''}>Baixa</option><option value="normal" ${cfg.priorities[m.id]==='normal'?'selected':''}>Normal</option><option value="high" ${cfg.priorities[m.id]==='high'?'selected':''}>Alta</option></select></div>`).join(''):prepared.length?`<div class="info-note" data-study-blueprint-note><b>${prepared.length} mapa${prepared.length===1?'':'s'} preparado${prepared.length===1?'':'s'} pelo edital</b> · ${preparedTopics} tópico${preparedTopics===1?'':'s'} identificado${preparedTopics===1?'':'s'}. Os ${String(pct).replace('.',',')}% permanecem reservados até os mapas HTML serem vinculados.</div>`:`<div class="info-note">Nenhum mapa vinculado a este componente. Os ${String(pct).replace('.',',')}% correspondentes não serão redistribuídos silenciosamente.</div>`;
    return `<section class="priority-group"><h3>${esc(sec.label)} · ${String(pct).replace('.',',')}%</h3><div class="priority-table">${body}</div></section>`;
  }).join('');
  document.querySelectorAll('[data-priority]').forEach(el=>el.addEventListener('change',()=>cfg.priorities[el.dataset.priority]=el.value));

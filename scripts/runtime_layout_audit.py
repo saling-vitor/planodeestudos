@@ -332,6 +332,10 @@ try:
     if driver.execute_script("return document.querySelectorAll('#blueprint .blue-card').length")<2:errors.append("novo-concurso Etapa E: Planejamento não consumiu schema dinâmico")
     driver.get(urljoin(base,"arquivos.html?contest="+dynamic_contest));wait_ready()
     if driver.execute_script("return document.querySelectorAll('.file-row').length")<1:errors.append("novo-concurso Etapa E: Arquivos não consumiu edital local")
+    driver.get(urljoin(base,"biblioteca.html?contest="+dynamic_contest));wait_ready()
+    if driver.execute_script("return document.querySelectorAll('[data-planned-map]').length")<1:errors.append("novo-concurso Etapa G: Biblioteca não exibiu mapas preparados")
+    driver.get(urljoin(base,"planejamento.html?contest="+dynamic_contest));wait_ready()
+    if driver.execute_script("return document.querySelectorAll('[data-study-blueprint-note]').length")<1:errors.append("novo-concurso Etapa G: Planejamento não reconheceu mapas preparados")
 
     # Overlay do PIN sem alterar a configuração real do dispositivo.
     for width,height in ((834,1112),(430,932),(375,812)):
