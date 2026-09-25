@@ -188,6 +188,7 @@ sidebar_cases=[]
 long_text_cases=[]
 zoom_cases=[]
 scale_cases=[]
+interactive_cases=[]
 
 try:
     # Matriz completa: todas as páginas são abertas/renderizadas e fotografadas.
@@ -210,7 +211,7 @@ try:
         wait_ready()
         menu=driver.find_element(By.CSS_SELECTOR,".pa-menu-btn")
         menu.click()
-        WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.querySelector('.pa-sidebar')?.classList.contains('open')===true"))
+        WebDriverWait(driver,5).until(lambda d:d.execute_script("const e=document.querySelector('.pa-sidebar');return e?.classList.contains('open')===true && e.getBoundingClientRect().left>=-2"))
         info=driver.execute_script("""
           const e=document.querySelector('.pa-sidebar'),r=e.getBoundingClientRect(),vw=document.documentElement.clientWidth,vh=document.documentElement.clientHeight;
           return {rect:{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height},vw,vh,scrollHeight:e.scrollHeight,clientHeight:e.clientHeight};
@@ -276,12 +277,33 @@ try:
               const t=document.querySelector('.pa-top-title');if(t)t.textContent=arguments[0];
               const h=document.querySelector('.hero h1,.today-main-card h1');if(h)h.textContent=arguments[0];
             """,long_title)
-            time.sleep(.1)
+            time.sleep(.15)
+            driver.execute_script("window.__planoArqLayoutShifts=[]")
             data=measure(page)
             data["requestedViewport"]={"width":width,"height":height}
             long_text_cases.append(data)
             append_errors(data,f"texto-longo-{page}@{width}x{height}",errors)
             driver.save_screenshot(str(out_dir/f"stress-texto-longo-{page}-{width}x{height}.png"))
+
+    # Estados interativos representativos: hover/focus não podem alterar geometria.
+    for width,height in ((1440,1000),(430,932)):
+        for page,rel,selector in (
+            ("mapas",f"biblioteca.html?contest={contest}",".library-card .resume"),
+            ("configuracoes",f"configuracoes.html?contest={contest}","#saveSettingsPin"),
+        ):
+            driver.set_window_size(width,height)
+            driver.get(urljoin(base,rel));wait_ready()
+            el=driver.find_element(By.CSS_SELECTOR,selector)
+            before=driver.execute_script("const r=arguments[0].getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}",el)
+            ActionChains(driver).move_to_element(el).perform();time.sleep(.12)
+            hover=driver.execute_script("const r=arguments[0].getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}",el)
+            driver.execute_script("arguments[0].focus()",el);time.sleep(.08)
+            focus=driver.execute_script("const r=arguments[0].getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}",el)
+            stable=all(abs(before[k]-hover[k])<=1 and abs(before[k]-focus[k])<=1 for k in ("x","y","width","height"))
+            case={"page":page,"viewport":{"width":width,"height":height},"selector":selector,"before":before,"hover":hover,"focus":focus,"stable":stable}
+            interactive_cases.append(case)
+            if not stable:errors.append(f"interacao-{page}@{width}: hover/focus alterou geometria")
+            driver.save_screenshot(str(out_dir/f"interacao-{page}-{width}.png"))
 
     # Zoom do navegador via atalhos reais do Chrome.
     def reset_zoom():
@@ -323,7 +345,7 @@ try:
             append_errors(data,f"escala-{page}@{dpr}",errors)
     driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride",{})
 
-    report={"base":base,"rows":rows,"modalCases":modal_cases,"sidebarCases":sidebar_cases,"longTextCases":long_text_cases,"zoomCases":zoom_cases,"zoomEffective":zoom_effective,"scaleCases":scale_cases,"errors":errors}
+    report={"base":base,"rows":rows,"modalCases":modal_cases,"sidebarCases":sidebar_cases,"longTextCases":long_text_cases,"zoomCases":zoom_cases,"zoomEffective":zoom_effective,"scaleCases":scale_cases,"interactiveCases":interactive_cases,"errors":errors}
     (out_dir/"report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2),"utf-8")
     summary={
         "base":base,
@@ -336,6 +358,7 @@ try:
         "zoomCases":len(zoom_cases),
         "zoomEffective":zoom_effective,
         "scaleCases":len(scale_cases),
+        "interactiveCases":len(interactive_cases),
         "errors":errors,
         "map_overlaps":[{"page":r["page"],"viewport":r["requestedViewport"],"count":len(r["overlaps"]),"cards":r["map"]["cards"]} for r in rows if r["overlaps"]],
         "horizontal_overflow":[{"page":r["page"],"viewport":r["requestedViewport"],"scrollWidth":r["scrollWidth"],"clientWidth":r["vw"],"offenders":r["offenders"]} for r in rows if r["horizontalOverflow"]],
