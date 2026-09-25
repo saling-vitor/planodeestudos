@@ -333,12 +333,26 @@ try:
         ):
             driver.get(urljoin(base,rel))
             WebDriverWait(driver,25).until(lambda d:d.execute_script("return document.readyState") in ("interactive","complete"))
+            # Uma navegação ainda pode chegar inicialmente sob o controller antigo.
+            # O bootstrap de manutenção o remove e, quando necessário, faz um único reload.
+            # A validação só considera a rota estável quando registro e controller desapareceram.
+            try:
+                WebDriverWait(driver,25).until(lambda d:d.execute_script("""
+                    return Promise.all([
+                      navigator.serviceWorker.getRegistrations().then(rs=>rs.length),
+                      Promise.resolve(navigator.serviceWorker.controller?.scriptURL || null)
+                    ]).then(([count,controller])=>count===0 && controller===null)
+                """))
+            except Exception:
+                pass
             body_len=len(driver.find_element(By.TAG_NAME,"body").text)
+            registrations=driver.execute_script("return navigator.serviceWorker.getRegistrations().then(rs=>rs.map(r=>r.scope))")
             controller=driver.execute_script("return navigator.serviceWorker.controller?.scriptURL || null")
-            external=driver.execute_script("return performance.getEntriesByType('resource').map(x=>x.name).filter(x=>/supabase\\.co|googleapis\\.com|accounts\\.google\\.com/i.test(x))")
-            routes[rel]={"body":body_len,"controller":controller,"remoteResources":external}
+            external=driver.execute_script(r"return performance.getEntriesByType('resource').map(x=>x.name).filter(x=>/supabase\.co|googleapis\.com|accounts\.google\.com/i.test(x))")
+            routes[rel]={"body":body_len,"registrations":registrations,"controller":controller,"remoteResources":external}
             if body_len<20: errors.append(f"página local não carregou em manutenção: {rel}")
-            if controller: errors.append(f"Service Worker voltou a controlar rota local: {rel}")
+            if registrations: errors.append(f"Service Worker voltou a registrar na rota local: {rel} -> {registrations}")
+            if controller: errors.append(f"Service Worker continuou controlando rota local após estabilização: {rel}")
             if external: errors.append(f"rota iniciou comunicação externa em manutenção: {rel} -> {external}")
         driver.get(config_url)
         WebDriverWait(driver,25).until(lambda d:d.execute_script("return !!window.PLANO_ARQ_DATA && window.PLANO_ARQ_DATA.isMaintenanceMode()===true"))
