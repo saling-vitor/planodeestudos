@@ -369,10 +369,10 @@ try:
     driver.get(urljoin(base,"biblioteca.html?contest="+dynamic_contest));wait_ready()
     if h3.get("ok"):
         material_id=h3.get("materialId")
-        if not driver.execute_script("return !!document.querySelector('[data-open="'+arguments[0]+'"]')",material_id):
+        if not driver.execute_script("return [...document.querySelectorAll('[data-open]')].some(x=>x.dataset.open===arguments[0])",material_id):
             errors.append("novo-concurso Etapa H3: material ativo não apareceu na Biblioteca")
         else:
-            driver.execute_script("document.querySelector('[data-open="'+arguments[0]+'"]').click()",material_id)
+            driver.execute_script("const x=[...document.querySelectorAll('[data-open]')].find(x=>x.dataset.open===arguments[0]);if(x)x.click()",material_id)
             try:
                 WebDriverWait(driver,6).until(lambda d:d.execute_script('return !!document.getElementById("frame")?.contentDocument?.querySelector(\'[data-topic-id="h3-topic-1"]\')'))
             except Exception:
