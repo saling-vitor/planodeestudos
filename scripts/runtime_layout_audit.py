@@ -334,6 +334,13 @@ try:
     if driver.execute_script("return document.querySelectorAll('.file-row').length")<1:errors.append("novo-concurso Etapa E: Arquivos não consumiu edital local")
     driver.get(urljoin(base,"biblioteca.html?contest="+dynamic_contest));wait_ready()
     if driver.execute_script("return document.querySelectorAll('[data-planned-map]').length")<1:errors.append("novo-concurso Etapa G: Biblioteca não exibiu mapas preparados")
+    h1=driver.execute_script("""
+      const cid=new URLSearchParams(location.search).get('contest'),b=window.PLANO_ARQ_STUDY_BLUEPRINT?.load?.(cid),m=(b?.maps||[]).find(x=>x.topicCount>0),c=JSON.parse(localStorage.getItem('planoarq:contests:v1')||'[]').find(x=>x.id===cid)||{},s=JSON.parse(localStorage.getItem('planoarq:exam-schema::'+cid)||'null');
+      if(!m)return {ok:false,reason:'no-map'};
+      const cmd=window.PLANO_ARQ_STUDY_BLUEPRINT.generationCommand(cid,m.id,c,s);
+      return {ok:!!document.querySelector('[data-copy-command="'+m.id+'"]')&&cmd.includes('GERAR MAPA DE ESTUDOS')&&cmd.includes('plano-arq-map-id = '+m.id)&&cmd.includes('TEMPLATE HTML OFICIAL MAIS RECENTE')&&cmd.includes(m.topics[0]),mapId:m.id,length:cmd.length};
+    """)
+    if not h1.get("ok"):errors.append("novo-concurso Etapa H1: comando de geração não ficou completo/acionável")
     driver.get(urljoin(base,"planejamento.html?contest="+dynamic_contest));wait_ready()
     if driver.execute_script("return document.querySelectorAll('[data-study-blueprint-note]').length")<1:errors.append("novo-concurso Etapa G: Planejamento não reconheceu mapas preparados")
 

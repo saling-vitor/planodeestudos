@@ -58,7 +58,7 @@ PLACEHOLDER_ALLOW=(
 
 MATERIAL_META_ALLOWED={
  "mindmap-storage-id","mindmap-storage-aliases",
- "plano-arq-bridge-version","plano-arq-contest-id",
+ "plano-arq-bridge-version","plano-arq-contest-id","plano-arq-map-id","plano-arq-blueprint-signature",
  "plano-arq-legacy-storage-id","plano-arq-source-template",
  "study-display-title","study-short-title","study-short-code",
  "study-title-emoji","study-file-version","study-exam-board",
@@ -349,6 +349,12 @@ def main():
             errors.append("Etapa G: Biblioteca não exibe a estrutura preparada")
         if "data-study-blueprint-note" not in planning_text:
             errors.append("Etapa G: Planejamento não reconhece mapas preparados")
+        for token in ("GENERATION_CONTRACT='H1'","generationPackage","generationCommand","markCommandCopied","plano-arq-map-id","plano-arq-blueprint-signature"):
+            if token not in blueprint_js:
+                errors.append(f"Etapa H1: contrato de geração ausente: {token}")
+        for token in ("data-copy-command","Copiar comando para geração","PRONTO PARA GERAR"):
+            if token not in biblioteca_text:
+                errors.append(f"Etapa H1: Biblioteca sem ação de geração: {token}")
         if "planoarq:contests:v1" not in sync_js or "Array.isArray(local)?local:[]" not in sync_js:
             errors.append("pa-sync-v03.js: concursos dinâmicos não entram no isolamento de sincronização")
 
