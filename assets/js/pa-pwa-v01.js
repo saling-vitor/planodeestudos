@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='19.3';
+const VERSION='19.4';
 const MAINTENANCE_RELOAD_KEY='planoarq:maintenance-sw-reload:v1';
 const RUNTIME_KEY='planoarq:runtime-flags:v1';
 const maintenance=()=>{
@@ -122,20 +122,40 @@ async function unregisterAppWorkers(){
   }
   return removed;
 }
+async function waitAppWorkersGone(timeout=4000){
+  if(!('serviceWorker'in navigator))return true;
+  const started=Date.now(),currentDir=new URL('./',location.href).pathname.toLowerCase();
+  while(Date.now()-started<timeout){
+    const regs=await navigator.serviceWorker.getRegistrations();
+    const ours=regs.filter(reg=>{
+      const path=new URL(reg.scope).pathname.toLowerCase();
+      return path===currentDir||path.includes('/planodeestudos/');
+    });
+    if(!ours.length)return true;
+    await new Promise(resolve=>setTimeout(resolve,60));
+  }
+  return false;
+}
 async function enterMaintenanceMode({reloadIfControlled=true}={}){
   deferredPrompt=null;updateReady=false;activationRequested=false;lastError='';
   const hadController=!!navigator.serviceWorker?.controller;
   const unregistered=await unregisterAppWorkers();
+  const workersGone=await waitAppWorkersGone();
   const removedCaches=await clearTechnicalCaches();
   registration=null;
   emit();
-  if(hadController&&reloadIfControlled&&sessionStorage.getItem(MAINTENANCE_RELOAD_KEY)!=='1'){
-    sessionStorage.setItem(MAINTENANCE_RELOAD_KEY,'1');
-    location.reload();
-    return{ok:true,reloading:true,unregistered,removedCaches};
+  if(hadController&&reloadIfControlled){
+    const attempts=Math.max(0,Number(sessionStorage.getItem(MAINTENANCE_RELOAD_KEY)||0));
+    if(attempts<3){
+      sessionStorage.setItem(MAINTENANCE_RELOAD_KEY,String(attempts+1));
+      await new Promise(resolve=>setTimeout(resolve,120));
+      location.reload();
+      return{ok:true,reloading:true,unregistered,workersGone,removedCaches,attempt:attempts+1};
+    }
+  }else{
+    sessionStorage.removeItem(MAINTENANCE_RELOAD_KEY);
   }
-  sessionStorage.removeItem(MAINTENANCE_RELOAD_KEY);
-  return{ok:true,reloading:false,unregistered,removedCaches};
+  return{ok:true,reloading:false,unregistered,workersGone,removedCaches};
 }
 async function register(){
   if(maintenance()){await enterMaintenanceMode();return null}
