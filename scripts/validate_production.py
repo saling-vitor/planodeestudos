@@ -310,6 +310,18 @@ def main():
         for token in ("renderExamReview","data-review-section","data-review-event","renderContentReview"):
             if token not in import_js:
                 errors.append(f"Novo Concurso: revisão estruturada ausente: {token}")
+        for token in ("saveExamSchema","upsertContestFile","storeContestBlob","examSchemaId","importedEdict"):
+            if token not in import_js and token not in data_js:
+                errors.append(f"Novo Concurso Etapa E: persistência ausente: {token}")
+        edital_text=(ROOT/"edital.html").read_text("utf-8",errors="ignore")
+        planning_text=(ROOT/"planejamento.html").read_text("utf-8",errors="ignore")
+        arquivos_text=(ROOT/"arquivos.html").read_text("utf-8",errors="ignore")
+        if "planoarq:exam-schema::'+contestId" not in edital_text:
+            errors.append("Central do Edital: schema dinâmico do concurso não é consumido")
+        if "planoarq:exam-schema::'+contestId" not in planning_text:
+            errors.append("Planejamento: schema dinâmico do concurso não é consumido")
+        if "planoarq:contest-files::'+contestId" not in arquivos_text or "contestBlob" not in arquivos_text:
+            errors.append("Arquivos: edital local do concurso não é consumido")
         index_text=(ROOT/"index.html").read_text("utf-8",errors="ignore")
         for token in ("pa-edict-pdf-v01.js","pa-edict-parser-v01.js","pa-edict-flow-v01.js","pa-contest-import-v01.js"):
             if token not in index_text:

@@ -266,6 +266,44 @@ try:
             driver.save_screenshot(str(out_dir/f"novo-concurso-step{step}-{width}x{height}.png"))
         driver.find_element(By.ID,"cancelBtn").click()
 
+    # Etapa E: cria um concurso temporário, persiste schema e PDF local e valida consumidores dinâmicos.
+    driver.set_window_size(834,1112)
+    driver.get(urljoin(base,"index.html#home"))
+    wait_ready()
+    driver.find_element(By.ID,"newBtn").click()
+    WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.getElementById('modal')?.classList.contains('open')===true"))
+    driver.execute_script("""
+      const w=window.PLANO_ARQ_CONTEST_IMPORT;
+      w.state.mode='auto';w.state.step=3;
+      w.state.file=new File(['%PDF-1.4\\n% Plano ARQ audit\\n%%EOF'],'edital-auditoria.pdf',{type:'application/pdf'});
+      w.state.draft={
+        title:'Concurso Auditoria Etapa E',organization:'Órgão de Auditoria',position:'Arquiteto',board:'FUNDATEC',
+        city:'Porto Alegre/RS',notice:'Edital 999/2027',examDate:'2027-10-18',publicationDate:'2027-01-10',
+        sections:[{id:'specific',label:'Conhecimentos Específicos',questions:40,pointsPerQuestion:2,totalPoints:80,mapGroups:['Conhecimentos Específicos']},{id:'portuguese',label:'Língua Portuguesa',questions:20,pointsPerQuestion:1,totalPoints:20,mapGroups:['Língua Portuguesa']}],
+        stages:[{id:'objective',type:'objective',label:'Prova Objetiva',planningMode:'weighted-sections',date:'2027-10-18',totalQuestions:60,totalPoints:100,sections:[{id:'specific',label:'Conhecimentos Específicos',questions:40,pointsPerQuestion:2,totalPoints:80,mapGroups:['Conhecimentos Específicos']},{id:'portuguese',label:'Língua Portuguesa',questions:20,pointsPerQuestion:1,totalPoints:20,mapGroups:['Língua Portuguesa']}]}],
+        schedule:[{date:'2027-10-18',label:'Aplicação da prova',kind:'exam',status:'edital'}],
+        content:[{label:'Conhecimentos Específicos',text:'Programa de auditoria',source:'edital'}],
+        schema:{status:'reviewed',organization:'Órgão de Auditoria',position:'Arquiteto',board:'FUNDATEC',notice:'Edital 999/2027',examDate:{date:'2027-10-18',status:'edital'},stages:[{id:'objective',type:'objective',label:'Prova Objetiva',planningMode:'weighted-sections',date:'2027-10-18',totalQuestions:60,totalPoints:100,sections:[{id:'specific',label:'Conhecimentos Específicos',questions:40,pointsPerQuestion:2,totalPoints:80,mapGroups:['Conhecimentos Específicos']},{id:'portuguese',label:'Língua Portuguesa',questions:20,pointsPerQuestion:1,totalPoints:20,mapGroups:['Língua Portuguesa']}]}],schedule:[{date:'2027-10-18',label:'Aplicação da prova',kind:'exam',status:'edital'}],content:[{label:'Conhecimentos Específicos',text:'Programa de auditoria',source:'edital'}],rules:[]}
+      };
+      w.renderSummary();w.updateSteps();document.getElementById('nextStep').hidden=false;
+    """)
+    driver.find_element(By.ID,"nextStep").click()
+    WebDriverWait(driver,8).until(lambda d:"edital.html?contest=" in d.current_url)
+    dynamic_contest=driver.current_url.split("contest=",1)[1].split("&",1)[0]
+    WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.getElementById('mQuestions')?.textContent==='60'"))
+    persisted=driver.execute_async_script("""
+      const done=arguments[arguments.length-1],id=new URLSearchParams(location.search).get('contest'),D=window.PLANO_ARQ_DATA;
+      (async()=>{try{
+        const s=D.examSchemaForContest(id),fs=D.contestFiles(id),blob=await D.contestBlob(id,'edital-principal');
+        done({ok:!!s&&s.stages?.[0]?.totalQuestions===60&&fs.some(f=>f.id==='edital-principal')&&blob?.blob?.size>0,id});
+      }catch(e){done({ok:false,error:String(e)})}})();
+    """)
+    if not persisted.get("ok"):errors.append("novo-concurso Etapa E: schema/PDF não persistidos")
+    driver.get(urljoin(base,"planejamento.html?contest="+dynamic_contest));wait_ready()
+    if driver.execute_script("return document.querySelectorAll('#blueprint .blue-card').length")<2:errors.append("novo-concurso Etapa E: Planejamento não consumiu schema dinâmico")
+    driver.get(urljoin(base,"arquivos.html?contest="+dynamic_contest));wait_ready()
+    if driver.execute_script("return document.querySelectorAll('.file-row').length")<1:errors.append("novo-concurso Etapa E: Arquivos não consumiu edital local")
+
     # Overlay do PIN sem alterar a configuração real do dispositivo.
     for width,height in ((834,1112),(430,932),(375,812)):
         driver.set_window_size(width,height)

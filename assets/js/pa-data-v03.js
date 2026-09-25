@@ -46,6 +46,33 @@ function importDraftKey(id){return IMPORT_DRAFT_PREFIX+id}
 function loadImportDraft(id){return safeJSON(localStorage.getItem(importDraftKey(id)),null)}
 function saveImportDraft(id,draft){if(!id||!draft||typeof draft!=='object')throw new Error('Rascunho de importação inválido');const next={...draft,id,updatedAt:iso()};localStorage.setItem(importDraftKey(id),JSON.stringify(next));return next}
 function clearImportDraft(id){localStorage.removeItem(importDraftKey(id))}
+const LOCAL_FILE_DB='planoarq-local-files-v1',LOCAL_FILE_STORE='files';
+let localFileDbPromise=null;
+function localFileDb(){
+ if(!('indexedDB' in globalThis))return Promise.reject(new Error('Armazenamento local de arquivos indisponível neste navegador'));
+ if(localFileDbPromise)return localFileDbPromise;
+ localFileDbPromise=new Promise((resolve,reject)=>{
+  const req=indexedDB.open(LOCAL_FILE_DB,1);
+  req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(LOCAL_FILE_STORE)){const s=db.createObjectStore(LOCAL_FILE_STORE,{keyPath:'key'});s.createIndex('contestId','contestId',{unique:false})}};
+  req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error('Falha ao abrir armazenamento local de arquivos'));
+ });
+ return localFileDbPromise
+}
+async function storeContestBlob(cid,fileId,blob,meta={}){
+ if(!cid||!fileId||!blob)throw new Error('Arquivo local inválido');
+ const db=await localFileDb(),key=cid+'::'+fileId,record={key,contestId:cid,fileId,blob,name:meta.name||blob.name||'',type:meta.type||blob.type||'application/octet-stream',size:Number(meta.size||blob.size||0),updatedAt:iso()};
+ await new Promise((resolve,reject)=>{const tx=db.transaction(LOCAL_FILE_STORE,'readwrite');tx.objectStore(LOCAL_FILE_STORE).put(record);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error||new Error('Falha ao salvar arquivo local'));tx.onabort=()=>reject(tx.error||new Error('Gravação do arquivo local cancelada'))});
+ return{...record,blob:undefined}
+}
+async function contestBlob(cid,fileId){
+ const db=await localFileDb(),key=cid+'::'+fileId;
+ return await new Promise((resolve,reject)=>{const tx=db.transaction(LOCAL_FILE_STORE,'readonly'),req=tx.objectStore(LOCAL_FILE_STORE).get(key);req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error||new Error('Falha ao ler arquivo local'))})
+}
+async function deleteContestBlob(cid,fileId){
+ const db=await localFileDb(),key=cid+'::'+fileId;
+ await new Promise((resolve,reject)=>{const tx=db.transaction(LOCAL_FILE_STORE,'readwrite');tx.objectStore(LOCAL_FILE_STORE).delete(key);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error||new Error('Falha ao remover arquivo local'))});
+ return true
+}
 function contestBundle(cid){return {contest:contestById(cid),examSchema:examSchemaForContest(cid),files:contestFiles(cid),materials:materialsForContest(cid)}}
 function materialsForContest(cid){return (window.PLANO_ARQ_MATERIALS?.materials||[]).filter(m=>!m.contestId||m.contestId===cid)}
 function contestKeys(cid){const materials=materialsForContest(cid),exact=[`planoarq:planning::${cid}`,`planoarq:generated-plan::${cid}`,`planoarq:session-log::${cid}`,`planoarq:review-activity::${cid}`,`planoarq:file-favorites::${cid}`,examSchemaKey(cid),contestFilesKey(cid)],namespaces=new Set(materials.map(m=>m.storageNamespace).filter(Boolean)),materialIds=new Set(materials.map(m=>m.id).filter(Boolean));const dynamic=keys().filter(k=>exact.includes(k)||[...namespaces].some(ns=>k===`mindmap_state::${ns}`||k===`mindmap_notes::${ns}`)||[...materialIds].some(id=>k===`planoarq:material-summary::${id}`)||k.includes(`::${cid}`));return [...new Set(dynamic)].sort()}
@@ -60,6 +87,6 @@ function importEntries(entries){entries.filter(([k])=>tracked(k)).forEach(([k,v]
 function dataHealth(){let parseErrors=0,jsonKeys=0;keys().forEach(k=>{const v=localStorage.getItem(k);if(v&&(/^[\[{]/.test(v.trim()))){jsonKeys++;try{JSON.parse(v)}catch(_){parseErrors++}}});const all=collect();return {keys:Object.keys(all).length,bytes:byteSize(all),parseErrors,jsonKeys,lastExport:localStorage.getItem('planoarq:last-backup-export')||'',lastImport:localStorage.getItem('planoarq:last-backup-import')||''}}
 function resetContest(cid){const ks=contestKeys(cid);ks.forEach(k=>localStorage.removeItem(k));localStorage.setItem(`planoarq:reset::${cid}`,iso());return ks.length}
 function resetDeviceId(){const id=uuid();localStorage.setItem('planoarq:device-id:v1',id);return id}
-Object.assign(API,{RUNTIME_KEY,CONTESTS_KEY,EXAM_SCHEMA_PREFIX,CONTEST_FILES_PREFIX,IMPORT_DRAFT_PREFIX,runtimeFlags,isMaintenanceMode,canRunBackgroundServices,setMaintenanceMode,deviceId,deviceName,setDeviceName,keys,tracked,privateKey,contestKeys,collect,buildBackup,exportBackup,inspect,readFile,importEntries,dataHealth,resetContest,resetDeviceId,materialsForContest,localContests,contests,contestById,saveContest,examSchemaKey,examSchemaForContest,saveExamSchema,contestFilesKey,contestFiles,saveContestFiles,upsertContestFile,importDraftKey,loadImportDraft,saveImportDraft,clearImportDraft,contestBundle});
+Object.assign(API,{RUNTIME_KEY,CONTESTS_KEY,EXAM_SCHEMA_PREFIX,CONTEST_FILES_PREFIX,IMPORT_DRAFT_PREFIX,runtimeFlags,isMaintenanceMode,canRunBackgroundServices,setMaintenanceMode,deviceId,deviceName,setDeviceName,keys,tracked,privateKey,contestKeys,collect,buildBackup,exportBackup,inspect,readFile,importEntries,dataHealth,resetContest,resetDeviceId,materialsForContest,localContests,contests,contestById,saveContest,examSchemaKey,examSchemaForContest,saveExamSchema,contestFilesKey,contestFiles,saveContestFiles,upsertContestFile,importDraftKey,loadImportDraft,saveImportDraft,clearImportDraft,LOCAL_FILE_DB,LOCAL_FILE_STORE,storeContestBlob,contestBlob,deleteContestBlob,contestBundle});
 window.PLANO_ARQ_DATA=API;
 })();

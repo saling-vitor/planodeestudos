@@ -92,11 +92,33 @@ async function next(){
   state.draft=d;state.step=3;renderSummary();updateSteps();return
  }
  if(state.step===3){
-  const d=state.draft||collectReview(),D=window.PLANO_ARQ_DATA;if(!D?.saveContest){toast('Dados do Portal ainda não carregaram.');return}
+  const d=state.draft||collectReview(),D=window.PLANO_ARQ_DATA;if(!D?.saveContest||!D?.saveExamSchema||!D?.upsertContestFile){toast('Dados do Portal ainda não carregaram.');return}
   const year=(d.examDate||String(d.notice||'').match(/20\d{2}/)?.[0]||new Date().getFullYear()),slug=v=>String(v||'').trim().toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''),base=slug(d.id||`${d.title}-${d.position}-${year}`)||('concurso-'+Date.now());
   let id=base,n=2;while(D.contestById(id))id=base+'-'+n++;
-  const contest={id,title:d.title,organization:d.organization||d.title,position:d.position,board:d.board||'',notice:d.notice||'',city:d.city||'',examDate:d.examDate||'',status:'active',edital:'',note:d.note||'',createdAt:new Date().toISOString().slice(0,10),source:state.mode==='auto'?'pdf-import':'user'};
-  D.saveContest(contest);localStorage.setItem('planoarq:active-contest:v1',id);close();toast('Novo concurso criado.');location.href='edital.html?contest='+encodeURIComponent(id)
+  const createdAt=new Date().toISOString(),createdDay=createdAt.slice(0,10),fileId=state.file?'edital-principal':null;
+  let fileMeta=null;
+  try{
+   if(state.file){
+    if(!D.storeContestBlob)throw new Error('Armazenamento local do PDF não está disponível.');
+    await D.storeContestBlob(id,fileId,state.file,{name:state.file.name,type:state.file.type,size:state.file.size});
+    fileMeta={id:fileId,title:d.notice||('Edital · '+d.position),filename:state.file.name,type:'pdf',mimeType:state.file.type||'application/pdf',sizeBytes:state.file.size,category:'Edital',status:'vigente',official:true,linkedToEdital:true,storage:'indexeddb',storageKey:id+'::'+fileId,localOnly:true,date:d.publicationDate||'',organization:d.organization||d.title,board:d.board||'',description:'Edital principal importado na criação do concurso'};
+   }
+   let schema=null;
+   if(d.schema||d.stages?.length||d.sections?.length){
+    const sourceSchema=d.schema||{},docs=[...(Array.isArray(sourceSchema.documents)?sourceSchema.documents:[])];
+    if(fileMeta&&!docs.some(x=>(x.id||x.file)===fileId))docs.push({id:fileId,label:fileMeta.title,type:'Edital',file:fileMeta.storageKey,status:'vigente',publicationDate:fileMeta.date,storage:'indexeddb'});
+    schema={...sourceSchema,id,contestId:id,status:'reviewed',board:d.board||sourceSchema.board||'',organization:d.organization||sourceSchema.organization||'',position:d.position||sourceSchema.position||'',positionCode:d.positionCode||sourceSchema.positionCode||'',notice:d.notice||sourceSchema.notice||'',examDate:{...(sourceSchema.examDate||{}),date:d.examDate||sourceSchema.examDate?.date||''},stages:d.stages||sourceSchema.stages||[],schedule:d.schedule||sourceSchema.schedule||[],content:d.content||sourceSchema.content||[],documents:docs,source:state.mode==='auto'?'pdf-import':'user',reviewedAt:createdAt};
+    D.saveExamSchema(id,schema);
+   }
+   if(fileMeta)D.upsertContestFile(id,fileMeta);
+   const contest={id,title:d.title,organization:d.organization||d.title,position:d.position,positionCode:d.positionCode||'',board:d.board||'',notice:d.notice||'',city:d.city||'',examDate:d.examDate||'',examDateStatus:d.examDateStatus||schema?.examDate?.status||'',status:'active',edital:fileId||'',examSchemaId:schema?id:'',note:d.note||'',createdAt:createdDay,source:state.mode==='auto'?'pdf-import':'user',importedEdict:!!fileMeta};
+   D.saveContest(contest);
+   D.saveImportDraft?.(id,{...d,contestId:id,fileId,createdAt,source:contest.source});
+   localStorage.setItem('planoarq:active-contest:v1',id);close();toast('Novo concurso criado.');location.href='edital.html?contest='+encodeURIComponent(id)
+  }catch(err){
+   if(fileId)try{await D.deleteContestBlob?.(id,fileId)}catch(_){}
+   toast(err?.message||'Não foi possível criar o concurso.');
+  }
  }
 }
 function back(){if(state.step===3){state.step=2;renderReview();updateSteps();return}if(state.step===2){state.step=1;updateSteps()}}

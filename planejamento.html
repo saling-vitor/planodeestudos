@@ -170,7 +170,8 @@ function legacySchemaFromContest(c){
  if(!cats.length)return null;
  return {id:c.id,status:'legacy',examDate:{date:c.examDate||'',status:c.examDateStatus||''},stages:[{id:'objective',type:'objective',label:'Prova Objetiva',planningMode:'weighted-sections',date:c.examDate||'',durationMinutes:c.examBlueprint?.durationMinutes||null,totalQuestions:c.examBlueprint?.totalQuestions||null,totalPoints:c.examBlueprint?.totalPoints||null,sections:cats.map(x=>({id:x.id,label:x.label,questions:x.questions,pointsPerQuestion:x.questionWeight,totalPoints:x.points,mapGroups:[x.group]}))}]};
 }
-const examSchema=schemaCatalog.find(s=>s.id===(contest.examSchemaId||contest.id))||legacySchemaFromContest(contest);
+const localExamSchema=safeJSON(localStorage.getItem('planoarq:exam-schema::'+contestId),null);
+const examSchema=(localExamSchema&&typeof localExamSchema==='object'?localExamSchema:null)||schemaCatalog.find(s=>s.id===(contest.examSchemaId||contest.id))||legacySchemaFromContest(contest);
 const objectiveStage=examSchema?.stages?.find(s=>s.type==='objective')||null;
 const blueprint=objectiveStage?.sections||[];
 function sectionPoints(sec){
