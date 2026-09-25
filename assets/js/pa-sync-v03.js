@@ -25,14 +25,14 @@ async function verifyOtp(email,token){email=String(email||localStorage.getItem('
 async function refreshSession(){const s=session();if(!s?.refresh_token)throw new Error('Sessão não encontrada');const c=config(),raw=await jsonFetch(`${c.url}/auth/v1/token?grant_type=refresh_token`,{method:'POST',headers:headers(false),body:JSON.stringify({refresh_token:s.refresh_token})});return saveSession(raw)}
 async function ensureSession(){let s=session();if(!s?.access_token)return null;if((Number(s.expires_at||0)*1000)-Date.now()<90000){try{s=await refreshSession()}catch(err){if([400,401,403].includes(err.status))clearSession();throw err}}return s}
 async function signOut(){const s=session();if(s?.access_token&&configured()){const c=config();try{await fetch(`${c.url}/auth/v1/logout`,{method:'POST',headers:headers(true)})}catch(_){}}clearSession();return {ok:true}}
-function syncable(k){if(!k)return false;if(k.startsWith('mindmap_state::'))return true;if(!k.startsWith('planoarq:'))return false;return !(
+function syncable(k){if(!k)return false;if(k.startsWith('mindmap_state::')||k.startsWith('mindmap_notes::'))return true;if(!k.startsWith('planoarq:'))return false;return !(
  k==='planoarq:device-id:v1'||k==='planoarq:device-name:v1'||k==='planoarq:active-contest:v1'||k==='planoarq:active-contest'||k==='planoarq:activeContest'||k==='planoarq:preferences:v1'||
  k.startsWith('planoarq:supabase-')||k.startsWith('planoarq:sync-')||k.startsWith('planoarq:drive-')||k.startsWith('planoarq:last-drive')||k.startsWith('planoarq:last-sync')||k.startsWith('planoarq:last-backup')||k.startsWith('planoarq:reset::')||k.startsWith('planoarq:preview-demo')
 )}
 function allLocalKeys(){const a=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(syncable(k))a.push(k)}return a.sort()}
 function hash(s){s=String(s??'');let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(16).padStart(8,'0')}
-function keyContest(k){if(k.startsWith('mindmap_state::')){const ns=k.slice('mindmap_state::'.length),m=(window.PLANO_ARQ_MATERIALS?.materials||[]).find(x=>x.storageNamespace===ns);return m?.contestId||'global'}const ids=(window.PLANO_ARQ_CONTESTS?.contests||[]).map(x=>x.id).sort((a,b)=>b.length-a.length);const hit=ids.find(id=>k.includes(`::${id}`));return hit||'global'}
-function keyNamespace(k){if(k.startsWith('mindmap_state::'))return'mindmap_state';const i=k.indexOf('::');return i>0?k.slice(0,i):k.split(':').slice(0,2).join(':')}
+function keyContest(k){const prefix=k.startsWith('mindmap_state::')?'mindmap_state::':k.startsWith('mindmap_notes::')?'mindmap_notes::':'';if(prefix){const ns=k.slice(prefix.length),m=(window.PLANO_ARQ_MATERIALS?.materials||[]).find(x=>x.storageNamespace===ns);return m?.contestId||'global'}const ids=(window.PLANO_ARQ_CONTESTS?.contests||[]).map(x=>x.id).sort((a,b)=>b.length-a.length);const hit=ids.find(id=>k.includes(`::${id}`));return hit||'global'}
+function keyNamespace(k){if(k.startsWith('mindmap_state::'))return'mindmap_state';if(k.startsWith('mindmap_notes::'))return'mindmap_notes';const i=k.indexOf('::');return i>0?k.slice(0,i):k.split(':').slice(0,2).join(':')}
 function metaKey(uid){return`planoarq:sync-meta:v2::${uid}`}
 function loadMeta(uid){return {...{version:2,userId:uid,firstSyncCompleted:false,lastSyncAt:'',records:{}},...safeJSON(localStorage.getItem(metaKey(uid)),{})}}
 function saveMeta(uid,m){m.userId=uid;m.version=2;localStorage.setItem(metaKey(uid),JSON.stringify(m))}
