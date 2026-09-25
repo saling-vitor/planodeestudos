@@ -231,11 +231,11 @@ try:
         WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.getElementById('modal')?.classList.contains('open')===true"))
         for step in (1,2,3):
             if step==2:
-                driver.find_element(By.ID,"manualContestBtn").click()
-                WebDriverWait(driver,5).until(lambda d:d.execute_script("""return document.querySelector('[data-step="2"]')?.hidden===false"""))
+                WebDriverWait(driver,5).until(lambda d:d.execute_script("""return typeof window.PLANO_ARQ_CONTEST_IMPORT?.renderReview==='function' && typeof document.getElementById('manualContestBtn')?.onclick==='function'"""))
                 driver.execute_script("""
                   const w=window.PLANO_ARQ_CONTEST_IMPORT;
-                  w.state.draft={...w.state.draft,durationMinutes:210,
+                  w.state.mode='manual';w.state.step=2;
+                  w.state.draft={title:'',organization:'',position:'Arquiteto',board:'',city:'',notice:'',examDate:'',note:'',source:'manual',durationMinutes:210,
                     sections:[
                       {id:'specific',label:'Conhecimentos Específicos de Arquitetura e Urbanismo',questions:40,pointsPerQuestion:2,totalPoints:80,minimumPoints:40,mapGroups:['Conhecimentos Específicos']},
                       {id:'legislation',label:'Legislação Municipal e Federal',questions:10,pointsPerQuestion:1,totalPoints:10,minimumPoints:5,mapGroups:['Legislação']},
@@ -247,7 +247,7 @@ try:
                       {date:'2027-10-20',label:'Divulgação do gabarito preliminar',kind:'answer-key',status:'edital'}
                     ]
                   };
-                  w.renderReview();
+                  w.renderReview();w.updateSteps();
                   document.getElementById('rwTitle').value='Prefeitura Municipal de Nome Muito Longo para Teste Responsivo';
                   document.getElementById('rwPosition').value='Arquiteto e Urbanista - Planejamento, Projetos e Fiscalização';
                 """)
