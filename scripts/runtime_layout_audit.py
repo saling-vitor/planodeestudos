@@ -8,6 +8,9 @@ from urllib.parse import urljoin
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 
 base=(sys.argv[1] if len(sys.argv)>1 else os.environ.get("PWA_URL","")).strip()
@@ -37,14 +40,14 @@ pages=[
     ("configuracoes",f"configuracoes.html?contest={contest}"),
 ]
 
+# Matriz pedida + larguras intermediárias + rotações landscape.
 viewports=[
     (1920,1080),(1600,1000),(1440,1000),(1366,900),(1280,900),
-    (1180,900),(1024,900),(834,1112),(820,1180),(768,1024),
-    (430,932),(390,844),(375,812)
+    (1180,900),(1100,900),(1024,900),(950,900),
+    (834,1112),(820,1180),(768,1024),(720,900),(540,900),
+    (430,932),(390,844),(375,812),
+    (1180,820),(1024,768),(932,430),(844,390),(812,375)
 ]
-screenshot_widths={1920,1440,1024,834,430,375}
-screenshot_pages={"hoje","planejamento","edital","mapas","revisoes","questoes","simulados","erros","desempenho","diagnostico","historico","arquivos","configuracoes"}
-critical_pages={"mapas","configuracoes","hoje","planejamento","edital"}
 
 options=Options()
 options.add_argument("--headless=new")
@@ -56,6 +59,16 @@ options.set_capability("goog:loggingPrefs",{"browser":"ALL"})
 driver=webdriver.Chrome(options=options)
 driver.set_page_load_timeout(45)
 driver.set_script_timeout(30)
+driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument",{"source":"""
+window.__planoArqLayoutShifts=[];
+try{
+  new PerformanceObserver(list=>{
+    for(const e of list.getEntries()){
+      if(!e.hadRecentInput)window.__planoArqLayoutShifts.push({value:e.value,startTime:e.startTime});
+    }
+  }).observe({type:'layout-shift',buffered:true});
+}catch(_){}
+"""})
 
 def wait_ready():
     WebDriverWait(driver,25).until(lambda d:d.execute_script("return document.readyState") in ("interactive","complete"))
@@ -65,23 +78,38 @@ def wait_ready():
 def measure(page):
     return driver.execute_script(r"""
       const page=arguments[0],vw=document.documentElement.clientWidth,vh=document.documentElement.clientHeight;
+      const hiddenByClosedLayer=el=>{
+        if(el.closest('[hidden]'))return true;
+        const sidebar=el.closest('.pa-sidebar');
+        if(vw<=900&&sidebar&&!sidebar.classList.contains('open'))return true;
+        const more=el.closest('.pa-mobile-more');
+        if(more&&!more.classList.contains('open'))return true;
+        const viewer=el.closest('.viewer');
+        if(viewer&&!viewer.classList.contains('open'))return true;
+        const modal=el.closest('.pa-shell-modal,.dialog-layer,.settings-lock-layer,.modal');
+        if(modal){
+          if(modal.matches('.settings-lock-layer'))return modal.hasAttribute('hidden');
+          if(modal.matches('.modal'))return !modal.classList.contains('open');
+          return !modal.classList.contains('open');
+        }
+        return false;
+      };
       const visible=el=>{
-        if(el.closest('[hidden]'))return false;
-        const closedSidebar=el.closest('.pa-sidebar');
-        if(vw<=900&&closedSidebar&&!closedSidebar.classList.contains('open'))return false;
-        const closedMore=el.closest('.pa-mobile-more');
-        if(closedMore&&!closedMore.classList.contains('open'))return false;
-        const closedViewer=el.closest('.viewer');
-        if(closedViewer&&!closedViewer.classList.contains('open'))return false;
-        const closedModal=el.closest('.pa-shell-modal,.dialog-layer,.settings-lock-layer');
-        if(closedModal&&!(closedModal.classList.contains('open'))&&!closedModal.matches('.settings-lock-layer:not([hidden])'))return false;
+        if(hiddenByClosedLayer(el))return false;
         const s=getComputedStyle(el),r=el.getBoundingClientRect();
         return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity||1)>0&&r.width>1&&r.height>1;
+      };
+      const inHorizontalScroller=el=>{
+        for(let p=el.parentElement;p&&p!==document.body;p=p.parentElement){
+          const s=getComputedStyle(p);
+          if((s.overflowX==='auto'||s.overflowX==='scroll')&&p.scrollWidth>p.clientWidth+2)return true;
+        }
+        return false;
       };
       const rect=el=>{const r=el.getBoundingClientRect();return{x:r.x,y:r.y,left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height}};
       const offenders=[];
       for(const el of document.querySelectorAll('body *')){
-        if(!visible(el))continue;
+        if(!visible(el)||inHorizontalScroller(el))continue;
         const s=getComputedStyle(el),r=el.getBoundingClientRect();
         if(s.position==='fixed'||s.position==='sticky')continue;
         if(r.right>vw+2||r.left<-2){
@@ -109,23 +137,60 @@ def measure(page):
         const x=topLeft.getBoundingClientRect(),y=topActions.getBoundingClientRect();
         return Math.max(0,Math.min(x.right,y.right)-Math.max(x.left,y.left))>1&&Math.max(0,Math.min(x.bottom,y.bottom)-Math.max(x.top,y.top))>1;
       })():false;
-      const buttons=[...document.querySelectorAll('button')].filter(visible).map((el,i)=>({i,text:(el.textContent||'').trim().slice(0,80),rect:rect(el)})).filter(x=>x.rect.width<28||x.rect.height<28);
-      const interactiveOverflow=[...document.querySelectorAll('button,input,select,a')].filter(visible).map(el=>({tag:el.tagName.toLowerCase(),text:(el.textContent||el.getAttribute('placeholder')||'').trim().slice(0,80),rect:rect(el)})).filter(x=>x.rect.right>vw+2||x.rect.left<-2);
+      const controls=[...document.querySelectorAll('button,input,select,a')].filter(visible);
+      const smallButtons=[...document.querySelectorAll('button')].filter(visible).map((el,i)=>({i,text:(el.textContent||'').trim().slice(0,80),rect:rect(el)})).filter(x=>x.rect.width<28||x.rect.height<28);
+      const interactiveOverflow=controls.filter(el=>!inHorizontalScroller(el)).map(el=>({tag:el.tagName.toLowerCase(),text:(el.textContent||el.getAttribute('placeholder')||'').trim().slice(0,80),rect:rect(el)})).filter(x=>x.rect.right>vw+2||x.rect.left<-2);
+      const clippedControls=controls.filter(el=>!inHorizontalScroller(el)).filter(el=>{
+        const s=getComputedStyle(el);
+        return s.whiteSpace!=='normal'&&el.scrollWidth>el.clientWidth+3;
+      }).slice(0,12).map(el=>({tag:el.tagName.toLowerCase(),text:(el.textContent||el.getAttribute('placeholder')||'').trim().slice(0,80),clientWidth:el.clientWidth,scrollWidth:el.scrollWidth}));
+      const graphics=[...document.querySelectorAll('canvas,svg')].filter(visible).filter(el=>{
+        const r=el.getBoundingClientRect();return r.right>vw+2||r.left<-2||r.width>vw+2;
+      }).slice(0,12).map(el=>({tag:el.tagName.toLowerCase(),rect:rect(el)}));
+      const shifts=(window.__planoArqLayoutShifts||[]).reduce((a,x)=>a+Number(x.value||0),0);
       return{
         page,vw,vh,scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight,
         horizontalOverflow:document.documentElement.scrollWidth>vw+2,
-        offenders,overlaps,smallButtons:buttons.slice(0,20),interactiveOverflow:interactiveOverflow.slice(0,20),
+        offenders,overlaps,smallButtons:smallButtons.slice(0,20),interactiveOverflow:interactiveOverflow.slice(0,20),
+        clippedControls,graphicsOutside:graphics,layoutShiftScore:shifts,
         topbar:topbar?rect(topbar):null,content:content?rect(content):null,sidebar:sidebar?rect(sidebar):null,topTitle:h1?(h1.textContent||'').trim():'',topbarOverlap,
         map:{
           grid:document.querySelector('.library-grid')?rect(document.querySelector('.library-grid')):null,
-          cards:[...document.querySelectorAll('.library-card')].filter(visible).slice(0,12).map(rect)
+          cards:[...document.querySelectorAll('.library-card')].filter(visible).slice(0,14).map(rect)
         }
       };
     """,page)
 
+def append_errors(data,label,errors):
+    if data["horizontalOverflow"]:
+        errors.append(f"{label}: overflow horizontal {data['scrollWidth']}>{data['vw']}")
+    if data["interactiveOverflow"]:
+        errors.append(f"{label}: controle fora da viewport")
+    if data["overlaps"]:
+        errors.append(f"{label}: {len(data['overlaps'])} sobreposicao(oes) de cards")
+    if data.get("topbarOverlap"):
+        errors.append(f"{label}: topbar com colisao entre titulo e acoes")
+    if data.get("clippedControls"):
+        errors.append(f"{label}: controle com texto cortado")
+    if data.get("graphicsOutside"):
+        errors.append(f"{label}: grafico fora da viewport")
+    if float(data.get("layoutShiftScore") or 0)>0.25:
+        errors.append(f"{label}: layout shift alto ({data['layoutShiftScore']:.3f})")
+
+def rect_inside_viewport(rect,vw,vh,tolerance=2):
+    if not rect:return False
+    return rect["left"]>=-tolerance and rect["right"]<=vw+tolerance and rect["top"]>=-tolerance and rect["bottom"]<=vh+tolerance
+
 rows=[]
 errors=[]
+modal_cases=[]
+sidebar_cases=[]
+long_text_cases=[]
+zoom_cases=[]
+scale_cases=[]
+
 try:
+    # Matriz completa: todas as páginas são abertas/renderizadas e fotografadas.
     for width,height in viewports:
         driver.set_window_size(width,height)
         for page,rel in pages:
@@ -135,29 +200,154 @@ try:
             data["requestedViewport"]={"width":width,"height":height}
             data["url"]=driver.current_url
             rows.append(data)
-            if data["horizontalOverflow"]:
-                errors.append(f"{page}@{width}: overflow horizontal {data['scrollWidth']}>{data['vw']}")
-            if data["interactiveOverflow"]:
-                errors.append(f"{page}@{width}: controle fora da viewport")
-            if data["overlaps"]:
-                errors.append(f"{page}@{width}: {len(data['overlaps'])} sobreposicao(oes) de cards")
-            if data.get("topbarOverlap"):
-                errors.append(f"{page}@{width}: topbar com colisao entre titulo e acoes")
-            if page in screenshot_pages and (width in {1440,834,430} or (page in critical_pages and width in screenshot_widths)):
-                driver.save_screenshot(str(out_dir/f"{page}-{width}.png"))
-    (out_dir/"report.json").write_text(json.dumps({"base":base,"rows":rows,"errors":errors},ensure_ascii=False,indent=2),"utf-8")
+            append_errors(data,f"{page}@{width}x{height}",errors)
+            driver.save_screenshot(str(out_dir/f"{page}-{width}x{height}.png"))
+
+    # Sidebar aberta em tablet/mobile, incluindo rotação.
+    for width,height in ((834,1112),(430,932),(844,390)):
+        driver.set_window_size(width,height)
+        driver.get(urljoin(base,f"planejamento.html?contest={contest}"))
+        wait_ready()
+        menu=driver.find_element(By.CSS_SELECTOR,".pa-menu-btn")
+        menu.click()
+        WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.querySelector('.pa-sidebar')?.classList.contains('open')===true"))
+        info=driver.execute_script("""
+          const e=document.querySelector('.pa-sidebar'),r=e.getBoundingClientRect(),vw=document.documentElement.clientWidth,vh=document.documentElement.clientHeight;
+          return {rect:{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height},vw,vh,scrollHeight:e.scrollHeight,clientHeight:e.clientHeight};
+        """)
+        info["requestedViewport"]={"width":width,"height":height}
+        info["ok"]=info["rect"]["left"]>=-2 and info["rect"]["right"]<=info["vw"]+2 and info["rect"]["top"]>=-2 and info["rect"]["bottom"]<=info["vh"]+2
+        sidebar_cases.append(info)
+        if not info["ok"]:errors.append(f"sidebar@{width}x{height}: painel fora da viewport")
+        driver.save_screenshot(str(out_dir/f"sidebar-open-{width}x{height}.png"))
+
+    # Wizard Novo Concurso: três etapas, sem concluir a criação.
+    for width,height in ((1440,1000),(834,1112),(430,932),(375,812)):
+        driver.set_window_size(width,height)
+        driver.get(urljoin(base,"index.html#home"))
+        wait_ready()
+        driver.find_element(By.ID,"newBtn").click()
+        WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.getElementById('modal')?.classList.contains('open')===true"))
+        for step in (1,2,3):
+            if step==2:
+                driver.execute_script("document.getElementById('fTitle').value='Prefeitura Municipal de Nome Muito Longo para Teste Responsivo';document.getElementById('fPosition').value='Arquiteto e Urbanista - Planejamento, Projetos e Fiscalização';")
+                driver.find_element(By.ID,"nextStep").click()
+                WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.querySelector('[data-step="2"]')?.hidden===false"))
+            elif step==3:
+                driver.execute_script("document.getElementById('fNotice').value='Edital de Abertura 001/2027 com retificações';document.getElementById('fNote').value='Observação extensa para testar conteúdo variável sem quebrar a composição do modal.';")
+                driver.find_element(By.ID,"nextStep").click()
+                WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.querySelector('[data-step="3"]')?.hidden===false"))
+            info=driver.execute_script("""
+              const m=document.getElementById('modal'),e=m.querySelector('.dialog'),r=e.getBoundingClientRect(),vw=document.documentElement.clientWidth,vh=document.documentElement.clientHeight;
+              return {step:arguments[0],rect:{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height},vw,vh,pageScrollWidth:document.documentElement.scrollWidth,dialogScrollHeight:e.scrollHeight,dialogClientHeight:e.clientHeight};
+            """,step)
+            info["requestedViewport"]={"width":width,"height":height}
+            info["ok"]=rect_inside_viewport(info["rect"],info["vw"],info["vh"]) and info["pageScrollWidth"]<=info["vw"]+2
+            modal_cases.append(info)
+            if not info["ok"]:errors.append(f"novo-concurso etapa {step}@{width}x{height}: modal fora da viewport/overflow")
+            driver.save_screenshot(str(out_dir/f"novo-concurso-step{step}-{width}x{height}.png"))
+        driver.find_element(By.ID,"cancelBtn").click()
+
+    # Overlay do PIN sem alterar a configuração real do dispositivo.
+    for width,height in ((834,1112),(430,932),(375,812)):
+        driver.set_window_size(width,height)
+        driver.get(urljoin(base,f"configuracoes.html?contest={contest}"))
+        wait_ready()
+        info=driver.execute_script("""
+          const layer=document.getElementById('settingsLock'),shell=document.querySelector('.pa-shell');
+          layer.hidden=false;if(shell)shell.inert=true;
+          const e=layer.querySelector('.settings-lock-card'),r=e.getBoundingClientRect(),vw=document.documentElement.clientWidth,vh=document.documentElement.clientHeight;
+          return {rect:{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height},vw,vh};
+        """)
+        info["requestedViewport"]={"width":width,"height":height}
+        info["ok"]=rect_inside_viewport(info["rect"],info["vw"],info["vh"])
+        modal_cases.append({"kind":"settings-pin",**info})
+        if not info["ok"]:errors.append(f"pin-modal@{width}x{height}: modal fora da viewport")
+        driver.save_screenshot(str(out_dir/f"pin-modal-{width}x{height}.png"))
+
+    # Texto longo realista: títulos e concurso compridos não podem romper a malha.
+    long_title="CONCURSO MUNICIPAL DE ARQUITETURA, URBANISMO, PLANEJAMENTO E FISCALIZAÇÃO — NOME EXTREMAMENTE LONGO"
+    for width,height in ((834,1112),(430,932),(375,812)):
+        for page,rel in (("mapas",f"biblioteca.html?contest={contest}"),("configuracoes",f"configuracoes.html?contest={contest}")):
+            driver.set_window_size(width,height)
+            driver.get(urljoin(base,rel))
+            wait_ready()
+            driver.execute_script("""
+              const t=document.querySelector('.pa-top-title');if(t)t.textContent=arguments[0];
+              const h=document.querySelector('.hero h1,.today-main-card h1');if(h)h.textContent=arguments[0];
+            """,long_title)
+            time.sleep(.1)
+            data=measure(page)
+            data["requestedViewport"]={"width":width,"height":height}
+            long_text_cases.append(data)
+            append_errors(data,f"texto-longo-{page}@{width}x{height}",errors)
+            driver.save_screenshot(str(out_dir/f"stress-texto-longo-{page}-{width}x{height}.png"))
+
+    # Zoom do navegador via atalhos reais do Chrome.
+    def reset_zoom():
+        ActionChains(driver).key_down(Keys.CONTROL).send_keys("0").key_up(Keys.CONTROL).perform()
+        time.sleep(.25)
+
+    def zoom_steps(steps):
+        reset_zoom()
+        key="+" if steps>0 else "-"
+        for _ in range(abs(steps)):
+            ActionChains(driver).key_down(Keys.CONTROL).send_keys(key).key_up(Keys.CONTROL).perform()
+            time.sleep(.18)
+
+    zoom_map=[(80,-2),(100,0),(110,1),(125,2),(150,3)]
+    driver.set_window_size(1440,1000)
+    for page,rel in (("mapas",f"biblioteca.html?contest={contest}"),("configuracoes",f"configuracoes.html?contest={contest}")):
+        driver.get(urljoin(base,rel));wait_ready();reset_zoom()
+        baseline=driver.execute_script("return {innerWidth:innerWidth,dpr:devicePixelRatio}")
+        for pct,steps in zoom_map:
+            zoom_steps(steps)
+            time.sleep(.2)
+            state=driver.execute_script("return {innerWidth:innerWidth,innerHeight:innerHeight,dpr:devicePixelRatio}")
+            data=measure(page)
+            case={"page":page,"requestedZoom":pct,"baseline":baseline,"state":state,"diagnostics":data}
+            zoom_cases.append(case)
+            append_errors(data,f"zoom-{page}@{pct}%",errors)
+            driver.save_screenshot(str(out_dir/f"zoom-{page}-{pct}.png"))
+        reset_zoom()
+    zoom_effective=any(c["requestedZoom"]!=100 and c["state"]["innerWidth"]!=c["baseline"]["innerWidth"] for c in zoom_cases)
+
+    # Escala de renderização (DPR) para simular 100/125/150% de escala de tela.
+    for dpr in (1,1.25,1.5):
+        driver.execute_cdp_cmd("Emulation.setDeviceMetricsOverride",{"width":1366,"height":768,"deviceScaleFactor":dpr,"mobile":False})
+        for page,rel in (("mapas",f"biblioteca.html?contest={contest}"),("configuracoes",f"configuracoes.html?contest={contest}")):
+            driver.get(urljoin(base,rel));wait_ready()
+            data=measure(page)
+            case={"page":page,"dpr":dpr,"diagnostics":data}
+            scale_cases.append(case)
+            append_errors(data,f"escala-{page}@{dpr}",errors)
+    driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride",{})
+
+    report={"base":base,"rows":rows,"modalCases":modal_cases,"sidebarCases":sidebar_cases,"longTextCases":long_text_cases,"zoomCases":zoom_cases,"zoomEffective":zoom_effective,"scaleCases":scale_cases,"errors":errors}
+    (out_dir/"report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2),"utf-8")
     summary={
         "base":base,
         "pages":len(pages),
         "viewports":len(viewports),
         "cases":len(rows),
+        "modalCases":len(modal_cases),
+        "sidebarCases":len(sidebar_cases),
+        "longTextCases":len(long_text_cases),
+        "zoomCases":len(zoom_cases),
+        "zoomEffective":zoom_effective,
+        "scaleCases":len(scale_cases),
         "errors":errors,
-        "map_overlaps":[{"page":r["page"],"width":r["requestedViewport"]["width"],"count":len(r["overlaps"]),"cards":r["map"]["cards"]} for r in rows if r["overlaps"]],
-        "horizontal_overflow":[{"page":r["page"],"width":r["requestedViewport"]["width"],"scrollWidth":r["scrollWidth"],"clientWidth":r["vw"],"offenders":r["offenders"]} for r in rows if r["horizontalOverflow"]]
+        "map_overlaps":[{"page":r["page"],"viewport":r["requestedViewport"],"count":len(r["overlaps"]),"cards":r["map"]["cards"]} for r in rows if r["overlaps"]],
+        "horizontal_overflow":[{"page":r["page"],"viewport":r["requestedViewport"],"scrollWidth":r["scrollWidth"],"clientWidth":r["vw"],"offenders":r["offenders"]} for r in rows if r["horizontalOverflow"]],
+        "topbar_collisions":[{"page":r["page"],"viewport":r["requestedViewport"]} for r in rows if r.get("topbarOverlap")],
+        "clipped_controls":[{"page":r["page"],"viewport":r["requestedViewport"],"items":r["clippedControls"]} for r in rows if r.get("clippedControls")],
+        "high_layout_shift":[{"page":r["page"],"viewport":r["requestedViewport"],"score":r["layoutShiftScore"]} for r in rows if float(r.get("layoutShiftScore") or 0)>0.25]
     }
     (out_dir/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2),"utf-8")
     print(json.dumps(summary,ensure_ascii=False,indent=2))
     if strict and errors:
         raise SystemExit(1)
 finally:
+    try: driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride",{})
+    except Exception: pass
     driver.quit()
