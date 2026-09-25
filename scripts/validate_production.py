@@ -262,6 +262,26 @@ def main():
     except (OSError,ValueError,TypeError) as exc:
         errors.append(f"dados canônicos inválidos ({exc})")
 
+    # Metadados de release precisam ser canônicos e independentes das antigas etapas de desenvolvimento.
+    try:
+        data_runtime=(ROOT/"assets/js/pa-data-v03.js").read_text("utf-8",errors="ignore")
+        cloud_release=json.loads((ROOT/"data/cloud-config.json").read_text("utf-8")).get("version")
+        rm=re.search(r"const RELEASE=['\"]([^'\"]+)['\"];",data_runtime)
+        if not rm:
+            errors.append("release: identificador canônico ausente em pa-data-v03.js")
+        else:
+            release=rm.group(1)
+            if cloud_release!=release:
+                errors.append(f"release: cloud-config ({cloud_release!r}) diverge do runtime ({release!r})")
+            if f"app:{{version:RELEASE" not in data_runtime:
+                errors.append("release: backups não registram a versão canônica do aplicativo")
+        drive_runtime=(ROOT/"assets/js/pa-drive-v01.js").read_text("utf-8",errors="ignore")
+        for residue in ("stage:'12.2'","stage:\"12.2\"","21.0-study-map-html-storage"):
+            if residue in data_runtime or residue in drive_runtime:
+                errors.append(f"release: resíduo histórico detectado: {residue}")
+    except (OSError,ValueError,TypeError) as exc:
+        errors.append(f"release: não foi possível validar metadados ({exc})")
+
     # O estado de manutenção precisa ser coordenado entre o runtime local e o Service Worker.
     try:
         data_runtime=(ROOT/"assets/js/pa-data-v03.js").read_text("utf-8",errors="ignore")
@@ -414,7 +434,7 @@ def main():
                 errors.append(f"Novo Concurso: revisão estruturada ausente: {token}")
         for token in ("saveExamSchema","upsertContestFile","storeContestBlob","examSchemaId","importedEdict"):
             if token not in import_js and token not in data_js:
-                errors.append(f"Novo Concurso Etapa E: persistência ausente: {token}")
+                errors.append(f"Novo Concurso: persistência completa ausente: {token}")
         edital_text=(ROOT/"edital.html").read_text("utf-8",errors="ignore")
         planning_text=(ROOT/"planejamento.html").read_text("utf-8",errors="ignore")
         arquivos_text=(ROOT/"arquivos.html").read_text("utf-8",errors="ignore")
@@ -427,16 +447,16 @@ def main():
         cloud_cfg=json.loads((ROOT/"data/cloud-config.json").read_text("utf-8"))
         storage_cfg=(cloud_cfg.get("supabase") or {}).get("storage") or {}
         if storage_cfg.get("bucket")!="plano-arq-contest-files" or storage_cfg.get("private") is not True:
-            errors.append("Etapa F: bucket privado do Supabase Storage não está configurado")
+            errors.append("Supabase Storage: bucket privado não está configurado")
         storage_sql=(ROOT/"cloud/supabase_schema_V1.sql").read_text("utf-8",errors="ignore")
         for token in ("plano-arq-contest-files","plano_arq_files_select_own","plano_arq_files_insert_own","plano_arq_files_update_own","plano_arq_files_delete_own"):
             if token not in storage_sql:
-                errors.append(f"Etapa F: SQL Storage ausente: {token}")
+                errors.append(f"Supabase Storage: política/SQL ausente: {token}")
         for token in ("storageUpload","storageDownload","ensureContestFileLocal","reconcileContestFiles","cloudPathFor"):
             if token not in sync_js:
-                errors.append(f"Etapa F: sincronização binária ausente: {token}")
+                errors.append(f"Supabase Storage: sincronização binária ausente: {token}")
         if "Supabase Storage" not in (ROOT/"configuracoes.html").read_text("utf-8",errors="ignore"):
-            errors.append("Etapa F: status do Supabase Storage não está visível em Configurações")
+            errors.append("Supabase Storage: status não está visível em Configurações")
         index_text=(ROOT/"index.html").read_text("utf-8",errors="ignore")
         for token in ("pa-edict-pdf-v01.js","pa-edict-parser-v01.js","pa-edict-flow-v01.js","pa-study-blueprint-v01.js","pa-contest-import-v01.js"):
             if token not in index_text:
@@ -445,60 +465,60 @@ def main():
         blueprint_js=blueprint_path.read_text("utf-8",errors="ignore") if blueprint_path.exists() else ""
         for token in ("study-blueprint::","buildAndSave","splitTopics","mapsForSection","createdFrom:'programa-do-edital'"):
             if token not in blueprint_js:
-                errors.append(f"Etapa G: contrato de pós-importação ausente: {token}")
+                errors.append(f"Pós-importação: contrato ausente: {token}")
         biblioteca_text=(ROOT/"biblioteca.html").read_text("utf-8",errors="ignore")
         if "data-planned-map" not in biblioteca_text or "Estrutura preparada pelo edital" not in biblioteca_text:
-            errors.append("Etapa G: Biblioteca não exibe a estrutura preparada")
+            errors.append("Pós-importação: Biblioteca não exibe a estrutura preparada")
         if "data-study-blueprint-note" not in planning_text:
-            errors.append("Etapa G: Planejamento não reconhece mapas preparados")
+            errors.append("Pós-importação: Planejamento não reconhece mapas preparados")
         for token in ("GENERATION_CONTRACT='H1'","generationPackage","generationCommand","markCommandCopied","plano-arq-map-id","plano-arq-blueprint-signature"):
             if token not in blueprint_js:
-                errors.append(f"Etapa H1: contrato de geração ausente: {token}")
+                errors.append(f"Geração de mapas: contrato ausente: {token}")
         for token in ("data-copy-command","Copiar comando","PRONTO PARA GERAR"):
             if token not in biblioteca_text:
-                errors.append(f"Etapa H1: Biblioteca sem ação de geração: {token}")
+                errors.append(f"Geração de mapas: Biblioteca sem ação: {token}")
         for token in ("IMPORT_CONTRACT='H2'","inspectGeneratedHtml","importGeneratedHtml","imported-pending-audit","study-map-html::"):
             if token not in blueprint_js:
-                errors.append(f"Etapa H2: contrato de importação ausente: {token}")
+                errors.append(f"Importação de mapas: contrato ausente: {token}")
         for token in ("mapHtmlInput","data-import-html","Importar HTML gerado","AGUARDANDO AUDITORIA"):
             if token not in biblioteca_text:
-                errors.append(f"Etapa H2: Biblioteca sem importação de HTML: {token}")
+                errors.append(f"Importação de mapas: Biblioteca sem importação de HTML: {token}")
         for token in ("AUDIT_CONTRACT='H3'","auditImportedMap","activateImportedMap","AUDIT_CONTROLS","audit-blocked","upsertContestMaterial"):
             if token not in blueprint_js:
-                errors.append(f"Etapa H3: auditoria/ativação ausente: {token}")
+                errors.append(f"Auditoria de mapas: contrato de ativação ausente: {token}")
         for token in ("data-audit-activate","Auditar e ativar","__indexeddb__","dynamicHtml","planoarq:contest-materials::"):
             if token not in biblioteca_text:
-                errors.append(f"Etapa H3: Biblioteca sem ativação dinâmica: {token}")
+                errors.append(f"Auditoria de mapas: Biblioteca sem ativação dinâmica: {token}")
         data_text=(ROOT/"assets/js/pa-data-v03.js").read_text("utf-8",errors="ignore")
         for token in ("CONTEST_MATERIALS_PREFIX","upsertContestMaterial","materialsForContest","contestMaterialsKey"):
             if token not in data_text:
-                errors.append(f"Etapa H3: materiais dinâmicos ausentes na camada de dados: {token}")
+                errors.append(f"Auditoria de mapas: materiais dinâmicos ausentes na camada de dados: {token}")
         if "planoarq:contest-materials::" not in planning_text:
-            errors.append("Etapa H3: Planejamento não consome materiais dinâmicos")
+            errors.append("Auditoria de mapas: Planejamento não consome materiais dinâmicos")
         allowed=set(storage_cfg.get("allowedMimeTypes") or [])
         if not {"application/pdf","text/html"}.issubset(allowed):
-            errors.append("Etapa H3: Storage não aceita PDF + HTML")
+            errors.append("Auditoria de mapas: Storage não aceita PDF + HTML")
         if "planoarq:contests:v1" not in sync_js or "Array.isArray(local)?local:[]" not in sync_js:
             errors.append("pa-sync-v03.js: concursos dinâmicos não entram no isolamento de sincronização")
         context_js=(ROOT/"assets/js/pa-contest-context-v01.js").read_text("utf-8",errors="ignore")
         for token in ("explicitId","storedId","fallbackId","resolveId","planoarq:active-contest:v1"):
             if token not in context_js:
-                errors.append(f"Etapa I: contexto canônico de concurso ausente: {token}")
+                errors.append(f"Contexto de concurso: contrato canônico ausente: {token}")
         portal_pages=("edital.html","biblioteca.html","planejamento.html","revisoes.html","questoes.html","simulados.html","erros.html","desempenho.html","diagnostico.html","historico.html","arquivos.html","configuracoes.html")
         for page in portal_pages:
             page_text=(ROOT/page).read_text("utf-8",errors="ignore")
             if "pa-contest-context-v01.js" not in page_text or "PLANO_ARQ_CONTEST_CONTEXT.resolveId()" not in page_text:
-                errors.append(f"Etapa I: {page} não usa o contexto canônico do concurso")
+                errors.append(f"Contexto de concurso: {page} não usa o contexto canônico")
             if "demhab-poa-arquiteto-2026" in page_text:
-                errors.append(f"Etapa I: {page} ainda contém fallback/dado DEMHAB hardcoded")
+                errors.append(f"Contexto de concurso: {page} ainda contém fallback/dado DEMHAB hardcoded")
         import_text=(ROOT/"assets/js/pa-contest-import-v01.js").read_text("utf-8",errors="ignore")
         for token in ("manualDraft","contestBaseId","stableHash","cityName","uf:place.uf","storeContestBlob","saveExamSchema","upsertContestFile"):
             if token not in import_text:
-                errors.append(f"Etapa I: criação do concurso sem contrato completo: {token}")
+                errors.append(f"Contexto de concurso: criação sem contrato completo: {token}")
         if "planoarq:contest-materials::'+id" not in index_text:
-            errors.append("Etapa I: Hoje/Portal não consome mapas dinâmicos por concurso")
+            errors.append("Contexto de concurso: Hoje/Portal não consome mapas dinâmicos")
         if "planoarq:contest-materials::'+contestId" not in edital_text:
-            errors.append("Etapa I: Central do Edital não consome mapas dinâmicos por concurso")
+            errors.append("Contexto de concurso: Central do Edital não consome mapas dinâmicos")
 
         for p in sims:
             text=p.read_text("utf-8",errors="ignore")

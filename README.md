@@ -7,6 +7,7 @@ Portal estático de estudos para concursos, publicado por GitHub Pages e prepara
 - URL: `https://saling-vitor.github.io/planodeestudos/`
 - Branch: `main`
 - Deploy: `.github/workflows/pages.yml`
+- Release candidate atual: `1.0.0-rc`
 - 14 mapas em `materials/`
 - 3 simulados em `simulados/`
 - edital/documentos oficiais em `edital/`
