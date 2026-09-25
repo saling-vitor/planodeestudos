@@ -9,7 +9,7 @@ REQUIRED_ROOT={
  "index.html","biblioteca.html","planejamento.html","edital.html","revisoes.html",
  "questoes.html","desempenho.html","arquivos.html","simulados.html","erros.html",
  "diagnostico.html","historico.html","configuracoes.html","creditos.html",
- "offline.html","404.html","manifest.webmanifest","service-worker.js",".nojekyll"
+ "pwa-diagnostico.html","offline.html","404.html","manifest.webmanifest","service-worker.js",".nojekyll"
 }
 
 SOURCE_REQUIRED={
@@ -17,7 +17,10 @@ SOURCE_REQUIRED={
  "data/cloud-config.json","data/files-meta.json",
  "scripts/build_static_data.py","scripts/build_materials_manifest.py",
  "scripts/build_topic_catalogs.py","scripts/build_simulations_manifest.py",
- "scripts/build_files_manifest.py","scripts/build_offline_pack.py","scripts/runtime_stage_i.py",
+ "scripts/build_files_manifest.py","scripts/build_offline_pack.py",
+ "scripts/runtime_layout_audit.py","scripts/runtime_pwa_smoke.py","scripts/runtime_stage_i.py",
+ "scripts/validate_layout_contract.py","scripts/validate_css.py",
+ "scripts/validate_javascript.py","scripts/validate_pwa_cache.py",
  "assets/css/pa-tokens-v01.css","assets/css/pa-components-v01.css",
  "assets/css/pa-shell-v16.css","assets/css/study-map-shared-v01.css",
  "assets/css/simulation-shared-v01.css",

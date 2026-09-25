@@ -43,6 +43,7 @@ Os nomes dos arquivos permanecem estáveis por compatibilidade de cache/referên
 
 ## PWA e cache
 
+- `pwa-diagnostico.html` é um probe técnico publicado exclusivamente para a validação automatizada do PWA no CI; não é uma página de navegação do usuário e não deve ser removido enquanto `runtime_pwa_smoke.py` depender dele.
 - HTML, CSS, JavaScript, dados, mapas, simulados e edital usam **network first** quando há rede.
 - O cache funciona como fallback quando a rede falha.
 - Imagens locais usam atualização em segundo plano; imagens externas imutáveis podem usar cache.
