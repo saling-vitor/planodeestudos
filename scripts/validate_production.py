@@ -303,6 +303,13 @@ def main():
         for token in ("examSchemaForContest","saveExamSchema","contestFiles","upsertContestFile","saveImportDraft","contestBundle"):
             if token not in data_js:
                 errors.append(f"pa-data-v03.js: contrato Novo Concurso ausente: {token}")
+        for path in ("assets/js/pa-edict-pdf-v01.js","assets/js/pa-edict-parser-v01.js","assets/js/pa-edict-flow-v01.js","assets/js/pa-contest-import-v01.js"):
+            if not (ROOT/path).exists():
+                errors.append(f"Novo Concurso: arquivo obrigatório ausente: {path}")
+        index_text=(ROOT/"index.html").read_text("utf-8",errors="ignore")
+        for token in ("pa-edict-pdf-v01.js","pa-edict-parser-v01.js","pa-edict-flow-v01.js","pa-contest-import-v01.js"):
+            if token not in index_text:
+                errors.append(f"Novo Concurso: index não carrega {token}")
         if "planoarq:contests:v1" not in sync_js or "Array.isArray(local)?local:[]" not in sync_js:
             errors.append("pa-sync-v03.js: concursos dinâmicos não entram no isolamento de sincronização")
 
