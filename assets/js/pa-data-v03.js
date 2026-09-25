@@ -1,11 +1,27 @@
 (()=>{
 'use strict';
-const API={version:'3.0'};
+const API={version:'3.1'};
+const RUNTIME_KEY='planoarq:runtime-flags:v1';
 const safeJSON=(v,f)=>{try{return JSON.parse(v)??f}catch(_){return f}};
 const iso=()=>new Date().toISOString();
+function runtimeFlags(){
+ const raw=safeJSON(localStorage.getItem(RUNTIME_KEY),null);
+ return raw&&typeof raw==='object'?{maintenanceMode:raw.maintenanceMode!==false}:{maintenanceMode:true};
+}
+function isMaintenanceMode(){return runtimeFlags().maintenanceMode===true}
+function canRunBackgroundServices(){return !isMaintenanceMode()}
+function setMaintenanceMode(enabled){
+ const next={maintenanceMode:!!enabled,updatedAt:iso()};
+ localStorage.setItem(RUNTIME_KEY,JSON.stringify(next));
+ document.documentElement.dataset.paMaintenance=next.maintenanceMode?'1':'0';
+ window.dispatchEvent(new CustomEvent('planoarq:runtime-flags',{detail:{...next}}));
+ return next;
+}
+if(localStorage.getItem(RUNTIME_KEY)===null)localStorage.setItem(RUNTIME_KEY,JSON.stringify({maintenanceMode:true,updatedAt:iso(),source:'temporary-development-mode'}));
+document.documentElement.dataset.paMaintenance=isMaintenanceMode()?'1':'0';
 const privateKey=k=>!!k&&(
   k==='planoarq:device-id:v1'||k==='planoarq:device-name:v1'||k==='planoarq:active-contest:v1'||k==='planoarq:active-contest'||k==='planoarq:activeContest'||
-  k==='planoarq:preferences:v1'||k.startsWith('planoarq:supabase-')||k.startsWith('planoarq:sync-')||k.startsWith('planoarq:drive-')||k.startsWith('planoarq:last-drive')||
+  k===RUNTIME_KEY||k==='planoarq:preferences:v1'||k.startsWith('planoarq:supabase-')||k.startsWith('planoarq:sync-')||k.startsWith('planoarq:drive-')||k.startsWith('planoarq:last-drive')||
   k.startsWith('planoarq:last-sync')||k.startsWith('planoarq:reset::')||k.startsWith('planoarq:preview-demo')
 );
 const tracked=k=>!!k&&(k.startsWith('planoarq:')||k.startsWith('mindmap_state::')||k.startsWith('mindmap_notes::'))&&!privateKey(k);
@@ -27,6 +43,6 @@ function importEntries(entries){entries.filter(([k])=>tracked(k)).forEach(([k,v]
 function dataHealth(){let parseErrors=0,jsonKeys=0;keys().forEach(k=>{const v=localStorage.getItem(k);if(v&&(/^[\[{]/.test(v.trim()))){jsonKeys++;try{JSON.parse(v)}catch(_){parseErrors++}}});const all=collect();return {keys:Object.keys(all).length,bytes:byteSize(all),parseErrors,jsonKeys,lastExport:localStorage.getItem('planoarq:last-backup-export')||'',lastImport:localStorage.getItem('planoarq:last-backup-import')||''}}
 function resetContest(cid){const ks=contestKeys(cid);ks.forEach(k=>localStorage.removeItem(k));localStorage.setItem(`planoarq:reset::${cid}`,iso());return ks.length}
 function resetDeviceId(){const id=uuid();localStorage.setItem('planoarq:device-id:v1',id);return id}
-Object.assign(API,{deviceId,deviceName,setDeviceName,keys,tracked,privateKey,contestKeys,collect,buildBackup,exportBackup,inspect,readFile,importEntries,dataHealth,resetContest,resetDeviceId,materialsForContest});
+Object.assign(API,{RUNTIME_KEY,runtimeFlags,isMaintenanceMode,canRunBackgroundServices,setMaintenanceMode,deviceId,deviceName,setDeviceName,keys,tracked,privateKey,contestKeys,collect,buildBackup,exportBackup,inspect,readFile,importEntries,dataHealth,resetContest,resetDeviceId,materialsForContest});
 window.PLANO_ARQ_DATA=API;
 })();
