@@ -125,6 +125,16 @@ function metrics(rows){
  $('coverageFill').style.width=coverage+'%';$('mReinforce').textContent=reinforce;
  $('bankDetail').textContent=`Microbanco · ${Number(summary.variants||0).toLocaleString('pt-BR')} variantes N1/N2/N3`
 }
+function renderDeviceData(rows){
+ const a=aggregate(rows),attempts=Number(a.attempts||0),tested=Number(a.tested||0);
+ $('deviceBadge').textContent='Dados locais';
+ $('deviceTitle').textContent=attempts?'Dados deste dispositivo':'Sem histórico local';
+ $('deviceText').textContent=attempts
+   ?attempts+' tentativa'+(attempts===1?'':'s')+' em '+tested+' tópico'+(tested===1?'':'s')+' neste navegador. Exporte um backup para levar esse histórico a outro dispositivo.'
+   :'Nenhuma resposta deste concurso foi registrada neste navegador. Faça um diagnóstico inicial ou importe um backup existente.';
+ $('exportBackupBtn').disabled=!D;
+ $('importBackupBtn').disabled=!D;
+}
 function filtered(rows){
  let r=[...rows],q=$('search').value.trim().toLowerCase(),g=$('groupFilter').value,m=$('mapFilter').value;
  if(q)r=r.filter(x=>`${x.shortCode} ${x.materialTitle} ${x.branch} ${x.title} ${x.ref}`.toLowerCase().includes(q));if(g)r=r.filter(x=>x.group===g);if(m)r=r.filter(x=>x.materialId===m);
