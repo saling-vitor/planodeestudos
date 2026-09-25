@@ -432,7 +432,7 @@ try:
         q_close=False
         if all_chip:
             all_chip[0].click()
-            q_filter=driver.execute_script("return document.querySelector('[data-filter="all"]')?.classList.contains('active')===true")
+            q_filter=driver.execute_script("""return document.querySelector('[data-filter="all"]')?.classList.contains('active')===true""")
             driver.execute_script("""
               const s=document.getElementById('search');s.value='__sem_topico__';s.dispatchEvent(new Event('input',{bubbles:true}));
             """)
@@ -460,7 +460,7 @@ try:
         rev_search=False
         if rev_all:
             rev_all[0].click()
-            rev_filter=driver.execute_script("return document.querySelector('[data-filter="all"]')?.classList.contains('active')===true")
+            rev_filter=driver.execute_script("""return document.querySelector('[data-filter="all"]')?.classList.contains('active')===true""")
             driver.execute_script("""
               const s=document.getElementById('search');s.value='auditoria';s.dispatchEvent(new Event('input',{bubbles:true}));
             """)
@@ -476,7 +476,7 @@ try:
         file_close=False
         if official:
             official[0].click()
-            file_filter=driver.execute_script("return document.querySelector('[data-filter="official"]')?.classList.contains('active')===true && document.querySelectorAll('.file-row').length>=1")
+            file_filter=driver.execute_script("""return document.querySelector('[data-filter="official"]')?.classList.contains('active')===true && document.querySelectorAll('.file-row').length>=1""")
             open_btn=driver.find_elements(By.CSS_SELECTOR,".file-row [data-open]")
             if open_btn:
                 open_btn[0].click()
