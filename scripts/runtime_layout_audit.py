@@ -288,7 +288,7 @@ try:
     # Estados interativos representativos: hover/focus não podem alterar geometria.
     for width,height in ((1440,1000),(430,932)):
         for page,rel,selector in (
-            ("mapas",f"biblioteca.html?contest={contest}",".library-card .resume"),
+            ("mapas",f"biblioteca.html?contest={contest}",".library-card .primary-btn"),
             ("configuracoes",f"configuracoes.html?contest={contest}","#saveSettingsPin"),
         ):
             driver.set_window_size(width,height)
