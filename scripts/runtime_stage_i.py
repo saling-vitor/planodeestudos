@@ -187,9 +187,9 @@ try:
     wait_ready();wait_data()
     manual_id=driver.execute_script("return new URL(location.href).searchParams.get('contest')")
     manual=driver.execute_script("""
-      const id=arguments[0],D=window.PLANO_ARQ_DATA,c=D.contestById(id),s=D.examSchemaForContest(id);
-      return {ok:!!c&&c.title==='Concurso Manual Etapa I'&&c.position==='Analista de Arquitetura'&&c.uf==='SC'&&c.city==='Chapecó/SC'&&!c.board&&!c.notice&&!s&&localStorage.getItem('planoarq:active-contest:v1')===id,
-        id,title:c?.title||'',position:c?.position||'',city:c?.city||'',uf:c?.uf||'',board:c?.board||'',notice:c?.notice||'',schema:!!s,body:document.body.innerText.slice(0,12000)}
+      const id=arguments[0],D=window.PLANO_ARQ_DATA,c=D.contestById(id),s=D.examSchemaForContest(id),emptySchema=!s||(!(s.stages||[]).length&&!(s.content||[]).length&&!(s.schedule||[]).length);
+      return {ok:!!c&&c.title==='Concurso Manual Etapa I'&&c.position==='Analista de Arquitetura'&&c.uf==='SC'&&c.city==='Chapecó/SC'&&!c.board&&!c.notice&&emptySchema&&localStorage.getItem('planoarq:active-contest:v1')===id,
+        id,title:c?.title||'',position:c?.position||'',city:c?.city||'',uf:c?.uf||'',board:c?.board||'',notice:c?.notice||'',schema:!!s,schemaEmpty:emptySchema,body:document.body.innerText.slice(0,12000)}
     """,manual_id)
     report["manualContest"]=manual
     if not manual.get("ok"):
@@ -208,6 +208,7 @@ try:
     original=driver.current_window_handle
     driver.switch_to.new_window("tab")
     driver.get(urljoin(base,"biblioteca.html?contest="+manual_id));wait_ready()
+    WebDriverWait(driver,8).until(lambda d:"Concurso Manual Etapa I" in d.find_element(By.CSS_SELECTOR,".pa-top-k").text)
     if get_context()!=manual_id or "Concurso Manual Etapa I" not in driver.find_element(By.CSS_SELECTOR,".pa-top-k").text:
         errors.append("Etapa I manual: nova aba direta da Biblioteca perdeu contexto")
     driver.close();driver.switch_to.window(original)
@@ -261,6 +262,8 @@ try:
     frame=driver.find_element(By.ID,"frame")
     WebDriverWait(driver,8).until(lambda d:d.execute_script("return !!document.getElementById('frame')?.contentDocument?.getElementById('stageIDone')"))
     driver.switch_to.frame(frame)
+    driver.find_element(By.CSS_SELECTOR,"#stage-i-topic > summary").click()
+    WebDriverWait(driver,5).until(lambda d:d.find_element(By.ID,"stageIDone").is_displayed())
     driver.find_element(By.ID,"stageIDone").click()
     driver.switch_to.default_content()
     WebDriverWait(driver,8).until(lambda d:"100%" in d.find_element(By.ID,"viewerProgress").text)
