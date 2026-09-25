@@ -294,12 +294,13 @@ try:
             driver.set_window_size(width,height)
             driver.get(urljoin(base,rel));wait_ready()
             el=driver.find_element(By.CSS_SELECTOR,selector)
-            before=driver.execute_script("const r=arguments[0].getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}",el)
+            geom="const r=arguments[0].getBoundingClientRect(),sx=window.scrollX,sy=window.scrollY;return {x:r.x,y:r.y,width:r.width,height:r.height,scrollX:sx,scrollY:sy,docX:r.x+sx,docY:r.y+sy}"
+            before=driver.execute_script(geom,el)
             ActionChains(driver).move_to_element(el).perform();time.sleep(.12)
-            hover=driver.execute_script("const r=arguments[0].getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}",el)
-            driver.execute_script("arguments[0].focus()",el);time.sleep(.08)
-            focus=driver.execute_script("const r=arguments[0].getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height}",el)
-            stable=all(abs(before[k]-hover[k])<=1 and abs(before[k]-focus[k])<=1 for k in ("x","y","width","height"))
+            hover=driver.execute_script(geom,el)
+            driver.execute_script("arguments[0].focus({preventScroll:true})",el);time.sleep(.08)
+            focus=driver.execute_script(geom,el)
+            stable=all(abs(before[k]-hover[k])<=1 and abs(before[k]-focus[k])<=1 for k in ("docX","docY","width","height"))
             case={"page":page,"viewport":{"width":width,"height":height},"selector":selector,"before":before,"hover":hover,"focus":focus,"stable":stable}
             interactive_cases.append(case)
             if not stable:errors.append(f"interacao-{page}@{width}: hover/focus alterou geometria")
