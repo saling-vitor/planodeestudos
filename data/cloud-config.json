@@ -1,6 +1,6 @@
 {
-  "schema": 6,
-  "version": "19.4-cloud-ready",
+  "schema": 7,
+  "version": "20.0-multidevice-files",
   "drive": {
     "folderUrl": "https://drive.google.com/drive/folders/1mn22V3ohdAHE1znqP98O6lqdaDSxntBT",
     "folderId": "1mn22V3ohdAHE1znqP98O6lqdaDSxntBT",
@@ -26,7 +26,17 @@
     "publishableKey": "sb_publishable_C1DYi_orfah9EljItGs1Jw_kmSj93ym",
     "anonKey": "",
     "authMode": "email-otp",
-    "status": "ready"
+    "status": "ready",
+    "storage": {
+      "enabled": true,
+      "bucket": "plano-arq-contest-files",
+      "private": true,
+      "maxFileSizeBytes": 83886080,
+      "allowedMimeTypes": [
+        "application/pdf"
+      ],
+      "pathStrategy": "user/contest/file"
+    }
   },
   "sync": {
     "mode": "local-first",

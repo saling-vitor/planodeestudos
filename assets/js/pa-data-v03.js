@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const API={version:'3.2'};
+const API={version:'3.3'};
 const RUNTIME_KEY='planoarq:runtime-flags:v1';
 const CONTESTS_KEY='planoarq:contests:v1',EXAM_SCHEMA_PREFIX='planoarq:exam-schema::',CONTEST_FILES_PREFIX='planoarq:contest-files::',IMPORT_DRAFT_PREFIX='planoarq:contest-import-draft::';
 const safeJSON=(v,f)=>{try{return JSON.parse(v)??f}catch(_){return f}};
@@ -73,6 +73,7 @@ async function deleteContestBlob(cid,fileId){
  await new Promise((resolve,reject)=>{const tx=db.transaction(LOCAL_FILE_STORE,'readwrite');tx.objectStore(LOCAL_FILE_STORE).delete(key);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error||new Error('Falha ao remover arquivo local'))});
  return true
 }
+async function hasContestBlob(cid,fileId){return !!(await contestBlob(cid,fileId))}
 function contestBundle(cid){return {contest:contestById(cid),examSchema:examSchemaForContest(cid),files:contestFiles(cid),materials:materialsForContest(cid)}}
 function materialsForContest(cid){return (window.PLANO_ARQ_MATERIALS?.materials||[]).filter(m=>!m.contestId||m.contestId===cid)}
 function contestKeys(cid){const materials=materialsForContest(cid),exact=[`planoarq:planning::${cid}`,`planoarq:generated-plan::${cid}`,`planoarq:session-log::${cid}`,`planoarq:review-activity::${cid}`,`planoarq:file-favorites::${cid}`,examSchemaKey(cid),contestFilesKey(cid)],namespaces=new Set(materials.map(m=>m.storageNamespace).filter(Boolean)),materialIds=new Set(materials.map(m=>m.id).filter(Boolean));const dynamic=keys().filter(k=>exact.includes(k)||[...namespaces].some(ns=>k===`mindmap_state::${ns}`||k===`mindmap_notes::${ns}`)||[...materialIds].some(id=>k===`planoarq:material-summary::${id}`)||k.includes(`::${cid}`));return [...new Set(dynamic)].sort()}
@@ -87,6 +88,6 @@ function importEntries(entries){entries.filter(([k])=>tracked(k)).forEach(([k,v]
 function dataHealth(){let parseErrors=0,jsonKeys=0;keys().forEach(k=>{const v=localStorage.getItem(k);if(v&&(/^[\[{]/.test(v.trim()))){jsonKeys++;try{JSON.parse(v)}catch(_){parseErrors++}}});const all=collect();return {keys:Object.keys(all).length,bytes:byteSize(all),parseErrors,jsonKeys,lastExport:localStorage.getItem('planoarq:last-backup-export')||'',lastImport:localStorage.getItem('planoarq:last-backup-import')||''}}
 function resetContest(cid){const ks=contestKeys(cid);ks.forEach(k=>localStorage.removeItem(k));localStorage.setItem(`planoarq:reset::${cid}`,iso());return ks.length}
 function resetDeviceId(){const id=uuid();localStorage.setItem('planoarq:device-id:v1',id);return id}
-Object.assign(API,{RUNTIME_KEY,CONTESTS_KEY,EXAM_SCHEMA_PREFIX,CONTEST_FILES_PREFIX,IMPORT_DRAFT_PREFIX,runtimeFlags,isMaintenanceMode,canRunBackgroundServices,setMaintenanceMode,deviceId,deviceName,setDeviceName,keys,tracked,privateKey,contestKeys,collect,buildBackup,exportBackup,inspect,readFile,importEntries,dataHealth,resetContest,resetDeviceId,materialsForContest,localContests,contests,contestById,saveContest,examSchemaKey,examSchemaForContest,saveExamSchema,contestFilesKey,contestFiles,saveContestFiles,upsertContestFile,importDraftKey,loadImportDraft,saveImportDraft,clearImportDraft,LOCAL_FILE_DB,LOCAL_FILE_STORE,storeContestBlob,contestBlob,deleteContestBlob,contestBundle});
+Object.assign(API,{RUNTIME_KEY,CONTESTS_KEY,EXAM_SCHEMA_PREFIX,CONTEST_FILES_PREFIX,IMPORT_DRAFT_PREFIX,runtimeFlags,isMaintenanceMode,canRunBackgroundServices,setMaintenanceMode,deviceId,deviceName,setDeviceName,keys,tracked,privateKey,contestKeys,collect,buildBackup,exportBackup,inspect,readFile,importEntries,dataHealth,resetContest,resetDeviceId,materialsForContest,localContests,contests,contestById,saveContest,examSchemaKey,examSchemaForContest,saveExamSchema,contestFilesKey,contestFiles,saveContestFiles,upsertContestFile,importDraftKey,loadImportDraft,saveImportDraft,clearImportDraft,LOCAL_FILE_DB,LOCAL_FILE_STORE,storeContestBlob,contestBlob,deleteContestBlob,hasContestBlob,contestBundle});
 window.PLANO_ARQ_DATA=API;
 })();

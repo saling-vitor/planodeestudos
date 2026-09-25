@@ -101,7 +101,7 @@ async function next(){
    if(state.file){
     if(!D.storeContestBlob)throw new Error('Armazenamento local do PDF não está disponível.');
     await D.storeContestBlob(id,fileId,state.file,{name:state.file.name,type:state.file.type,size:state.file.size});
-    fileMeta={id:fileId,title:d.notice||('Edital · '+d.position),filename:state.file.name,type:'pdf',mimeType:state.file.type||'application/pdf',sizeBytes:state.file.size,category:'Edital',status:'vigente',official:true,linkedToEdital:true,storage:'indexeddb',storageKey:id+'::'+fileId,localOnly:true,date:d.publicationDate||'',organization:d.organization||d.title,board:d.board||'',description:'Edital principal importado na criação do concurso'};
+    fileMeta={id:fileId,title:d.notice||('Edital · '+d.position),filename:state.file.name,type:'pdf',mimeType:state.file.type||'application/pdf',sizeBytes:state.file.size,category:'Edital',status:'vigente',official:true,linkedToEdital:true,storage:'indexeddb',storageKey:id+'::'+fileId,localOnly:true,date:d.publicationDate||'',organization:d.organization||d.title,board:d.board||'',description:'Edital principal importado na criação do concurso',contentUpdatedAt:createdAt};
    }
    let schema=null;
    if(d.schema||d.stages?.length||d.sections?.length){

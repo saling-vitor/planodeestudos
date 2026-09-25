@@ -142,3 +142,49 @@ grant execute
 revoke all
   on function public.plano_arq_upsert_sync_records(jsonb)
   from anon;
+
+
+-- Plano ARQ · Etapa F · arquivos de edital entre dispositivos
+-- Bucket privado; cada usuário acessa apenas /<auth.uid()>/...
+insert into storage.buckets (id,name,public,file_size_limit,allowed_mime_types)
+values ('plano-arq-contest-files','plano-arq-contest-files',false,83886080,array['application/pdf']::text[])
+on conflict (id) do update
+set public=excluded.public,
+    file_size_limit=excluded.file_size_limit,
+    allowed_mime_types=excluded.allowed_mime_types;
+
+drop policy if exists "plano_arq_files_select_own" on storage.objects;
+create policy "plano_arq_files_select_own"
+on storage.objects for select to authenticated
+using (
+  bucket_id='plano-arq-contest-files'
+  and (storage.foldername(name))[1]=(select auth.uid()::text)
+);
+
+drop policy if exists "plano_arq_files_insert_own" on storage.objects;
+create policy "plano_arq_files_insert_own"
+on storage.objects for insert to authenticated
+with check (
+  bucket_id='plano-arq-contest-files'
+  and (storage.foldername(name))[1]=(select auth.uid()::text)
+);
+
+drop policy if exists "plano_arq_files_update_own" on storage.objects;
+create policy "plano_arq_files_update_own"
+on storage.objects for update to authenticated
+using (
+  bucket_id='plano-arq-contest-files'
+  and (storage.foldername(name))[1]=(select auth.uid()::text)
+)
+with check (
+  bucket_id='plano-arq-contest-files'
+  and (storage.foldername(name))[1]=(select auth.uid()::text)
+);
+
+drop policy if exists "plano_arq_files_delete_own" on storage.objects;
+create policy "plano_arq_files_delete_own"
+on storage.objects for delete to authenticated
+using (
+  bucket_id='plano-arq-contest-files'
+  and (storage.foldername(name))[1]=(select auth.uid()::text)
+);
