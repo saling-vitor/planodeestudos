@@ -136,7 +136,8 @@ select{font:inherit}
 .chart-summary{grid-template-columns:1fr}
 }
 </style>
-<script src="data/contests.js"></script><script src="data/materials.js"></script><script src="data/exam-schemas.js"></script><script src="data/question-catalog.js"></script>
+<script src="data/contests.js"></script>
+<script src="assets/js/pa-contest-context-v01.js"></script><script src="data/materials.js"></script><script src="data/exam-schemas.js"></script><script src="data/question-catalog.js"></script>
 <script src="data/navigation.js"></script>
 <link rel="stylesheet" href="assets/css/pa-tokens-v01.css"><link rel="stylesheet" href="assets/css/pa-shell-v16.css">
 
@@ -200,7 +201,7 @@ select{font:inherit}
 
 <script>
 (()=>{'use strict';
-const $=id=>document.getElementById(id),contestId=new URLSearchParams(location.search).get('contest')||'demhab-poa-arquiteto-2026';
+const $=id=>document.getElementById(id),contestId=window.PLANO_ARQ_CONTEST_CONTEXT.resolveId();
 const seed=window.PLANO_ARQ_CONTESTS?.contests||[],rawMaterials=(window.PLANO_ARQ_MATERIALS?.materials||[]),schemas=window.PLANO_ARQ_EXAM_SCHEMAS?.schemas||[],qCatalog=(window.PLANO_ARQ_QUESTION_CATALOG?.topics||[]).filter(t=>t.contestId===contestId),qSummary=window.PLANO_ARQ_QUESTION_CATALOG?.summary||{};
 const staticFallback=(()=>{const by=new Map();qCatalog.forEach(t=>{if(!by.has(t.materialId))by.set(t.materialId,{id:t.materialId,storageNamespace:t.storageNamespace,shortCode:t.shortCode,title:t.materialTitle,group:t.group,topicCount:0,contestId});by.get(t.materialId).topicCount++});return[...by.values()]})();
 const materials=(rawMaterials.filter(m=>!m.contestId||m.contestId===contestId).length?rawMaterials.filter(m=>!m.contestId||m.contestId===contestId):staticFallback);

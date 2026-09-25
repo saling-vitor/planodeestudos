@@ -40,7 +40,8 @@
 }
 </style>
 <link rel="stylesheet" href="assets/css/pa-tokens-v01.css"><link rel="stylesheet" href="assets/css/pa-shell-v16.css"><link rel="stylesheet" href="assets/css/pa-components-v01.css">
-<script src="data/contests.js"></script><script src="data/navigation.js"></script><script src="data/materials.js"></script><script src="data/question-catalog.js"></script><script src="data/simulations.js"></script><script src="data/exam-schemas.js"></script><script src="data/cloud-config.js"></script>
+<script src="data/contests.js"></script>
+<script src="assets/js/pa-contest-context-v01.js"></script><script src="data/navigation.js"></script><script src="data/materials.js"></script><script src="data/question-catalog.js"></script><script src="data/simulations.js"></script><script src="data/exam-schemas.js"></script><script src="data/cloud-config.js"></script>
 
 <meta name="plano-arq-internal-shell" content="canonical-2026-09"/>
 </head>
@@ -57,7 +58,7 @@
 <script src="assets/js/pa-data-v03.js"></script><script src="assets/js/pa-sync-v03.js"></script><script src="assets/js/pa-drive-v01.js"></script><script src="assets/js/pa-pwa-v01.js"></script><script src="assets/js/pa-shell-v16.js"></script>
 <script>
 (()=>{'use strict';
-const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),contestId=params.get('contest')||'demhab-poa-arquiteto-2026',demo=params.get('demo')==='1';
+const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),contestId=window.PLANO_ARQ_CONTEST_CONTEXT.resolveId(),demo=params.get('demo')==='1';
 const seed=window.PLANO_ARQ_CONTESTS?.contests||[],materials=(window.PLANO_ARQ_MATERIALS?.materials||[]).filter(m=>!m.contestId||m.contestId===contestId),topics=(window.PLANO_ARQ_QUESTION_CATALOG?.topics||[]).filter(t=>t.contestId===contestId),sims=(window.PLANO_ARQ_SIMULATIONS?.simulations||[]).filter(s=>s.contestId===contestId),schemas=window.PLANO_ARQ_EXAM_SCHEMAS?.schemas||[];
 const local=(()=>{try{return JSON.parse(localStorage.getItem('planoarq:contests:v1')||'[]')}catch(_){return[]}})(),cm=new Map(seed.map(x=>[x.id,{...x}]));local.forEach(x=>cm.set(x.id,{...(cm.get(x.id)||{}),...x}));const contest=cm.get(contestId)||{},schema=schemas.find(x=>x.id===contestId)||{},objective=(schema.stages||[]).find(x=>x.type==='objective')||{};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),safe=(v,f)=>{try{return JSON.parse(v)??f}catch(_){return f}},clamp=(v,a=0,b=100)=>Math.max(a,Math.min(b,v));
