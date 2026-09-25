@@ -306,6 +306,10 @@ def main():
         for path in ("assets/js/pa-edict-pdf-v01.js","assets/js/pa-edict-parser-v01.js","assets/js/pa-edict-flow-v01.js","assets/js/pa-contest-import-v01.js"):
             if not (ROOT/path).exists():
                 errors.append(f"Novo Concurso: arquivo obrigatório ausente: {path}")
+        import_js=(ROOT/"assets/js/pa-contest-import-v01.js").read_text("utf-8",errors="ignore")
+        for token in ("renderExamReview","data-review-section","data-review-event","renderContentReview"):
+            if token not in import_js:
+                errors.append(f"Novo Concurso: revisão estruturada ausente: {token}")
         index_text=(ROOT/"index.html").read_text("utf-8",errors="ignore")
         for token in ("pa-edict-pdf-v01.js","pa-edict-parser-v01.js","pa-edict-flow-v01.js","pa-contest-import-v01.js"):
             if token not in index_text:

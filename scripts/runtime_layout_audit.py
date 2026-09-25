@@ -233,7 +233,24 @@ try:
             if step==2:
                 driver.find_element(By.ID,"manualContestBtn").click()
                 WebDriverWait(driver,5).until(lambda d:d.execute_script("""return document.querySelector('[data-step="2"]')?.hidden===false"""))
-                driver.execute_script("document.getElementById('rwTitle').value='Prefeitura Municipal de Nome Muito Longo para Teste Responsivo';document.getElementById('rwPosition').value='Arquiteto e Urbanista - Planejamento, Projetos e Fiscalização';")
+                driver.execute_script("""
+                  const w=window.PLANO_ARQ_CONTEST_IMPORT;
+                  w.state.draft={...w.state.draft,durationMinutes:210,
+                    sections:[
+                      {id:'specific',label:'Conhecimentos Específicos de Arquitetura e Urbanismo',questions:40,pointsPerQuestion:2,totalPoints:80,minimumPoints:40,mapGroups:['Conhecimentos Específicos']},
+                      {id:'legislation',label:'Legislação Municipal e Federal',questions:10,pointsPerQuestion:1,totalPoints:10,minimumPoints:5,mapGroups:['Legislação']},
+                      {id:'portuguese',label:'Língua Portuguesa',questions:10,pointsPerQuestion:1,totalPoints:10,minimumPoints:5,mapGroups:['Língua Portuguesa']}
+                    ],
+                    stages:[{id:'objective',type:'objective',label:'Prova Teórico-Objetiva',durationMinutes:210,totalQuestions:60,totalPoints:100,sections:[]}],
+                    schedule:[
+                      {date:'2027-10-18',label:'Aplicação da Prova Teórico-Objetiva',kind:'exam',status:'edital'},
+                      {date:'2027-10-20',label:'Divulgação do gabarito preliminar',kind:'answer-key',status:'edital'}
+                    ]
+                  };
+                  w.renderReview();
+                  document.getElementById('rwTitle').value='Prefeitura Municipal de Nome Muito Longo para Teste Responsivo';
+                  document.getElementById('rwPosition').value='Arquiteto e Urbanista - Planejamento, Projetos e Fiscalização';
+                """)
             elif step==3:
                 driver.execute_script("document.getElementById('rwNotice').value='Edital de Abertura 001/2027 com retificações';document.getElementById('rwNote').value='Observação extensa para testar conteúdo variável sem quebrar a composição do modal.';")
                 driver.find_element(By.ID,"nextStep").click()
