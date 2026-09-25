@@ -154,6 +154,23 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+      - name: Auditoria visual do layout publicado
+        if: steps.package.outputs.ready == 'true'
+        env:
+          PWA_URL: ${{ steps.deployment.outputs.page_url }}
+          LAYOUT_AUDIT_STRICT: "0"
+          LAYOUT_AUDIT_DIR: ${{ runner.temp }}/layout-audit
+        run: python3 scripts/runtime_layout_audit.py "$PWA_URL"
+
+      - name: Salvar evidências da auditoria visual
+        if: always() && steps.package.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: layout-audit-${{ github.sha }}
+          path: ${{ runner.temp }}/layout-audit
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Testar PWA no deploy real
         if: steps.package.outputs.ready == 'true'
         env:
