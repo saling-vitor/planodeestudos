@@ -28,6 +28,7 @@ function fieldStatus(d,key,fallback){return d?._status?.[key]||fallback}
 function objectiveOf(d){return (d?.schema?.stages||d?.stages||[]).find(s=>s?.type==='objective')||null}
 function sectionsOf(d){const s=d?.sections||objectiveOf(d)?.sections;return Array.isArray(s)?s:[]}
 function scheduleOf(d){const s=d?.schedule||d?.schema?.schedule;return Array.isArray(s)?s:[]}
+function manualDraft(){return{title:'',officialName:'',organization:'',position:'',positionCode:'',board:'',city:'',cityName:'',uf:'',notice:'',publicationDate:'',examDate:'',examDateStatus:'',durationMinutes:null,vacancies:null,reserve:false,workloadHours:null,remuneration:'',requirements:'',stages:[],sections:[],schedule:[],rules:[],content:[],schema:null,source:'user',_status:{title:'missing',organization:'missing',position:'missing',board:'missing',city:'missing',notice:'missing',examDate:'missing'}}}
 function renderExamReview(d){
  const objective=objectiveOf(d),sections=sectionsOf(d),duration=d?.durationMinutes??objective?.durationMinutes??'';
  if(!sections.length)return '<div class="review-section"><div class="review-section-head"><h3>Estrutura da prova</h3><span>Não identificada</span></div><div class="wizard-message">A composição da prova não foi identificada automaticamente. O concurso pode ser criado, mas o Planejamento só receberá pesos quando essa estrutura for cadastrada.</div></div>';
@@ -107,7 +108,7 @@ async function next(){
  }
  if(state.step===3){
   const d=state.draft||collectReview(),D=window.PLANO_ARQ_DATA;if(!D?.saveContest||!D?.saveExamSchema||!D?.upsertContestFile){toast('Dados do Portal ainda não carregaram.');return}
-  const year=(d.examDate||String(d.notice||'').match(/20\d{2}/)?.[0]||new Date().getFullYear()),base=contestBaseId(d,year)||('concurso-'+Date.now());
+  const year=String(d.examDate||d.notice||new Date().getFullYear()).match(/20\d{2}/)?.[0]||String(new Date().getFullYear()),base=contestBaseId(d,year)||('concurso-'+Date.now());
   let id=base,n=2;while(D.contestById(id))id=base+'-'+n++;
   const createdAt=new Date().toISOString(),createdDay=createdAt.slice(0,10),fileId=state.file?'edital-principal':null;
   let fileMeta=null;
