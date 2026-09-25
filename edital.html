@@ -17,6 +17,7 @@
 @media(max-width:1180px){}@media(max-width:900px){.edital-grid2{grid-template-columns:1fr}.exam-row{grid-template-columns:minmax(0,1fr) 65px 75px 75px}.exam-row>:nth-child(5){display:none}}@media(max-width:620px){.maps{grid-template-columns:1fr}.exam-row{grid-template-columns:minmax(0,1fr) 58px 65px}.exam-row>:nth-child(4),.exam-row>:nth-child(5){display:none}.edital-event{grid-template-columns:85px 1fr}.edital-event>:last-child{grid-column:2}}
 </style>
 <script src="data/contests.js"></script>
+<script src="assets/js/pa-contest-context-v01.js"></script>
 <script src="data/materials.js"></script>
 <script src="data/exam-schemas.js"></script>
 <script src="data/files.js"></script>
@@ -55,7 +56,7 @@
 </main></div>
 <script>
 (()=>{'use strict';
-const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),contestId=params.get('contest')||'demhab-poa-arquiteto-2026';
+const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),contestId=window.PLANO_ARQ_CONTEST_CONTEXT.resolveId();
 const seed=window.PLANO_ARQ_CONTESTS?.contests||[],materials=(window.PLANO_ARQ_MATERIALS?.materials||[]).filter(m=>!m.contestId||m.contestId===contestId),schemas=window.PLANO_ARQ_EXAM_SCHEMAS?.schemas||[],staticFiles=(window.PLANO_ARQ_FILES?.files||[]).filter(f=>!f.contestId||f.contestId===contestId);
 const safeJSON=(v,f)=>{try{return JSON.parse(v)??f}catch(_){return f}},local=safeJSON(localStorage.getItem('planoarq:contests:v1'),[]),by=new Map(seed.map(x=>[x.id,{...x}]));(Array.isArray(local)?local:[]).forEach(x=>by.set(x.id,{...(by.get(x.id)||{}),...x}));
 const contest=by.get(contestId)||seed.find(x=>x.id===contestId)||{},localSchema=safeJSON(localStorage.getItem('planoarq:exam-schema::'+contestId),null),schema=(localSchema&&typeof localSchema==='object'?localSchema:null)||schemas.find(s=>s.id===(contest.examSchemaId||contestId))||null;

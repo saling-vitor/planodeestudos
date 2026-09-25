@@ -29,6 +29,7 @@ input,select{font:inherit}button:focus-visible,input:focus-visible,select:focus-
 @media(max-width:560px){.day-row{grid-template-columns:1fr 100px}.schedule-toggle{justify-self:end}.windows{grid-template-columns:1fr 1fr}.priority-row{grid-template-columns:52px minmax(0,1fr)}.priority-select{grid-column:1/-1;grid-row:auto}.priority-progress{grid-column:2}.plan-summary{grid-template-columns:1fr 1fr}.session{grid-template-columns:62px minmax(0,1fr)}.session-type{grid-column:1}.session-name{grid-column:2}.session-min{grid-column:2}.session-time{grid-column:1}.mix-grid{grid-template-columns:1fr 1fr 1fr}}
 </style>
 <script src="data/contests.js"></script>
+<script src="assets/js/pa-contest-context-v01.js"></script>
 <script src="data/materials.js"></script>
 <script src="data/exam-schemas.js"></script>
 <script src="data/navigation.js"></script>
@@ -121,7 +122,7 @@ input,select{font:inherit}button:focus-visible,input:focus-visible,select:focus-
 'use strict';
 const $=id=>document.getElementById(id);
 const params=new URLSearchParams(location.search);
-const contestId=params.get('contest')||'demhab-poa-arquiteto-2026';
+const contestId=window.PLANO_ARQ_CONTEST_CONTEXT.resolveId();
 const seedContests=window.PLANO_ARQ_CONTESTS?.contests||[];
 const allMaterials=window.PLANO_ARQ_MATERIALS?.materials||[];
 const localMaterials=(()=>{try{const v=JSON.parse(localStorage.getItem('planoarq:contest-materials::'+contestId)||'[]');return Array.isArray(v)?v:[]}catch(_){return[]}})();

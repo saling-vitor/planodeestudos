@@ -10,6 +10,7 @@
 </style>
 <script>window.PLANO_ARQ_MATERIALS={schema:2,materials:[]};</script>
 <script src="data/contests.js"></script>
+<script src="assets/js/pa-contest-context-v01.js"></script>
 <script src="data/materials.js"></script>
 <script src="data/exam-schemas.js"></script>
 <script src="data/navigation.js"></script>
@@ -43,7 +44,7 @@
 let catalog=window.PLANO_ARQ_MATERIALS||{schema:2,materials:[]},
 contestCatalog=window.PLANO_ARQ_CONTESTS||{schema:1,contests:[]},
 queryParams=new URLSearchParams(location.search),
-contestParam=queryParams.get('contest')||'demhab-poa-arquiteto-2026',
+contestParam=window.PLANO_ARQ_CONTEST_CONTEXT.resolveId(),
 autoOpenMaterial=queryParams.get('open')||'',
 autoOpenTopic=queryParams.get('topic')||'',
 materials=(catalog.materials||[]).filter(m=>!m.contestId||m.contestId===contestParam),
