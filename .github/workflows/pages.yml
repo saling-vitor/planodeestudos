@@ -141,6 +141,10 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+      - name: Preparar navegador para auditoria do PWA
+        if: steps.package.outputs.ready == 'true'
+        run: python3 -m pip install --disable-pip-version-check selenium
+
       - name: Testar PWA no deploy real
         if: steps.package.outputs.ready == 'true'
         env:
