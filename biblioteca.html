@@ -97,7 +97,6 @@ library.addEventListener('click',e=>{const a=e.target.closest('[data-open],[data
    const url=URL.createObjectURL(blob);window.open(url,'_blank','noopener');setTimeout(()=>URL.revokeObjectURL(url),30000)
  }else window.open(current.src,'_blank','noopener')
 });frame.addEventListener('load',()=>setTimeout(requestState,40));addEventListener('message',e=>{const d=e.data||{};if(d.channel!=='plano-arq'||d.type!=='material-state'||e.source!==frame.contentWindow||!current)return;if(d.material?.id&&d.material.id!==current.id)return;writeSummary(current.id,d);const p=d.progress||{},q=d.quiz||{};$('viewerProgress').textContent=`${p.pct||0}% estudado · ${p.done||0} OK · ${p.review||0} REV · ${p.difficult||0} DIF${q.attempts?` · ${q.accuracy}% questões`:''}`;render()});$('refreshBtn').addEventListener('click',()=>{render();if(current)requestState();showToast('Progresso atualizado')});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')render()});addEventListener('storage',render);
-applyContestIdentity();
 populateGroups();render();
 if(autoOpenMaterial&&materials.some(m=>m.id===autoOpenMaterial))setTimeout(()=>openMaterial(autoOpenMaterial),80);
 })();
