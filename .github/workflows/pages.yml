@@ -162,6 +162,12 @@ jobs:
           LAYOUT_AUDIT_DIR: ${{ runner.temp }}/layout-audit
         run: python3 scripts/runtime_layout_audit.py "$PWA_URL"
 
+      - name: Validar fluxo operacional do concurso novo
+        if: steps.package.outputs.ready == 'true'
+        env:
+          PWA_URL: ${{ steps.deployment.outputs.page_url }}
+        run: python3 scripts/runtime_stage_i.py "$PWA_URL"
+
       - name: Salvar evidências da auditoria visual
         if: always() && steps.package.outputs.ready == 'true'
         uses: actions/upload-artifact@v4

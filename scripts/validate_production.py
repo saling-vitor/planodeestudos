@@ -17,7 +17,7 @@ SOURCE_REQUIRED={
  "data/cloud-config.json","data/files-meta.json",
  "scripts/build_static_data.py","scripts/build_materials_manifest.py",
  "scripts/build_topic_catalogs.py","scripts/build_simulations_manifest.py",
- "scripts/build_files_manifest.py","scripts/build_offline_pack.py",
+ "scripts/build_files_manifest.py","scripts/build_offline_pack.py","scripts/runtime_stage_i.py",
  "assets/css/pa-tokens-v01.css","assets/css/pa-components-v01.css",
  "assets/css/pa-shell-v16.css","assets/css/study-map-shared-v01.css",
  "assets/css/simulation-shared-v01.css",
