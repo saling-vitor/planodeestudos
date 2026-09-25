@@ -1,6 +1,6 @@
 {
-  "schema": 4,
-  "version": "19.2-drive-preset",
+  "schema": 5,
+  "version": "19.3-cloud-preset",
   "drive": {
     "folderUrl": "https://drive.google.com/drive/folders/1mn22V3ohdAHE1znqP98O6lqdaDSxntBT",
     "folderId": "1mn22V3ohdAHE1znqP98O6lqdaDSxntBT",
@@ -21,12 +21,12 @@
     "presetFolder": true
   },
   "supabase": {
-    "enabled": false,
-    "url": "",
+    "enabled": true,
+    "url": "https://hapyzjfhbobtaellaejv.supabase.co",
     "publishableKey": "",
     "anonKey": "",
     "authMode": "email-otp",
-    "status": "not-configured"
+    "status": "project-preset"
   },
   "sync": {
     "mode": "local-first",
