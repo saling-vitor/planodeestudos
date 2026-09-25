@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,re
+import argparse,json,re
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -174,7 +174,10 @@ def main():
         for label,pat in SECRET_PATTERNS.items():
             for m in pat.finditer(text):
                 token=m.group(0)
+                rel=p.relative_to(ROOT).as_posix()
                 if any(x in token for x in PLACEHOLDER_ALLOW):
+                    continue
+                if label=="Google OAuth client" and rel=="data/cloud-config.json":
                     continue
                 errors.append(
                     f"{p.relative_to(ROOT)}: possível segredo ({label})"
@@ -183,6 +186,22 @@ def main():
 
     maps=list((ROOT/"materials").glob("*.html")) if (ROOT/"materials").is_dir() else []
     sims=list((ROOT/"simulados").glob("*.html")) if (ROOT/"simulados").is_dir() else []
+
+    cloud_path=ROOT/"data/cloud-config.json"
+    if cloud_path.is_file():
+        try:
+            cloud=json.loads(cloud_path.read_text("utf-8"))
+            drive=cloud.get("drive") or {}
+            if not re.fullmatch(r"[0-9]{8,}-[0-9A-Za-z_-]+\.apps\.googleusercontent\.com",str(drive.get("oauthClientId") or "")):
+                errors.append("cloud-config: OAuth Client ID público do Drive ausente ou inválido")
+            if not str(drive.get("appId") or "").isdigit():
+                errors.append("cloud-config: Project number/App ID do Drive ausente ou inválido")
+            if not str(drive.get("folderId") or "").strip():
+                errors.append("cloud-config: pasta padrão do Drive ausente")
+            if str(drive.get("apiKey") or "").strip():
+                errors.append("cloud-config: API key do Picker não deve ser versionada no fonte")
+        except (OSError,ValueError,TypeError) as exc:
+            errors.append(f"cloud-config inválido ({exc})")
 
     if args.strict:
         if len(maps)!=14:
