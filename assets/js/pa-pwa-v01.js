@@ -1,6 +1,8 @@
 (()=>{
 'use strict';
-const VERSION='19.2';
+const VERSION='19.3';
+const MAINTENANCE_RELOAD_KEY='planoarq:maintenance-sw-reload:v1';
+const maintenance=()=>window.PLANO_ARQ_DATA?.isMaintenanceMode?.()===true;
 let deferredPrompt=null;
 let registration=null;
 let updateReady=false;
@@ -15,6 +17,7 @@ const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(/Macintosh/i.tes
 const supportedProtocol=()=>location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1';
 const executionMode=()=>!supportedProtocol()?'MODO_NAO_SUPORTADO':isStandalone()?(isIOS()?'IOS_INSTALADO':'STANDALONE'):'NAVEGADOR';
 function installationState(){
+  if(maintenance())return'PAUSADO';
   if(isStandalone())return'INSTALADO';
   if(!supportedProtocol()||!('serviceWorker'in navigator))return'NAO_SUPORTADO';
   if(isIOS())return'MANUAL';
@@ -25,6 +28,7 @@ function installationState(){
 function status(){
   return{
     version:VERSION,
+    maintenance:maintenance(),
     online:navigator.onLine,
     protocol:location.protocol,
     hostname:location.hostname,
@@ -53,6 +57,7 @@ function renderNotice(){
   ensureNotice();
   const b=$('paPwaNotice');
   if(!b)return;
+  if(maintenance()){b.hidden=true;b.textContent='';return}
   if(!navigator.onLine){b.hidden=false;b.dataset.kind='offline';b.textContent='Offline · dados locais ativos';return}
   if(updateReady){b.hidden=false;b.dataset.kind='update';b.textContent='Nova versão disponível · atualizar';return}
   b.hidden=true;b.textContent='';
@@ -64,6 +69,7 @@ function emit(){
   return detail;
 }
 async function refreshRegistration(minInterval=300000){
+  if(maintenance())return null;
   if(!registration)return null;
   const now=Date.now();
   if(minInterval&&now-lastUpdateCheck<minInterval)return registration;
@@ -88,7 +94,43 @@ function bindRegistration(reg){
     });
   });
 }
+async function clearTechnicalCaches(){
+  if(!globalThis.caches)return[];
+  const removed=[];
+  for(const name of await caches.keys()){
+    if(name.startsWith('plano-arq-')&&await caches.delete(name))removed.push(name);
+  }
+  return removed;
+}
+async function unregisterAppWorkers(){
+  if(!('serviceWorker'in navigator))return 0;
+  const regs=await navigator.serviceWorker.getRegistrations();
+  let removed=0;
+  const currentDir=new URL('./',location.href).pathname.toLowerCase();
+  for(const reg of regs){
+    const path=new URL(reg.scope).pathname.toLowerCase();
+    const ours=path===currentDir||path.includes('/planodeestudos/');
+    if(ours&&await reg.unregister())removed++;
+  }
+  return removed;
+}
+async function enterMaintenanceMode({reloadIfControlled=true}={}){
+  deferredPrompt=null;updateReady=false;activationRequested=false;lastError='';
+  const hadController=!!navigator.serviceWorker?.controller;
+  const unregistered=await unregisterAppWorkers();
+  const removedCaches=await clearTechnicalCaches();
+  registration=null;
+  emit();
+  if(hadController&&reloadIfControlled&&sessionStorage.getItem(MAINTENANCE_RELOAD_KEY)!=='1'){
+    sessionStorage.setItem(MAINTENANCE_RELOAD_KEY,'1');
+    location.reload();
+    return{ok:true,reloading:true,unregistered,removedCaches};
+  }
+  sessionStorage.removeItem(MAINTENANCE_RELOAD_KEY);
+  return{ok:true,reloading:false,unregistered,removedCaches};
+}
 async function register(){
+  if(maintenance()){await enterMaintenanceMode();return null}
   if(!supportedProtocol()){lastError='Protocolo sem suporte a Service Worker.';emit();return null}
   if(!('serviceWorker'in navigator)){lastError='Este navegador não oferece Service Worker.';emit();return null}
   try{
@@ -109,6 +151,7 @@ async function register(){
   }
 }
 async function install(){
+  if(maintenance())return{ok:false,state:'PAUSADO',maintenance:true,message:'Instalação pausada durante o modo manutenção.'};
   if(isStandalone())return{ok:true,installed:true,state:'INSTALADO'};
   if(!supportedProtocol())return{ok:false,state:'NAO_SUPORTADO',message:'A instalação exige HTTPS ou localhost.'};
   if(isIOS())return{ok:false,manual:true,state:'MANUAL',message:'No iPhone/iPad: abra Compartilhar no Safari e escolha “Adicionar à Tela de Início”.'};
@@ -123,6 +166,7 @@ async function install(){
   return{ok:false,state:installationState(),message:'O navegador não disponibilizou o prompt de instalação neste momento.'};
 }
 async function send(type,payload={}){
+  if(maintenance())throw new Error('PWA e cache offline pausados pelo modo manutenção.');
   const reg=registration||await navigator.serviceWorker?.ready;
   if(!reg?.active)throw new Error('Service Worker ainda não está ativo.');
   return new Promise((resolve,reject)=>{
@@ -136,6 +180,7 @@ async function send(type,payload={}){
   });
 }
 async function pack(kind='full'){
+  if(maintenance())return{ok:false,maintenance:true,cached:0,failed:0,total:0,state:'PAUSADO'};
   const r=await fetch('./data/offline-pack.json',{cache:'no-store'});
   if(!r.ok)throw new Error('Manifesto offline indisponível.');
   const data=await r.json();
@@ -143,8 +188,12 @@ async function pack(kind='full'){
   const result=await send('CACHE_URLS',{urls:items.map(x=>x.path),kind});
   return{...result,bytes:kind==='essential'?data.essentialBytes:data.fullBytes,total:items.length,manifestVersion:data.version||null};
 }
-async function clearOffline(){return send('CLEAR_OFFLINE')}
+async function clearOffline(){if(maintenance())return{ok:false,maintenance:true,state:'PAUSADO'};return send('CLEAR_OFFLINE')}
 async function cacheInfo(){
+  if(maintenance()){
+    const rows=globalThis.caches?await caches.keys():[];
+    return{ok:true,maintenance:true,offlineCount:0,runtimeCount:0,coreCount:0,technicalCaches:rows.filter(x=>x.startsWith('plano-arq-')).length,version:VERSION};
+  }
   try{return await send('CACHE_INFO')}
   catch(error){return{ok:false,offlineCount:0,runtimeCount:0,coreCount:0,error:error?.message||String(error)}}
 }
@@ -164,6 +213,7 @@ async function waitInstalling(reg,timeout=15000){
   });
 }
 async function checkUpdate(){
+  if(maintenance())return{...status(),checked:true,maintenance:true,state:'PAUSADO'};
   if(!registration)await register();
   if(!registration)return{...status(),checked:true};
   try{
@@ -177,6 +227,7 @@ async function checkUpdate(){
   return{...status(),checked:true};
 }
 async function activateUpdate(){
+  if(maintenance())return{ok:false,maintenance:true,state:'PAUSADO'};
   if(!registration)await register();
   const waiting=registration?.waiting;
   if(!waiting)return{ok:false,state:'SEM_ATUALIZACAO'};
@@ -199,7 +250,7 @@ async function diagnose(){
     out.manifest={ok:mr.ok,status:mr.status,mime:mr.headers.get('content-type')||'',url:mr.url,data:mj,icons};
   }catch(error){out.manifest={ok:false,error:error?.message||String(error)}}
   try{
-    const reg=registration||await navigator.serviceWorker?.getRegistration('./');
+    const reg=maintenance()?null:(registration||await navigator.serviceWorker?.getRegistration('./'));
     if(reg&&!registration){registration=reg;bindRegistration(registration)}
     out.serviceWorker={
       supported:'serviceWorker'in navigator,
@@ -230,6 +281,15 @@ async function diagnose(){
 async function init(){
   if(initialized)return registration;
   initialized=true;
+  if(document.body)ensureNotice();else document.addEventListener('DOMContentLoaded',ensureNotice,{once:true});
+  window.addEventListener('planoarq:runtime-flags',e=>{
+    if(e.detail?.maintenanceMode)enterMaintenanceMode().catch(()=>{});
+    else location.reload();
+  });
+  if(maintenance()){
+    emit();
+    return enterMaintenanceMode();
+  }
   window.addEventListener('online',()=>{emit();refreshRegistration(0)});
   window.addEventListener('offline',emit);
   window.addEventListener('pageshow',e=>{if(e.persisted)refreshRegistration(0)});
@@ -247,10 +307,9 @@ async function init(){
       emit();
     });
   }
-  if(document.body)ensureNotice();else document.addEventListener('DOMContentLoaded',ensureNotice,{once:true});
   emit();
   return register();
 }
-window.PLANO_ARQ_PWA={version:VERSION,init,status,install,pack,clearOffline,cacheInfo,storageEstimate,checkUpdate,activateUpdate,diagnose};
+window.PLANO_ARQ_PWA={version:VERSION,init,status,install,pack,clearOffline,cacheInfo,storageEstimate,checkUpdate,activateUpdate,diagnose,enterMaintenanceMode,clearTechnicalCaches,unregisterAppWorkers};
 init();
 })();
