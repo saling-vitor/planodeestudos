@@ -15,6 +15,9 @@
 (async()=>{
   const out={timestamp:new Date().toISOString(),href:location.href,protocol:location.protocol,hostname:location.hostname,online:navigator.onLine,maintenance:window.PLANO_ARQ_DATA?.isMaintenanceMode?.()===true};
   const timeout=(p,ms=12000)=>Promise.race([p,new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),ms))]);
+  if(out.maintenance&&window.PLANO_ARQ_PWA?.enterMaintenanceMode){
+    await window.PLANO_ARQ_PWA.enterMaintenanceMode();
+  }
   try{
     out.displayModeStandalone=matchMedia('(display-mode: standalone)').matches;
     out.navigatorStandalone=navigator.standalone===true;
