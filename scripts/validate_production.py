@@ -21,7 +21,7 @@ SOURCE_REQUIRED={
  "assets/css/pa-tokens-v01.css","assets/css/pa-components-v01.css",
  "assets/css/pa-shell-v16.css","assets/css/study-map-shared-v01.css",
  "assets/css/simulation-shared-v01.css",
- "assets/js/pa-pwa-v01.js","assets/js/pa-shell-v16.js",
+ "assets/js/pa-pwa-v01.js","assets/js/pa-shell-v16.js","assets/js/pa-contest-context-v01.js",
  "assets/js/pa-data-v03.js","assets/js/pa-sync-v03.js",
  "assets/js/pa-drive-v01.js","assets/js/pa-actions-v01.js",
  "assets/js/pa-history-v01.js","assets/js/study-map-bootstrap-v01.js",
@@ -378,6 +378,25 @@ def main():
             errors.append("Etapa H3: Storage não aceita PDF + HTML")
         if "planoarq:contests:v1" not in sync_js or "Array.isArray(local)?local:[]" not in sync_js:
             errors.append("pa-sync-v03.js: concursos dinâmicos não entram no isolamento de sincronização")
+        context_js=(ROOT/"assets/js/pa-contest-context-v01.js").read_text("utf-8",errors="ignore")
+        for token in ("explicitId","storedId","fallbackId","resolveId","planoarq:active-contest:v1"):
+            if token not in context_js:
+                errors.append(f"Etapa I: contexto canônico de concurso ausente: {token}")
+        portal_pages=("edital.html","biblioteca.html","planejamento.html","revisoes.html","questoes.html","simulados.html","erros.html","desempenho.html","diagnostico.html","historico.html","arquivos.html","configuracoes.html")
+        for page in portal_pages:
+            page_text=(ROOT/page).read_text("utf-8",errors="ignore")
+            if "pa-contest-context-v01.js" not in page_text or "PLANO_ARQ_CONTEST_CONTEXT.resolveId()" not in page_text:
+                errors.append(f"Etapa I: {page} não usa o contexto canônico do concurso")
+            if "demhab-poa-arquiteto-2026" in page_text:
+                errors.append(f"Etapa I: {page} ainda contém fallback/dado DEMHAB hardcoded")
+        import_text=(ROOT/"assets/js/pa-contest-import-v01.js").read_text("utf-8",errors="ignore")
+        for token in ("manualDraft","contestBaseId","stableHash","cityName","uf:place.uf","storeContestBlob","saveExamSchema","upsertContestFile"):
+            if token not in import_text:
+                errors.append(f"Etapa I: criação do concurso sem contrato completo: {token}")
+        if "planoarq:contest-materials::'+id" not in index_text:
+            errors.append("Etapa I: Hoje/Portal não consome mapas dinâmicos por concurso")
+        if "planoarq:contest-materials::'+contestId" not in edital_text:
+            errors.append("Etapa I: Central do Edital não consome mapas dinâmicos por concurso")
 
         for p in sims:
             text=p.read_text("utf-8",errors="ignore")
