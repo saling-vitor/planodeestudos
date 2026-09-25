@@ -232,11 +232,11 @@ try:
             if step==2:
                 driver.execute_script("document.getElementById('fTitle').value='Prefeitura Municipal de Nome Muito Longo para Teste Responsivo';document.getElementById('fPosition').value='Arquiteto e Urbanista - Planejamento, Projetos e Fiscalização';")
                 driver.find_element(By.ID,"nextStep").click()
-                WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.querySelector('[data-step="2"]')?.hidden===false"))
+                WebDriverWait(driver,5).until(lambda d:d.execute_script("""return document.querySelector('[data-step="2"]')?.hidden===false"""))
             elif step==3:
                 driver.execute_script("document.getElementById('fNotice').value='Edital de Abertura 001/2027 com retificações';document.getElementById('fNote').value='Observação extensa para testar conteúdo variável sem quebrar a composição do modal.';")
                 driver.find_element(By.ID,"nextStep").click()
-                WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.querySelector('[data-step="3"]')?.hidden===false"))
+                WebDriverWait(driver,5).until(lambda d:d.execute_script("""return document.querySelector('[data-step="3"]')?.hidden===false"""))
             info=driver.execute_script("""
               const m=document.getElementById('modal'),e=m.querySelector('.dialog'),r=e.getBoundingClientRect(),vw=document.documentElement.clientWidth,vh=document.documentElement.clientHeight;
               return {step:arguments[0],rect:{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height},vw,vh,pageScrollWidth:document.documentElement.scrollWidth,dialogScrollHeight:e.scrollHeight,dialogClientHeight:e.clientHeight};
