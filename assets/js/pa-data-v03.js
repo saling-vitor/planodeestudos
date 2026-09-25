@@ -4,7 +4,7 @@ const API={version:'3.0'};
 const safeJSON=(v,f)=>{try{return JSON.parse(v)??f}catch(_){return f}};
 const iso=()=>new Date().toISOString();
 const privateKey=k=>!!k&&(
-  k==='planoarq:device-id:v1'||k==='planoarq:device-name:v1'||k==='planoarq:active-contest'||k==='planoarq:activeContest'||
+  k==='planoarq:device-id:v1'||k==='planoarq:device-name:v1'||k==='planoarq:active-contest:v1'||k==='planoarq:active-contest'||k==='planoarq:activeContest'||
   k==='planoarq:preferences:v1'||k.startsWith('planoarq:supabase-')||k.startsWith('planoarq:sync-')||k.startsWith('planoarq:drive-')||k.startsWith('planoarq:last-drive')||
   k.startsWith('planoarq:last-sync')||k.startsWith('planoarq:reset::')||k.startsWith('planoarq:preview-demo')
 );
