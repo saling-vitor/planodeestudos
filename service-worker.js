@@ -1,4 +1,5 @@
-const VERSION='19.2-source';
+const VERSION='19.3-source';
+const MAINTENANCE_MODE=true;
 const CORE=`plano-arq-core-${VERSION}`;
 const RUNTIME=`plano-arq-runtime-${VERSION}`;
 const OFFLINE='plano-arq-offline-user-v1';
@@ -70,6 +71,10 @@ async function cacheFirst(req){
 }
 
 self.addEventListener('install',event=>{
+  if(MAINTENANCE_MODE){
+    event.waitUntil(self.skipWaiting());
+    return;
+  }
   event.waitUntil((async()=>{
     const cache=await caches.open(CORE);
     for(const url of CORE_URLS){
@@ -82,6 +87,17 @@ self.addEventListener('install',event=>{
 });
 
 self.addEventListener('activate',event=>{
+  if(MAINTENANCE_MODE){
+    event.waitUntil((async()=>{
+      for(const name of await caches.keys()){
+        if(isPlanoCache(name))await caches.delete(name);
+      }
+      await self.registration.unregister();
+      const windows=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+      await Promise.all(windows.map(client=>client.navigate(client.url).catch(()=>null)));
+    })());
+    return;
+  }
   event.waitUntil((async()=>{
     const keep=currentCaches();
     for(const name of await caches.keys()){
@@ -94,6 +110,11 @@ self.addEventListener('activate',event=>{
 self.addEventListener('fetch',event=>{
   const req=event.request;
   if(req.method!=='GET')return;
+
+  if(MAINTENANCE_MODE){
+    event.respondWith(fetch(req,{cache:'no-store'}).catch(()=>Response.error()));
+    return;
+  }
 
   const url=new URL(req.url);
 
@@ -177,6 +198,11 @@ self.addEventListener('message',event=>{
   const msg=event.data||{};
   const port=event.ports?.[0];
   const reply=value=>port?.postMessage(value);
+
+  if(MAINTENANCE_MODE){
+    reply({ok:false,maintenance:true,error:'Service Worker desativado durante manutenção.'});
+    return;
+  }
 
   if(msg.type==='SKIP_WAITING'){
     event.waitUntil(self.skipWaiting().then(()=>reply({ok:true})));
