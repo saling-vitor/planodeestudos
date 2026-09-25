@@ -300,7 +300,7 @@ function renderKpis(s){
  $('kDiff').textContent=s.maps.reduce((a,x)=>a+x.diff,0);$('kRev').textContent=s.maps.reduce((a,x)=>a+x.rev,0)
 }
 function chartDays(s){
- const n=period==='7'?7:14,end=new Date();end.setHours(0,0,0,0),arr=[];for(let i=n-1;i>=0;i--){const d=new Date(end);d.setDate(d.getDate()-i);const key=localISO(d),v=s.daily[key]||{actual:0,planned:0};arr.push({key,date:d,...v})}return arr
+ const n=period==='7'?7:14,end=new Date(),arr=[];end.setHours(0,0,0,0);for(let i=n-1;i>=0;i--){const d=new Date(end);d.setDate(d.getDate()-i);const key=localISO(d),v=s.daily[key]||{actual:0,planned:0};arr.push({key,date:d,...v})}return arr
 }
 function renderChart(s){
  const rows=chartDays(s),hasAny=rows.some(x=>x.actual>0||x.planned>0);
