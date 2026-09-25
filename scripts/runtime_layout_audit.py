@@ -374,7 +374,7 @@ try:
         else:
             driver.execute_script("document.querySelector('[data-open="'+arguments[0]+'"]').click()",material_id)
             try:
-                WebDriverWait(driver,6).until(lambda d:d.execute_script("return !!document.getElementById('frame')?.contentDocument?.querySelector('[data-topic-id="h3-topic-1"]')"))
+                WebDriverWait(driver,6).until(lambda d:d.execute_script('return !!document.getElementById("frame")?.contentDocument?.querySelector(\'[data-topic-id="h3-topic-1"]\')'))
             except Exception:
                 errors.append("novo-concurso Etapa H3: HTML ativo não abriu a partir do IndexedDB")
             driver.execute_script("document.getElementById('closeBtn')?.click()")
