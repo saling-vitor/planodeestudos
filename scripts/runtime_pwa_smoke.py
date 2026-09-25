@@ -218,6 +218,104 @@ def verify_maintenance_persistence(driver):
         "ui":ui,
     }
 
+
+def verify_settings_pin_gate(driver):
+    key="planoarq:settings-lock:v1"
+    attempts="planoarq:settings-pin-attempts:v1"
+    legacy="planoarq:settings-unlocked:v1"
+    result={}
+    driver.get(config_url)
+    WebDriverWait(driver,25).until(lambda d:d.execute_script("return !!document.getElementById('settingsPinNew') && !!window.crypto?.subtle"))
+    driver.execute_script("localStorage.removeItem(arguments[0]);sessionStorage.removeItem(arguments[1]);sessionStorage.removeItem(arguments[2]);",key,attempts,legacy)
+    driver.refresh()
+    WebDriverWait(driver,25).until(lambda d:d.execute_script("return !!document.getElementById('settingsPinNew')"))
+
+    def setv(id_,value):
+        driver.execute_script("document.getElementById(arguments[0]).value=arguments[1]",id_,value)
+
+    setv("settingsPinNew","1234");setv("settingsPinConfirm","1234")
+    driver.find_element(By.ID,"saveSettingsPin").click();time.sleep(.25)
+    result["rejectsShort"]=driver.execute_script("return localStorage.getItem(arguments[0])===null",key)
+
+    pin1="246810";pin2="135790"
+    setv("settingsPinNew",pin1);setv("settingsPinConfirm",pin1)
+    driver.find_element(By.ID,"saveSettingsPin").click()
+    WebDriverWait(driver,10).until(lambda d:d.execute_script("return !!localStorage.getItem(arguments[0])",key))
+    raw=driver.execute_script("return localStorage.getItem(arguments[0])",key)
+    saved=json.loads(raw)
+    result["hashedOnly"]=bool(saved.get("salt") and saved.get("hash") and pin1 not in raw)
+    result["sixDigitV2"]=saved.get("v")==2
+    result["autoLockDefault"]=saved.get("autoLockMinutes")==15
+
+    driver.find_element(By.ID,"lockSettingsNow").click()
+    WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.getElementById('settingsLock').hidden===false"))
+    result["lockNow"]=True
+    for _ in range(5):
+        setv("settingsUnlockPin","000000")
+        driver.find_element(By.ID,"settingsUnlockBtn").click()
+        time.sleep(.35)
+    state=driver.execute_script("return JSON.parse(sessionStorage.getItem(arguments[0])||'{}')",attempts)
+    result["progressiveLock"]=int(state.get("count") or 0)>=5 and int(state.get("lockedUntil") or 0)>int(time.time()*1000)
+    state["lockedUntil"]=int(time.time()*1000)-1
+    driver.execute_script("sessionStorage.setItem(arguments[0],JSON.stringify(arguments[1]))",attempts,state)
+    setv("settingsUnlockPin",pin1)
+    driver.find_element(By.ID,"settingsUnlockBtn").click()
+    WebDriverWait(driver,10).until(lambda d:d.execute_script("return document.getElementById('settingsLock').hidden===true"))
+
+    driver.refresh()
+    WebDriverWait(driver,10).until(lambda d:d.execute_script("return document.getElementById('settingsLock').hidden===false"))
+    result["reloadLocked"]=True
+
+    original=driver.current_window_handle
+    driver.execute_script("window.open(arguments[0],'_blank')",config_url)
+    WebDriverWait(driver,10).until(lambda d:len(d.window_handles)>1)
+    h=[x for x in driver.window_handles if x!=original][0]
+    driver.switch_to.window(h)
+    WebDriverWait(driver,10).until(lambda d:d.execute_script("return document.getElementById('settingsLock')?.hidden===false"))
+    result["newTabLocked"]=True
+    driver.close();driver.switch_to.window(original)
+
+    setv("settingsUnlockPin",pin1)
+    driver.find_element(By.ID,"settingsUnlockBtn").click()
+    WebDriverWait(driver,10).until(lambda d:d.execute_script("return document.getElementById('settingsLock').hidden===true"))
+
+    # Runtime autolock: use a short injected interval; UI only exposes 0/5/15/30/60.
+    driver.execute_script("const k=arguments[0],c=JSON.parse(localStorage.getItem(k));c.autoLockMinutes=.002;localStorage.setItem(k,JSON.stringify(c));document.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))",key)
+    WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.getElementById('settingsLock').hidden===false"))
+    result["autoLockWorks"]=True
+    driver.execute_script("const k=arguments[0],c=JSON.parse(localStorage.getItem(k));c.autoLockMinutes=15;localStorage.setItem(k,JSON.stringify(c));",key)
+    setv("settingsUnlockPin",pin1);driver.find_element(By.ID,"settingsUnlockBtn").click()
+    WebDriverWait(driver,10).until(lambda d:d.execute_script("return document.getElementById('settingsLock').hidden===true"))
+
+    before=driver.execute_script("return JSON.parse(localStorage.getItem(arguments[0])).hash",key)
+    setv("settingsPinCurrent","");setv("settingsPinNew",pin2);setv("settingsPinConfirm",pin2)
+    driver.find_element(By.ID,"saveSettingsPin").click();time.sleep(.35)
+    after_blank=driver.execute_script("return JSON.parse(localStorage.getItem(arguments[0])).hash",key)
+    result["changeNeedsCurrent"]=before==after_blank
+    setv("settingsPinCurrent",pin1);setv("settingsPinNew",pin2);setv("settingsPinConfirm",pin2)
+    driver.find_element(By.ID,"saveSettingsPin").click()
+    WebDriverWait(driver,10).until(lambda d:d.execute_script("return JSON.parse(localStorage.getItem(arguments[0])).hash!==arguments[1]",key,before))
+    result["changedWithCurrent"]=True
+
+    driver.find_element(By.ID,"lockSettingsNow").click()
+    setv("settingsUnlockPin",pin1);driver.find_element(By.ID,"settingsUnlockBtn").click();time.sleep(.35)
+    result["oldPinRejected"]=driver.execute_script("return document.getElementById('settingsLock').hidden===false")
+    setv("settingsUnlockPin",pin2);driver.find_element(By.ID,"settingsUnlockBtn").click()
+    WebDriverWait(driver,10).until(lambda d:d.execute_script("return document.getElementById('settingsLock').hidden===true"))
+    result["newPinAccepted"]=True
+
+    setv("settingsPinCurrent","")
+    driver.find_element(By.ID,"removeSettingsPin").click();time.sleep(.25)
+    result["removalNeedsCurrent"]=driver.execute_script("return !!localStorage.getItem(arguments[0]) && !document.getElementById('dialog').classList.contains('open')",key)
+    setv("settingsPinCurrent",pin2);driver.find_element(By.ID,"removeSettingsPin").click()
+    WebDriverWait(driver,10).until(lambda d:d.execute_script("return document.getElementById('dialog').classList.contains('open')"))
+    setv("dialogInput","REMOVER");driver.find_element(By.ID,"dialogConfirm").click()
+    WebDriverWait(driver,10).until(lambda d:d.execute_script("return localStorage.getItem(arguments[0])===null",key))
+    result["removedWithCurrent"]=True
+    result["legacySessionUnlockUnused"]=driver.execute_script("return sessionStorage.getItem(arguments[0])===null",legacy)
+    driver.execute_script("localStorage.removeItem(arguments[0]);sessionStorage.removeItem(arguments[1]);sessionStorage.removeItem(arguments[2]);",key,attempts,legacy)
+    return result
+
 def relevant_severe(logs):
     ignored=("favicon.ico",)
     out=[]
@@ -287,6 +385,26 @@ try:
     if maintenance:
         errors=maintenance_assertions(last,expected)
         persistence=verify_maintenance_persistence(driver)
+        pin_gate=verify_settings_pin_gate(driver)
+        for key,label in {
+            "rejectsShort":"PIN curto foi aceito",
+            "hashedOnly":"PIN foi persistido sem salt/hash ou em texto",
+            "sixDigitV2":"novo PIN não usa contrato v2 de 6 dígitos",
+            "autoLockDefault":"autolock padrão não é 15 min",
+            "lockNow":"bloqueio manual falhou",
+            "progressiveLock":"5 tentativas não acionaram atraso progressivo",
+            "reloadLocked":"reload manteve Configurações desbloqueadas",
+            "newTabLocked":"nova aba burlou o PIN",
+            "autoLockWorks":"bloqueio automático por inatividade falhou",
+            "changeNeedsCurrent":"PIN pôde ser alterado sem PIN atual",
+            "changedWithCurrent":"troca de PIN com PIN atual falhou",
+            "oldPinRejected":"PIN antigo continuou válido após troca",
+            "newPinAccepted":"novo PIN não desbloqueou",
+            "removalNeedsCurrent":"PIN pôde ser removido sem PIN atual",
+            "removedWithCurrent":"remoção autenticada do PIN falhou",
+            "legacySessionUnlockUnused":"estado legado de desbloqueio ficou persistido"
+        }.items():
+            if not pin_gate.get(key): errors.append(label)
         if not persistence.get("sentinelPreserved"): errors.append("localStorage genérico não foi preservado após reload em manutenção")
         if not persistence.get("mapPreserved"): errors.append("estado de mapa local não foi preservado")
         if not persistence.get("planningPreserved"): errors.append("planejamento local não foi preservado")
@@ -380,6 +498,7 @@ try:
             "caches":last.get("caches"),
             "pwaStatus":last.get("pwaStatus"),
             "persistence":persistence,
+            "pinGate":pin_gate,
             "assets":assets,
             "routes":routes,
             "newTab":{"maintenance":new_tab_maintenance,"controller":new_tab_controller},
