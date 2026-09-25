@@ -1,6 +1,6 @@
 {
-  "schema": 7,
-  "version": "20.0-multidevice-files",
+  "schema": 8,
+  "version": "21.0-study-map-html-storage",
   "drive": {
     "folderUrl": "https://drive.google.com/drive/folders/1mn22V3ohdAHE1znqP98O6lqdaDSxntBT",
     "folderId": "1mn22V3ohdAHE1znqP98O6lqdaDSxntBT",
@@ -33,7 +33,8 @@
       "private": true,
       "maxFileSizeBytes": 83886080,
       "allowedMimeTypes": [
-        "application/pdf"
+        "application/pdf",
+        "text/html"
       ],
       "pathStrategy": "user/contest/file"
     }
