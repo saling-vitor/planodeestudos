@@ -203,7 +203,7 @@ body.pa-internal-mode :is(.viewer-head,.viewerbar){
   min-width:0;padding:0 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;
   border-bottom:1px solid rgba(255,255,255,.09);background:#080a0d
 }
-body.pa-internal-mode :is(.viewer-title,.viewer-head>div:first-child){min-width:0;flex:1 1 auto}
+body.pa-internal-mode :is(.viewer-title,.viewer-head>div:first-child){width:0;min-width:0;flex:1 1 0}
 body.pa-internal-mode .viewer-title strong,
 body.pa-internal-mode .viewer-head strong{
   display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap
