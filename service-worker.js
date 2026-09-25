@@ -1,4 +1,4 @@
-const VERSION='19.1-source';
+const VERSION='19.2-source';
 const CORE=`plano-arq-core-${VERSION}`;
 const RUNTIME=`plano-arq-runtime-${VERSION}`;
 const OFFLINE='plano-arq-offline-user-v1';
@@ -78,7 +78,6 @@ self.addEventListener('install',event=>{
         if(response.ok)await cache.put(url,response);
       }catch(_){}
     }
-    await self.skipWaiting();
   })());
 });
 
