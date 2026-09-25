@@ -323,6 +323,37 @@ try:
           })).then(done)
         """)
         if any(not x.get("ok") for x in assets): errors.append("asset atual do GitHub Pages falhou em manutenção")
+        routes={}
+        for rel in (
+            "index.html",
+            "biblioteca.html?contest=demhab-poa-arquiteto-2026",
+            "planejamento.html?contest=demhab-poa-arquiteto-2026",
+            "simulados.html?contest=demhab-poa-arquiteto-2026",
+            "materials/CF88_Constituicao_Federal_Estudo_V02.html",
+        ):
+            driver.get(urljoin(base,rel))
+            WebDriverWait(driver,25).until(lambda d:d.execute_script("return document.readyState") in ("interactive","complete"))
+            body_len=len(driver.find_element(By.TAG_NAME,"body").text)
+            controller=driver.execute_script("return navigator.serviceWorker.controller?.scriptURL || null")
+            external=driver.execute_script("return performance.getEntriesByType('resource').map(x=>x.name).filter(x=>/supabase\\.co|googleapis\\.com|accounts\\.google\\.com/i.test(x))")
+            routes[rel]={"body":body_len,"controller":controller,"remoteResources":external}
+            if body_len<20: errors.append(f"página local não carregou em manutenção: {rel}")
+            if controller: errors.append(f"Service Worker voltou a controlar rota local: {rel}")
+            if external: errors.append(f"rota iniciou comunicação externa em manutenção: {rel} -> {external}")
+        driver.get(config_url)
+        WebDriverWait(driver,25).until(lambda d:d.execute_script("return !!window.PLANO_ARQ_DATA && window.PLANO_ARQ_DATA.isMaintenanceMode()===true"))
+        original=driver.current_window_handle
+        driver.execute_script("window.open(arguments[0],'_blank')",config_url)
+        WebDriverWait(driver,10).until(lambda d:len(d.window_handles)>1)
+        new_handle=[h for h in driver.window_handles if h!=original][0]
+        driver.switch_to.window(new_handle)
+        WebDriverWait(driver,25).until(lambda d:d.execute_script("return !!window.PLANO_ARQ_DATA && window.PLANO_ARQ_DATA.isMaintenanceMode()===true"))
+        new_tab_maintenance=driver.execute_script("return window.PLANO_ARQ_DATA.isMaintenanceMode()===true")
+        new_tab_controller=driver.execute_script("return navigator.serviceWorker.controller?.scriptURL || null")
+        driver.close();driver.switch_to.window(original)
+        if not new_tab_maintenance: errors.append("modo manutenção não persistiu em nova aba")
+        if new_tab_controller: errors.append("nova aba voltou a ser controlada por Service Worker")
+        if baseline and baseline.get("maintenance") is not True: errors.append("perfil do navegador não preservou manutenção entre processos before/after")
         severe=relevant_severe(driver.get_log("browser"))
         if severe: errors.append(f"console contém {len(severe)} erro(s) SEVERE em manutenção")
         report={
@@ -336,6 +367,9 @@ try:
             "pwaStatus":last.get("pwaStatus"),
             "persistence":persistence,
             "assets":assets,
+            "routes":routes,
+            "newTab":{"maintenance":new_tab_maintenance,"controller":new_tab_controller},
+            "browserRestartBaselineMaintenance":baseline.get("maintenance") if baseline else None,
             "browserSevere":severe,
         }
         print(json.dumps(report,ensure_ascii=False,indent=2))
