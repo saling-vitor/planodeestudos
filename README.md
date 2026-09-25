@@ -13,6 +13,8 @@ Portal estático de estudos para concursos, publicado por GitHub Pages e prepara
 
 O workflow gera os dados derivados e só publica depois de validar estrutura, contrato gráfico, CSS, JavaScript, referências e pacote PWA.
 
+**Estado atual pré-V1.0.0:** manutenção de build ativa. Os dados locais continuam funcionando normalmente, enquanto Supabase, Google Drive automático, Service Worker, pacote offline e automações em segundo plano permanecem pausados. A liberação exige alterar em conjunto o runtime local e o Service Worker no mesmo deploy validado.
+
 ## Arquitetura visual canônica
 
 O Portal usa uma única camada compartilhada. Páginas individuais não devem criar versões próprias de sidebar, hero, topbar ou controles.

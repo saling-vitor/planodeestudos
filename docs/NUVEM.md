@@ -2,6 +2,8 @@
 
 A aplicação é **local-first**. O navegador continua sendo a primeira gravação. A nuvem acrescenta duas camadas independentes:
 
+> **Estado atual pré-V1.0.0:** manutenção de build ativa. As configurações de nuvem são preservadas, mas sincronização automática, snapshots automáticos, Service Worker e cache offline permanecem pausados até a publicação coordenada da versão de produção.
+
 - **Supabase**: sincronização contínua entre dispositivos.
 - **Google Drive**: snapshots de recuperação e histórico de backup.
 
@@ -54,7 +56,9 @@ No Google Cloud Console, use um único projeto para as credenciais abaixo:
 
 O runtime usa o escopo `drive.file`, portanto a pasta precisa ser explicitamente selecionada pelo Picker.
 
-## 3. Política sugerida
+## 3. Política de produção
+
+Os valores abaixo são os defaults previstos **após a saída do modo manutenção**:
 
 - Sincronização Supabase automática: **ligada**, intervalo de **60 s**.
 - Snapshot Drive automático: **ligado**, a cada **24 h**.

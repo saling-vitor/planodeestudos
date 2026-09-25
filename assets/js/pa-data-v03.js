@@ -1,24 +1,32 @@
 (()=>{
 'use strict';
 const API={version:'3.5'};
+const BUILD_MAINTENANCE=true;
 const RUNTIME_KEY='planoarq:runtime-flags:v1';
 const CONTESTS_KEY='planoarq:contests:v1',EXAM_SCHEMA_PREFIX='planoarq:exam-schema::',CONTEST_FILES_PREFIX='planoarq:contest-files::',CONTEST_MATERIALS_PREFIX='planoarq:contest-materials::',IMPORT_DRAFT_PREFIX='planoarq:contest-import-draft::';
 const safeJSON=(v,f)=>{try{return JSON.parse(v)??f}catch(_){return f}};
 const iso=()=>new Date().toISOString();
 function runtimeFlags(){
  const raw=safeJSON(localStorage.getItem(RUNTIME_KEY),null);
- return raw&&typeof raw==='object'?{maintenanceMode:raw.maintenanceMode!==false}:{maintenanceMode:true};
+ if(BUILD_MAINTENANCE)return{maintenanceMode:true,buildMaintenance:true,source:'build-maintenance-lock'};
+ if(raw&&typeof raw==='object'){
+  const inherited=['build-maintenance-lock','temporary-development-mode'].includes(raw.source);
+  return{maintenanceMode:inherited?false:raw.maintenanceMode===true,buildMaintenance:false,source:inherited?'production-default':(raw.source||'user')};
+ }
+ return{maintenanceMode:false,buildMaintenance:false,source:'production-default'};
 }
 function isMaintenanceMode(){return runtimeFlags().maintenanceMode===true}
+function isBuildMaintenance(){return BUILD_MAINTENANCE===true}
 function canRunBackgroundServices(){return !isMaintenanceMode()}
 function setMaintenanceMode(enabled){
- const next={maintenanceMode:!!enabled,updatedAt:iso()};
+ if(enabled===false&&BUILD_MAINTENANCE)return runtimeFlags();
+ const next={maintenanceMode:!!enabled,buildMaintenance:BUILD_MAINTENANCE,updatedAt:iso(),source:'user'};
  localStorage.setItem(RUNTIME_KEY,JSON.stringify(next));
  document.documentElement.dataset.paMaintenance=next.maintenanceMode?'1':'0';
  window.dispatchEvent(new CustomEvent('planoarq:runtime-flags',{detail:{...next}}));
  return next;
 }
-if(localStorage.getItem(RUNTIME_KEY)===null)localStorage.setItem(RUNTIME_KEY,JSON.stringify({maintenanceMode:true,updatedAt:iso(),source:'temporary-development-mode'}));
+if(localStorage.getItem(RUNTIME_KEY)===null)localStorage.setItem(RUNTIME_KEY,JSON.stringify({maintenanceMode:BUILD_MAINTENANCE,updatedAt:iso(),source:BUILD_MAINTENANCE?'build-maintenance-lock':'production-default'}));
 document.documentElement.dataset.paMaintenance=isMaintenanceMode()?'1':'0';
 const privateKey=k=>!!k&&(
   k==='planoarq:device-id:v1'||k==='planoarq:device-name:v1'||k==='planoarq:active-contest:v1'||k==='planoarq:active-contest'||k==='planoarq:activeContest'||
@@ -93,6 +101,6 @@ function importEntries(entries){entries.filter(([k])=>tracked(k)).forEach(([k,v]
 function dataHealth(){let parseErrors=0,jsonKeys=0;keys().forEach(k=>{const v=localStorage.getItem(k);if(v&&(/^[\[{]/.test(v.trim()))){jsonKeys++;try{JSON.parse(v)}catch(_){parseErrors++}}});const all=collect();return {keys:Object.keys(all).length,bytes:byteSize(all),parseErrors,jsonKeys,lastExport:localStorage.getItem('planoarq:last-backup-export')||'',lastImport:localStorage.getItem('planoarq:last-backup-import')||''}}
 function resetContest(cid){const ks=contestKeys(cid);ks.forEach(k=>localStorage.removeItem(k));localStorage.setItem(`planoarq:reset::${cid}`,iso());return ks.length}
 function resetDeviceId(){const id=uuid();localStorage.setItem('planoarq:device-id:v1',id);return id}
-Object.assign(API,{RUNTIME_KEY,CONTESTS_KEY,EXAM_SCHEMA_PREFIX,CONTEST_FILES_PREFIX,CONTEST_MATERIALS_PREFIX,IMPORT_DRAFT_PREFIX,runtimeFlags,isMaintenanceMode,canRunBackgroundServices,setMaintenanceMode,deviceId,deviceName,setDeviceName,keys,tracked,privateKey,contestKeys,collect,buildBackup,exportBackup,inspect,readFile,importEntries,dataHealth,resetContest,resetDeviceId,materialsForContest,contestMaterialsKey,localMaterialsForContest,saveContestMaterials,upsertContestMaterial,removeContestMaterial,localContests,contests,contestById,saveContest,examSchemaKey,examSchemaForContest,saveExamSchema,contestFilesKey,contestFiles,saveContestFiles,upsertContestFile,importDraftKey,loadImportDraft,saveImportDraft,clearImportDraft,LOCAL_FILE_DB,LOCAL_FILE_STORE,storeContestBlob,contestBlob,deleteContestBlob,hasContestBlob,contestBundle});
+Object.assign(API,{BUILD_MAINTENANCE,RUNTIME_KEY,EXAM_SCHEMA_PREFIX,CONTEST_FILES_PREFIX,CONTEST_MATERIALS_PREFIX,IMPORT_DRAFT_PREFIX,runtimeFlags,isMaintenanceMode,isBuildMaintenance,canRunBackgroundServices,setMaintenanceMode,deviceId,deviceName,setDeviceName,keys,tracked,privateKey,contestKeys,collect,buildBackup,exportBackup,inspect,readFile,importEntries,dataHealth,resetContest,resetDeviceId,materialsForContest,contestMaterialsKey,localMaterialsForContest,saveContestMaterials,upsertContestMaterial,removeContestMaterial,localContests,contests,contestById,saveContest,examSchemaKey,examSchemaForContest,saveExamSchema,contestFilesKey,contestFiles,saveContestFiles,upsertContestFile,importDraftKey,loadImportDraft,saveImportDraft,clearImportDraft,LOCAL_FILE_DB,LOCAL_FILE_STORE,storeContestBlob,contestBlob,deleteContestBlob,hasContestBlob,contestBundle});
 window.PLANO_ARQ_DATA=API;
 })();

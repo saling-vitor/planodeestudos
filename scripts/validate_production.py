@@ -262,6 +262,35 @@ def main():
     except (OSError,ValueError,TypeError) as exc:
         errors.append(f"dados canônicos inválidos ({exc})")
 
+    # O estado de manutenção precisa ser coordenado entre o runtime local e o Service Worker.
+    try:
+        data_runtime=(ROOT/"assets/js/pa-data-v03.js").read_text("utf-8",errors="ignore")
+        sw_runtime=(ROOT/"service-worker.js").read_text("utf-8",errors="ignore")
+        dm=re.search(r"const BUILD_MAINTENANCE=(true|false);",data_runtime)
+        sm=re.search(r"const MAINTENANCE_MODE=(true|false);",sw_runtime)
+        if not dm:
+            errors.append("produção: BUILD_MAINTENANCE ausente em pa-data-v03.js")
+        if not sm:
+            errors.append("produção: MAINTENANCE_MODE ausente em service-worker.js")
+        if dm and sm and dm.group(1)!=sm.group(1):
+            errors.append(
+                f"produção: manutenção divergente entre runtime ({dm.group(1)}) e Service Worker ({sm.group(1)})"
+            )
+        settings_text=(ROOT/"configuracoes.html").read_text("utf-8",errors="ignore")
+        for marker in ("isBuildMaintenance","maintenanceToggle').disabled=buildMaintenance","Bloqueado até V1.0.0"):
+            if marker not in settings_text:
+                errors.append(f"produção: Configurações não protege a manutenção de build: {marker}")
+        readme=(ROOT/"README.md").read_text("utf-8",errors="ignore")
+        cloud_doc=(ROOT/"docs/NUVEM.md").read_text("utf-8",errors="ignore")
+        build_locked=bool(dm and dm.group(1)=="true")
+        marker="manutenção de build ativa"
+        if build_locked and (marker not in readme.lower() or marker not in cloud_doc.lower()):
+            errors.append("produção: documentação não registra a manutenção de build ativa")
+        if not build_locked and (marker in readme.lower() or marker in cloud_doc.lower()):
+            errors.append("produção: documentação ainda declara manutenção de build ativa após a liberação")
+    except OSError as exc:
+        errors.append(f"produção: não foi possível validar estado de manutenção ({exc})")
+
     cloud_path=ROOT/"data/cloud-config.json"
     if cloud_path.is_file():
         try:
