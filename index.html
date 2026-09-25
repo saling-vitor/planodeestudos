@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#030406"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3969/3969582.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Plano ARQ">
 <meta name="color-scheme" content="dark">
-<title>Plano ARQ · Hoje</title>
+<title>Plano ARQ · Concursos</title>
 <script src="data/contests.js"></script>
 <script src="data/materials.js"></script>
 <script src="data/exam-schemas.js"></script>
@@ -372,7 +372,7 @@ function card(c){
  </article>`
 }
 function renderHome(){
- cleanupContestRender();
+ cleanupContestRender();document.title='Plano ARQ · Concursos';
  document.body.classList.remove('pa-internal-mode');delete document.body.dataset.paPage;
  const contests=readContests(),active=contests.filter(c=>c.status!=='archived'),archived=contests.filter(c=>c.status==='archived');
  const totalMaps=active.reduce((a,c)=>a+contestStats(c.id).maps,0);
@@ -540,7 +540,7 @@ function renderContest(id){
  cleanupContestRender();
  contestRenderController=new AbortController();const renderSignal=contestRenderController.signal;
  const c=readContests().find(x=>x.id===id);if(!c){location.hash='home';return}
- document.body.classList.add('pa-internal-mode');document.body.dataset.paPage='today';setActive(id);
+ document.body.classList.add('pa-internal-mode');document.body.dataset.paPage='today';document.title='Plano ARQ · Hoje';setActive(id);
 
  const st=contestStats(id),reviewStats=reviewStatsForContest(id),days=daysTo(c.examDate),plan=getGeneratedPlan(id),planning=getPlanningConfig(id)||{},today=localISODate(),log=getSessionLog(id);
  const todaySessions=sessionsForDate(plan,today),overdue=previousOpenSessions(plan,log,today),nextDate=nextStudyDay(plan,today),breakMinutes=Number(planning.breakMinutes??10);
