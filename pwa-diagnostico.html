@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/img/pwa-icon-192.svg" type="image/svg+xml">
+<title>Plano ARQ · Diagnóstico PWA</title>
+</head>
+<body>
+<pre id="result">executando</pre>
+<script src="assets/js/pa-data-v03.js"></script>
+<script src="assets/js/pa-pwa-v01.js"></script>
+<script>
+(async()=>{
+  const out={timestamp:new Date().toISOString(),href:location.href,protocol:location.protocol,hostname:location.hostname,online:navigator.onLine,maintenance:window.PLANO_ARQ_DATA?.isMaintenanceMode?.()===true};
+  const timeout=(p,ms=12000)=>Promise.race([p,new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),ms))]);
+  if(out.maintenance&&window.PLANO_ARQ_PWA?.enterMaintenanceMode){
+    await window.PLANO_ARQ_PWA.enterMaintenanceMode();
+  }
+  try{
+    out.displayModeStandalone=matchMedia('(display-mode: standalone)').matches;
+    out.navigatorStandalone=navigator.standalone===true;
+    const mr=await fetch('./manifest.webmanifest',{cache:'no-store'});
+    out.manifest={ok:mr.ok,status:mr.status,mime:mr.headers.get('content-type')||'',url:mr.url};
+    if(mr.ok){
+      const mj=await mr.json();
+      out.manifest.data={id:mj.id,name:mj.name,short_name:mj.short_name,start_url:mj.start_url,scope:mj.scope,display:mj.display,icons:mj.icons||[]};
+      out.manifest.icons=[];
+      for(const icon of mj.icons||[]){
+        try{
+          const ir=await fetch(new URL(icon.src,mr.url),{cache:'no-store'});
+          out.manifest.icons.push({src:icon.src,sizes:icon.sizes,purpose:icon.purpose||'any',ok:ir.ok,status:ir.status,mime:ir.headers.get('content-type')||''});
+        }catch(error){out.manifest.icons.push({src:icon.src,sizes:icon.sizes,purpose:icon.purpose||'any',ok:false,error:String(error)})}
+      }
+    }
+  }catch(error){out.manifestError=String(error)}
+
+  try{
+    const swr=await fetch('./service-worker.js',{cache:'no-store'});
+    const swText=await swr.text();
+    out.serviceWorkerFile={ok:swr.ok,status:swr.status,mime:swr.headers.get('content-type')||'',version:(swText.match(/const VERSION='([^']+)'/)||[])[1]||null,url:swr.url};
+  }catch(error){out.serviceWorkerFileError=String(error)}
+
+  try{
+    if('serviceWorker' in navigator){
+      let reg=await navigator.serviceWorker.getRegistration('./');
+      if(!reg){
+        await window.PLANO_ARQ_PWA?.init?.();
+        try{await timeout(navigator.serviceWorker.ready,12000)}catch(_){}
+        reg=await navigator.serviceWorker.getRegistration('./');
+      }
+      try{await timeout(navigator.serviceWorker.ready,12000)}catch(_){}
+      out.serviceWorker={
+        supported:true,
+        registered:!!reg,
+        scope:reg?.scope||null,
+        active:reg?.active?.scriptURL||null,
+        activeState:reg?.active?.state||null,
+        waiting:reg?.waiting?.scriptURL||null,
+        installing:reg?.installing?.scriptURL||null,
+        controller:navigator.serviceWorker.controller?.scriptURL||null,
+        controllerState:navigator.serviceWorker.controller?.state||null
+      };
+    }else out.serviceWorker={supported:false,registered:false};
+  }catch(error){out.serviceWorkerError=String(error)}
+
+  try{
+    const names=await caches.keys();
+    out.caches=[];
+    for(const name of names){
+      const cache=await caches.open(name);
+      out.caches.push({name,count:(await cache.keys()).length});
+    }
+  }catch(error){out.cacheError=String(error)}
+
+  try{
+    const urls=['./configuracoes.html','./assets/js/pa-pwa-v01.js','./assets/css/pa-shell-v16.css','./assets/css/pa-components-v01.css','./data/offline-pack.json'];
+    out.assets=[];
+    for(const rel of urls){
+      const r=await fetch(rel,{cache:'no-store'});
+      out.assets.push({url:new URL(rel,location.href).href,ok:r.ok,status:r.status,mime:r.headers.get('content-type')||''});
+    }
+  }catch(error){out.assetsError=String(error)}
+
+  out.pwaStatus=window.PLANO_ARQ_PWA?.status?.()||null;
+  document.documentElement.dataset.pwaProbe='done';
+  document.getElementById('result').textContent=JSON.stringify(out,null,2);
+})().catch(error=>{
+  document.documentElement.dataset.pwaProbe='error';
+  document.getElementById('result').textContent=JSON.stringify({fatal:String(error)},null,2);
+});
+</script>
+</body>
+</html>
