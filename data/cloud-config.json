@@ -1,6 +1,6 @@
 {
-  "schema": 5,
-  "version": "19.3-cloud-preset",
+  "schema": 6,
+  "version": "19.4-cloud-ready",
   "drive": {
     "folderUrl": "https://drive.google.com/drive/folders/1mn22V3ohdAHE1znqP98O6lqdaDSxntBT",
     "folderId": "1mn22V3ohdAHE1znqP98O6lqdaDSxntBT",
@@ -23,10 +23,10 @@
   "supabase": {
     "enabled": true,
     "url": "https://hapyzjfhbobtaellaejv.supabase.co",
-    "publishableKey": "",
+    "publishableKey": "sb_publishable_C1DYi_orfah9EljItGs1Jw_kmSj93ym",
     "anonKey": "",
     "authMode": "email-otp",
-    "status": "project-preset"
+    "status": "ready"
   },
   "sync": {
     "mode": "local-first",
