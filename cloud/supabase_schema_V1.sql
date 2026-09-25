@@ -144,7 +144,7 @@ revoke all
   from anon;
 
 
--- Plano ARQ · Etapa F · arquivos de edital entre dispositivos
+-- Plano ARQ · arquivos de edital entre dispositivos
 -- Bucket privado; cada usuário acessa apenas /<auth.uid()>/...
 insert into storage.buckets (id,name,public,file_size_limit,allowed_mime_types)
 values ('plano-arq-contest-files','plano-arq-contest-files',false,83886080,array['application/pdf','text/html']::text[])

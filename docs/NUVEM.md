@@ -14,7 +14,7 @@ A aplicação é **local-first**. O navegador continua sendo a primeira gravaç�
    - RLS habilitado;
    - função `public.plano_arq_upsert_sync_records(jsonb)`.
 4. Em **Authentication**, mantenha o provedor de e-mail habilitado.
-5. Para login por código, configure o template de Magic Link/OTP para conter `{{ .Token }}`.
+5. Para login por código, configure o template de Magic Link/OTP para conter `{{ .Token }}`. O arquivo `cloud/email_template_otp.html` é o modelo operacional versionado para essa configuração.
 6. No Plano ARQ > **Configurações**:
    - cole a **Project URL**;
    - cole a **Publishable key**;
