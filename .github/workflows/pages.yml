@@ -98,7 +98,7 @@ jobs:
           from pathlib import Path
           p=Path("service-worker.js")
           text=p.read_text("utf-8")
-          version=f"19.1-{sys.argv[1]}"
+          version=f"19.2-{sys.argv[1]}"
           updated,n=re.subn(r"const VERSION='[^']+';",f"const VERSION='{version}';",text,count=1)
           if n!=1:
               raise SystemExit("Não foi possível versionar o service worker")
