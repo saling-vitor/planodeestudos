@@ -33,8 +33,7 @@
 .occurrence-box{margin-top:12px;border:1px solid var(--line2);border-radius:10px;background:#080a0d;overflow:hidden}.occurrence-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;border-bottom:1px solid var(--line2)}.occurrence-head strong{font:760 7.2px var(--mono);letter-spacing:.07em;text-transform:uppercase}.occurrence-head span{color:#727880;font-size:8px}.occurrence-list{max-height:145px;overflow:auto}.occurrence-row{display:grid;grid-template-columns:105px minmax(0,1fr);gap:9px;padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.035)}.occurrence-row:last-child{border-bottom:0}.occurrence-row time{color:#8a9198;font:730 7.5px var(--mono)}.occurrence-row span{color:#7f858c;font-size:8.4px;line-height:1.4}
 .data-quality{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px}.quality-pill{padding:4px 6px;border:1px solid var(--line);border-radius:999px;color:#7e858c;font:740 6.7px var(--mono);text-transform:uppercase}.quality-pill.warn{color:#d0b875;border-color:rgba(216,184,88,.20)}
 @media(max-width:1350px){
-.error-row{grid-template-columns:76px minmax(0,1fr) 105px auto}.error-row>.cause{display:none}.pattern-grid{grid-template-columns:repeat(3,1fr)}
-.error-row{grid-template-columns:72px minmax(0,1fr) 96px auto}.error-row>.cause{display:none}
+.error-row{grid-template-columns:72px minmax(0,1fr) 96px auto}.error-row>.cause{display:none}.pattern-grid{grid-template-columns:repeat(3,1fr)}
 }
 @media(max-width:1050px){
 .error-row{grid-template-columns:68px minmax(0,1fr) 96px auto}.row-actions{grid-column:auto}
@@ -43,11 +42,9 @@
 .error-row{grid-template-columns:70px minmax(0,1fr)}.error-stat,.cause{display:none}.row-actions{grid-column:1/-1;justify-content:flex-start;max-width:none}.next-card{grid-template-columns:1fr}.pattern-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:760px){
-.error-row{grid-template-columns:1fr}.source{display:flex;align-items:center;gap:7px}.error-stat,.cause{display:none}.row-actions{grid-column:1;justify-content:flex-start;max-width:none}.next-card,.next-card.empty-mode{grid-template-columns:1fr}.next-actions{justify-content:flex-start}.form-grid{grid-template-columns:1fr}.field.full{grid-column:1}.occurrence-row{grid-template-columns:1fr;gap:4px}
+.error-row{grid-template-columns:1fr}.source{display:flex;align-items:center;gap:7px}.row-actions{grid-column:1;justify-content:flex-start;max-width:none}.next-card.empty-mode{grid-template-columns:1fr}.next-actions{justify-content:flex-start}.form-grid{grid-template-columns:1fr}.field.full{grid-column:1}.occurrence-row{grid-template-columns:1fr;gap:4px}
 }
-@media(max-width:560px){
-.error-row{grid-template-columns:1fr}.source{display:flex;align-items:center;gap:7px}.row-actions{grid-column:1}.form-grid{grid-template-columns:1fr}.field.full{grid-column:1}.pattern-grid{grid-template-columns:1fr 1fr}
-}
+@media(max-width:560px){.pattern-grid{grid-template-columns:1fr 1fr}}
 </style>
 <link rel="stylesheet" href="assets/css/pa-tokens-v01.css"><link rel="stylesheet" href="assets/css/pa-shell-v16.css"><link rel="stylesheet" href="assets/css/pa-components-v01.css">
 <script src="data/contests.js"></script>
