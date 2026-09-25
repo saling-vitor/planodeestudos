@@ -158,7 +158,7 @@ jobs:
         if: steps.package.outputs.ready == 'true'
         env:
           PWA_URL: ${{ steps.deployment.outputs.page_url }}
-          LAYOUT_AUDIT_STRICT: "0"
+          LAYOUT_AUDIT_STRICT: "1"
           LAYOUT_AUDIT_DIR: ${{ runner.temp }}/layout-audit
         run: python3 scripts/runtime_layout_audit.py "$PWA_URL"
 
