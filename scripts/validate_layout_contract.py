@@ -222,6 +222,7 @@ if not shell_js.is_file():
 else:
     shell_js_text=shell_js.read_text("utf-8",errors="replace")
     for marker in (
+        "document.querySelectorAll('.mobile-bottom').forEach(x=>x.remove())",
         'id="paMobileNav"',
         'id="paMobileMore"',
         "if(document.getElementById('paMobileNav'))return",
@@ -238,7 +239,6 @@ if shell.is_file():
         "--pa-shell-content-max:1420px",
         "@media(max-width:900px)",
         ".pa-mobile-more.open",
-        "document.querySelectorAll('.mobile-bottom').forEach(x=>x.remove())",
     )
     for marker in required_shell:
         if marker not in css:
