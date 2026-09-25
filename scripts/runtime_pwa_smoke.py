@@ -242,12 +242,8 @@ try:
                 offline_results[rel]={"error":str(exc)}
                 errors.append(f"navegação offline falhou: {rel}")
         if edital_path:
-            try:
-                result=async_js(driver,"const url=arguments[0],done=arguments[1];fetch(url).then(async r=>done({ok:r.ok,status:r.status,bytes:(await r.arrayBuffer()).byteLength})).catch(e=>done({ok:false,error:String(e)}));",30)
-            except TypeError:
-                # execute_async_script helper only supports callback-only scripts; use direct call with explicit argument.
-                driver.set_script_timeout(30)
-                result=driver.execute_async_script("const url=arguments[0],done=arguments[arguments.length-1];fetch(url).then(async r=>done({ok:r.ok,status:r.status,bytes:(await r.arrayBuffer()).byteLength})).catch(e=>done({ok:false,error:String(e)}));",urljoin(base,edital_path))
+            driver.set_script_timeout(30)
+            result=driver.execute_async_script("const url=arguments[0],done=arguments[arguments.length-1];fetch(url).then(async r=>done({ok:r.ok,status:r.status,bytes:(await r.arrayBuffer()).byteLength})).catch(e=>done({ok:false,error:String(e)}));",urljoin(base,edital_path))
             offline_results[edital_path]=result
             if not result.get("ok") or result.get("bytes",0)<1000: errors.append("edital não abriu via cache offline")
         driver.execute_cdp_cmd("Network.emulateNetworkConditions",{"offline":False,"latency":0,"downloadThroughput":-1,"uploadThroughput":-1})
