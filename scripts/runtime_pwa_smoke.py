@@ -124,23 +124,98 @@ def verify_maintenance_persistence(driver):
     sentinel="maintenance-preserve-"+str(int(time.time()*1000))
     driver.get(config_url)
     WebDriverWait(driver,25).until(lambda d:d.execute_script("return !!window.PLANO_ARQ_DATA && window.PLANO_ARQ_DATA.isMaintenanceMode()===true"))
-    driver.execute_script("localStorage.setItem('planoarq:maintenance-test:v1',arguments[0]);localStorage.setItem('planoarq:maintenance-pin-sentinel:v1','preserve-pin');",sentinel)
+    driver.execute_script("""
+      localStorage.setItem('planoarq:maintenance-test:v1',arguments[0]);
+      localStorage.setItem('mindmap_state::maintenance-smoke',JSON.stringify({topicStates:{sentinel:'done'}}));
+      localStorage.setItem('planoarq:planning::maintenance-smoke',JSON.stringify({sentinel:true}));
+      localStorage.setItem('planoarq:settings-lock:v1',JSON.stringify({v:1,sentinel:true}));
+      localStorage.setItem('planoarq:supabase-config:v1',JSON.stringify({url:'https://sentinel.supabase.co',key:'sb_publishable_maintenance_sentinel_123456789'}));
+      localStorage.setItem('planoarq:drive-config:v1',JSON.stringify({clientId:'sentinel.apps.googleusercontent.com',folderId:'sentinel-folder'}));
+    """,sentinel)
+    idb_write=async_js(driver,"""
+      const done=arguments[0],req=indexedDB.open('planoarq-maintenance-smoke',1);
+      req.onupgradeneeded=()=>req.result.createObjectStore('state');
+      req.onerror=()=>done({ok:false,error:String(req.error)});
+      req.onsuccess=()=>{const db=req.result,tx=db.transaction('state','readwrite');tx.objectStore('state').put('preserved','sentinel');tx.oncomplete=()=>{db.close();done({ok:true})};tx.onerror=()=>done({ok:false,error:String(tx.error)})};
+    """,20)
+    before_sync=driver.execute_script("return localStorage.getItem('planoarq:last-sync-at')")
+    before_snapshot=driver.execute_script("return localStorage.getItem('planoarq:last-drive-snapshot')")
     driver.refresh()
     WebDriverWait(driver,25).until(lambda d:d.execute_script("return !!window.PLANO_ARQ_DATA && window.PLANO_ARQ_DATA.isMaintenanceMode()===true"))
-    value=driver.execute_script("return localStorage.getItem('planoarq:maintenance-test:v1')")
-    pin=driver.execute_script("return localStorage.getItem('planoarq:maintenance-pin-sentinel:v1')")
-    runtime=driver.execute_script("return window.PLANO_ARQ_DATA.runtimeFlags()")
+    WebDriverWait(driver,25).until(lambda d:(d.find_element(By.ID,"maintenanceState").text or "").strip()=="ATIVO")
+    try:
+        WebDriverWait(driver,25).until(lambda d:"DESATIVADO" in (d.find_element(By.ID,"pwaSwState").text or ""))
+    except Exception:
+        pass
+    preserved=driver.execute_script("""
+      return {
+        sentinel:localStorage.getItem('planoarq:maintenance-test:v1'),
+        map:localStorage.getItem('mindmap_state::maintenance-smoke'),
+        planning:localStorage.getItem('planoarq:planning::maintenance-smoke'),
+        pin:localStorage.getItem('planoarq:settings-lock:v1'),
+        supabase:localStorage.getItem('planoarq:supabase-config:v1'),
+        drive:localStorage.getItem('planoarq:drive-config:v1'),
+        runtime:window.PLANO_ARQ_DATA.runtimeFlags()
+      }
+    """)
+    idb_read=async_js(driver,"""
+      const done=arguments[0],req=indexedDB.open('planoarq-maintenance-smoke',1);
+      req.onerror=()=>done({ok:false,error:String(req.error)});
+      req.onsuccess=()=>{const db=req.result,tx=db.transaction('state','readonly'),get=tx.objectStore('state').get('sentinel');get.onsuccess=()=>{done({ok:get.result==='preserved',value:get.result});db.close()};get.onerror=()=>done({ok:false,error:String(get.error)})};
+    """,20)
+    guards=async_js(driver,"""
+      const done=arguments[0];
+      Promise.all([
+        Promise.resolve(window.PLANO_ARQ_SYNC?.syncNow?.({reason:'maintenance-smoke'})),
+        Promise.resolve(window.PLANO_ARQ_DRIVE?.maybeAutoSnapshot?.('maintenance-smoke')),
+        Promise.resolve(window.PLANO_ARQ_PWA?.checkUpdate?.())
+      ]).then(([sync,drive,pwa])=>done({
+        sync,drive,pwa,
+        automation:window.PlanoARQActions?.build?.('maintenance-smoke')||[],
+        syncStatus:window.PLANO_ARQ_SYNC?.status?.(),
+        driveStatus:window.PLANO_ARQ_DRIVE?.status?.(),
+        automationStatus:window.PlanoARQActions?.settings?.(),
+        pwaStatus:window.PLANO_ARQ_PWA?.status?.()
+      })).catch(e=>done({error:String(e)}));
+    """,30)
     regs=driver.execute_script("return navigator.serviceWorker.getRegistrations().then(rs=>rs.map(r=>r.scope))")
     controller=driver.execute_script("return navigator.serviceWorker.controller?.scriptURL || null")
     caches_now=driver.execute_script("return caches.keys()")
-    driver.execute_script("localStorage.removeItem('planoarq:maintenance-test:v1');localStorage.removeItem('planoarq:maintenance-pin-sentinel:v1')")
+    after_sync=driver.execute_script("return localStorage.getItem('planoarq:last-sync-at')")
+    after_snapshot=driver.execute_script("return localStorage.getItem('planoarq:last-drive-snapshot')")
+    remote_resources=driver.execute_script("""
+      return performance.getEntriesByType('resource').map(x=>x.name).filter(x=>/supabase\.co|googleapis\.com|accounts\.google\.com/i.test(x))
+    """)
+    ui={i:driver.execute_script("return document.getElementById(arguments[0])?.textContent?.trim() || ''",i) for i in (
+        "maintenanceState","supabaseStatus","driveStatus","automationLayerStatus","pwaLayerStatus",
+        "pwaInstallState","pwaOfflineState","pwaUpdateState","pwaSwState","pwaControlState"
+    )}
+    driver.execute_script("""
+      ['planoarq:maintenance-test:v1','mindmap_state::maintenance-smoke','planoarq:planning::maintenance-smoke',
+       'planoarq:settings-lock:v1','planoarq:supabase-config:v1','planoarq:drive-config:v1'].forEach(k=>localStorage.removeItem(k));
+    """)
+    async_js(driver,"""
+      const done=arguments[0],req=indexedDB.deleteDatabase('planoarq-maintenance-smoke');
+      req.onsuccess=()=>done(true);req.onerror=()=>done(false);req.onblocked=()=>done(false);
+    """,10)
     return {
-        "sentinelPreserved":value==sentinel,
-        "pinSentinelPreserved":pin=="preserve-pin",
-        "runtime":runtime,
+        "sentinelPreserved":preserved.get("sentinel")==sentinel,
+        "mapPreserved":'"sentinel":"done"' in (preserved.get("map") or ""),
+        "planningPreserved":'"sentinel":true' in (preserved.get("planning") or ""),
+        "pinPreserved":'"sentinel":true' in (preserved.get("pin") or ""),
+        "supabaseConfigPreserved":"sentinel.supabase.co" in (preserved.get("supabase") or ""),
+        "driveConfigPreserved":"sentinel-folder" in (preserved.get("drive") or ""),
+        "indexedDbWrite":idb_write,
+        "indexedDbPreserved":bool(idb_read.get("ok")),
+        "runtime":preserved.get("runtime"),
+        "guards":guards,
         "registrations":regs,
         "controller":controller,
         "caches":caches_now,
+        "lastSyncUnchanged":before_sync==after_sync,
+        "lastSnapshotUnchanged":before_snapshot==after_snapshot,
+        "remoteResources":remote_resources,
+        "ui":ui,
     }
 
 def relevant_severe(logs):
@@ -212,13 +287,35 @@ try:
     if maintenance:
         errors=maintenance_assertions(last,expected)
         persistence=verify_maintenance_persistence(driver)
-        if not persistence.get("sentinelPreserved"): errors.append("localStorage não foi preservado após reload em manutenção")
-        if not persistence.get("pinSentinelPreserved"): errors.append("sentinela equivalente ao PIN não foi preservado")
+        if not persistence.get("sentinelPreserved"): errors.append("localStorage genérico não foi preservado após reload em manutenção")
+        if not persistence.get("mapPreserved"): errors.append("estado de mapa local não foi preservado")
+        if not persistence.get("planningPreserved"): errors.append("planejamento local não foi preservado")
+        if not persistence.get("pinPreserved"): errors.append("PIN/configuração local não foi preservado")
+        if not persistence.get("supabaseConfigPreserved"): errors.append("configuração Supabase local não foi preservada")
+        if not persistence.get("driveConfigPreserved"): errors.append("configuração Drive local não foi preservada")
+        if not persistence.get("indexedDbPreserved"): errors.append("IndexedDB não foi preservado")
         if not (persistence.get("runtime") or {}).get("maintenanceMode"): errors.append("flag de manutenção não persistiu após reload")
         if persistence.get("registrations"): errors.append(f"há Service Worker registrado após reload: {persistence.get('registrations')}")
         if persistence.get("controller"): errors.append(f"há Service Worker controlador após reload: {persistence.get('controller')}")
         tech=[x for x in persistence.get("caches") or [] if str(x).startswith("plano-arq-")]
         if tech: errors.append(f"caches técnicos reapareceram após reload: {tech}")
+        guards=persistence.get("guards") or {}
+        if (guards.get("sync") or {}).get("reason")!="maintenance": errors.append("syncNow não foi bloqueado pelo guard de manutenção")
+        if (guards.get("drive") or {}).get("reason")!="maintenance": errors.append("snapshot automático não foi bloqueado pelo guard de manutenção")
+        if not (guards.get("pwa") or {}).get("maintenance"): errors.append("atualização PWA não foi bloqueada pelo guard de manutenção")
+        if guards.get("automation"): errors.append("automação retornou ações durante manutenção")
+        if not ((guards.get("syncStatus") or {}).get("maintenance")): errors.append("status Supabase não informa manutenção")
+        if not ((guards.get("driveStatus") or {}).get("maintenance")): errors.append("status Drive não informa manutenção")
+        if (guards.get("automationStatus") or {}).get("effectiveEnabled") is not False: errors.append("automação efetiva não está OFF")
+        if not ((guards.get("pwaStatus") or {}).get("maintenance")): errors.append("status PWA não informa manutenção")
+        if not persistence.get("lastSyncUnchanged"): errors.append("timestamp de sync mudou durante manutenção")
+        if not persistence.get("lastSnapshotUnchanged"): errors.append("snapshot foi alterado durante manutenção")
+        if persistence.get("remoteResources"): errors.append(f"requisições remotas automáticas detectadas: {persistence.get('remoteResources')}")
+        ui=persistence.get("ui") or {}
+        expected_ui={"maintenanceState":"ATIVO","supabaseStatus":"Pausado","driveStatus":"Pausado","automationLayerStatus":"PAUSADA","pwaLayerStatus":"PAUSADO","pwaInstallState":"PAUSADO","pwaOfflineState":"PAUSADO","pwaUpdateState":"PAUSADO","pwaControlState":"NÃO"}
+        for key,value in expected_ui.items():
+            if ui.get(key)!=value: errors.append(f"UI de manutenção divergente em {key}: {ui.get(key)!r} != {value!r}")
+        if "DESATIVADO" not in (ui.get("pwaSwState") or ""): errors.append("UI não mostra Service Worker desativado")
         assets=driver.execute_async_script("""
           const done=arguments[0];
           Promise.all(['configuracoes.html','assets/js/pa-data-v03.js','assets/js/pa-sync-v03.js','assets/js/pa-drive-v01.js','assets/js/pa-pwa-v01.js'].map(async p=>{
