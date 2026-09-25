@@ -9,6 +9,8 @@ body.pa-internal-mode{
 }
 body.pa-internal-mode button{font:inherit;cursor:pointer}
 body.pa-internal-mode :is(button,a){touch-action:manipulation}
+body.pa-internal-mode :is(input,select){font:inherit}
+body.pa-internal-mode :is(button,input,select):focus-visible{outline:2px solid #9cc6ef;outline-offset:2px}
 
 /* ===== Botões ===== */
 body.pa-internal-mode .primary-btn{
