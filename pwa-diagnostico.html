@@ -9,10 +9,11 @@
 </head>
 <body>
 <pre id="result">executando</pre>
+<script src="assets/js/pa-data-v03.js"></script>
 <script src="assets/js/pa-pwa-v01.js"></script>
 <script>
 (async()=>{
-  const out={timestamp:new Date().toISOString(),href:location.href,protocol:location.protocol,hostname:location.hostname,online:navigator.onLine};
+  const out={timestamp:new Date().toISOString(),href:location.href,protocol:location.protocol,hostname:location.hostname,online:navigator.onLine,maintenance:window.PLANO_ARQ_DATA?.isMaintenanceMode?.()===true};
   const timeout=(p,ms=12000)=>Promise.race([p,new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),ms))]);
   try{
     out.displayModeStandalone=matchMedia('(display-mode: standalone)').matches;
