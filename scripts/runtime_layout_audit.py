@@ -234,6 +234,7 @@ zoom_cases=[]
 scale_cases=[]
 interactive_cases=[]
 touch_cases=[]
+functional_cases=[]
 
 try:
     # Matriz completa: todas as páginas são abertas/renderizadas e fotografadas.
@@ -339,6 +340,191 @@ try:
             driver.find_element(By.ID,"paMobileMoreBtn").click()
         driver.execute_cdp_cmd("Emulation.setTouchEmulationEnabled",{"enabled":False,"maxTouchPoints":1})
         driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride",{})
+
+    # J8.2: interações funcionais principais em desktop, iPad e celular.
+    def add_functional(page,width,height,checks):
+        ok=all(bool(v) for v in checks.values())
+        case={"page":page,"viewport":{"width":width,"height":height},"checks":checks,"ok":ok}
+        functional_cases.append(case)
+        if not ok:
+            failed=", ".join(k for k,v in checks.items() if not v)
+            errors.append(f"funcional-{page}@{width}x{height}: falhou em {failed}")
+
+    for width,height in ((1440,1000),(834,1112),(390,844)):
+        driver.set_window_size(width,height)
+
+        # Central do Edital: tabs precisam alternar conteúdo sem trocar de página.
+        driver.get(urljoin(base,f"edital.html?contest={contest}"));wait_ready()
+        driver.find_element(By.CSS_SELECTOR,'[data-tab="exam"]').click()
+        exam_tab=driver.execute_script("""
+          const b=document.querySelector('[data-tab="exam"]'),v=document.querySelector('[data-view="exam"]');
+          return !!b?.classList.contains('active') && !!v && v.hidden===false;
+        """)
+        driver.find_element(By.CSS_SELECTOR,'[data-tab="files"]').click()
+        files_tab=driver.execute_script("""
+          const b=document.querySelector('[data-tab="files"]'),v=document.querySelector('[data-view="files"]');
+          return !!b?.classList.contains('active') && !!v && v.hidden===false;
+        """)
+        add_functional("edital",width,height,{"tabProva":exam_tab,"tabArquivos":files_tab})
+        driver.save_screenshot(str(out_dir/f"funcional-edital-{width}x{height}.png"))
+
+        # Biblioteca: pesquisa, filtro, ordenação e abertura/fechamento real de um mapa.
+        driver.get(urljoin(base,f"biblioteca.html?contest={contest}"));wait_ready()
+        before_cards=driver.execute_script("return document.querySelectorAll('.library-card').length")
+        driver.execute_script("""
+          const s=document.getElementById('search');s.value='__plano_arq_sem_resultado__';s.dispatchEvent(new Event('input',{bubbles:true}));
+        """)
+        no_results=driver.execute_script("return document.querySelectorAll('.library-card').length===0 && document.getElementById('empty')?.hidden===false")
+        driver.execute_script("""
+          const s=document.getElementById('search');s.value='';s.dispatchEvent(new Event('input',{bubbles:true}));
+          const sort=document.getElementById('sortSelect');sort.value='title';sort.dispatchEvent(new Event('change',{bubbles:true}));
+        """)
+        restored=driver.execute_script("return document.querySelectorAll('.library-card').length===arguments[0] && document.getElementById('sortSelect')?.value==='title'",before_cards)
+        filters=driver.find_elements(By.CSS_SELECTOR,"#statusFilters [data-status]")
+        filter_ok=False
+        if filters:
+            filters[0].click()
+            filter_ok=driver.execute_script("return document.querySelector('#statusFilters .filter.active')?.dataset.status===''")
+        openers=driver.find_elements(By.CSS_SELECTOR,".library-card [data-open]")
+        viewer_open=False
+        viewer_closed=False
+        if openers:
+            openers[0].click()
+            try:
+                WebDriverWait(driver,8).until(lambda d:d.execute_script("return document.getElementById('viewer')?.classList.contains('open')===true"))
+                viewer_open=driver.execute_script("""
+                  const v=document.getElementById('viewer'),f=document.getElementById('frame'),n=document.getElementById('viewerName');
+                  return v?.classList.contains('open')===true && !!f && (f.src!=='about:blank'||(f.srcdoc||'').length>100) && (n?.textContent||'').trim()!=='Material';
+                """)
+                driver.find_element(By.ID,"closeBtn").click()
+                WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.getElementById('viewer')?.classList.contains('open')!==true"))
+                viewer_closed=driver.execute_script("return document.body.style.overflow!=='hidden' && document.getElementById('frame')?.src==='about:blank'")
+            except Exception:
+                viewer_open=False
+        add_functional("mapas",width,height,{"temCards":before_cards>0,"pesquisaVazia":no_results,"restauraBuscaOrdena":restored,"filtro":filter_ok,"abreMapa":viewer_open,"fechaMapa":viewer_closed})
+        driver.save_screenshot(str(out_dir/f"funcional-mapas-{width}x{height}.png"))
+
+        # Planejamento: formulário e presets devem reagir sem persistir alterações de auditoria.
+        driver.get(urljoin(base,f"planejamento.html?contest={contest}"));wait_ready()
+        first_hours=driver.find_elements(By.CSS_SELECTOR,"[data-hours]")
+        preset=driver.find_elements(By.CSS_SELECTOR,'[data-preset="strong"]')
+        preset_ok=False
+        input_ok=False
+        if preset and first_hours:
+            preset[0].click()
+            preset_ok=driver.execute_script("return [...document.querySelectorAll('[data-hours]')].some(x=>Number(x.value)>=3)")
+            el=driver.find_elements(By.CSS_SELECTOR,"[data-hours]")[0]
+            key=el.get_attribute("data-hours")
+            driver.execute_script("arguments[0].value='2.5';arguments[0].dispatchEvent(new Event('input',{bubbles:true}))",el)
+            input_ok=driver.execute_script("""
+              const k=arguments[0],e=document.querySelector('[data-hours="'+k+'"]'),label=document.querySelector('[data-effective="'+k+'"]');
+              return Number(e?.value)===2.5 && !!(label?.textContent||'').trim();
+            """,key)
+        add_functional("planejamento",width,height,{"preset":preset_ok,"entradaHoras":input_ok,"gerarDisponivel":driver.execute_script("return document.getElementById('generateBtn')?.disabled===false")})
+        driver.save_screenshot(str(out_dir/f"funcional-planejamento-{width}x{height}.png"))
+
+        # Questões: filtros/pesquisa e abertura do motor original.
+        driver.get(urljoin(base,f"questoes.html?contest={contest}"));wait_ready()
+        all_chip=driver.find_elements(By.CSS_SELECTOR,'[data-filter="all"]')
+        q_filter=False
+        q_search=False
+        q_view=False
+        q_close=False
+        if all_chip:
+            all_chip[0].click()
+            q_filter=driver.execute_script("return document.querySelector('[data-filter="all"]')?.classList.contains('active')===true")
+            driver.execute_script("""
+              const s=document.getElementById('search');s.value='__sem_topico__';s.dispatchEvent(new Event('input',{bubbles:true}));
+            """)
+            q_search=driver.execute_script("return document.querySelector('#queue .empty')!==null")
+            driver.execute_script("""
+              const s=document.getElementById('search');s.value='';s.dispatchEvent(new Event('input',{bubbles:true}));
+            """)
+            trainers=driver.find_elements(By.CSS_SELECTOR,"#queue [data-train]")
+            if trainers:
+                trainers[0].click()
+                try:
+                    WebDriverWait(driver,8).until(lambda d:d.execute_script("return document.getElementById('viewer')?.classList.contains('open')===true"))
+                    q_view=driver.execute_script("return document.getElementById('questionFrame')?.src!=='about:blank'")
+                    driver.find_element(By.ID,"viewerClose").click()
+                    q_close=driver.execute_script("return document.getElementById('viewer')?.classList.contains('open')!==true")
+                except Exception:
+                    q_view=False
+        add_functional("questoes",width,height,{"filtroTodos":q_filter,"pesquisa":q_search,"abreTreino":q_view,"fechaTreino":q_close})
+        driver.save_screenshot(str(out_dir/f"funcional-questoes-{width}x{height}.png"))
+
+        # Revisões: filtros permanecem funcionais mesmo com fila vazia.
+        driver.get(urljoin(base,f"revisoes.html?contest={contest}"));wait_ready()
+        rev_all=driver.find_elements(By.CSS_SELECTOR,'[data-filter="all"]')
+        rev_filter=False
+        rev_search=False
+        if rev_all:
+            rev_all[0].click()
+            rev_filter=driver.execute_script("return document.querySelector('[data-filter="all"]')?.classList.contains('active')===true")
+            driver.execute_script("""
+              const s=document.getElementById('search');s.value='auditoria';s.dispatchEvent(new Event('input',{bubbles:true}));
+            """)
+            rev_search=driver.execute_script("return document.getElementById('queue')!==null && document.getElementById('queueCount')!==null")
+        add_functional("revisoes",width,height,{"filtroTodas":rev_filter,"pesquisa":rev_search})
+        driver.save_screenshot(str(out_dir/f"funcional-revisoes-{width}x{height}.png"))
+
+        # Arquivos: filtro oficial e viewer do edital.
+        driver.get(urljoin(base,f"arquivos.html?contest={contest}"));wait_ready()
+        official=driver.find_elements(By.CSS_SELECTOR,'[data-filter="official"]')
+        file_filter=False
+        file_open=False
+        file_close=False
+        if official:
+            official[0].click()
+            file_filter=driver.execute_script("return document.querySelector('[data-filter="official"]')?.classList.contains('active')===true && document.querySelectorAll('.file-row').length>=1")
+            open_btn=driver.find_elements(By.CSS_SELECTOR,".file-row [data-open]")
+            if open_btn:
+                open_btn[0].click()
+                try:
+                    WebDriverWait(driver,6).until(lambda d:d.execute_script("return document.getElementById('viewer')?.classList.contains('open')===true"))
+                    file_open=driver.execute_script("return document.getElementById('fileFrame')?.src!=='about:blank' && (document.getElementById('viewerTitle')?.textContent||'').trim().length>0")
+                    driver.find_element(By.ID,"viewerClose").click()
+                    file_close=driver.execute_script("return document.getElementById('viewer')?.classList.contains('open')!==true")
+                except Exception:
+                    file_open=False
+        add_functional("arquivos",width,height,{"filtroOficial":file_filter,"abreDocumento":file_open,"fechaDocumento":file_close})
+        driver.save_screenshot(str(out_dir/f"funcional-arquivos-{width}x{height}.png"))
+
+        # Configurações: preferência local e modal de confirmação sem executar ação destrutiva.
+        driver.get(urljoin(base,f"configuracoes.html?contest={contest}"));wait_ready()
+        original_prefs=driver.execute_script("return localStorage.getItem('planoarq:preferences:v1')")
+        driver.execute_script("""
+          const d=document.getElementById('density');d.value='compact';d.dispatchEvent(new Event('change',{bubbles:true}));
+        """)
+        density_ok=driver.execute_script("""
+          const p=JSON.parse(localStorage.getItem('planoarq:preferences:v1')||'{}');
+          return p.density==='compact' && document.documentElement.dataset.paDensity==='compact';
+        """)
+        driver.find_element(By.ID,"resetContest").click()
+        dialog_open=driver.execute_script("return document.getElementById('dialog')?.classList.contains('open')===true && document.getElementById('dialogInput')?.hidden===false")
+        driver.find_element(By.ID,"dialogCancel").click()
+        dialog_close=driver.execute_script("return document.getElementById('dialog')?.classList.contains('open')!==true")
+        driver.execute_script("""
+          const raw=arguments[0];
+          if(raw===null)localStorage.removeItem('planoarq:preferences:v1');else localStorage.setItem('planoarq:preferences:v1',raw);
+          dispatchEvent(new Event('planoarq:preferences'));
+        """,original_prefs)
+        add_functional("configuracoes",width,height,{"densidade":density_ok,"abreModal":dialog_open,"cancelaModal":dialog_close})
+        driver.save_screenshot(str(out_dir/f"funcional-configuracoes-{width}x{height}.png"))
+
+        # Navegação entre módulos pelo controle canônico visível em cada largura.
+        driver.get(urljoin(base,f"planejamento.html?contest={contest}"));wait_ready()
+        if width>900:
+            nav=driver.find_element(By.CSS_SELECTOR,'.pa-sidebar [data-pa-nav="edital"]')
+        else:
+            nav=driver.find_element(By.CSS_SELECTOR,'#paMobileNav a[href*="edital.html"]')
+        nav.click()
+        try:
+            WebDriverWait(driver,6).until(lambda d:"edital.html" in d.current_url)
+            nav_ok=driver.execute_script("return document.body.dataset.paPage==='edital'")
+        except Exception:
+            nav_ok=False
+        add_functional("navegacao",width,height,{"planejamentoParaEdital":nav_ok})
 
     # Wizard Novo Concurso: três etapas, sem concluir a criação.
     for width,height in ((1440,1000),(834,1112),(430,932),(375,812)):
@@ -598,7 +784,7 @@ try:
             append_errors(data,f"escala-{page}@{dpr}",errors)
     driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride",{})
 
-    report={"base":base,"rows":rows,"modalCases":modal_cases,"sidebarCases":sidebar_cases,"touchCases":touch_cases,"longTextCases":long_text_cases,"zoomCases":zoom_cases,"zoomEffective":zoom_effective,"scaleCases":scale_cases,"interactiveCases":interactive_cases,"errors":errors}
+    report={"base":base,"rows":rows,"modalCases":modal_cases,"sidebarCases":sidebar_cases,"touchCases":touch_cases,"functionalCases":functional_cases,"longTextCases":long_text_cases,"zoomCases":zoom_cases,"zoomEffective":zoom_effective,"scaleCases":scale_cases,"interactiveCases":interactive_cases,"errors":errors}
     (out_dir/"report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2),"utf-8")
     summary={
         "base":base,
@@ -609,6 +795,8 @@ try:
         "sidebarCases":len(sidebar_cases),
         "touchCases":len(touch_cases),
         "touchFailures":[x for x in touch_cases if not x.get("ok")],
+        "functionalCases":len(functional_cases),
+        "functionalFailures":[x for x in functional_cases if not x.get("ok")],
         "navigationFailures":[{"page":r["page"],"viewport":r["requestedViewport"],"navigation":r.get("navigation")} for r in rows if any("navegação" in e and f"{r['page']}@{r['requestedViewport']['width']}x{r['requestedViewport']['height']}" in e for e in errors)],
         "longTextCases":len(long_text_cases),
         "zoomCases":len(zoom_cases),
