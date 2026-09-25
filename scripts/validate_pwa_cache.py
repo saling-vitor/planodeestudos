@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import json
 import re
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -37,6 +38,55 @@ for token in mutable_blocks:
 # O pacote offline deve ser substituído apenas após download completo.
 if "if(failed)" not in sw or "await caches.delete(temp)" not in sw:
     errors.append("service worker: atualização offline não é transacional")
+
+# O pacote offline completo deve refletir integralmente o conteúdo publicado.
+pack_path=ROOT/"data/offline-pack.json"
+if not pack_path.is_file():
+    errors.append("PWA: manifesto offline gerado ausente")
+else:
+    try:
+        pack=json.loads(pack_path.read_text("utf-8"))
+        full=pack.get("full") or []
+        full_paths=[x.get("path","") for x in full if isinstance(x,dict)]
+        full_set=set(full_paths)
+        if len(full_paths)!=len(full_set):
+            errors.append("PWA: manifesto offline contém caminhos duplicados")
+        required=[]
+        for folder in ("materials","simulados","edital"):
+            base=ROOT/folder
+            if base.is_dir():
+                required.extend(
+                    p.relative_to(ROOT).as_posix()
+                    for p in base.rglob("*") if p.is_file()
+                )
+        required.extend([
+            "assets/css/study-map-shared-v01.css",
+            "assets/css/simulation-shared-v01.css",
+            "assets/js/study-map-bootstrap-v01.js",
+            "assets/js/study-map-preconfig-v01.js",
+            "assets/js/study-map-runtime-v01.js",
+            "assets/js/simulation-runtime-v01.js",
+            "assets/img/study-map-hero.jpg",
+        ])
+        missing=sorted(set(required)-full_set)
+        if missing:
+            errors.append(
+                "PWA: pacote offline completo não inclui: "
+                + ", ".join(missing[:8])
+                + (f" +{len(missing)-8}" if len(missing)>8 else "")
+            )
+        broken=sorted(
+            p for p in full_set
+            if p and not (ROOT/p).is_file()
+        )
+        if broken:
+            errors.append(
+                "PWA: manifesto offline referencia arquivo ausente: "
+                + ", ".join(broken[:8])
+                + (f" +{len(broken)-8}" if len(broken)>8 else "")
+            )
+    except (OSError,ValueError,TypeError) as exc:
+        errors.append(f"PWA: manifesto offline inválido ({exc})")
 
 if errors:
     for error in errors:
