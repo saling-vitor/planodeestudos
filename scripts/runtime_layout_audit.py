@@ -231,11 +231,11 @@ try:
         WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.getElementById('modal')?.classList.contains('open')===true"))
         for step in (1,2,3):
             if step==2:
-                driver.execute_script("document.getElementById('fTitle').value='Prefeitura Municipal de Nome Muito Longo para Teste Responsivo';document.getElementById('fPosition').value='Arquiteto e Urbanista - Planejamento, Projetos e Fiscalização';")
-                driver.find_element(By.ID,"nextStep").click()
+                driver.find_element(By.ID,"manualContestBtn").click()
                 WebDriverWait(driver,5).until(lambda d:d.execute_script("""return document.querySelector('[data-step="2"]')?.hidden===false"""))
+                driver.execute_script("document.getElementById('rwTitle').value='Prefeitura Municipal de Nome Muito Longo para Teste Responsivo';document.getElementById('rwPosition').value='Arquiteto e Urbanista - Planejamento, Projetos e Fiscalização';")
             elif step==3:
-                driver.execute_script("document.getElementById('fNotice').value='Edital de Abertura 001/2027 com retificações';document.getElementById('fNote').value='Observação extensa para testar conteúdo variável sem quebrar a composição do modal.';")
+                driver.execute_script("document.getElementById('rwNotice').value='Edital de Abertura 001/2027 com retificações';document.getElementById('rwNote').value='Observação extensa para testar conteúdo variável sem quebrar a composição do modal.';")
                 driver.find_element(By.ID,"nextStep").click()
                 WebDriverWait(driver,5).until(lambda d:d.execute_script("""return document.querySelector('[data-step="3"]')?.hidden===false"""))
             info=driver.execute_script("""
