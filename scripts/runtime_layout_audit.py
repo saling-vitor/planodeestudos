@@ -247,7 +247,7 @@ try:
                       {date:'2027-10-20',label:'Divulgação do gabarito preliminar',kind:'answer-key',status:'edital'}
                     ]
                   };
-                  w.renderReview();w.updateSteps();
+                  w.renderReview();w.updateSteps();document.getElementById('nextStep').hidden=false;
                   document.getElementById('rwTitle').value='Prefeitura Municipal de Nome Muito Longo para Teste Responsivo';
                   document.getElementById('rwPosition').value='Arquiteto e Urbanista - Planejamento, Projetos e Fiscalização';
                 """)
