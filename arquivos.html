@@ -73,7 +73,7 @@ function categoryRank(c){const order=['Edital','Retificação','Comunicado','Cro
 function isUpdate(f){return updateCats.has(f.category)||f.category==='Retificação'}
 function currentOfficial(){return [...files].filter(f=>f.official&&f.category==='Edital'&&f.status==='vigente').sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')))[0]||files.find(f=>f.official&&f.category==='Edital')||files.find(f=>f.official)}
 function counts(){const fav=getFav(),updates=files.filter(isUpdate);$('mFiles').textContent=files.length;$('mUpdates').textContent=updates.length;$('mFavorites').textContent=files.filter(x=>fav.has(x.id)).length;$('cAll').textContent=files.length;$('cOfficial').textContent=files.filter(x=>x.official).length;$('cUpdates').textContent=updates.length;$('cLinked').textContent=files.filter(x=>x.linkedToEdital).length;$('cFav').textContent=files.filter(x=>fav.has(x.id)).length}
-function renderCurrent(){const f=currentOfficial();if(!f){$('currentDoc').innerHTML='<div><div class="current-k">Documento vigente</div><h3>Nenhum edital vigente indexado</h3><p>Adicione o documento oficial ao manifesto do concurso.</p></div>';return}
+function renderCurrent(){const f=currentOfficial();if(!f){$('currentDoc').innerHTML='<div><div class="current-k">Documento vigente</div><h3>Nenhum edital vigente indexado</h3><p>O documento vigente aparecerá aqui quando estiver cadastrado para este concurso.</p></div>';return}
  $('currentDoc').innerHTML=`<div><div class="current-k">Documento vigente</div><h3>${esc(f.title)}</h3><p>${esc(f.organization||contest.organization||'')}${f.board?' · '+esc(f.board):''}</p><div class="current-meta"><span class="meta-chip live">VIGENTE</span>${f.date?`<span class="meta-chip">Publicado ${fmtDate(f.date)}</span>`:''}${f.protocol?`<span class="meta-chip">Protocolo ${esc(f.protocol)}</span>`:''}${f.process?`<span class="meta-chip">Processo ${esc(f.process)}</span>`:''}${f.sizeBytes?`<span class="meta-chip">${fmtBytes(f.sizeBytes)}</span>`:''}</div></div><div class="current-actions"><button type="button" class="ghost-btn" id="currentEditalBtn">Central do Edital</button><button type="button" class="primary-btn" id="currentOpenBtn">Abrir documento</button></div>`;
  $('currentEditalBtn').onclick=()=>location.href=`edital.html?contest=${encodeURIComponent(contestId)}`;$('currentOpenBtn').onclick=()=>openFile(f.id)
 }
@@ -84,7 +84,7 @@ function render(){
  counts();renderCurrent();
  const fav=getFav(),r=filtered(),emptyMsg=filter==='updates'
    ?'Ainda não há retificações, comunicados ou outros atos indexados.'
-   :'Ajuste os filtros ou adicione novos documentos ao manifesto.';
+   :'Ajuste os filtros para visualizar outros documentos. Novos arquivos aparecem aqui quando forem cadastrados para este concurso.';
  $('listCount').textContent=`${r.length} arquivo${r.length===1?'':'s'}`;
  if(!r.length){
    $('fileList').innerHTML=`<div class="empty"><strong>Nenhum documento neste filtro</strong><span>${esc(emptyMsg)}</span></div>`
