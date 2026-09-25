@@ -44,7 +44,8 @@ input,select{font:inherit}.primary-btn:disabled{opacity:.38;cursor:not-allowed}.
 .rec-grid{grid-template-columns:1fr}.rec-actions{justify-content:flex-start}.device-data{align-items:flex-start}.device-actions{width:100%}.device-actions button{flex:1}
 }
 </style>
-<script src="data/contests.js"></script><script src="data/materials.js"></script><script src="data/question-catalog.js"></script>
+<script src="data/contests.js"></script>
+<script src="assets/js/pa-contest-context-v01.js"></script><script src="data/materials.js"></script><script src="data/question-catalog.js"></script>
 <script src="data/navigation.js"></script>
 <link rel="stylesheet" href="assets/css/pa-tokens-v01.css"><link rel="stylesheet" href="assets/css/pa-shell-v16.css">
 
@@ -97,7 +98,7 @@ input,select{font:inherit}.primary-btn:disabled{opacity:.38;cursor:not-allowed}.
 
 <script>
 (()=>{'use strict';
-const $=id=>document.getElementById(id),D=window.PLANO_ARQ_DATA,params=new URLSearchParams(location.search),contestId=params.get('contest')||'demhab-poa-arquiteto-2026',autoMap=params.get('map')||'',autoStart=params.get('autostart')==='1';
+const $=id=>document.getElementById(id),D=window.PLANO_ARQ_DATA,params=new URLSearchParams(location.search),contestId=window.PLANO_ARQ_CONTEST_CONTEXT.resolveId(),autoMap=params.get('map')||'',autoStart=params.get('autostart')==='1';
 const seed=window.PLANO_ARQ_CONTESTS?.contests||[],materials=(window.PLANO_ARQ_MATERIALS?.materials||[]).filter(m=>!m.contestId||m.contestId===contestId),topics=(window.PLANO_ARQ_QUESTION_CATALOG?.topics||[]).filter(t=>t.contestId===contestId),summary=window.PLANO_ARQ_QUESTION_CATALOG?.summary||{};
 const local=(()=>{try{return JSON.parse(localStorage.getItem('planoarq:contests:v1')||'[]')}catch(_){return[]}})(),by=new Map(seed.map(x=>[x.id,{...x}]));local.forEach(x=>by.set(x.id,{...(by.get(x.id)||{}),...x}));const contest=by.get(contestId)||{};
 let filter='recommended',currentTraining=null,pendingRequest=null,lastRows=[],queueLimit=30;

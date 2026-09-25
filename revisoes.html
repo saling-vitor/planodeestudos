@@ -8,7 +8,8 @@
 .review-timeline{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.review-day{padding:11px;border:1px solid var(--line2);border-radius:10px;background:rgba(255,255,255,.012);transition:.15s}.review-day.today{border-color:rgba(109,130,152,.22);background:rgba(109,130,152,.035)}.review-day span{display:block;color:#767a81;font:750 8px var(--mono);text-transform:uppercase}.review-day b{display:block;margin-top:6px;font:800 19px var(--cond)}.review-day small{display:block;margin-top:3px;color:#6f747b;font-size:8.4px}.review-day em{display:block;margin-top:5px;color:#777d84;font-size:7.8px;font-style:normal}.viewer-head small{display:block;color:#7d828a;font:760 8px var(--mono);text-transform:uppercase}.viewer-head strong{display:block;margin-top:4px;font-size:12px}.grade-actions{display:flex;gap:8px}.grade{min-height:45px;padding:0 14px;border:1px solid var(--line);border-radius:9px;background:#11141a;color:#d0d3d8;font-size:10px;font-weight:780}.grade:disabled{opacity:.4;cursor:default}.grade.wrong{border-color:rgba(217,103,115,.38);color:#e09aa2}.grade.doubt{border-color:rgba(216,184,88,.34);color:#d8c37e}.grade.right{border-color:rgba(98,169,120,.34);color:#acd1b6}.viewer-status b{color:#aab1b8}.keyboard-hint{display:block;margin-top:3px;color:#595f67;font-size:8px}
 @media(max-width:1220px){.review-row{grid-template-columns:90px 58px minmax(0,1fr) auto}.topic-stats{display:none}.review-timeline{grid-template-columns:repeat(4,1fr)}}@media(max-width:900px){.review-row{grid-template-columns:68px minmax(0,1fr);gap:8px}.map-code{grid-column:1}.topic{grid-column:2}.due{grid-column:1}.row-actions{grid-column:1/-1;justify-content:flex-end}.review-timeline{grid-template-columns:repeat(2,1fr)}.grade-actions{display:grid;grid-template-columns:repeat(3,1fr)}.sync-stamp{display:none}}
 </style>
-<script src="data/contests.js"></script><script src="data/materials.js"></script><script src="data/review-catalog.js"></script>
+<script src="data/contests.js"></script>
+<script src="assets/js/pa-contest-context-v01.js"></script><script src="data/materials.js"></script><script src="data/review-catalog.js"></script>
 <script src="data/navigation.js"></script>
 <link rel="stylesheet" href="assets/css/pa-tokens-v01.css"><link rel="stylesheet" href="assets/css/pa-shell-v16.css">
 
@@ -50,7 +51,7 @@
 
 <script>
 (()=>{'use strict';
-const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),contestId=params.get('contest')||'demhab-poa-arquiteto-2026',mapParam=params.get('map')||'',autoStart=params.get('autostart')==='1';
+const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),contestId=window.PLANO_ARQ_CONTEST_CONTEXT.resolveId(),mapParam=params.get('map')||'',autoStart=params.get('autostart')==='1';
 const seed=window.PLANO_ARQ_CONTESTS?.contests||[],materials=(window.PLANO_ARQ_MATERIALS?.materials||[]).filter(m=>!m.contestId||m.contestId===contestId),topics=(window.PLANO_ARQ_REVIEW_CATALOG?.topics||[]).filter(t=>t.contestId===contestId);
 const local=(()=>{try{return JSON.parse(localStorage.getItem('planoarq:contests:v1')||'[]')}catch(_){return[]}})(),by=new Map(seed.map(x=>[x.id,{...x}]));local.forEach(x=>by.set(x.id,{...(by.get(x.id)||{}),...x}));const contest=by.get(contestId)||{};
 let filter='due',current=null,pendingRequest=null,viewerOpenedAt=0,autoStarted=false;const reviewedThisRun=new Set();

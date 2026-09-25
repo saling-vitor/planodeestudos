@@ -12,7 +12,8 @@
 @media(max-width:520px){.exam-meta{grid-template-columns:repeat(3,1fr)}}
 </style>
 <link rel="stylesheet" href="assets/css/pa-tokens-v01.css"><link rel="stylesheet" href="assets/css/pa-shell-v16.css"><link rel="stylesheet" href="assets/css/pa-components-v01.css">
-<script src="data/contests.js"></script><script src="data/navigation.js"></script><script src="data/exam-schemas.js"></script><script src="data/simulations.js"></script><script src="data/materials.js"></script><script src="data/cloud-config.js"></script>
+<script src="data/contests.js"></script>
+<script src="assets/js/pa-contest-context-v01.js"></script><script src="data/navigation.js"></script><script src="data/exam-schemas.js"></script><script src="data/simulations.js"></script><script src="data/materials.js"></script><script src="data/cloud-config.js"></script>
 
 <meta name="plano-arq-internal-shell" content="canonical-2026-09"/>
 </head>
@@ -27,7 +28,7 @@
 <script src="assets/js/pa-data-v03.js"></script><script src="assets/js/pa-sync-v03.js"></script><script src="assets/js/pa-drive-v01.js"></script><script src="assets/js/pa-pwa-v01.js"></script><script src="assets/js/pa-shell-v16.js"></script>
 <script>
 (()=>{'use strict';
-const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),contestId=params.get('contest')||localStorage.getItem('planoarq:active-contest:v1')||localStorage.getItem('planoarq:active-contest')||'demhab-poa-arquiteto-2026';
+const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),contestId=window.PLANO_ARQ_CONTEST_CONTEXT.resolveId();
 let filter='all';
 const sims=(window.PLANO_ARQ_SIMULATIONS?.simulations||[]).filter(x=>x.contestId===contestId),schemas=window.PLANO_ARQ_EXAM_SCHEMAS?.schemas||[],contest=(window.PLANO_ARQ_CONTESTS?.contests||[]).find(x=>x.id===contestId)||{},schema=schemas.find(x=>x.id===contestId)||{},objective=(schema.stages||[]).find(x=>x.type==='objective')||{};
 const safe=(v,f)=>{try{return JSON.parse(v)??f}catch(_){return f}},history=()=>safe(localStorage.getItem(`planoarq:simulations::${contestId}`),[]).slice().sort((a,b)=>String(b.finishedAt||'').localeCompare(String(a.finishedAt||'')));
