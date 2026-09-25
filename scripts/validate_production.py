@@ -336,9 +336,14 @@ def main():
         if "Supabase Storage" not in (ROOT/"configuracoes.html").read_text("utf-8",errors="ignore"):
             errors.append("Etapa F: status do Supabase Storage não está visível em Configurações")
         index_text=(ROOT/"index.html").read_text("utf-8",errors="ignore")
-        for token in ("pa-edict-pdf-v01.js","pa-edict-parser-v01.js","pa-edict-flow-v01.js","pa-contest-import-v01.js"):
+        for token in ("pa-edict-pdf-v01.js","pa-edict-parser-v01.js","pa-edict-flow-v01.js","pa-study-blueprint-v01.js","pa-contest-import-v01.js"):
             if token not in index_text:
                 errors.append(f"Novo Concurso: index não carrega {token}")
+        blueprint_path=ROOT/"assets/js/pa-study-blueprint-v01.js"
+        blueprint_js=blueprint_path.read_text("utf-8",errors="ignore") if blueprint_path.exists() else ""
+        for token in ("study-blueprint::","buildAndSave","splitTopics","mapsForSection","createdFrom:'programa-do-edital'"):
+            if token not in blueprint_js:
+                errors.append(f"Etapa G: contrato de pós-importação ausente: {token}")
         if "planoarq:contests:v1" not in sync_js or "Array.isArray(local)?local:[]" not in sync_js:
             errors.append("pa-sync-v03.js: concursos dinâmicos não entram no isolamento de sincronização")
 

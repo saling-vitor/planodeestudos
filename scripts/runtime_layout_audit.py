@@ -299,6 +299,11 @@ try:
       }catch(e){done({ok:false,error:String(e)})}})();
     """)
     if not persisted.get("ok"):errors.append("novo-concurso Etapa E: schema/PDF não persistidos")
+    study_blueprint=driver.execute_script("""
+      const id=new URLSearchParams(location.search).get('contest'),b=JSON.parse(localStorage.getItem('planoarq:study-blueprint::'+id)||'null');
+      return b?{ok:(b.maps||[]).length>=2&&(b.summary?.topics||0)>=1,maps:b.maps?.length||0,topics:b.summary?.topics||0,coverage:b.summary?.coveragePct||0}:{ok:false};
+    """)
+    if not study_blueprint.get("ok"):errors.append("novo-concurso Etapa G: estrutura de estudos não foi preparada")
     file_sync=driver.execute_async_script("""
       const done=arguments[arguments.length-1],id=new URLSearchParams(location.search).get('contest'),D=window.PLANO_ARQ_DATA,S=window.PLANO_ARQ_SYNC,oldFetch=window.fetch;
       const uid='00000000-0000-4000-8000-000000000001',objects=new Map(),base=S.config().url;

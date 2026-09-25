@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const API={version:'3.3'};
+const API={version:'3.4'};
 const RUNTIME_KEY='planoarq:runtime-flags:v1';
 const CONTESTS_KEY='planoarq:contests:v1',EXAM_SCHEMA_PREFIX='planoarq:exam-schema::',CONTEST_FILES_PREFIX='planoarq:contest-files::',IMPORT_DRAFT_PREFIX='planoarq:contest-import-draft::';
 const safeJSON=(v,f)=>{try{return JSON.parse(v)??f}catch(_){return f}};

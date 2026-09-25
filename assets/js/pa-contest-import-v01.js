@@ -112,9 +112,11 @@ async function next(){
    }
    if(fileMeta)D.upsertContestFile(id,fileMeta);
    const contest={id,title:d.title,organization:d.organization||d.title,position:d.position,positionCode:d.positionCode||'',board:d.board||'',notice:d.notice||'',city:d.city||'',examDate:d.examDate||'',examDateStatus:d.examDateStatus||schema?.examDate?.status||'',status:'active',edital:fileId||'',examSchemaId:schema?id:'',note:d.note||'',createdAt:createdDay,source:state.mode==='auto'?'pdf-import':'user',importedEdict:!!fileMeta};
+   const studyBlueprint=schema?window.PLANO_ARQ_STUDY_BLUEPRINT?.buildAndSave?.(id,schema,contest):null;
+   if(studyBlueprint)contest.studyBlueprint={key:'planoarq:study-blueprint::'+id,maps:studyBlueprint.summary?.maps||0,topics:studyBlueprint.summary?.topics||0,coveragePct:studyBlueprint.summary?.coveragePct||0};
    D.saveContest(contest);
    D.saveImportDraft?.(id,{...d,contestId:id,fileId,createdAt,source:contest.source});
-   localStorage.setItem('planoarq:active-contest:v1',id);close();toast('Novo concurso criado.');location.href='edital.html?contest='+encodeURIComponent(id)
+   localStorage.setItem('planoarq:active-contest:v1',id);close();toast(studyBlueprint?'Concurso criado e estrutura de estudos preparada.':'Novo concurso criado.');location.href='edital.html?contest='+encodeURIComponent(id)
   }catch(err){
    if(fileId)try{await D.deleteContestBlob?.(id,fileId)}catch(_){}
    toast(err?.message||'Não foi possível criar o concurso.');
