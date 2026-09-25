@@ -26,7 +26,7 @@ async function refreshSession(){const s=session();if(!s?.refresh_token)throw new
 async function ensureSession(){let s=session();if(!s?.access_token)return null;if((Number(s.expires_at||0)*1000)-Date.now()<90000){try{s=await refreshSession()}catch(err){if([400,401,403].includes(err.status))clearSession();throw err}}return s}
 async function signOut(){const s=session();if(s?.access_token&&configured()){const c=config();try{await fetch(`${c.url}/auth/v1/logout`,{method:'POST',headers:headers(true)})}catch(_){}}clearSession();return {ok:true}}
 function syncable(k){if(!k)return false;if(k.startsWith('mindmap_state::'))return true;if(!k.startsWith('planoarq:'))return false;return !(
- k==='planoarq:device-id:v1'||k==='planoarq:device-name:v1'||k==='planoarq:active-contest'||k==='planoarq:activeContest'||k==='planoarq:preferences:v1'||
+ k==='planoarq:device-id:v1'||k==='planoarq:device-name:v1'||k==='planoarq:active-contest:v1'||k==='planoarq:active-contest'||k==='planoarq:activeContest'||k==='planoarq:preferences:v1'||
  k.startsWith('planoarq:supabase-')||k.startsWith('planoarq:sync-')||k.startsWith('planoarq:drive-')||k.startsWith('planoarq:last-drive')||k.startsWith('planoarq:last-sync')||k.startsWith('planoarq:last-backup')||k.startsWith('planoarq:reset::')||k.startsWith('planoarq:preview-demo')
 )}
 function allLocalKeys(){const a=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(syncable(k))a.push(k)}return a.sort()}
