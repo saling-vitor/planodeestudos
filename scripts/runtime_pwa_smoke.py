@@ -5,7 +5,9 @@ from pathlib import Path
 import shutil
 import sys
 import time
+from urllib.error import HTTPError
 from urllib.parse import urljoin
+from urllib.request import Request,urlopen
 
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
@@ -25,6 +27,36 @@ state_file=Path(os.environ.get("PWA_STATE_FILE") or "/tmp/plano-arq-pwa-before.j
 expected=(os.environ.get("GITHUB_SHA") or "")[:8]
 probe_url=urljoin(base,"pwa-diagnostico.html")
 config_url=urljoin(base,"configuracoes.html")
+
+def fetch_text(url,timeout=20):
+    try:
+        req=Request(url,headers={"Cache-Control":"no-cache","Pragma":"no-cache","User-Agent":"PlanoARQ-CI"})
+        with urlopen(req,timeout=timeout) as response:
+            return int(response.status),response.read().decode("utf-8","replace")
+    except HTTPError as exc:
+        return int(exc.code),exc.read().decode("utf-8","replace")
+
+def maintenance_baseline_if_probe_missing():
+    probe_status,_=fetch_text(probe_url)
+    if probe_status!=404:
+        return None
+    sw_status,sw_text=fetch_text(urljoin(base,"service-worker.js"))
+    if sw_status!=200:
+        raise RuntimeError(f"probe PWA ausente e service-worker.js respondeu {sw_status}")
+    maintenance="const MAINTENANCE_MODE=true;" in sw_text
+    if not maintenance:
+        raise RuntimeError("probe PWA ausente fora do modo manutenção")
+    marker="const VERSION='"
+    version=""
+    if marker in sw_text:
+        version=sw_text.split(marker,1)[1].split("'",1)[0]
+    return {
+        "maintenance":True,
+        "serviceWorkerVersion":version or None,
+        "caches":[],
+        "timestamp":time.time(),
+        "probeUnavailable":True,
+    }
 
 options=Options()
 options.add_argument("--headless=new")
@@ -329,6 +361,13 @@ def relevant_severe(logs):
     return out
 
 if phase=="before":
+    fallback_baseline=maintenance_baseline_if_probe_missing()
+    if fallback_baseline:
+        state_file.parent.mkdir(parents=True,exist_ok=True)
+        state_file.write_text(json.dumps(fallback_baseline,ensure_ascii=False,indent=2),encoding="utf-8")
+        print(json.dumps({"phase":"before","baseline":fallback_baseline,"notice":"probe técnico ausente no deploy anterior; baseline mínimo de manutenção aceito para permitir o deploy corretivo"},ensure_ascii=False,indent=2))
+        print("BASELINE MANUTENÇÃO PARCIAL OK: probe ausente no deploy anterior; validação completa será exigida após o deploy.")
+        raise SystemExit(0)
     if profile.exists():
         shutil.rmtree(profile,ignore_errors=True)
     profile.mkdir(parents=True,exist_ok=True)
