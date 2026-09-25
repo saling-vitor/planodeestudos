@@ -140,3 +140,9 @@ jobs:
         if: steps.package.outputs.ready == 'true'
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Testar PWA no deploy real
+        if: steps.package.outputs.ready == 'true'
+        env:
+          PWA_URL: ${{ steps.deployment.outputs.page_url }}
+        run: python3 scripts/runtime_pwa_smoke.py "$PWA_URL"
