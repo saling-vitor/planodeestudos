@@ -1,4 +1,4 @@
-const VERSION='19.3-source';
+const VERSION='19.4-source';
 const MAINTENANCE_MODE=true;
 const CORE=`plano-arq-core-${VERSION}`;
 const RUNTIME=`plano-arq-runtime-${VERSION}`;

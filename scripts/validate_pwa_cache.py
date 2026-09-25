@@ -8,6 +8,25 @@ sw=(ROOT/"service-worker.js").read_text("utf-8",errors="replace")
 pwa=(ROOT/"assets/js/pa-pwa-v01.js").read_text("utf-8",errors="replace")
 errors=[]
 
+def declared_version(text):
+    m=re.search(r"const VERSION=['\"]([^'\"]+)['\"];",text)
+    return m.group(1) if m else ""
+
+pwa_version=declared_version(pwa)
+sw_version=declared_version(sw)
+if not pwa_version:
+    errors.append("PWA: versão lógica ausente em pa-pwa-v01.js")
+if not sw_version:
+    errors.append("PWA: versão fonte ausente em service-worker.js")
+if pwa_version and sw_version and sw_version!=f"{pwa_version}-source":
+    errors.append(f"PWA: versões divergentes entre runtime ({pwa_version}) e Service Worker ({sw_version})")
+
+workflow=(ROOT/".github/workflows/pages.yml").read_text("utf-8",errors="replace")
+workflow_version=re.search(r'version=f"([0-9]+\.[0-9]+)-\{sys\.argv\[1\]\}"',workflow)
+if pwa_version and (not workflow_version or workflow_version.group(1)!=pwa_version):
+    found=workflow_version.group(1) if workflow_version else "ausente"
+    errors.append(f"PWA: versionamento do workflow ({found}) diverge do runtime ({pwa_version})")
+
 maintenance="const MAINTENANCE_MODE=true;" in sw
 common_checks=[
     ("service worker: fetch online não usa no-store", "fetch(req,{cache:'no-store'})" in sw),
