@@ -341,6 +341,18 @@ try:
       return {ok:!!document.querySelector('[data-copy-command="'+m.id+'"]')&&cmd.includes('GERAR MAPA DE ESTUDOS')&&cmd.includes('plano-arq-map-id = '+m.id)&&cmd.includes('TEMPLATE HTML OFICIAL MAIS RECENTE')&&cmd.includes(m.topics[0]),mapId:m.id,length:cmd.length};
     """)
     if not h1.get("ok"):errors.append("novo-concurso Etapa H1: comando de geração não ficou completo/acionável")
+    h2=driver.execute_async_script("""
+      const done=arguments[arguments.length-1],cid=new URLSearchParams(location.search).get('contest'),B=window.PLANO_ARQ_STUDY_BLUEPRINT,D=window.PLANO_ARQ_DATA,b=B.load(cid),m=(b?.maps||[]).find(x=>x.topicCount>0);
+      if(!m){done({ok:false,reason:'no-map'});return}
+      const sig=b.sourceSignature,html='<!doctype html><html><head><title>Mapa H2</title><meta name="plano-arq-contest-id" content="'+cid+'"><meta name="plano-arq-map-id" content="'+m.id+'"><meta name="plano-arq-blueprint-signature" content="'+sig+'"><meta name="mindmap-storage-id" content="audit-'+m.id+'"><meta name="study-display-title" content="Mapa H2"><meta name="study-short-code" content="H2"><meta name="study-file-version" content="V01"><link rel="stylesheet" href="../assets/css/study-map-shared-v01.css"></head><body><article data-topic-id="t1">Teste</article><script src="../assets/js/study-map-runtime-v01.js"><\/script></body></html>';
+      const wrong=html.replace('content="'+m.id+'"','content="mapa-errado"');
+      (async()=>{try{
+        let rejected=false;try{await B.importGeneratedHtml(cid,m.id,new File([wrong],'errado.html',{type:'text/html'}))}catch(e){rejected=e?.code==='H2_CONTRACT_MISMATCH'}
+        const result=await B.importGeneratedHtml(cid,m.id,new File([html],'mapa-h2.html',{type:'text/html'})),rec=await D.contestBlob(cid,'study-map-html::'+m.id),fresh=B.load(cid),saved=(fresh.maps||[]).find(x=>x.id===m.id);
+        done({ok:rejected&&result.check.ok&&rec?.blob?.size>0&&saved?.status==='imported-pending-audit'&&!saved?.materialId&&!!document.querySelector('[data-import-html="'+m.id+'"]'),rejected,status:saved?.status,stored:rec?.blob?.size||0,materialId:saved?.materialId||''});
+      }catch(e){done({ok:false,error:String(e)})}})();
+    """)
+    if not h2.get("ok"):errors.append("novo-concurso Etapa H2: importação/vínculo pendente do HTML falhou: "+str(h2))
     driver.get(urljoin(base,"planejamento.html?contest="+dynamic_contest));wait_ready()
     if driver.execute_script("return document.querySelectorAll('[data-study-blueprint-note]').length")<1:errors.append("novo-concurso Etapa G: Planejamento não reconheceu mapas preparados")
 

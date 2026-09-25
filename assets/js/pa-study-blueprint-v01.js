@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.1',PREFIX='planoarq:study-blueprint::',GENERATION_CONTRACT='H1';
+const VERSION='1.2',PREFIX='planoarq:study-blueprint::',GENERATION_CONTRACT='H1',IMPORT_CONTRACT='H2';
 const safeJSON=(v,f)=>{try{return JSON.parse(v)??f}catch(_){return f}};
 const clean=v=>String(v??'').replace(/\s+/g,' ').trim();
 const fold=v=>clean(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
@@ -42,13 +42,13 @@ function build(cid,schema,contest={},previous=load(cid)){
   sourceBlocks.push({label,sectionId,sectionLabel,text,topics,source:block?.source||'edital'});
   for(let i=0;i<parts;i++){
    const slice=topics.slice(i*max,(i+1)*max),id='map-'+slug(sectionId)+'-'+hash(label)+'-'+(i+1),old=prevBy.get(id)||{},title=parts>1?label+' · Parte '+(i+1):label;
-   maps.push({id,sectionId,sectionLabel,group:sectionLabel,title,part:i+1,parts,topics:slice,topicCount:slice.length,source:'edital',sourceLabel:label,sourceText:text,weightPct:weights.get(sectionId)||0,status:old.materialId?'linked':'ready-to-generate',materialId:old.materialId||'',createdFrom:'programa-do-edital'})
+   maps.push({id,sectionId,sectionLabel,group:sectionLabel,title,part:i+1,parts,topics:slice,topicCount:slice.length,source:'edital',sourceLabel:label,sourceText:text,weightPct:weights.get(sectionId)||0,status:old.materialId?'linked':old.import?.stored?'imported-pending-audit':'ready-to-generate',materialId:old.materialId||'',generation:old.generation||null,import:old.import||null,createdFrom:'programa-do-edital'})
   }
  }
  for(const sec of sections){
   const sectionId=sec.id||slug(sec.label);if(covered.has(sectionId))continue;
   const id='map-'+slug(sectionId)+'-pendente',old=prevBy.get(id)||{};
-  maps.push({id,sectionId,sectionLabel:clean(sec.label)||sectionId,group:clean(sec.label)||sectionId,title:clean(sec.label)||'Componente da prova',part:1,parts:1,topics:[],topicCount:0,source:'estrutura-da-prova',sourceLabel:clean(sec.label),sourceText:'',weightPct:weights.get(sectionId)||0,status:old.materialId?'linked':'awaiting-content',materialId:old.materialId||'',createdFrom:'estrutura-da-prova'})
+  maps.push({id,sectionId,sectionLabel:clean(sec.label)||sectionId,group:clean(sec.label)||sectionId,title:clean(sec.label)||'Componente da prova',part:1,parts:1,topics:[],topicCount:0,source:'estrutura-da-prova',sourceLabel:clean(sec.label),sourceText:'',weightPct:weights.get(sectionId)||0,status:old.materialId?'linked':'awaiting-content',materialId:old.materialId||'',generation:old.generation||null,import:old.import||null,createdFrom:'estrutura-da-prova'})
  }
  const linked=maps.filter(x=>x.materialId).length,awaiting=maps.filter(x=>x.status==='awaiting-content').length,totalTopics=maps.reduce((a,x)=>a+x.topicCount,0);
  return {schema:1,version:VERSION,contestId:cid,sourceSignature:signature(schema),source:'post-import-edital',contest:{title:contest?.title||'',position:contest?.position||schema?.position||'',board:contest?.board||schema?.board||''},sections:sections.map(s=>({id:s.id||slug(s.label),label:s.label||'',weightPct:weights.get(s.id||slug(s.label))||0,questions:s.questions??null,totalPoints:s.totalPoints??null})),sourceBlocks,maps,summary:{sections:sections.length,sectionsWithProgram:covered.size,maps:maps.length,topics:totalTopics,linked,awaiting,coveragePct:sections.length?Math.round(covered.size*100/sections.length):0},createdAt:previous?.createdAt||new Date().toISOString()}
@@ -126,6 +126,57 @@ ${JSON.stringify(p,null,2)}
 function markCommandCopied(cid,mapId){
  const b=load(cid);if(!b)return null;const at=new Date().toISOString(),maps=(b.maps||[]).map(m=>m.id===mapId?{...m,generation:{...(m.generation||{}),contractVersion:GENERATION_CONTRACT,commandCopiedAt:at}}:m);return save(cid,{...b,maps})
 }
+function metaValue(doc,name){return clean(doc.querySelector(`meta[name="${CSS.escape(name)}"]`)?.getAttribute('content')||'')}
+function inspectGeneratedHtml(cid,mapId,html){
+ const blueprint=load(cid),map=(blueprint?.maps||[]).find(x=>x.id===mapId),errors=[],warnings=[];
+ if(!blueprint||!map)return{ok:false,errors:['Mapa preparado não encontrado'],warnings,meta:{},topicCount:0};
+ if(typeof DOMParser==='undefined')return{ok:false,errors:['Este navegador não suporta a leitura segura do HTML'],warnings,meta:{},topicCount:0};
+ const doc=new DOMParser().parseFromString(String(html||''),'text/html'),parserError=doc.querySelector('parsererror'),expectedSignature=blueprint.sourceSignature||signatureForFallback(blueprint);
+ if(parserError||!doc.documentElement||!doc.head||!doc.body)errors.push('Arquivo HTML inválido ou incompleto');
+ const meta={
+  contestId:metaValue(doc,'plano-arq-contest-id'),
+  mapId:metaValue(doc,'plano-arq-map-id'),
+  blueprintSignature:metaValue(doc,'plano-arq-blueprint-signature'),
+  storageId:metaValue(doc,'mindmap-storage-id'),
+  displayTitle:metaValue(doc,'study-display-title'),
+  shortCode:metaValue(doc,'study-short-code'),
+  fileVersion:metaValue(doc,'study-file-version')
+ };
+ if(!meta.contestId)errors.push('Metadado plano-arq-contest-id ausente');else if(meta.contestId!==cid)errors.push('Este HTML pertence a outro concurso');
+ if(!meta.mapId)errors.push('Metadado plano-arq-map-id ausente');else if(meta.mapId!==mapId)errors.push('Este HTML pertence a outro mapa');
+ if(!meta.blueprintSignature)errors.push('Metadado plano-arq-blueprint-signature ausente');else if(meta.blueprintSignature!==expectedSignature)errors.push('O HTML foi gerado para uma versão anterior/diferente do edital');
+ const topicCount=doc.querySelectorAll('[data-topic-id]').length;
+ if(!topicCount)errors.push('Nenhum tópico de estudo foi identificado no HTML');
+ if(!meta.storageId)warnings.push('mindmap-storage-id não identificado; a auditoria H3 deverá bloquear a ativação');
+ if(!meta.displayTitle)warnings.push('study-display-title não identificado; a auditoria H3 deverá revisar a template');
+ const hasRuntime=[...doc.querySelectorAll('script[src]')].some(x=>(x.getAttribute('src')||'').includes('study-map-runtime-v01.js'));
+ const hasSharedCss=[...doc.querySelectorAll('link[href]')].some(x=>(x.getAttribute('href')||'').includes('study-map-shared-v01.css'));
+ if(!hasRuntime)warnings.push('Runtime compartilhado do mapa não identificado');
+ if(!hasSharedCss)warnings.push('CSS compartilhado do mapa não identificado');
+ return{ok:errors.length===0,errors,warnings,meta,topicCount,title:clean(doc.title),expectedSignature}
+}
+async function importGeneratedHtml(cid,mapId,file){
+ if(!file)throw new Error('Selecione o arquivo HTML gerado');
+ const name=String(file.name||'mapa.html'),type=String(file.type||'').toLowerCase();
+ if(!/\.html?$/i.test(name)&&type!=='text/html')throw new Error('Selecione um arquivo .html');
+ if(Number(file.size||0)>25*1024*1024)throw new Error('O HTML excede o limite de 25 MB para importação');
+ const html=await file.text(),check=inspectGeneratedHtml(cid,mapId,html);
+ if(!check.ok){const e=new Error(check.errors.join(' · '));e.code='H2_CONTRACT_MISMATCH';e.details=check;throw e}
+ const d=window.PLANO_ARQ_DATA;if(!d?.storeContestBlob)throw new Error('Armazenamento local ainda não está disponível');
+ const storageId='study-map-html::'+mapId,at=new Date().toISOString();
+ await d.storeContestBlob(cid,storageId,file,{name,type:type||'text/html',size:file.size});
+ const b=load(cid);if(!b)throw new Error('Estrutura de estudos não encontrada');
+ const maps=(b.maps||[]).map(m=>m.id===mapId?{...m,status:'imported-pending-audit',import:{contractVersion:IMPORT_CONTRACT,stored:true,storageId,filename:name,sizeBytes:Number(file.size||0),mimeType:type||'text/html',importedAt:at,localOnly:true,topicCountDetected:check.topicCount,titleDetected:check.title,meta:check.meta,warnings:check.warnings}}:m);
+ const next=save(cid,{...b,maps});
+ return{blueprint:next,map:maps.find(m=>m.id===mapId),check}
+}
+async function importedHtml(cid,mapId){
+ const map=(load(cid)?.maps||[]).find(x=>x.id===mapId),storageId=map?.import?.storageId;if(!storageId)return null;
+ return await window.PLANO_ARQ_DATA?.contestBlob?.(cid,storageId)
+}
+function clearImportedHtmlState(cid,mapId){
+ const b=load(cid);if(!b)return null;const maps=(b.maps||[]).map(m=>m.id===mapId?{...m,status:m.topicCount?'ready-to-generate':'awaiting-content',import:null}:m);return save(cid,{...b,maps})
+}
 function linkMaterial(cid,mapId,material){const b=load(cid);if(!b)return null;const maps=(b.maps||[]).map(m=>m.id===mapId?{...m,materialId:material?.id||'',status:material?.id?'linked':'planned',linkedAt:material?.id?new Date().toISOString():null}:m);return save(cid,{...b,maps,summary:{...b.summary,linked:maps.filter(x=>x.materialId).length}})}
-window.PLANO_ARQ_STUDY_BLUEPRINT={version:VERSION,PREFIX,GENERATION_CONTRACT,key,splitTopics,matchSection,signature,load,save,build,buildAndSave,loadOrBuild,mapsForSection,generationPackage,generationCommand,markCommandCopied,linkMaterial};
+window.PLANO_ARQ_STUDY_BLUEPRINT={version:VERSION,PREFIX,GENERATION_CONTRACT,IMPORT_CONTRACT,key,splitTopics,matchSection,signature,load,save,build,buildAndSave,loadOrBuild,mapsForSection,generationPackage,generationCommand,markCommandCopied,inspectGeneratedHtml,importGeneratedHtml,importedHtml,clearImportedHtmlState,linkMaterial};
 })();

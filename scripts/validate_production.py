@@ -355,6 +355,12 @@ def main():
         for token in ("data-copy-command","Copiar comando para geração","PRONTO PARA GERAR"):
             if token not in biblioteca_text:
                 errors.append(f"Etapa H1: Biblioteca sem ação de geração: {token}")
+        for token in ("IMPORT_CONTRACT='H2'","inspectGeneratedHtml","importGeneratedHtml","imported-pending-audit","study-map-html::"):
+            if token not in blueprint_js:
+                errors.append(f"Etapa H2: contrato de importação ausente: {token}")
+        for token in ("mapHtmlInput","data-import-html","Importar HTML gerado","AGUARDANDO AUDITORIA"):
+            if token not in biblioteca_text:
+                errors.append(f"Etapa H2: Biblioteca sem importação de HTML: {token}")
         if "planoarq:contests:v1" not in sync_js or "Array.isArray(local)?local:[]" not in sync_js:
             errors.append("pa-sync-v03.js: concursos dinâmicos não entram no isolamento de sincronização")
 
