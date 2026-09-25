@@ -265,7 +265,10 @@ try:
     # Valida o contrato do mapa/progresso sem depender do hit-testing visual do iframe.
     driver.execute_script("const d=document.getElementById('stage-i-topic');if(d)d.open=true;const b=document.getElementById('stageIDone');if(b)b.click()")
     driver.switch_to.default_content()
-    WebDriverWait(driver,8).until(lambda d:"100%" in d.find_element(By.ID,"viewerProgress").text)
+    WebDriverWait(driver,8).until(lambda d:d.execute_script("""
+      const s=JSON.parse(localStorage.getItem('mindmap_state::'+arguments[0])||'{}');
+      return s?.topicStates?.['stage-i-topic']==='done';
+    """,map_a.get("ns")))
     driver.find_element(By.ID,"closeBtn").click()
     driver.refresh();wait_ready()
     a_progress=driver.execute_script("""
