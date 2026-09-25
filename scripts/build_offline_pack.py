@@ -48,7 +48,7 @@ full=list(essential)
 for d in FULL_ASSET_DIRS+FULL_DIRS:
     add_tree(full,d)
 
-payload={'schema':1,'version':'19.1-production','essential':entries(essential),'full':entries(full)}
+payload={'schema':1,'version':'19.2-production','essential':entries(essential),'full':entries(full)}
 payload['essentialBytes']=sum(x['bytes'] for x in payload['essential'])
 payload['fullBytes']=sum(x['bytes'] for x in payload['full'])
 
