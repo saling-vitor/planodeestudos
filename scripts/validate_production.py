@@ -361,6 +361,21 @@ def main():
         for token in ("mapHtmlInput","data-import-html","Importar HTML gerado","AGUARDANDO AUDITORIA"):
             if token not in biblioteca_text:
                 errors.append(f"Etapa H2: Biblioteca sem importação de HTML: {token}")
+        for token in ("AUDIT_CONTRACT='H3'","auditImportedMap","activateImportedMap","AUDIT_CONTROLS","audit-blocked","upsertContestMaterial"):
+            if token not in blueprint_js:
+                errors.append(f"Etapa H3: auditoria/ativação ausente: {token}")
+        for token in ("data-audit-activate","Auditar e ativar","__indexeddb__","dynamicHtml","planoarq:contest-materials::"):
+            if token not in biblioteca_text:
+                errors.append(f"Etapa H3: Biblioteca sem ativação dinâmica: {token}")
+        data_text=(ROOT/"assets/js/pa-data-v03.js").read_text("utf-8",errors="ignore")
+        for token in ("CONTEST_MATERIALS_PREFIX","upsertContestMaterial","materialsForContest","contestMaterialsKey"):
+            if token not in data_text:
+                errors.append(f"Etapa H3: materiais dinâmicos ausentes na camada de dados: {token}")
+        if "planoarq:contest-materials::" not in planning_text:
+            errors.append("Etapa H3: Planejamento não consome materiais dinâmicos")
+        allowed=set(storage_cfg.get("allowedMimeTypes") or [])
+        if not {"application/pdf","text/html"}.issubset(allowed):
+            errors.append("Etapa H3: Storage não aceita PDF + HTML")
         if "planoarq:contests:v1" not in sync_js or "Array.isArray(local)?local:[]" not in sync_js:
             errors.append("pa-sync-v03.js: concursos dinâmicos não entram no isolamento de sincronização")
 

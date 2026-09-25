@@ -353,7 +353,34 @@ try:
       }catch(e){done({ok:false,error:String(e)})}})();
     """)
     if not h2.get("ok"):errors.append("novo-concurso Etapa H2: importação/vínculo pendente do HTML falhou: "+str(h2))
+    h3=driver.execute_async_script("""
+      const done=arguments[arguments.length-1],cid=new URLSearchParams(location.search).get('contest'),B=window.PLANO_ARQ_STUDY_BLUEPRINT,D=window.PLANO_ARQ_DATA,b=B.load(cid),m=(b?.maps||[]).find(x=>x.topicCount>0);
+      if(!m){done({ok:false,reason:'no-map'});return}
+      const sig=b.sourceSignature,storageId='audit-h3-'+m.id,topic=(m.topics||[])[0]||'Programa de auditoria',group=m.group||m.sectionLabel||'Conhecimentos Específicos';
+      const valid='<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Mapa H3</title><meta name="plano-arq-contest-id" content="'+cid+'"><meta name="plano-arq-map-id" content="'+m.id+'"><meta name="plano-arq-blueprint-signature" content="'+sig+'"><meta name="mindmap-storage-id" content="'+storageId+'"><meta name="study-display-title" content="Mapa H3 Auditável"><meta name="study-short-title" content="Mapa H3"><meta name="study-short-code" content="H3"><meta name="study-file-version" content="V01"><meta name="study-library-group" content="'+group.replace(/"/g,'&quot;')+'"><meta name="plano-arq-bridge-version" content="1.3"><meta name="plano-arq-source-template" content="H3-AUDIT"><script src="../assets/js/study-map-bootstrap-v01.js"><\\/script><link rel="stylesheet" href="../assets/css/study-map-shared-v01.css"></head><body class="mindmap-app"><button id="searchToggle"></button><input id="search"><span id="searchInfo"></span><button id="expandBtn"></button><button id="collapseBtn"></button><button id="highBtn"></button><button id="reviewBtn"></button><button id="clearBtn"></button><button id="closeFileBtn"></button><button data-view="detail"></button><main><section id="mindmap" class="mindmap"><article class="branch-card" data-branch="r1">'+topic+'</article></section><section class="ramo" id="r1"><details class="topic-card" data-topic-id="h3-topic-1"><summary>'+topic+'</summary><div>'+topic+'<script type="application/json" class="v134-question-data">{}</scr'+'ipt></div></details></section></main><script src="../assets/js/study-map-runtime-v01.js"><\\/script></body></html>';
+      (async()=>{try{
+        await B.importGeneratedHtml(cid,m.id,new File([valid],'mapa-h3.html',{type:'text/html'}));
+        const report=await B.auditImportedMap(cid,m.id);
+        const activated=await B.activateImportedMap(cid,m.id),fresh=B.load(cid),saved=(fresh.maps||[]).find(x=>x.id===m.id),material=D.materialsForContest(cid).find(x=>x.id===storageId),file=D.contestFiles(cid).find(x=>x.id==='study-map-html::'+m.id);
+        done({ok:report.ok&&saved?.status==='active'&&saved?.materialId===storageId&&!!material?.dynamic&&material?.src==='__indexeddb__'&&!!file?.linkedToMap,materialId:storageId,checks:report.checks?.length||0,topics:report.stats?.topicCount||0,status:saved?.status});
+      }catch(e){done({ok:false,error:String(e),report:e?.report||null})}})();
+    """)
+    if not h3.get("ok"):errors.append("novo-concurso Etapa H3: auditoria/ativação falhou: "+str(h3))
+    driver.get(urljoin(base,"biblioteca.html?contest="+dynamic_contest));wait_ready()
+    if h3.get("ok"):
+        material_id=h3.get("materialId")
+        if not driver.execute_script("return !!document.querySelector('[data-open="'+arguments[0]+'"]')",material_id):
+            errors.append("novo-concurso Etapa H3: material ativo não apareceu na Biblioteca")
+        else:
+            driver.execute_script("document.querySelector('[data-open="'+arguments[0]+'"]').click()",material_id)
+            try:
+                WebDriverWait(driver,6).until(lambda d:d.execute_script("return !!document.getElementById('frame')?.contentDocument?.querySelector('[data-topic-id="h3-topic-1"]')"))
+            except Exception:
+                errors.append("novo-concurso Etapa H3: HTML ativo não abriu a partir do IndexedDB")
+            driver.execute_script("document.getElementById('closeBtn')?.click()")
     driver.get(urljoin(base,"planejamento.html?contest="+dynamic_contest));wait_ready()
+    if h3.get("ok") and driver.execute_script("return document.querySelectorAll('[data-priority]').length")<1:
+        errors.append("novo-concurso Etapa H3: Planejamento não consumiu material ativado")
     if driver.execute_script("return document.querySelectorAll('[data-study-blueprint-note]').length")<1:errors.append("novo-concurso Etapa G: Planejamento não reconheceu mapas preparados")
 
     # Overlay do PIN sem alterar a configuração real do dispositivo.
