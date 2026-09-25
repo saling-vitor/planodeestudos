@@ -177,7 +177,7 @@ def main():
                 rel=p.relative_to(ROOT).as_posix()
                 if any(x in token for x in PLACEHOLDER_ALLOW):
                     continue
-                if label=="Google OAuth client" and rel=="data/cloud-config.json":
+                if label=="Google OAuth client" and rel in {"data/cloud-config.json","data/cloud-config.js"}:
                     continue
                 errors.append(
                     f"{p.relative_to(ROOT)}: possível segredo ({label})"
