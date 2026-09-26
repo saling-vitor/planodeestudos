@@ -118,7 +118,7 @@ def main():
             if text.count("localStorage.setItem") != 1:
                 raise RuntimeError("pa-actions-v01.js: focus/build/audit não podem introduzir novas escritas; apenas saveSettings é permitido")
         if path.name == "pa-replan-v01.js":
-            for token in ("const VERSION='1.0'","function propose(","function inspect(","function apply(","function touchedDates(","function compareFuture(","createRecoveryPoint","status:'ready'","readOnly:true","adaptive-replan"):
+            for token in ("const VERSION='1.0'","function propose(","function inspect(","function apply(","function touchedDates(","function compareFuture(","createRecoveryPoint","meaningful?'ready':'no-change'","readOnly:true","adaptive-replan"):
                 if token not in text:
                     raise RuntimeError(f"pa-replan-v01.js: contrato AUT-02 ausente: {token}")
             if text.count("localStorage.setItem") != 1:
