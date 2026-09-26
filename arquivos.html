@@ -11,6 +11,222 @@
 
 @media(max-width:1180px){.file-row{grid-template-columns:44px minmax(0,1fr) 105px auto}.file-row>.file-meta:nth-of-type(2){display:none}}
 @media(max-width:900px){.current-doc{grid-template-columns:1fr}.current-actions{justify-content:flex-start}.file-row{grid-template-columns:40px minmax(0,1fr)}.file-icon{grid-column:1}.file-main{grid-column:2}.file-meta{grid-column:1/-1;display:flex;gap:8px;align-items:center}.file-meta b,.file-meta span{display:inline;margin:0}.file-actions{grid-column:1/-1}body.pa-internal-mode[data-pa-page="files"] .viewer-actions{display:none}}
+
+
+/* ===== ETAPA D12 · ARQUIVOS · refinamento local ===== */
+/* Ajuste fino da tela Arquivos sobre a base global A+B+C. Sem mudanças funcionais. */
+body.pa-internal-mode[data-pa-page="files"] .hero-actions{
+  margin-top:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap
+}
+
+/* Documento vigente: painel editorial principal da central. */
+body.pa-internal-mode[data-pa-page="files"] .current-doc{
+  position:relative;overflow:hidden;
+  border-color:rgba(216,197,158,.18);
+  background:
+    radial-gradient(430px 170px at -7% -12%,rgba(216,197,158,.055),transparent 72%),
+    radial-gradient(300px 140px at 104% 0,rgba(109,130,152,.022),transparent 74%),
+    linear-gradient(112deg,rgba(15,14,12,.95),rgba(9,10,12,.98) 52%,rgba(7,9,12,.99));
+  box-shadow:0 17px 38px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.020)
+}
+body.pa-internal-mode[data-pa-page="files"] .current-doc::before{
+  content:"";position:absolute;left:16px;top:0;width:82px;height:1px;
+  background:linear-gradient(90deg,rgba(216,197,158,.78),rgba(109,130,152,.30),transparent)
+}
+body.pa-internal-mode[data-pa-page="files"] .current-k{
+  color:#bca87c;letter-spacing:.145em
+}
+body.pa-internal-mode[data-pa-page="files"] .current-doc h3{
+  color:#ece5d8;font:820 15px/1.18 var(--pa-condensed);
+  letter-spacing:.004em
+}
+body.pa-internal-mode[data-pa-page="files"] .current-doc p{
+  color:#8d8d88;line-height:1.52
+}
+body.pa-internal-mode[data-pa-page="files"] .meta-chip{
+  border-color:rgba(239,233,221,.070);
+  background:rgba(255,255,255,.004);
+  color:#8d8c87;
+  box-shadow:inset 0 1px rgba(255,255,255,.007)
+}
+body.pa-internal-mode[data-pa-page="files"] .meta-chip.live{
+  border-color:rgba(98,169,120,.22);
+  background:rgba(98,169,120,.020);
+  color:#a6cab0
+}
+
+/* Ferramentas e filtros: faixa operacional integrada. */
+body.pa-internal-mode[data-pa-page="files"]>.pa-shell .pa-content>.tools{
+  margin-top:18px;
+  border-color:rgba(239,233,221,.075);
+  background:
+    radial-gradient(360px 120px at -6% -10%,rgba(109,130,152,.028),transparent 72%),
+    linear-gradient(180deg,rgba(11,14,18,.90),rgba(7,9,12,.94));
+  box-shadow:0 12px 28px rgba(0,0,0,.17),inset 0 1px rgba(255,255,255,.010)
+}
+body.pa-internal-mode[data-pa-page="files"]>.pa-shell .pa-content>.chips{
+  margin-top:9px
+}
+
+/* Seção de documentos: hierarquia editorial consistente com o restante do portal. */
+body.pa-internal-mode[data-pa-page="files"] .section{
+  margin-top:23px
+}
+body.pa-internal-mode[data-pa-page="files"] .section-head{
+  min-height:31px;margin-bottom:11px;align-items:center;
+  border-bottom:1px solid rgba(239,233,221,.055)
+}
+body.pa-internal-mode[data-pa-page="files"] .section-head h2{
+  display:flex;align-items:center;gap:8px;margin:0;padding-bottom:10px;
+  color:#ddd8cf;font:800 10.5px/1 var(--pa-mono);
+  letter-spacing:.145em;text-transform:uppercase
+}
+body.pa-internal-mode[data-pa-page="files"] .section-head h2::before{
+  content:"";width:18px;height:1px;flex:0 0 auto;
+  background:linear-gradient(90deg,var(--pa-champagne-2),rgba(109,130,152,.50))
+}
+body.pa-internal-mode[data-pa-page="files"] .section-head>span{
+  padding-bottom:10px;color:#817e77;font-size:9.4px
+}
+body.pa-internal-mode[data-pa-page="files"] .section .panel{
+  border-color:rgba(239,233,221,.070);
+  background:
+    radial-gradient(520px 180px at -8% -10%,rgba(109,130,152,.022),transparent 72%),
+    linear-gradient(145deg,rgba(10,12,15,.82),rgba(7,9,12,.94));
+  box-shadow:0 15px 34px rgba(0,0,0,.20),inset 0 1px rgba(255,255,255,.010)
+}
+
+/* Lista de arquivos: documento como unidade técnica, não linha genérica. */
+body.pa-internal-mode[data-pa-page="files"] .file-row{
+  position:relative;overflow:hidden;
+  border-color:rgba(239,233,221,.060);
+  background:
+    linear-gradient(90deg,rgba(109,130,152,.022),transparent 24%),
+    rgba(255,255,255,.005);
+  box-shadow:inset 0 1px rgba(255,255,255,.008);
+  transition:border-color .15s ease,background .15s ease,box-shadow .15s ease
+}
+body.pa-internal-mode[data-pa-page="files"] .file-row::before{
+  content:"";position:absolute;left:0;top:7px;bottom:7px;width:2px;
+  border-radius:0 3px 3px 0;
+  background:linear-gradient(180deg,transparent,rgba(109,130,152,.68) 18%,rgba(109,130,152,.68) 82%,transparent)
+}
+body.pa-internal-mode[data-pa-page="files"] .file-row:hover{
+  border-color:rgba(145,163,181,.18);
+  background:
+    linear-gradient(90deg,rgba(109,130,152,.040),transparent 26%),
+    rgba(255,255,255,.009);
+  box-shadow:0 9px 22px rgba(0,0,0,.12),inset 0 1px rgba(255,255,255,.011)
+}
+body.pa-internal-mode[data-pa-page="files"] .file-icon{
+  border-color:rgba(109,130,152,.22);
+  background:
+    linear-gradient(145deg,rgba(109,130,152,.075),rgba(109,130,152,.026));
+  color:#a9bbc8;
+  box-shadow:inset 0 1px rgba(255,255,255,.010)
+}
+body.pa-internal-mode[data-pa-page="files"] .file-main strong{
+  color:#ddd9d1
+}
+body.pa-internal-mode[data-pa-page="files"] .file-main>span{
+  color:#81827e
+}
+body.pa-internal-mode[data-pa-page="files"] .file-tags .tag{
+  border-color:rgba(239,233,221,.060);
+  background:rgba(255,255,255,.004);
+  color:#898984;
+  box-shadow:inset 0 1px rgba(255,255,255,.006)
+}
+body.pa-internal-mode[data-pa-page="files"] .file-tags .tag.official{
+  border-color:rgba(98,169,120,.20);
+  background:rgba(98,169,120,.018);
+  color:#a4c8ae
+}
+body.pa-internal-mode[data-pa-page="files"] .file-tags .tag.linked{
+  border-color:rgba(216,184,88,.20);
+  background:rgba(216,184,88,.016);
+  color:#c6b477
+}
+body.pa-internal-mode[data-pa-page="files"] .file-tags .tag.live{
+  border-color:rgba(98,169,120,.25);
+  background:rgba(98,169,120,.026);
+  color:#acd0b5
+}
+body.pa-internal-mode[data-pa-page="files"] .file-tags .tag.cloud{
+  border-color:rgba(112,170,214,.22);
+  background:rgba(112,170,214,.018);
+  color:#9fc3df
+}
+body.pa-internal-mode[data-pa-page="files"] .file-tags .tag.local{
+  border-color:rgba(216,184,88,.20);
+  background:rgba(216,184,88,.016);
+  color:#c6ad75
+}
+body.pa-internal-mode[data-pa-page="files"] .file-meta b{
+  color:#d4d0c8;letter-spacing:.025em
+}
+body.pa-internal-mode[data-pa-page="files"] .file-meta span{
+  color:#7f807d
+}
+body.pa-internal-mode[data-pa-page="files"] .mini.star{
+  border-color:rgba(239,233,221,.075);
+  background:linear-gradient(180deg,rgba(18,21,26,.94),rgba(11,14,18,.97));
+  box-shadow:inset 0 1px rgba(255,255,255,.012)
+}
+body.pa-internal-mode[data-pa-page="files"] .mini.star.active{
+  border-color:rgba(216,184,88,.24);
+  background:rgba(216,184,88,.035);
+  color:#d8bd6d
+}
+
+/* Empty state da lista. */
+body.pa-internal-mode[data-pa-page="files"] .file-list>.empty{
+  border-color:rgba(216,197,158,.16);
+  background:
+    radial-gradient(320px 130px at 50% 0,rgba(216,197,158,.025),transparent 72%),
+    rgba(255,255,255,.003)
+}
+body.pa-internal-mode[data-pa-page="files"] .file-list>.empty strong{
+  color:#d3c49f;font:820 14px/1.12 var(--pa-condensed)
+}
+body.pa-internal-mode[data-pa-page="files"] .file-list>.empty span{
+  color:#838480
+}
+
+/* Visualizador: enquadramento de documento como mesa técnica. */
+body.pa-internal-mode[data-pa-page="files"] .viewer{
+  background:rgba(0,0,0,.78);
+  backdrop-filter:blur(7px)
+}
+body.pa-internal-mode[data-pa-page="files"] .viewer-head{
+  border-bottom-color:rgba(239,233,221,.065);
+  background:
+    radial-gradient(420px 120px at -5% -10%,rgba(109,130,152,.035),transparent 72%),
+    rgba(8,10,13,.98)
+}
+body.pa-internal-mode[data-pa-page="files"] .viewer-head small{
+  color:#8f897f;letter-spacing:.09em
+}
+body.pa-internal-mode[data-pa-page="files"] .viewer-head strong{
+  color:#e5e0d7
+}
+body.pa-internal-mode[data-pa-page="files"] .viewer iframe{
+  background:#111318
+}
+body.pa-internal-mode[data-pa-page="files"] .viewer-foot{
+  border-top-color:rgba(239,233,221,.055);
+  background:rgba(7,9,12,.98);
+  color:#807f7b
+}
+body.pa-internal-mode[data-pa-page="files"] .viewer-foot a{
+  color:#a8bac6
+}
+
+@media(pointer:coarse){
+  body.pa-internal-mode[data-pa-page="files"] .file-row:hover{
+    box-shadow:inset 0 1px rgba(255,255,255,.008)
+  }
+}
 </style>
 <script src="data/contests.js"></script>
 <script src="assets/js/pa-contest-context-v01.js"></script><script src="data/files.js"></script>
