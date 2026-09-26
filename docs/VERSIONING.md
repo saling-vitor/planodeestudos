@@ -21,12 +21,17 @@ As versões técnicas internas permanecem independentes da versão do produto.
 | --- | --- | --- |
 | Data API | 3.5 | Contrato interno de dados/backups |
 | Sync | 3.1 | Runtime de sincronização Supabase |
-| PWA | 19.4 | Runtime de instalação/cache |
-| Service Worker | 19.4-source | Fonte do worker antes do versionamento por SHA no deploy |
-| Offline Pack | 19.4-production | Contrato do manifesto offline |
+| PWA | 19.4 | Versão-base canônica declarada em `assets/js/pa-pwa-v01.js` |
+| Service Worker | 19.4-source | Valor derivado automaticamente da versão-base |
+| Offline Pack | 19.4-production | Valor derivado automaticamente da versão-base |
+| Deploy PWA | 19.4-<sha8> | Valor derivado automaticamente da versão-base + SHA do deploy |
 | Automação | 1.1 | Motor read-only de sugestões e prioridades do Hoje |
 
-PWA, Service Worker e Offline Pack formam um grupo coordenado. Mudança incompatível em cache/offline deve atualizar esse grupo de forma consciente.
+PWA, Service Worker e Offline Pack formam um grupo coordenado. A partir da V1.2, **o número-base é escrito em um único ponto**: `const VERSION` de `assets/js/pa-pwa-v01.js`.
+
+`scripts/sync_pwa_version.py` deriva o Service Worker; `scripts/build_offline_pack.py` deriva o manifesto offline; e o workflow de Pages deriva `<versão-base>-<sha8>` no deploy. O YAML de produção não contém mais `19.4` hardcoded.
+
+O valor versionado em `service-worker.js` no repositório é apenas um snapshot derivado para uso direto/local; antes de qualquer gate ou deploy ele é sincronizado novamente a partir da fonte canônica.
 
 ## Mapas de estudo
 
@@ -46,11 +51,19 @@ A diferença de bridge também é intencionalmente documentada: os **14 mapas em
 
 ## Fonte de verdade
 
-A representação estruturada deste documento é:
+A representação estruturada do produto e das regras técnicas é:
 
 `data/version-contract.json`
 
-O CI executa `scripts/validate_versions.py` e bloqueia divergências entre o contrato e os runtimes.
+Para PWA, o contrato **aponta para a fonte canônica**, em vez de repetir o número-base. O CI executa `scripts/validate_versions.py` e `scripts/validate_pwa_cache.py` e bloqueia:
+
+- divergência entre runtime e Service Worker;
+- divergência do Offline Pack;
+- versão-base hardcoded no workflow de Pages;
+- versão-base hardcoded no gerador do pacote offline;
+- ausência do sincronizador canônico no deploy.
+
+O gate contínuo é `.github/workflows/validate-development.yml` e atende `develop/**`, portanto não precisa ser copiado apenas porque o ciclo muda de V1.2 para V1.3. Gates históricos de RC/release continuam preservados separadamente.
 
 ## Release V1.1.0 — concluída
 
