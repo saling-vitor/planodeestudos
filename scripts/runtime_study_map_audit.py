@@ -142,6 +142,30 @@ try:
                 try:driver.save_screenshot(str(OUT/(Path(path).stem+"-"+label+"-EXCEPTION.png")))
                 except Exception:pass
                 rows.append({"material":path,"viewport":{"name":label,"width":w,"height":h,"touch":touch},"exception":str(exc)})
+
+    # Smoke específico do barramento único OK/REV/DIF.
+    driver.execute_cdp_cmd("Emulation.setTouchEmulationEnabled",{"enabled":False,"maxTouchPoints":1})
+    driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride",{})
+    driver.set_window_size(1280,800)
+    driver.get(BASE+quote(materials[0],safe="/._-"));wait_ready()
+    state_bus=driver.execute_async_script("""
+      const done=arguments[arguments.length-1],bus=window.PLANO_ARQ_STUDY_STATE_BUS;
+      const topic=document.querySelector('.topic-card'),btn=topic?.querySelector('.state-btn');
+      if(!bus||!topic||!btn){done({ok:false,reason:'bus/topic/button ausente'});return}
+      const before=Number(bus.stats?.batches||0),oldState=topic.dataset.studyState||'';
+      let settled=false;
+      const finish=result=>{if(settled)return;settled=true;done(result)};
+      document.addEventListener('mindmap:study-state-changed',e=>{
+        requestAnimationFrame(()=>finish({
+          ok:Number(bus.stats?.batches||0)===before+1&&Array.isArray(e.detail?.topicIds)&&e.detail.topicIds.includes(topic.id)&&(topic.dataset.studyState||'')!==oldState,
+          before,after:Number(bus.stats?.batches||0),oldState,newState:topic.dataset.studyState||'',topicIds:e.detail?.topicIds||[]
+        }));
+      },{once:true});
+      btn.click();
+      setTimeout(()=>finish({ok:false,reason:'evento não emitido',before,after:Number(bus.stats?.batches||0),oldState,newState:topic.dataset.studyState||''}),1200);
+    """)
+    if not state_bus.get("ok"):
+        errors.append("barramento único de estado falhou: "+str(state_bus))
 finally:
     try:driver.execute_cdp_cmd("Emulation.setTouchEmulationEnabled",{"enabled":False,"maxTouchPoints":1})
     except Exception:pass
@@ -154,6 +178,7 @@ summary={
     "materials":len(materials),
     "viewports":len(viewports),
     "cases":len(rows),
+    "stateBus":state_bus if 'state_bus' in locals() else {"ok":False,"reason":"não executado"},
     "failures":len(errors),
     "errors":errors,
 }
