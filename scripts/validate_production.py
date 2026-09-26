@@ -547,7 +547,10 @@ def main():
         portal_pages=("edital.html","biblioteca.html","planejamento.html","revisoes.html","questoes.html","simulados.html","erros.html","desempenho.html","diagnostico.html","historico.html","arquivos.html","configuracoes.html")
         for page in portal_pages:
             page_text=(ROOT/page).read_text("utf-8",errors="ignore")
-            if "pa-contest-context-v01.js" not in page_text or "PLANO_ARQ_CONTEST_CONTEXT.resolveId()" not in page_text:
+            direct_context="PLANO_ARQ_CONTEST_CONTEXT.resolveId()" in page_text
+            alias_match=re.search(r"(?:const|let|var)\\s+([A-Za-z_$][\\w$]*)\\s*=\\s*window\\.PLANO_ARQ_CONTEST_CONTEXT",page_text)
+            alias_context=bool(alias_match and f"{alias_match.group(1)}.resolveId()" in page_text)
+            if "pa-contest-context-v01.js" not in page_text or not (direct_context or alias_context):
                 errors.append(f"Contexto de concurso: {page} não usa o contexto canônico")
             if "demhab-poa-arquiteto-2026" in page_text:
                 errors.append(f"Contexto de concurso: {page} ainda contém fallback/dado DEMHAB hardcoded")
