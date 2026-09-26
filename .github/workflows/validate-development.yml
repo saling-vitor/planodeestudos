@@ -41,6 +41,9 @@ jobs:
       - name: Validar CSS
         run: python3 scripts/validate_css.py
 
+      - name: Auditar manutenção do CSS dos mapas
+        run: python3 scripts/audit_study_map_css.py
+
       - name: Validar JavaScript
         run: python3 scripts/validate_javascript.py
 
