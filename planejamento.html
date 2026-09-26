@@ -663,7 +663,8 @@ function initExistingPlan(){
 }
 
 let adaptiveProposal=null,adaptiveArmed=false;
-function signedMinsLabel(min){const n=Math.round(Number(min)||0);return (n>0?'+':n<0?'−':'')+minsLabel(Math.abs(n))}\nfunction adaptiveSessionText(list){if(!list?.length)return'Sem sessão';return list.slice(0,4).map(s=>`${s.start||'flex'} · ${s.shortCode||'MAPA'} · ${s.type==='questions'?'questões':s.type==='review'?'revisão':'mapa'} · ${s.minutes} min`).join(' · ')+(list.length>4?` · +${list.length-4}`:'')}
+function signedMinsLabel(min){const n=Math.round(Number(min)||0);return (n>0?'+':n<0?'−':'')+minsLabel(Math.abs(n))}
+function adaptiveSessionText(list){if(!list?.length)return'Sem sessão';return list.slice(0,4).map(s=>`${s.start||'flex'} · ${s.shortCode||'MAPA'} · ${s.type==='questions'?'questões':s.type==='review'?'revisão':'mapa'} · ${s.minutes} min`).join(' · ')+(list.length>4?` · +${list.length-4}`:'')}
 function adaptiveState(kind,title,detail){$('adaptiveArea').innerHTML=`<div class="adaptive-state ${kind||''}"><strong>${esc(title)}</strong><span>${esc(detail)}</span></div>`}
 function bindAdaptiveProposal(){
  const apply=$('adaptiveApply'),cancel=$('adaptiveCancel');if(cancel)cancel.onclick=()=>{adaptiveArmed=false;renderAdaptiveProposal(adaptiveProposal)};
