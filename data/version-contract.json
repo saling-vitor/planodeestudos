@@ -2,6 +2,22 @@
   "schema": 1,
   "targetRelease": "1.1.0",
   "productBaseline": "1.1.0",
+  "releaseStatus": "released",
+  "releaseSha": "79da5bfe2f486da208b6e04a3fc06e13eae9a54d",
+  "releaseBranch": "release/v1.1.0",
+  "releaseTag": "v1.1.0",
+  "releaseGate": {
+    "workflow": "Gate V1.1 Release",
+    "run": 4,
+    "status": "success",
+    "sha": "79da5bfe2f486da208b6e04a3fc06e13eae9a54d"
+  },
+  "productionDeploy": {
+    "workflow": "Publicar Plano ARQ",
+    "run": 598,
+    "status": "success",
+    "sha": "79da5bfe2f486da208b6e04a3fc06e13eae9a54d"
+  },
   "technical": {
     "dataApi": "3.5",
     "sync": "3.1",
@@ -27,22 +43,20 @@
       "reason": "compatibilidade com chamadas históricas do runtime adaptativo"
     }
   ],
+  "releaseHistory": {
+    "1.1.0": {
+      "candidate": "1.1.0-rc.1",
+      "candidateBranch": "release/v1.1.0-rc1",
+      "functionalFreezeSha": "db357f7fed6a7cdf8ac12c2c08c8a60c80156517",
+      "candidateGateSha": "ecae8ef1927c8ea8a1e5086a77959dfc15a0e34d"
+    }
+  },
   "rules": [
-    "productBaseline é a versão de produto preparada/publicada e usada nos novos backups",
+    "productBaseline é a versão publicada usada nos novos backups enquanto o próximo ciclo não tiver bump formal",
     "pwa, serviceWorker e offlinePack devem permanecer coordenados",
     "aliases de mapas só podem ser removidos com migração explícita e teste de progresso",
     "os 14 mapas empacotados mantêm bridge 1.1 por compatibilidade; runtime/blueprint atual é 1.3",
-    "novos mapas auditados pelo fluxo H3 usam o contrato de bridge atual"
-  ],
-  "candidateRelease": "1.1.0-rc.1",
-  "functionalFreezeSha": "db357f7fed6a7cdf8ac12c2c08c8a60c80156517",
-  "releaseStatus": "final-preparation",
-  "releaseBranch": "release/v1.1.0",
-  "sourceCandidateSha": "ecae8ef1927c8ea8a1e5086a77959dfc15a0e34d",
-  "releaseGate": {
-    "workflow": "Gate V1.1 Release",
-    "run": 1,
-    "status": "success",
-    "sha": "ecae8ef1927c8ea8a1e5086a77959dfc15a0e34d"
-  }
+    "novos mapas auditados pelo fluxo H3 usam o contrato de bridge atual",
+    "artefatos de RC/release históricos não fazem parte do gate contínuo de desenvolvimento"
+  ]
 }

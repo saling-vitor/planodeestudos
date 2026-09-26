@@ -42,9 +42,26 @@ for key,value in checks.items():
 cloud=json.loads((ROOT/"data/cloud-config.json").read_text("utf-8"))
 if cloud.get("version")!=contract.get("productBaseline"):
     errors.append(f"cloud-config: version={cloud.get('version')!r} contrato={contract.get('productBaseline')!r}")
+
 release_status=str(contract.get("releaseStatus") or "")
 if release_status in {"final-preparation","released"} and contract.get("productBaseline")!=contract.get("targetRelease"):
     errors.append("release final: productBaseline deve coincidir com targetRelease")
+
+if release_status=="released":
+    release_sha=str(contract.get("releaseSha") or "")
+    release_tag=str(contract.get("releaseTag") or "")
+    if not re.fullmatch(r"[0-9a-f]{40}",release_sha):
+        errors.append("release publicada: releaseSha inválido")
+    if release_tag!=f"v{contract.get('targetRelease')}":
+        errors.append(f"release publicada: tag {release_tag!r} diverge de v{contract.get('targetRelease')}")
+    for label,key in (("releaseGate","releaseGate"),("productionDeploy","productionDeploy")):
+        row=contract.get(key) or {}
+        if row.get("status")!="success":
+            errors.append(f"release publicada: {label} não está success")
+        if row.get("sha")!=release_sha:
+            errors.append(f"release publicada: {label} aponta para SHA diferente do releaseSha")
+    if contract.get("candidateRelease") or contract.get("functionalFreezeSha") or contract.get("sourceCandidateSha"):
+        errors.append("release publicada: metadados ativos de RC devem ficar apenas em releaseHistory")
 
 builder=text("scripts/build_offline_pack.py")
 offline=tech.get("offlinePack") or ""
@@ -98,6 +115,8 @@ print(json.dumps({
     "targetRelease":contract.get("targetRelease"),
     "productBaseline":contract.get("productBaseline"),
     "releaseStatus":contract.get("releaseStatus"),
+    "releaseSha":contract.get("releaseSha"),
+    "releaseTag":contract.get("releaseTag"),
     "technical":tech,
     "aliases":contract.get("compatibilityAliases"),
     "materialsBridgeValidated":len(materials),
