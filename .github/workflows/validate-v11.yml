@@ -49,6 +49,9 @@ jobs:
       - name: Validar checklist de release
         run: python3 scripts/validate_release_qa.py
 
+      - name: Validar contrato do Release Candidate
+        run: python3 scripts/validate_release_candidate.py
+
       - name: Preparar navegador
         run: python3 -m pip install --disable-pip-version-check selenium
 
