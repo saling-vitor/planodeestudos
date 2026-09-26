@@ -81,17 +81,18 @@ try:
     """,cid,seed["sessionKey"])
     wait(lambda d:d.execute_script("return !!document.querySelector('.auto-main') && !!document.querySelector('[data-auto-session]') && !!document.querySelector('.auto-why')"))
     ui=driver.execute_script("""
-      const cid=arguments[0],key=arguments[1],btn=document.querySelector('[data-auto-session]'),card=[...document.querySelectorAll('[data-session-key]')].find(x=>x.dataset.sessionKey===key);
+      const cid=arguments[0],key=arguments[1],btn=document.querySelector('[data-auto-session]'),card=[...document.querySelectorAll('[data-session-key]')].find(x=>x.dataset.sessionKey===key),featuredControl=[...document.querySelectorAll('[data-start]')].find(x=>x.dataset.start===key),target=card||featuredControl?.closest('.featured-session');
       const storageKey='planoarq:session-log::'+cid,before=localStorage.getItem(storageKey);
       btn.click();
       const after=localStorage.getItem(storageKey);
       return {
-        ok:!!card&&before===after&&!!document.querySelector('.auto-chip')&&document.querySelector('.auto-why')?.textContent.includes('Por quê:')&&btn.textContent.trim().length>0,
+        ok:!!target&&before===after&&!!document.querySelector('.auto-chip')&&document.querySelector('.auto-why')?.textContent.includes('Por quê:')&&btn.textContent.trim().length>0&&target.classList.contains('auto-target'),
         beforeEqAfter:before===after,
         button:btn.textContent.trim(),
         why:document.querySelector('.auto-why')?.textContent.trim()||'',
         chip:document.querySelector('.auto-chip')?.textContent.trim()||'',
-        targeted:card?.classList.contains('auto-target')||false
+        targetKind:card?'session-card':featuredControl?'featured-session':'none',
+        targeted:target?.classList.contains('auto-target')||false
       };
     """,cid,seed["sessionKey"])
     report["ui"]=ui
