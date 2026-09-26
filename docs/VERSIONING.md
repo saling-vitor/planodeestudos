@@ -28,11 +28,15 @@ PWA, Service Worker e Offline Pack formam um grupo coordenado. Mudança incompat
 | --- | --- |
 | V134.0 | versão canônica do preconfig |
 | MINDMAP_V139 | API canônica do runtime adaptativo |
-| bridge 1.3 | contrato Portal ↔ mapa |
+| bridge 1.1 | metadado dos 14 mapas empacotados V02; compatibilidade preservada |
+| bridge runtime 1.3 | contrato emitido pelo runtime atual |
+| Study Blueprint 1.3 | contrato do fluxo de geração/importação/auditoria H1/H2/H3 |
 | MINDMAP_V133 → MINDMAP_V134 | alias obrigatório de compatibilidade |
 | MINDMAP_V135 → MINDMAP_V139 | alias obrigatório de compatibilidade |
 
 Os aliases **não são lixo**. Eles permanecem porque arquivos/estados anteriores podem referenciá-los. Só podem ser removidos junto com uma migração explícita e testes que comprovem preservação de progresso.
+
+A diferença de bridge também é intencionalmente documentada: os **14 mapas empacotados atuais declaram 1.1**, enquanto o runtime e o Study Blueprint estão em **1.3**. Como os 14 mapas passam integralmente pela auditoria real, a V1.1 preserva essa compatibilidade em vez de regravar metadados apenas para igualar números. Novos mapas gerados/auditados pelo fluxo H3 usam o contrato atual.
 
 ## Fonte de verdade
 
