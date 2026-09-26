@@ -174,7 +174,7 @@ def verify_maintenance_persistence(driver):
     before_snapshot=driver.execute_script("return localStorage.getItem('planoarq:last-drive-snapshot')")
     driver.refresh()
     WebDriverWait(driver,25).until(lambda d:d.execute_script("return !!window.PLANO_ARQ_DATA && window.PLANO_ARQ_DATA.isMaintenanceMode()===true"))
-    WebDriverWait(driver,25).until(lambda d:(d.find_element(By.ID,"maintenanceState").text or "").strip()=="ATIVO")
+    WebDriverWait(driver,25).until(lambda d:(d.find_element(By.ID,"maintenanceState").text or "").strip().startswith("ATIVO"))
     try:
         WebDriverWait(driver,25).until(lambda d:"DESATIVADO" in (d.find_element(By.ID,"pwaSwState").text or ""))
     except Exception:
@@ -216,7 +216,7 @@ def verify_maintenance_persistence(driver):
     after_sync=driver.execute_script("return localStorage.getItem('planoarq:last-sync-at')")
     after_snapshot=driver.execute_script("return localStorage.getItem('planoarq:last-drive-snapshot')")
     remote_resources=driver.execute_script("""
-      return performance.getEntriesByType('resource').map(x=>x.name).filter(x=>/supabase\.co|googleapis\.com|accounts\.google\.com/i.test(x))
+      return performance.getEntriesByType('resource').map(x=>x.name).filter(x=>/supabase[.]co|googleapis[.]com|accounts[.]google[.]com/i.test(x))
     """)
     ui={i:driver.execute_script("return document.getElementById(arguments[0])?.textContent?.trim() || ''",i) for i in (
         "maintenanceState","supabaseStatus","driveStatus","automationLayerStatus","pwaLayerStatus",
@@ -452,6 +452,7 @@ try:
         if not persistence.get("driveConfigPreserved"): errors.append("configuração Drive local não foi preservada")
         if not persistence.get("indexedDbPreserved"): errors.append("IndexedDB não foi preservado")
         if not (persistence.get("runtime") or {}).get("maintenanceMode"): errors.append("flag de manutenção não persistiu após reload")
+        if not (persistence.get("runtime") or {}).get("buildMaintenance"): errors.append("manutenção atual não está identificada como bloqueio de build")
         if persistence.get("registrations"): errors.append(f"há Service Worker registrado após reload: {persistence.get('registrations')}")
         if persistence.get("controller"): errors.append(f"há Service Worker controlador após reload: {persistence.get('controller')}")
         tech=[x for x in persistence.get("caches") or [] if str(x).startswith("plano-arq-")]
