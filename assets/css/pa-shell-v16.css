@@ -13,7 +13,7 @@
 }
 html{scrollbar-gutter:stable}
 body.pa-internal-mode{
-  margin:0;min-height:100vh;overflow-x:hidden;
+  margin:0;min-height:100vh;
   background:
     radial-gradient(1000px 650px at 7% 0%,rgba(14,26,41,.30),transparent 60%),
     radial-gradient(720px 520px at 93% 18%,rgba(216,197,158,.028),transparent 64%),
@@ -34,8 +34,7 @@ body.pa-internal-mode :is(button,a,input,select,textarea):focus-visible{
   width:100%;min-height:100vh;min-height:100dvh;
   display:grid;grid-template-columns:var(--pa-shell-sidebar) minmax(0,1fr)
 }
-.pa-main{width:100%;min-width:0;max-width:100%;overflow:clip}
-@supports not (overflow:clip){.pa-main{overflow:hidden}}
+.pa-main{width:100%;min-width:0;max-width:100%}
 .pa-sidebar{
   position:sticky;top:0;z-index:30;
   box-sizing:border-box;width:var(--pa-shell-sidebar);height:100vh;height:100dvh;
@@ -283,7 +282,7 @@ body.pa-internal-mode .pa-content :is(.metric,.stat,.today-metric)>small{
 }
 
 /* Notebook / tablet paisagem: hero em cima, métricas em faixa única. */
-@media(max-width:1500px) and (min-width:901px){
+@media(max-width:1500px) and (min-width:1200px) and (pointer:fine){
   body.pa-internal-mode .pa-content>:is(.hero,.page-hero,.today-hero){
     grid-template-columns:repeat(4,minmax(0,1fr))
   }
