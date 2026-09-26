@@ -156,10 +156,15 @@ async function cacheUrls(urls){
 
   for(const rel of urls||[]){
     try{
-      const url=new URL(rel,self.registration.scope).href;
-      const response=await fetch(url,{cache:'no-store'});
-      if(response.ok){
-        await next.put(url,response.clone());
+      const url=new URL(rel,self.registration.scope);
+      const external=url.origin!==self.location.origin;
+      const response=await fetch(url.href,external
+        ?{cache:'no-store',mode:'no-cors',credentials:'omit'}
+        :{cache:'no-store'}
+      );
+      const acceptable=response.ok||(external&&response.type==='opaque');
+      if(acceptable){
+        await next.put(url.href,response.clone());
         cached++;
       }else failed++;
     }catch(_){failed++}
