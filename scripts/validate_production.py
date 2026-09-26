@@ -299,9 +299,11 @@ def main():
             errors.append("release: identificador canônico ausente em pa-data-v03.js")
         else:
             release=rm.group(1)
-            if release not in ("1.0.0-rc","1.0.0","1.1.0"):
+            stable_release=bool(re.fullmatch(r"\d+\.\d+\.\d+",release))
+            legacy_rc=release=="1.0.0-rc"
+            if not stable_release and not legacy_rc:
                 errors.append(f"release: identificador inesperado: {release!r}")
-            if release in ("1.0.0","1.1.0"):
+            if stable_release:
                 dm_final=re.search(r"const BUILD_MAINTENANCE=(true|false);",data_runtime)
                 sw_final=(ROOT/"service-worker.js").read_text("utf-8",errors="ignore")
                 sm_final=re.search(r"const MAINTENANCE_MODE=(true|false);",sw_final)
