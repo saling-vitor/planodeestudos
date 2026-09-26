@@ -4,15 +4,15 @@ Este documento separa **versão de produto** de **versões técnicas de compatib
 
 ## Produto
 
-- Produção pública atual antes da promoção: **1.1.0**.
-- SHA público atual: `79da5bfe2f486da208b6e04a3fc06e13eae9a54d`.
-- Versão final em preparação: **1.2.0**.
-- Branch final: `release/v1.2.0`.
-- RC aprovado: `1.2.0-rc.1` no SHA `93e163880e4f06b09c5ddac221c85938c984437f`.
-- Functional freeze: `84afc81faf45af6d67ee9e3441d5f1204734bccd`.
+- Produção pública atual: **1.2.0**.
+- SHA público: `5985e4a53604b00c221112b9ad09d6ca82e6128e`.
+- Branch congelada: `release/v1.2.0`.
+- Tag/GitHub Release: `v1.2.0`.
+- Gate V1.2 Release #5: **success**.
+- Publicar Plano ARQ #606: **success**.
 - QA manual 80% / 125% / 150%: **aprovado**.
 
-Na branch final, novos backups registram **1.2.0**. A produção pública só muda quando o SHA final passar pelo Gate V1.2 Release e for promovido para `main`.
+A próxima linha de desenvolvimento parte de `develop/v1.3`. A versão do produto continua **1.2.0** até que um próximo ciclo autorize formalmente outro bump.
 
 As versões técnicas internas permanecem independentes da versão do produto.
 
@@ -80,13 +80,13 @@ O gate contínuo é `.github/workflows/validate-development.yml` e atende `devel
 Qualquer ciclo posterior deve começar em branch de desenvolvimento nova e preservar esta baseline.
 
 
-## Release V1.2.0 — preparação final
+## Release V1.2.0 — concluída
 
 1. functional freeze: **concluído**;
 2. Gate V1.2 RC #3: **success**;
 3. QA manual 80% / 125% / 150%: **aprovado**;
-4. branch final: `release/v1.2.0`;
-5. versão de produto coordenada em **1.2.0** na branch final;
-6. próximo passo: Gate V1.2 Release no SHA final;
-7. promoção para `main` e deploy real somente após gate verde;
-8. tag/release `v1.2.0` somente após deploy real aprovado.
+4. Gate V1.2 Release #5: **success**;
+5. SHA final: `5985e4a53604b00c221112b9ad09d6ca82e6128e`;
+6. promoção para `main`: **concluída**;
+7. Publicar Plano ARQ #606 + auditorias reais: **success**;
+8. tag/GitHub Release `v1.2.0`: **publicada**.
