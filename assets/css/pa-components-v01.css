@@ -39,13 +39,6 @@ body.pa-internal-mode :is(button,a,input,select,textarea):focus-visible{
 body.pa-internal-mode :is(.primary-btn,.ghost-btn,.icon-btn):disabled{
   opacity:.42;cursor:not-allowed;filter:none
 }
-body.pa-internal-mode :is(.mini,.mini-btn,.small){
-  min-height:34px;padding:0 9px;
-  border:1px solid rgba(255,255,255,.10);border-radius:8px;
-  background:#101318;color:#c5cbd1;
-  font-size:8.8px;font-weight:760;line-height:1
-}
-
 /* ===== Microcomponentes ===== */
 body.pa-internal-mode :is(.small-btn,.mini,.mini-btn,.small){
   min-height:34px;padding:0 9px;
