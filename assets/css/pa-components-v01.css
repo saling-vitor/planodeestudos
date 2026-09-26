@@ -5,7 +5,7 @@ body.pa-internal-mode{
   --pa-ui-control-radius:10px;
   --pa-ui-panel-radius:16px;
   --pa-ui-row-radius:11px;
-  --pa-ui-toolbar-gap:8px;
+  --pa-ui-toolbar-gap:10px;
 }
 body.pa-internal-mode button{font:inherit;cursor:pointer}
 body.pa-internal-mode :is(button,a){touch-action:manipulation}
@@ -108,12 +108,12 @@ body.pa-internal-mode :is(input,select,textarea)::placeholder{color:#6f747c;opac
 
 /* ===== Filtros / chips / tabs ===== */
 body.pa-internal-mode :is(.chips,.filters,.period-tabs,.map-toolbar-left){
-  gap:7px;scrollbar-width:none
+  gap:8px;scrollbar-width:none
 }
 body.pa-internal-mode :is(.chips,.filters,.period-tabs,.map-toolbar-left)::-webkit-scrollbar{display:none}
 body.pa-internal-mode :is(button.chip,button.filter,button.map-filter,.period-tabs button){
   min-height:34px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  border:1px solid rgba(255,255,255,.09);border-radius:999px;background:#090b0e;
+  border:1px solid rgba(255,255,255,.09);border-radius:8px;background:#090b0e;
   color:#969ba2;font:760 8.4px var(--pa-mono);white-space:nowrap
 }
 body.pa-internal-mode :is(button.chip,button.filter,button.map-filter,.period-tabs button).active{
