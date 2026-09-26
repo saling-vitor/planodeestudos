@@ -245,6 +245,142 @@ body:not(.pa-internal-mode) .empty{padding:28px;border:1px dashed var(--line);bo
   }
   body:not(.pa-internal-mode) .home-menu{z-index:120}
 }
+
+
+/* ===== ETAPA D1 · HOJE · refinamento local ===== */
+/* Ajuste fino da tela Hoje sobre a base global A+B+C. Sem mudanças funcionais. */
+body.pa-internal-mode[data-pa-page="today"] .today-section{
+  margin-top:22px
+}
+body.pa-internal-mode[data-pa-page="today"] .today-section-head{
+  min-height:30px;margin-bottom:11px;align-items:center;
+  border-bottom:1px solid rgba(239,233,221,.055)
+}
+body.pa-internal-mode[data-pa-page="today"] .today-section-head h2{
+  display:flex;align-items:center;gap:8px;margin:0;padding-bottom:10px;
+  color:#ded9cf;font:800 10.5px/1 var(--pa-mono);
+  letter-spacing:.145em;text-transform:uppercase
+}
+body.pa-internal-mode[data-pa-page="today"] .today-section-head h2::before{
+  content:"";width:18px;height:1px;flex:0 0 auto;
+  background:linear-gradient(90deg,var(--pa-champagne-2),rgba(109,130,152,.50))
+}
+body.pa-internal-mode[data-pa-page="today"] .today-section-head>span{
+  padding-bottom:10px;color:#807d76;font-size:9.5px
+}
+body.pa-internal-mode[data-pa-page="today"] .today-section-head .head-actions{
+  padding-bottom:8px
+}
+
+body.pa-internal-mode[data-pa-page="today"] .featured-session{
+  border-color:rgba(109,130,152,.40);
+  background:
+    radial-gradient(420px 180px at -4% -12%,rgba(109,130,152,.105),transparent 70%),
+    radial-gradient(320px 150px at 105% 0,rgba(216,197,158,.028),transparent 72%),
+    linear-gradient(112deg,rgba(13,18,23,.97),rgba(9,11,14,.985) 52%,rgba(7,8,10,.99));
+  box-shadow:0 18px 40px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.026)
+}
+body.pa-internal-mode[data-pa-page="today"] .featured-session::after{
+  content:"";position:absolute;left:20px;top:0;width:82px;height:1px;
+  background:linear-gradient(90deg,rgba(109,130,152,.80),rgba(216,197,158,.36),transparent)
+}
+body.pa-internal-mode[data-pa-page="today"] .featured-k{
+  color:#9aaebb;letter-spacing:.145em
+}
+body.pa-internal-mode[data-pa-page="today"] .featured-title h3{
+  color:#efebe4;font:820 18px/1.16 var(--pa-condensed);
+  letter-spacing:.005em
+}
+body.pa-internal-mode[data-pa-page="today"] .featured-title p{
+  color:#8f9295;line-height:1.5
+}
+body.pa-internal-mode[data-pa-page="today"] .featured-chip{
+  border-color:rgba(239,233,221,.095);
+  background:rgba(255,255,255,.010);
+  color:#9d9d99
+}
+
+body.pa-internal-mode[data-pa-page="today"] .today-panel{
+  box-shadow:0 18px 42px rgba(0,0,0,.27),inset 0 1px rgba(255,255,255,.022)
+}
+body.pa-internal-mode[data-pa-page="today"] .day-progress-top strong{
+  color:#e3ddd2;font:820 17px/.98 var(--pa-condensed);
+  letter-spacing:.01em
+}
+body.pa-internal-mode[data-pa-page="today"] .day-progress-top span{
+  color:#8a8882
+}
+body.pa-internal-mode[data-pa-page="today"] :is(.daily-box,.today-number){
+  border-color:rgba(239,233,221,.075)
+}
+body.pa-internal-mode[data-pa-page="today"] :is(.daily-box,.today-number)>span{
+  color:#8e887c;letter-spacing:.07em
+}
+body.pa-internal-mode[data-pa-page="today"] :is(.daily-box,.today-number)>b{
+  color:#eee9df;font-family:var(--pa-condensed);
+  letter-spacing:.005em
+}
+
+body.pa-internal-mode[data-pa-page="today"] .session-card{
+  border-color:rgba(239,233,221,.065);
+  background:
+    linear-gradient(90deg,rgba(109,130,152,.025),transparent 22%),
+    rgba(255,255,255,.008);
+  box-shadow:inset 0 1px rgba(255,255,255,.010);
+  transition:border-color .15s ease,background .15s ease,box-shadow .15s ease
+}
+body.pa-internal-mode[data-pa-page="today"] .session-card:hover{
+  border-color:rgba(145,163,181,.22);
+  background:
+    linear-gradient(90deg,rgba(109,130,152,.045),transparent 24%),
+    rgba(255,255,255,.012);
+  box-shadow:inset 0 1px rgba(255,255,255,.015),0 9px 22px rgba(0,0,0,.12)
+}
+body.pa-internal-mode[data-pa-page="today"] .session-clock{
+  color:#a4a097
+}
+body.pa-internal-mode[data-pa-page="today"] .session-info strong{
+  color:#dedbd5;font-size:11.7px
+}
+body.pa-internal-mode[data-pa-page="today"] .session-info span{
+  color:#85888c
+}
+body.pa-internal-mode[data-pa-page="today"] .break-line{
+  color:#74736f;letter-spacing:.055em
+}
+
+body.pa-internal-mode[data-pa-page="today"] .auto-main{
+  border-color:rgba(216,197,158,.115);
+  background:
+    radial-gradient(390px 170px at -5% -12%,rgba(216,197,158,.050),transparent 70%),
+    linear-gradient(112deg,rgba(14,13,12,.92),rgba(8,10,13,.97) 48%,rgba(7,9,12,.985));
+  box-shadow:0 16px 36px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.020)
+}
+body.pa-internal-mode[data-pa-page="today"] .auto-k{
+  color:#b6a277;letter-spacing:.145em
+}
+body.pa-internal-mode[data-pa-page="today"] .auto-main h3{
+  color:#ebe5da;font:820 16px/1.18 var(--pa-condensed);
+  letter-spacing:.005em
+}
+body.pa-internal-mode[data-pa-page="today"] .auto-main p{
+  color:#8d8e8e
+}
+body.pa-internal-mode[data-pa-page="today"] .auto-row{
+  border-color:rgba(239,233,221,.035);
+  background:rgba(255,255,255,.005)
+}
+body.pa-internal-mode[data-pa-page="today"] .auto-row:hover{
+  border-color:rgba(239,233,221,.09);
+  background:rgba(255,255,255,.012)
+}
+body.pa-internal-mode[data-pa-page="today"] .collapsible{
+  border-color:rgba(239,233,221,.07);
+  background:rgba(255,255,255,.004)
+}
+body.pa-internal-mode[data-pa-page="today"] .collapsible summary strong{
+  color:#c8c5be
+}
 </style>
 <script src="data/navigation.js"></script>
 <link rel="stylesheet" href="assets/css/pa-tokens-v01.css"><link rel="stylesheet" href="assets/css/pa-shell-v16.css">
