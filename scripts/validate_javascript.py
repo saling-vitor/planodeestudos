@@ -111,6 +111,12 @@ def main():
         if path.name == "study-map-runtime-v01.js":
             if re.search(r"attributeFilter\s*:\s*\[\s*['\"]data-study-state['\"]\s*\]", text):
                 raise RuntimeError("study-map-runtime-v01.js: observer paralelo de data-study-state detectado")
+        if path.name == "pa-actions-v01.js":
+            for token in ("const VERSION='1.1'","function audit(","function emptyState(","planContext","rankReason","readOnly:true"):
+                if token not in text:
+                    raise RuntimeError(f"pa-actions-v01.js: contrato V1.1 ausente: {token}")
+            if text.count("localStorage.setItem") != 1:
+                raise RuntimeError("pa-actions-v01.js: build/audit não podem introduzir novas escritas; apenas saveSettings é permitido")
         check_node(path, str(path.relative_to(ROOT)))
         checked_external += 1
 
