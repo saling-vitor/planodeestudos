@@ -58,7 +58,8 @@ def measure():
       const visible=e=>{if(!e)return false;const s=getComputedStyle(e),r=e.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>1&&r.height>1};
       const rect=e=>{if(!e)return null;const r=e.getBoundingClientRect();return{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}};
       const vw=document.documentElement.clientWidth,vh=document.documentElement.clientHeight;
-      const controls=[...document.querySelectorAll('.toolbar button,.toolbar input,.touch-more-btn,.branch-index-toggle')].filter(visible).map(e=>({id:e.id||'',cls:e.className||'',rect:rect(e)}));
+      const controls=[...document.querySelectorAll('.toolbar button,.toolbar input,.touch-more-btn,.branch-index-toggle')].filter(visible).map(e=>({tag:e.tagName.toLowerCase(),id:e.id||'',cls:e.className||'',view:e.dataset?.view||'',rect:rect(e)}));
+      const offenders=[...document.querySelectorAll('body *')].filter(visible).map(e=>({e,r:e.getBoundingClientRect()})).filter(x=>x.r.right>vw+2||x.r.left<-2).filter(x=>!x.e.closest('.table-scroll')).slice(0,20).map(x=>({tag:x.e.tagName.toLowerCase(),id:x.e.id||'',cls:String(x.e.className||'').slice(0,180),text:(x.e.textContent||'').replace(/\s+/g,' ').trim().slice(0,120),rect:{left:x.r.left,right:x.r.right,width:x.r.width}}));
       const duplicateIds=[...document.querySelectorAll('[id]')].map(x=>x.id).filter((id,i,a)=>id&&a.indexOf(id)!==i);
       const nonStudyViews=[...document.querySelectorAll('[data-view]')].filter(x=>x.dataset.view!=='detail').map(x=>x.dataset.view);
       const touch=matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0;
@@ -82,6 +83,7 @@ def measure():
         moreVisible:visible(more),
         moreRect:rect(more),
         branchIndexVisible:visible(document.querySelector('.branch-index-toggle')),
+        offenders,
         title:document.querySelector('meta[name="study-display-title"]')?.content||document.title,
         storageId:document.querySelector('meta[name="mindmap-storage-id"]')?.content||''
       };
@@ -127,8 +129,8 @@ try:
                 if browser_errors:local.append("erro JavaScript no console")
                 if touch and data["touch"]:
                     if not data["moreVisible"]:local.append("Mais touch não visível")
-                    tiny=[x for x in data["controls"] if x["rect"] and (x["rect"]["width"]<38 or x["rect"]["height"]<38)]
-                    if tiny:local.append("controle touch abaixo de 38px")
+                    tiny=[x for x in data["controls"] if x["rect"] and (x["rect"]["width"]<44 or x["rect"]["height"]<44)]
+                    if tiny:local.append("controle touch abaixo de 44px: "+",".join((x.get("id") or x.get("view") or x.get("cls") or x.get("tag") or "?") for x in tiny[:4]))
                 if data["hero"] and data["hero"]["right"]>data["vw"]+3:local.append("hero fora da viewport")
                 if local:
                     row["errors"]=local
