@@ -50,3 +50,205 @@ body:not(.pa-internal-mode) :is(.datum,.daily-box,.today-number,.close-stat,.rev
 }
 body:not(.pa-internal-mode) :is(.today-empty,.auto-empty){border-color:rgba(216,197,158,.18);background:radial-gradient(300px 120px at 50% 0,rgba(216,197,158,.025),transparent 75%),rgba(255,255,255,.004)}
 
+
+
+/* ===== ETAPA C · Controles compartilhados ===== */
+/* Refinamento visual apenas: preserva radius, alturas, touch targets e comportamento responsivo. */
+body.pa-internal-mode :is(.primary-btn,.ghost-btn,.icon-btn,.small-btn,.mini,.mini-btn,.small){
+  position:relative;
+  transition:border-color .16s ease,background .16s ease,color .16s ease,box-shadow .16s ease,filter .16s ease,transform .12s ease
+}
+body.pa-internal-mode .primary-btn{
+  border-color:rgba(109,130,152,.58);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.038),transparent 42%),
+    linear-gradient(180deg,rgba(109,130,152,.24),rgba(109,130,152,.115));
+  color:#e7eff4;
+  box-shadow:inset 0 1px rgba(255,255,255,.045),0 8px 20px rgba(0,0,0,.16)
+}
+body.pa-internal-mode .ghost-btn,
+body.pa-internal-mode .icon-btn{
+  border-color:rgba(239,233,221,.115);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.025),transparent 46%),
+    linear-gradient(180deg,#111419,#0c0f13);
+  color:#cfcdc8;
+  box-shadow:inset 0 1px rgba(255,255,255,.024),0 7px 17px rgba(0,0,0,.12)
+}
+body.pa-internal-mode :is(.small-btn,.mini,.mini-btn,.small){
+  border-color:rgba(239,233,221,.095);
+  background:linear-gradient(180deg,rgba(18,21,26,.94),rgba(12,15,19,.96));
+  color:#c7c7c4;
+  box-shadow:inset 0 1px rgba(255,255,255,.018)
+}
+body.pa-internal-mode :is(.primary-btn,.ghost-btn,.icon-btn,.small-btn,.mini,.mini-btn,.small):hover{
+  filter:none;
+  color:#f0eee9;
+  border-color:rgba(145,163,181,.48);
+  box-shadow:inset 0 1px rgba(255,255,255,.045),0 9px 22px rgba(0,0,0,.18)
+}
+body.pa-internal-mode .primary-btn:hover{
+  border-color:rgba(132,158,180,.68);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.052),transparent 42%),
+    linear-gradient(180deg,rgba(109,130,152,.30),rgba(109,130,152,.14))
+}
+body.pa-internal-mode :is(.primary-btn,.ghost-btn,.icon-btn,.small-btn,.mini,.mini-btn,.small):active{
+  transform:translateY(1px);
+  box-shadow:inset 0 1px rgba(255,255,255,.018),0 3px 10px rgba(0,0,0,.16)
+}
+body.pa-internal-mode :is(.primary-btn,.ghost-btn,.icon-btn,.small-btn,.mini,.mini-btn,.small):disabled{
+  transform:none;box-shadow:none
+}
+
+/* Campos mais "sistema" e menos formulário genérico. */
+body.pa-internal-mode .field label{
+  color:#938d80;letter-spacing:.085em
+}
+body.pa-internal-mode :is(
+  .field input,.field select,.field textarea,
+  input[type="search"],input.search,
+  .tools input,.tools select,.toolbar input,.toolbar select
+){
+  border-color:rgba(239,233,221,.105);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.014),transparent 54%),
+    #0f1216;
+  color:#e2dfd8;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.016),inset 0 0 0 1px rgba(0,0,0,.12);
+  transition:border-color .16s ease,background .16s ease,box-shadow .16s ease
+}
+body.pa-internal-mode :is(
+  .field input,.field select,.field textarea,
+  input[type="search"],input.search,
+  .tools input,.tools select,.toolbar input,.toolbar select
+):hover{
+  border-color:rgba(145,163,181,.28);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.018),transparent 54%),
+    #101319
+}
+body.pa-internal-mode :is(
+  .field input,.field select,.field textarea,
+  input[type="search"],input.search,
+  .tools input,.tools select,.toolbar input,.toolbar select
+):focus{
+  border-color:rgba(109,130,152,.56);
+  box-shadow:inset 0 1px rgba(255,255,255,.018),0 0 0 3px rgba(109,130,152,.085)
+}
+body.pa-internal-mode :is(input,select,textarea)::placeholder{color:#73777d}
+
+/* Chips, filtros e tabs: mais técnicos, mantendo radius e densidade aprovados. */
+body.pa-internal-mode :is(button.chip,button.filter,button.map-filter,.period-tabs button){
+  border-color:rgba(239,233,221,.095);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.018),transparent 52%),
+    rgba(9,12,15,.94);
+  color:#989b9f;
+  box-shadow:inset 0 1px rgba(255,255,255,.014);
+  transition:border-color .15s ease,background .15s ease,color .15s ease,box-shadow .15s ease
+}
+body.pa-internal-mode :is(button.chip,button.filter,button.map-filter,.period-tabs button):hover{
+  border-color:rgba(145,163,181,.34);
+  background:linear-gradient(180deg,rgba(17,21,26,.96),rgba(10,13,17,.97));
+  color:#d6d5d1
+}
+body.pa-internal-mode :is(button.chip,button.filter,button.map-filter,.period-tabs button).active{
+  border-color:rgba(109,130,152,.52);
+  background:
+    radial-gradient(120px 52px at 0 50%,rgba(109,130,152,.12),transparent 78%),
+    linear-gradient(180deg,rgba(109,130,152,.13),rgba(109,130,152,.055));
+  color:#dce5eb;
+  box-shadow:inset 0 1px rgba(255,255,255,.024),inset 0 -2px rgba(109,130,152,.20)
+}
+body.pa-internal-mode :is(.badge,.tag,.count-pill,.status-chip){
+  border-color:rgba(239,233,221,.105);
+  background:linear-gradient(180deg,rgba(255,255,255,.018),rgba(255,255,255,.006));
+  box-shadow:inset 0 1px rgba(255,255,255,.014)
+}
+body.pa-internal-mode button.chip :is(.chip-count,b){
+  border:1px solid rgba(239,233,221,.065);
+  background:rgba(255,255,255,.045)
+}
+body.pa-internal-mode button.chip.active :is(.chip-count,b){
+  border-color:rgba(109,130,152,.20);
+  background:rgba(109,130,152,.17)
+}
+
+/* Toolbars: grupos passam a parecer uma única peça técnica. */
+body.pa-internal-mode :is(.tools,.toolbar,.tabs){
+  border-color:rgba(239,233,221,.095);
+  background:
+    radial-gradient(360px 120px at 0 0,rgba(109,130,152,.045),transparent 72%),
+    linear-gradient(180deg,rgba(12,15,19,.90),rgba(7,9,12,.92));
+  box-shadow:0 12px 30px rgba(0,0,0,.20),inset 0 1px rgba(255,255,255,.022)
+}
+body.pa-internal-mode .tab{
+  transition:border-color .15s ease,background .15s ease,color .15s ease
+}
+body.pa-internal-mode .tab:hover{color:#cfceca;background:rgba(255,255,255,.018)}
+body.pa-internal-mode .tab.active{
+  border-color:rgba(109,130,152,.44);
+  background:linear-gradient(180deg,rgba(109,130,152,.14),rgba(109,130,152,.06));
+  color:#dfe7ec;
+  box-shadow:inset 0 1px rgba(255,255,255,.020)
+}
+
+/* Barras de progresso com acabamento mais próximo dos mapas. */
+body.pa-internal-mode .track,
+body:not(.pa-internal-mode) .track{
+  background:linear-gradient(180deg,#0c0f12,#11151a);
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.52),inset 0 0 0 1px rgba(255,255,255,.025)
+}
+body.pa-internal-mode .track :is(i,span),
+body.pa-internal-mode .fill,
+body:not(.pa-internal-mode) .track :is(i,span),
+body:not(.pa-internal-mode) .fill{
+  background:linear-gradient(90deg,#667d91,#8198aa);
+  box-shadow:0 0 10px rgba(109,130,152,.12)
+}
+
+/* Portal de concursos / estado sem concurso. */
+body:not(.pa-internal-mode) :is(.primary-btn,.ghost-btn,.icon-btn,.small-btn,.session-btn,.featured-primary,.featured-pause){
+  transition:border-color .16s ease,background .16s ease,color .16s ease,box-shadow .16s ease,transform .12s ease
+}
+body:not(.pa-internal-mode) .primary-btn,
+body:not(.pa-internal-mode) .featured-primary{
+  border-color:rgba(109,130,152,.60);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.04),transparent 42%),
+    linear-gradient(180deg,rgba(109,130,152,.27),rgba(109,130,152,.13));
+  color:#e7eff4;
+  box-shadow:inset 0 1px rgba(255,255,255,.04),0 8px 20px rgba(0,0,0,.16)
+}
+body:not(.pa-internal-mode) :is(.ghost-btn,.icon-btn,.session-btn){
+  border-color:rgba(239,233,221,.11);
+  background:linear-gradient(180deg,#111419,#0c0f13);
+  color:#cbc9c4;
+  box-shadow:inset 0 1px rgba(255,255,255,.022)
+}
+body:not(.pa-internal-mode) :is(.primary-btn,.ghost-btn,.icon-btn,.small-btn,.session-btn,.featured-primary,.featured-pause):hover{
+  border-color:rgba(145,163,181,.46);color:#f0eee9;
+  box-shadow:inset 0 1px rgba(255,255,255,.04),0 9px 22px rgba(0,0,0,.17)
+}
+body:not(.pa-internal-mode) :is(.primary-btn,.ghost-btn,.icon-btn,.small-btn,.session-btn,.featured-primary,.featured-pause):active{
+  transform:translateY(1px)
+}
+body:not(.pa-internal-mode) :is(.field input,.field select,.field textarea,.extra-form input,.extra-form select){
+  border-color:rgba(239,233,221,.105);
+  background:linear-gradient(180deg,rgba(255,255,255,.014),transparent 54%),#0f1216;
+  color:#e2dfd8;
+  box-shadow:inset 0 1px rgba(255,255,255,.016);
+  transition:border-color .16s ease,background .16s ease,box-shadow .16s ease
+}
+body:not(.pa-internal-mode) :is(.field input,.field select,.field textarea,.extra-form input,.extra-form select):focus{
+  border-color:rgba(109,130,152,.56);
+  box-shadow:inset 0 1px rgba(255,255,255,.018),0 0 0 3px rgba(109,130,152,.085)
+}
+
+@media(pointer:coarse){
+  body.pa-internal-mode :is(.primary-btn,.ghost-btn,.icon-btn,.small-btn,.mini,.mini-btn,.small),
+  body:not(.pa-internal-mode) :is(.primary-btn,.ghost-btn,.icon-btn,.small-btn,.session-btn,.featured-primary,.featured-pause){
+    transform:none
+  }
+}
