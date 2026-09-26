@@ -92,24 +92,24 @@ def main():
         if path.name == "study-map-preconfig-v01.js" and re.search(r"map-mode|map-focus|focusBranch", text):
             raise RuntimeError("study-map-preconfig-v01.js: runtime legado de map-mode/map-focus detectado")
         if path.name in {"study-map-preconfig-v01.js", "study-map-runtime-v01.js"}:
-            observers = len(re.findall(r"\\bnew\\s+MutationObserver\\s*\\(", text))
+            observers = len(re.findall(r"\bnew\s+MutationObserver\s*\(", text))
             budget = 2 if path.name == "study-map-preconfig-v01.js" else 1
             if observers > budget:
                 raise RuntimeError(
                     f"{path.name}: {observers} MutationObservers ativos; orçamento V1.1 é {budget}"
                 )
-            if re.search(r"observe\\(document\\.documentElement,\\s*\\{[^}]*subtree\\s*:\\s*true[^}]*childList\\s*:\\s*true", text):
+            if re.search(r"observe\(document\.documentElement,\s*\{[^}]*subtree\s*:\s*true[^}]*childList\s*:\s*true", text):
                 raise RuntimeError(f"{path.name}: observer global do documentElement voltou ao runtime")
         if path.name == "study-map-preconfig-v01.js":
             if "PLANO_ARQ_STUDY_STATE_BUS" not in text or "mindmap:study-state-changed" not in text:
                 raise RuntimeError("study-map-preconfig-v01.js: barramento único de estado ausente")
-            direct = len(re.findall(r"attributeFilter\\s*:\\s*\\[\\s*['\"]data-study-state['\"]\\s*\\]", text))
+            direct = len(re.findall(r"attributeFilter\s*:\s*\[\s*['\"]data-study-state['\"]\s*\]", text))
             if direct != 1:
                 raise RuntimeError(
                     f"study-map-preconfig-v01.js: esperado 1 observer de data-study-state; encontrado {direct}"
                 )
         if path.name == "study-map-runtime-v01.js":
-            if re.search(r"attributeFilter\\s*:\\s*\\[\\s*['\"]data-study-state['\"]\\s*\\]", text):
+            if re.search(r"attributeFilter\s*:\s*\[\s*['\"]data-study-state['\"]\s*\]", text):
                 raise RuntimeError("study-map-runtime-v01.js: observer paralelo de data-study-state detectado")
         check_node(path, str(path.relative_to(ROOT)))
         checked_external += 1
