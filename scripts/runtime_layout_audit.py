@@ -351,6 +351,56 @@ try:
             failed=", ".join(k for k,v in checks.items() if not v)
             errors.append(f"funcional-{page}@{width}x{height}: falhou em {failed}")
 
+    planning_fields_js=r"""
+      const grid=document.querySelector('.field-grid');
+      if(!grid)return {ok:false,reason:'field-grid ausente'};
+      const rect=el=>{const r=el.getBoundingClientRect();return{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}};
+      const snap=()=>{
+        const fields=[...grid.querySelectorAll(':scope > .field')];
+        const controls=fields.map(field=>({field,control:field.querySelector('input,select,textarea')})).filter(x=>x.control);
+        const rows=controls.map(({field,control})=>({id:control.id||'',field:rect(field),control:rect(control)}));
+        const inside=rows.every(x=>x.control.left>=x.field.left-1&&x.control.right<=x.field.right+1);
+        const overlaps=[];
+        for(let i=0;i<rows.length;i++)for(let j=i+1;j<rows.length;j++){
+          const a=rows[i].control,b=rows[j].control;
+          const ix=Math.min(a.right,b.right)-Math.max(a.left,b.left),iy=Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top);
+          if(ix>1&&iy>1)overlaps.push([rows[i].id,rows[j].id]);
+        }
+        const cols=getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).filter(Boolean);
+        const pairs=[[0,1],[2,3],[4,5]].filter(([a,b])=>rows[a]&&rows[b]&&Math.abs(rows[a].control.top-rows[b].control.top)<2);
+        const gaps=pairs.map(([a,b])=>rows[b].control.left-rows[a].control.right);
+        const gapConsistent=gaps.length<2||Math.max(...gaps)-Math.min(...gaps)<=2;
+        const widths=pairs.flatMap(([a,b])=>[rows[a].control.width,rows[b].control.width]);
+        const equalColumns=widths.length<2||Math.max(...widths)-Math.min(...widths)<=2;
+        return {rows,columns:cols.length,inside,overlaps,gaps,gapConsistent,equalColumns,horizontalOverflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+2};
+      };
+      const before=snap(),exam=document.getElementById('examDate'),start=document.getElementById('startDate');
+      if(start)start.value='2026-09-26';if(exam){exam.value='2026-10-18';exam.focus({preventScroll:true})}
+      const after=snap(),b=before.rows.find(x=>x.id==='examDate')?.control,a=after.rows.find(x=>x.id==='examDate')?.control;
+      const focusStable=!!b&&!!a&&['left','right','top','bottom','width','height'].every(k=>Math.abs(b[k]-a[k])<=1);
+      const ids=new Set(after.rows.map(x=>x.id)),required=['startDate','examDate','blockMinutes','questionsPct','reviewPct','breakMinutes','rebalance'];
+      const allFields=required.every(id=>ids.has(id));
+      return {before,after,focusStable,allFields,ok:allFields&&before.inside&&after.inside&&!before.overlaps.length&&!after.overlaps.length&&!before.horizontalOverflow&&!after.horizontalOverflow&&before.gapConsistent&&after.gapConsistent&&before.equalColumns&&after.equalColumns&&focusStable};
+    """
+
+    # Contrato estrutural dos campos da Estratégia em desktop, notebook, tablet e celular.
+    for width,height in ((1920,1080),(1440,1000),(1366,900),(1024,768),(768,1024),(430,932),(390,844),(375,812)):
+        driver.set_window_size(width,height)
+        driver.get(urljoin(base,f"planejamento.html?contest={contest}"));wait_ready()
+        diag=driver.execute_script(planning_fields_js)
+        add_functional("planejamento-campos",width,height,{
+            "todosCampos":diag.get("allFields"),
+            "dentroDaColunaAntes":diag.get("before",{}).get("inside"),
+            "dentroDaColunaPreenchido":diag.get("after",{}).get("inside"),
+            "semSobreposicaoAntes":not bool(diag.get("before",{}).get("overlaps")),
+            "semSobreposicaoPreenchido":not bool(diag.get("after",{}).get("overlaps")),
+            "semOverflowHorizontal":not bool(diag.get("after",{}).get("horizontalOverflow")),
+            "gapConsistente":diag.get("after",{}).get("gapConsistent"),
+            "colunasEquilibradas":diag.get("after",{}).get("equalColumns"),
+            "focoSemSalto":diag.get("focusStable")
+        })
+        driver.save_screenshot(str(out_dir/f"planejamento-campos-{width}x{height}.png"))
+
     for width,height in ((1440,1000),(834,1112),(390,844)):
         driver.set_window_size(width,height)
 
@@ -793,7 +843,7 @@ try:
 
     zoom_map=[(80,-2),(100,0),(110,1),(125,2),(150,3)]
     driver.set_window_size(1440,1000)
-    for page,rel in (("mapas",f"biblioteca.html?contest={contest}"),("configuracoes",f"configuracoes.html?contest={contest}")):
+    for page,rel in (("mapas",f"biblioteca.html?contest={contest}"),("configuracoes",f"configuracoes.html?contest={contest}"),("planejamento",f"planejamento.html?contest={contest}")):
         driver.get(urljoin(base,rel));wait_ready();reset_zoom()
         baseline=driver.execute_script("return {innerWidth:innerWidth,dpr:devicePixelRatio}")
         for pct,steps in zoom_map:
@@ -801,6 +851,10 @@ try:
             time.sleep(.2)
             state=driver.execute_script("return {innerWidth:innerWidth,innerHeight:innerHeight,dpr:devicePixelRatio}")
             data=measure(page)
+            if page=="planejamento":
+                field_diag=driver.execute_script(planning_fields_js)
+                data["planningFields"]=field_diag
+                if not field_diag.get("ok"):errors.append(f"zoom-planejamento@{pct}%: campos da Estratégia romperam o contrato estrutural")
             case={"page":page,"requestedZoom":pct,"baseline":baseline,"state":state,"diagnostics":data}
             zoom_cases.append(case)
             append_errors(data,f"zoom-{page}@{pct}%",errors)
