@@ -1,0 +1,60 @@
+name: Gate V1.1 Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Gerar dados derivados
+        run: |
+          python3 scripts/build_static_data.py
+          python3 scripts/build_materials_manifest.py
+          python3 scripts/build_topic_catalogs.py
+          python3 scripts/build_simulations_manifest.py
+          python3 scripts/build_files_manifest.py
+          python3 scripts/build_offline_pack.py
+
+      - name: Validar base de produção
+        run: |
+          python3 scripts/validate_production.py
+          python3 scripts/validate_layout_contract.py
+          python3 scripts/validate_css.py
+          python3 scripts/validate_javascript.py
+          python3 scripts/validate_pwa_cache.py
+          python3 scripts/validate_versions.py
+
+      - name: Exigir QA manual de release
+        run: python3 scripts/validate_release_qa.py --release
+
+      - name: Preparar navegador
+        run: python3 -m pip install --disable-pip-version-check selenium
+
+      - name: Regressão completa
+        shell: bash
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/plano-arq-v11-release-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          python3 scripts/runtime_data_safety.py http://127.0.0.1:8765/
+          STUDY_MAP_AUDIT_DIR=${{ runner.temp }}/study-map-audit python3 scripts/runtime_study_map_audit.py http://127.0.0.1:8765/
+          python3 scripts/runtime_offline_reliability.py http://127.0.0.1:8765/
+          LAYOUT_AUDIT_DIR=${{ runner.temp }}/layout-audit LAYOUT_AUDIT_STRICT=1 python3 scripts/runtime_layout_audit.py http://127.0.0.1:8765/
+
+      - name: Salvar evidências
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v11-release-gate-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/study-map-audit
+            ${{ runner.temp }}/layout-audit
+          if-no-files-found: warn
+          retention-days: 14
