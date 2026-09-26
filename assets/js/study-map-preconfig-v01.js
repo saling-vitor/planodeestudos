@@ -91,7 +91,7 @@ document.getElementById('clearBtn').addEventListener('click',()=>{SEARCH.value='
 document.getElementById('searchToggle').addEventListener('click',()=>{APP.classList.toggle('search-open');if(APP.classList.contains('search-open'))setTimeout(()=>SEARCH.focus(),30)});
 document.querySelectorAll('.topic-card').forEach(t=>t.addEventListener('toggle',()=>{const s=t.querySelector('summary');s?.setAttribute('aria-expanded',String(t.open))}));
 const topBtn=document.getElementById('topBtn');addEventListener('scroll',()=>{topBtn.style.display=scrollY>650?'block':'none'},{passive:true});topBtn.addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));
-const obs=new MutationObserver(()=>normalize());if(MAP)obs.observe(MAP,{childList:true});const mainRoot=document.querySelector('main');if(mainRoot)obs.observe(mainRoot,{childList:true});
+/* Ramos e cards são estruturais e não são inseridos após o parse. */
 normalize();applyFilters();window.MindMapApp={normalize,setView,focus:i=>{const r=ramos()[Number(i)-1];if(r)jump(r)},clearFocus:()=>{},branchCount:()=>branches().length};
 })();
 
