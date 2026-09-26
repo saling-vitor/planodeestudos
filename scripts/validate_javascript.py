@@ -112,7 +112,7 @@ def main():
             if re.search(r"attributeFilter\s*:\s*\[\s*['\"]data-study-state['\"]\s*\]", text):
                 raise RuntimeError("study-map-runtime-v01.js: observer paralelo de data-study-state detectado")
         if path.name == "pa-actions-v01.js":
-            for token in ("const VERSION='2.0'","function focus(","function focusContext(","function diagnosticRows(","function audit(","function emptyState(","planContext","rankReason","examContext","materialsForContest","examSchemaForContest","readOnly:true"):
+            for token in ("const VERSION='2.0'","function focus(","function focusContext(","function diagnosticRows(","function temporalTier(","function audit(","function emptyState(","planContext","rankReason","examContext","materialsForContest","examSchemaForContest","readOnly:true"):
                 if token not in text:
                     raise RuntimeError(f"pa-actions-v01.js: contrato Focus 2.0 ausente: {token}")
             if text.count("localStorage.setItem") != 1:
