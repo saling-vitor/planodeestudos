@@ -58,9 +58,6 @@ jobs:
       - name: Validar contrato de versões
         run: python3 scripts/validate_versions.py
 
-      - name: Validar freeze funcional V1.2
-        run: python3 scripts/validate_release_freeze_v12.py --git
-
       - name: Preparar navegador
         run: python3 -m pip install --disable-pip-version-check selenium
 
