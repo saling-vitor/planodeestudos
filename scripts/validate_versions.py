@@ -24,6 +24,7 @@ checks={
     "pwa": capture("assets/js/pa-pwa-v01.js",r"const VERSION=['\"]([^'\"]+)['\"]","PWA"),
     "serviceWorker": capture("service-worker.js",r"const VERSION=['\"]([^'\"]+)['\"]","Service Worker"),
     "studyPreconfig": capture("assets/js/study-map-preconfig-v01.js",r"const VERSION=['\"]([^'\"]+)['\"]","Study preconfig"),
+    "automation": capture("assets/js/pa-actions-v01.js",r"const VERSION=['\"]([^'\"]+)['\"]","Automation"),
 }
 expected={
     "productBaseline":contract.get("productBaseline"),
@@ -32,6 +33,7 @@ expected={
     "pwa":tech.get("pwa"),
     "serviceWorker":tech.get("serviceWorker"),
     "studyPreconfig":tech.get("studyPreconfig"),
+    "automation":tech.get("automation"),
 }
 for key,value in checks.items():
     if value!=expected.get(key):
