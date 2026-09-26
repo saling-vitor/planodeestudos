@@ -262,6 +262,27 @@ def main():
     except (OSError,ValueError,TypeError) as exc:
         errors.append(f"dados canônicos inválidos ({exc})")
 
+    # Gate de release: documentação canônica e ausência de resíduos de arquivo.
+    release_doc=ROOT/"docs/RELEASE.md"
+    if not release_doc.is_file():
+        errors.append("release: docs/RELEASE.md ausente")
+    else:
+        release_doc_text=release_doc.read_text("utf-8",errors="ignore")
+        for marker in ("1.0.0-rc","BUILD_MAINTENANCE=false","MAINTENANCE_MODE=false","v1.0.0"):
+            if marker not in release_doc_text:
+                errors.append(f"release: checklist final incompleto em docs/RELEASE.md: {marker}")
+
+    residue_name_patterns=(
+        re.compile(r"(^|/)(?:backup|old|legacy|temp|tmp|archive)(?:/|[-_.])",re.I),
+        re.compile(r"\.(?:bak|tmp|orig|rej|swp|zip)$",re.I),
+    )
+    for path in ROOT.rglob("*"):
+        if not path.is_file() or ".git" in path.parts:
+            continue
+        rel=path.relative_to(ROOT).as_posix()
+        if any(rx.search(rel) for rx in residue_name_patterns):
+            errors.append(f"release: arquivo residual detectado: {rel}")
+
     # Metadados de release precisam ser canônicos e independentes das antigas etapas de desenvolvimento.
     try:
         data_runtime=(ROOT/"assets/js/pa-data-v03.js").read_text("utf-8",errors="ignore")

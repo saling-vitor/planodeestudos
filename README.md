@@ -8,6 +8,7 @@ Portal estático de estudos para concursos, publicado por GitHub Pages e prepara
 - Branch: `main`
 - Deploy: `.github/workflows/pages.yml`
 - Release candidate atual: `1.0.0-rc`
+- Checklist de liberação: `docs/RELEASE.md`
 - 14 mapas em `materials/`
 - 3 simulados em `simulados/`
 - edital/documentos oficiais em `edital/`
