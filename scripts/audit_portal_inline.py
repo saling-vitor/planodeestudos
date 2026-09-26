@@ -26,6 +26,12 @@ for name in PAGES:
         "inlineJsChars":inline,
     }
 
+shell=(ROOT/"assets/js/pa-shell-v16.js").read_text("utf-8",errors="replace")
+shell_delegates="PLANO_ARQ_CONTEST_CONTEXT?.contests?.()" in shell
+report["pa-shell-v16.js"]={"shellDelegatesContestContext":shell_delegates}
+if not shell_delegates:
+    errors.append("pa-shell-v16.js: deve delegar contests() ao módulo de contexto quando disponível")
+
 print("portal-inline-audit",report)
 if errors:
     for e in errors:
