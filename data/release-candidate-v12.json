@@ -54,9 +54,9 @@
   ],
   "rcGate": {
     "workflow": "Gate V1.2 RC",
-    "run": 1,
+    "run": 3,
     "status": "success",
-    "sha": "9cdf4eb50d953c0631e3e2795f71f922fdcf0521"
+    "sha": "93e163880e4f06b09c5ddac221c85938c984437f"
   },
   "manualQa": {
     "status": "approved",
