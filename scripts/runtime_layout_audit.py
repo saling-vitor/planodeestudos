@@ -401,6 +401,91 @@ try:
         })
         driver.save_screenshot(str(out_dir/f"planejamento-campos-{width}x{height}.png"))
 
+    # Contrato visual canônico de filtros/toolbars nas cinco páginas que compartilham o componente.
+    filter_pages=(
+        ("mapas",f"biblioteca.html?contest={contest}"),
+        ("revisoes",f"revisoes.html?contest={contest}"),
+        ("questoes",f"questoes.html?contest={contest}"),
+        ("simulados",f"simulados.html?contest={contest}"),
+        ("erros",f"erros.html?contest={contest}"),
+    )
+    filter_selector="button.chip,button.filter,button.map-filter,.period-tabs button"
+    filter_container_selector=".chips,.filters,.period-tabs,.map-toolbar-left"
+
+    def filter_contract():
+        return driver.execute_script(r"""
+          const btn=document.querySelector(arguments[0]),container=btn?.closest(arguments[1])||document.querySelector(arguments[1]);
+          const toolbar=document.querySelector('.tools,.toolbar');
+          const active=document.querySelector(arguments[0]+'.active');
+          const inactive=[...document.querySelectorAll(arguments[0])].find(x=>!x.classList.contains('active'));
+          const counter=document.querySelector('button.chip .chip-count,button.chip b');
+          const cardChip=document.querySelector('.library-card .chip');
+          const cs=e=>e?getComputedStyle(e):null,b=cs(btn),ct=cs(container),tb=cs(toolbar),ac=cs(active),ic=cs(inactive),cc=cs(counter),lc=cs(cardChip);
+          return {
+            hasButton:!!btn,
+            radius:b?.borderRadius||'',
+            filterGap:ct?.gap||'',
+            toolbarGap:tb?.gap||'',
+            activeExists:!!active,
+            activeDistinct:!active||!inactive||ac.borderColor!==ic.borderColor||ac.backgroundColor!==ic.backgroundColor,
+            counterRadius:cc?.borderRadius||null,
+            cardChipRadius:lc?.borderRadius||null,
+            flexWrap:ct?.flexWrap||null,
+            overflowX:ct?.overflowX||null,
+            height:btn?.getBoundingClientRect().height||0,
+            pageOverflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+2
+          };
+        """,filter_selector,filter_container_selector)
+
+    # Desktop: raio/gaps/estado ativo e estabilidade em hover/focus.
+    driver.execute_cdp_cmd("Emulation.setTouchEmulationEnabled",{"enabled":False,"maxTouchPoints":1})
+    driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride",{})
+    for page,rel in filter_pages:
+        driver.set_window_size(1440,1000)
+        driver.get(urljoin(base,rel));wait_ready()
+        info=filter_contract()
+        btn=driver.find_element(By.CSS_SELECTOR,filter_selector)
+        driver.execute_script("arguments[0].scrollIntoView({block:'center',inline:'nearest'})",btn)
+        geom="const r=arguments[0].getBoundingClientRect(),sx=scrollX,sy=scrollY;return {x:r.x+sx,y:r.y+sy,width:r.width,height:r.height}"
+        before=driver.execute_script(geom,btn)
+        ActionChains(driver).move_to_element(btn).perform();time.sleep(.08)
+        hover=driver.execute_script(geom,btn)
+        driver.execute_script("arguments[0].focus({preventScroll:true})",btn);time.sleep(.06)
+        focus=driver.execute_script(geom,btn)
+        stable=all(abs(before[k]-hover[k])<=1 and abs(before[k]-focus[k])<=1 for k in ("x","y","width","height"))
+        add_functional(f"{page}-filtros",1440,1000,{
+            "temFiltro":info.get("hasButton"),
+            "raio8px":info.get("radius")=="8px",
+            "gapFiltros8px":info.get("filterGap")=="8px",
+            "gapToolbar10px":not info.get("toolbarGap") or info.get("toolbarGap")=="10px",
+            "ativoPreservado":info.get("activeExists") and info.get("activeDistinct"),
+            "hoverFocusSemSalto":stable,
+            "contadorPillPreservado":not info.get("counterRadius") or info.get("counterRadius")=="999px",
+            "chipInternoBibliotecaPreservado":not info.get("cardChipRadius") or info.get("cardChipRadius")=="8px",
+            "semOverflowPagina":not info.get("pageOverflow")
+        })
+        driver.save_screenshot(str(out_dir/f"filtros-{page}-1440x1000.png"))
+
+    # Touch/iPad/celular: 42px, mesmo raio, gap e rolagem horizontal compacta preservados.
+    for width,height in ((834,1112),(390,844)):
+        driver.execute_cdp_cmd("Emulation.setDeviceMetricsOverride",{"width":width,"height":height,"deviceScaleFactor":2,"mobile":False})
+        driver.execute_cdp_cmd("Emulation.setTouchEmulationEnabled",{"enabled":True,"maxTouchPoints":5})
+        for page,rel in filter_pages:
+            driver.get(urljoin(base,rel));wait_ready()
+            info=filter_contract()
+            add_functional(f"{page}-filtros-touch",width,height,{
+                "raio8px":info.get("radius")=="8px",
+                "gapFiltros8px":info.get("filterGap")=="8px",
+                "alturaToque42":float(info.get("height") or 0)>=41.5,
+                "nowrapPreservado":info.get("flexWrap")=="nowrap",
+                "scrollHorizontalPreservado":info.get("overflowX") in ("auto","scroll"),
+                "contadorPillPreservado":not info.get("counterRadius") or info.get("counterRadius")=="999px",
+                "semOverflowPagina":not info.get("pageOverflow")
+            })
+            driver.save_screenshot(str(out_dir/f"filtros-{page}-{width}x{height}.png"))
+    driver.execute_cdp_cmd("Emulation.setTouchEmulationEnabled",{"enabled":False,"maxTouchPoints":1})
+    driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride",{})
+
     for width,height in ((1440,1000),(834,1112),(390,844)):
         driver.set_window_size(width,height)
 
