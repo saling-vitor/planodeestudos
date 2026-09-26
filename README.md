@@ -64,6 +64,7 @@ Credenciais pessoais de Supabase/Google Drive não ficam gravadas no repositóri
 ## Desenvolvimento local
 
 ```bash
+python scripts/sync_pwa_version.py
 python scripts/build_static_data.py
 python scripts/build_materials_manifest.py
 python scripts/build_topic_catalogs.py

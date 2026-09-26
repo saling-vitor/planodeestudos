@@ -20,6 +20,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Sincronizar versão PWA
+        run: python3 scripts/sync_pwa_version.py
+
       - name: Gerar dados derivados
         run: |
           python3 scripts/build_static_data.py

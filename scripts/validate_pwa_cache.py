@@ -22,10 +22,10 @@ if pwa_version and sw_version and sw_version!=f"{pwa_version}-source":
     errors.append(f"PWA: versões divergentes entre runtime ({pwa_version}) e Service Worker ({sw_version})")
 
 workflow=(ROOT/".github/workflows/pages.yml").read_text("utf-8",errors="replace")
-workflow_version=re.search(r'version=f"([0-9]+\.[0-9]+)-\{sys\.argv\[1\]\}"',workflow)
-if pwa_version and (not workflow_version or workflow_version.group(1)!=pwa_version):
-    found=workflow_version.group(1) if workflow_version else "ausente"
-    errors.append(f"PWA: versionamento do workflow ({found}) diverge do runtime ({pwa_version})")
+if "scripts/sync_pwa_version.py --deploy-sha" not in workflow:
+    errors.append("PWA: workflow não usa o sincronizador canônico no deploy")
+if pwa_version and pwa_version in workflow:
+    errors.append("PWA: workflow contém versão-base hardcoded")
 
 maintenance="const MAINTENANCE_MODE=true;" in sw
 common_checks=[

@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
 from pathlib import Path
-import json
+import json,re
 
 ROOT=Path(__file__).resolve().parents[1]
+
+def pwa_version():
+    text=(ROOT/'assets/js/pa-pwa-v01.js').read_text('utf-8',errors='replace')
+    m=re.search(r"const VERSION=['\"]([^'\"]+)['\"];",text)
+    if not m:
+        raise SystemExit('PWA: versão canônica ausente em pa-pwa-v01.js')
+    return m.group(1)
 
 PAGES=[
     'index.html','planejamento.html','edital.html','biblioteca.html','revisoes.html',
@@ -71,7 +78,7 @@ for d in FULL_ASSET_DIRS+FULL_DIRS:
 external=navigation_external_entries()
 payload={
     'schema':2,
-    'version':'19.4-production',
+    'version':f'{pwa_version()}-production',
     'essential':entries(essential)+external,
     'full':entries(full)+external,
     'externalCount':len(external),

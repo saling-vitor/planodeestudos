@@ -21,15 +21,18 @@
   "technical": {
     "dataApi": "3.5",
     "sync": "3.1",
-    "pwa": "19.4",
-    "serviceWorker": "19.4-source",
-    "offlinePack": "19.4-production",
     "studyPreconfig": "V134.0",
     "studyRuntimeCanonical": "MINDMAP_V139",
     "studyBridgeBundled": "1.1",
     "studyBridgeRuntime": "1.3",
     "studyBlueprint": "1.3",
-    "automation": "1.1"
+    "automation": "1.1",
+    "pwaSource": "assets/js/pa-pwa-v01.js",
+    "pwaDerived": {
+      "serviceWorker": "{pwa}-source",
+      "offlinePack": "{pwa}-production",
+      "deploy": "{pwa}-{sha8}"
+    }
   },
   "compatibilityAliases": [
     {
@@ -53,7 +56,7 @@
   },
   "rules": [
     "productBaseline é a versão publicada usada nos novos backups enquanto o próximo ciclo não tiver bump formal",
-    "pwa, serviceWorker e offlinePack devem permanecer coordenados",
+    "PWA usa pa-pwa-v01.js como fonte canônica; Service Worker, Offline Pack e deploy são derivados e validados",
     "aliases de mapas só podem ser removidos com migração explícita e teste de progresso",
     "os 14 mapas empacotados mantêm bridge 1.1 por compatibilidade; runtime/blueprint atual é 1.3",
     "novos mapas auditados pelo fluxo H3 usam o contrato de bridge atual",

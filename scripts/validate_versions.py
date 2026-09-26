@@ -21,8 +21,6 @@ checks={
     "productBaseline": capture("assets/js/pa-data-v03.js",r"const RELEASE=['\"]([^'\"]+)['\"]","Produto"),
     "dataApi": capture("assets/js/pa-data-v03.js",r"const API=\{version:['\"]([^'\"]+)['\"]","Data API"),
     "sync": capture("assets/js/pa-sync-v03.js",r"const VERSION=['\"]([^'\"]+)['\"]","Sync"),
-    "pwa": capture("assets/js/pa-pwa-v01.js",r"const VERSION=['\"]([^'\"]+)['\"]","PWA"),
-    "serviceWorker": capture("service-worker.js",r"const VERSION=['\"]([^'\"]+)['\"]","Service Worker"),
     "studyPreconfig": capture("assets/js/study-map-preconfig-v01.js",r"const VERSION=['\"]([^'\"]+)['\"]","Study preconfig"),
     "automation": capture("assets/js/pa-actions-v01.js",r"const VERSION=['\"]([^'\"]+)['\"]","Automation"),
 }
@@ -30,14 +28,44 @@ expected={
     "productBaseline":contract.get("productBaseline"),
     "dataApi":tech.get("dataApi"),
     "sync":tech.get("sync"),
-    "pwa":tech.get("pwa"),
-    "serviceWorker":tech.get("serviceWorker"),
     "studyPreconfig":tech.get("studyPreconfig"),
     "automation":tech.get("automation"),
 }
 for key,value in checks.items():
     if value!=expected.get(key):
         errors.append(f"{key}: runtime={value!r} contrato={expected.get(key)!r}")
+
+
+pwa_source=str(tech.get("pwaSource") or "")
+if pwa_source!="assets/js/pa-pwa-v01.js":
+    errors.append(f"PWA: fonte canônica inesperada {pwa_source!r}")
+pwa_version=capture("assets/js/pa-pwa-v01.js",r"const VERSION=['\"]([^'\"]+)['\"]","PWA canônico")
+service_worker_version=capture("service-worker.js",r"const VERSION=['\"]([^'\"]+)['\"]","Service Worker")
+expected_sw=f"{pwa_version}-source" if pwa_version else ""
+if expected_sw and service_worker_version!=expected_sw:
+    errors.append(f"PWA: Service Worker={service_worker_version!r} esperado={expected_sw!r}")
+
+pack_path=ROOT/"data/offline-pack.json"
+if pack_path.is_file():
+    try:
+        pack=json.loads(pack_path.read_text("utf-8"))
+        expected_pack=f"{pwa_version}-production" if pwa_version else ""
+        if expected_pack and pack.get("version")!=expected_pack:
+            errors.append(f"PWA: Offline Pack={pack.get('version')!r} esperado={expected_pack!r}")
+    except (OSError,ValueError,TypeError) as exc:
+        errors.append(f"PWA: offline-pack inválido ({exc})")
+
+pages=text(".github/workflows/pages.yml")
+if pwa_version and pwa_version in pages:
+    errors.append("PWA: workflow de Pages não pode conter a versão-base hardcoded")
+if "scripts/sync_pwa_version.py --deploy-sha" not in pages:
+    errors.append("PWA: workflow de Pages não deriva a versão de deploy da fonte canônica")
+
+builder=text("scripts/build_offline_pack.py")
+if pwa_version and pwa_version in builder:
+    errors.append("PWA: build_offline_pack não pode conter a versão-base hardcoded")
+if "assets/js/pa-pwa-v01.js" not in builder:
+    errors.append("PWA: build_offline_pack não referencia a fonte canônica")
 
 cloud=json.loads((ROOT/"data/cloud-config.json").read_text("utf-8"))
 if cloud.get("version")!=contract.get("productBaseline"):
@@ -62,11 +90,6 @@ if release_status=="released":
             errors.append(f"release publicada: {label} aponta para SHA diferente do releaseSha")
     if contract.get("candidateRelease") or contract.get("functionalFreezeSha") or contract.get("sourceCandidateSha"):
         errors.append("release publicada: metadados ativos de RC devem ficar apenas em releaseHistory")
-
-builder=text("scripts/build_offline_pack.py")
-offline=tech.get("offlinePack") or ""
-if offline and f"'version':'{offline}'" not in builder and f'"version":"{offline}"' not in builder:
-    errors.append(f"Offline Pack: versão {offline!r} não encontrada no builder")
 
 pre=text("assets/js/study-map-preconfig-v01.js")
 runtime=text("assets/js/study-map-runtime-v01.js")
@@ -102,7 +125,7 @@ if bridge_bad:
     errors.append("bridge empacotado divergente: "+", ".join(bridge_bad[:6])+(f" +{len(bridge_bad)-6}" if len(bridge_bad)>6 else ""))
 
 docs=text("docs/VERSIONING.md")
-for token in (contract.get("targetRelease"),contract.get("productBaseline"),tech.get("pwa"),canonical,runtime_bridge,bundled_bridge):
+for token in (contract.get("targetRelease"),contract.get("productBaseline"),pwa_version,expected_sw,f"{pwa_version}-production" if pwa_version else "",canonical,runtime_bridge,bundled_bridge):
     if token and str(token) not in docs:
         errors.append(f"VERSIONING.md não documenta {token}")
 
@@ -117,6 +140,9 @@ print(json.dumps({
     "releaseStatus":contract.get("releaseStatus"),
     "releaseSha":contract.get("releaseSha"),
     "releaseTag":contract.get("releaseTag"),
+    "pwaCanonical":pwa_version,
+    "serviceWorkerDerived":expected_sw,
+    "offlinePackDerived":f"{pwa_version}-production" if pwa_version else "",
     "technical":tech,
     "aliases":contract.get("compatibilityAliases"),
     "materialsBridgeValidated":len(materials),
