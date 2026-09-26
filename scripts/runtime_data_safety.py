@@ -121,6 +121,26 @@ try:
     if not report["privacy"].get("ok"):
         errors.append("pontos de recuperação vazaram para backup/sync")
 
+    # 5. Observabilidade: erro persiste com contexto, pendência é exposta e limpeza funciona.
+    report["observability"]=run_async("""
+      const done=arguments[arguments.length-1],S=window.PLANO_ARQ_SYNC,k='mindmap_state::audit-data-safety-observability',uid='00000000-0000-4000-8000-000000000097';
+      S.saveConfig({url:'https://audit-data-safety.supabase.co',key:'sb_publishable_audit_data_safety_1234567890'});
+      localStorage.setItem('planoarq:supabase-session:v1',JSON.stringify({access_token:'audit-token',refresh_token:'audit-refresh',expires_at:Math.floor(Date.now()/1000)+3600,user:{id:uid,email:'audit@example.com'},projectUrl:S.config().url}));
+      localStorage.removeItem('planoarq:sync-meta:v2::'+uid);localStorage.removeItem('planoarq:last-sync-error:v1');
+      localStorage.setItem(k,JSON.stringify({source:'pending',value:50}));
+      const oldFetch=window.fetch;
+      window.fetch=async()=>{throw new Error('audit-sync-network-failure')};
+      (async()=>{try{
+        let threw=false;try{await S.syncNow({reason:'ci-observability'})}catch(_){threw=true}
+        const failed=S.status(),persisted=JSON.parse(localStorage.getItem('planoarq:last-sync-error:v1')||'null');
+        S.clearSyncError();
+        const cleared=S.status();
+        done({ok:threw&&!!persisted?.message&&failed.sync.pendingRecords>=1&&failed.sync.lastError?.reason==='ci-observability'&&!cleared.sync.lastError,failed:{pending:failed.sync.pendingRecords,lastError:failed.sync.lastError},persisted,cleared:cleared.sync.lastError});
+      }catch(e){done({ok:false,error:String(e)})}finally{window.fetch=oldFetch}})();
+    """)
+    if not report["observability"].get("ok"):
+        errors.append("diagnóstico de sincronização não persistiu erro/pendência corretamente")
+
 finally:
     driver.quit()
 
