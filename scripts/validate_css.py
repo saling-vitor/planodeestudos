@@ -66,9 +66,8 @@ for path in FILES:
 
 study_map=(ROOT/"assets/css/study-map-shared-v01.css").read_text("utf-8",errors="replace")
 study_map_no_comments=re.sub(r"/\*[\s\S]*?\*/","",study_map)
-study_map_active= re.sub(r":not\(\s*\.map-mode\s*\)","",study_map_no_comments)
-if re.search(r"\.map-mode\b|\.map-focus\b",study_map_active):
-    errors.append("study-map-shared-v01.css: seletor positivo de map-mode/map-focus legado detectado")
+if re.search(r"\.map-mode\b|\.map-focus\b",study_map_no_comments):
+    errors.append("study-map-shared-v01.css: seletor map-mode/map-focus legado detectado")
 if re.search(r"(?:^|[},])\s*body\s*\{[^}]*overflow-x\s*:\s*hidden",study_map_no_comments,re.I):
     errors.append("study-map-shared-v01.css: overflow-x:hidden global no body mascara overflow estrutural")
 if re.search(r"html\.touch-performance[^{}]*\{[^}]*overflow-x\s*:\s*hidden",study_map_no_comments,re.I):
