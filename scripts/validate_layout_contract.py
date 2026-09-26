@@ -225,10 +225,15 @@ else:
         "document.querySelectorAll('.mobile-bottom').forEach(x=>x.remove())",
         'id="paMobileNav"',
         'id="paMobileMore"',
+        "if(current==='home')",
+        "moreActive=!['today','edital','maps'].includes(current)",
+        "orientationchange",
         "if(document.getElementById('paMobileNav'))return",
     ):
         if marker not in shell_js_text:
             errors.append(f"pa-shell-v16.js: contrato de navegação mobile canônica ausente: {marker}")
+    if 'data-common="settings"' in shell_js_text or '>Trocar concurso</a>' in shell_js_text:
+        errors.append("pa-shell-v16.js: menu ••• voltou a competir com a navegação principal")
 
 shell=(ROOT/"assets/css/pa-shell-v16.css")
 if shell.is_file():
@@ -237,12 +242,20 @@ if shell.is_file():
         "Shell canônico de produção",
         "--pa-shell-sidebar:276px",
         "--pa-shell-content-max:1420px",
-        "@media(max-width:900px)",
+        "@media(max-width:1199px), (pointer:coarse)",
+        ".pa-sidebar{display:none!important}",
+        ".pa-menu-btn{display:none!important}",
         ".pa-mobile-more.open",
     )
     for marker in required_shell:
         if marker not in css:
             errors.append(f"pa-shell-v16.css: contrato canônico ausente: {marker}")
+    if "@media(max-width:900px)" in css or "901px" in css:
+        errors.append("pa-shell-v16.css: breakpoint legado 900/901 detectado no shell canônico")
+    if re.search(r"body\.pa-internal-mode\s*\{[^}]*overflow-x\s*:\s*hidden",css,re.I):
+        errors.append("pa-shell-v16.css: overflow-x:hidden no body mascara overflow estrutural")
+    if re.search(r"\.pa-main\s*\{[^}]*overflow\s*:\s*(?:hidden|clip)",css,re.I):
+        errors.append("pa-shell-v16.css: overflow hidden/clip em .pa-main mascara overflow estrutural")
     if re.search(r"RÉGUA GRÁFICA MESTRE V\\d+",css,re.I):
         errors.append("pa-shell-v16.css: camada histórica Vxx detectada")
     if len(css) > 30000:
