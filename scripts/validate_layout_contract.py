@@ -248,7 +248,6 @@ if shell.is_file():
         "--pa-shell-content-max:1420px",
         "@media(max-width:1199px), (pointer:coarse)",
         ".pa-sidebar{display:none!important}",
-        ".pa-menu-btn{display:none!important}",
         ".pa-mobile-more.open",
     )
     for marker in required_shell:
