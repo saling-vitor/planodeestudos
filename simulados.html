@@ -9,6 +9,213 @@
 .official{padding:0;overflow:hidden}.official-head{padding:14px 16px;display:grid;grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(90px,.23fr));gap:12px;align-items:center}.official-main strong{display:block;color:#e8d5ad;font:800 17px var(--cond)}.official-main span{display:block;margin-top:5px;color:#7c8289;font-size:9.2px}.official-stat{padding-left:13px;border-left:1px solid var(--line2)}.official-stat b{display:block;font:800 17px var(--cond)}.official-stat span{display:block;margin-top:3px;color:#767c84;font-size:7.8px}.official-breakdown{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line2)}.official-section{padding:11px 14px;border-right:1px solid var(--line2);background:rgba(255,255,255,.006)}.official-section:last-child{border-right:0}.official-section strong{display:block;font-size:9.6px}.official-section span{display:block;margin-top:4px;color:#757b83;font-size:8.2px}.official-section b{color:#c9d7e1;font:800 11px var(--cond)}.simulation-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.exam-card{padding:16px;display:flex;flex-direction:column;min-height:318px;position:relative;overflow:hidden}.exam-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:rgba(216,197,158,.42)}.exam-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.exam-id{display:flex;align-items:center;gap:7px;min-width:0}.exam-index{width:27px;height:27px;display:grid;place-items:center;border:1px solid var(--line);border-radius:8px;color:#d6c39b;font:800 9px var(--mono);flex:0 0 auto}.exam-code{color:#8395a3;font:800 7px var(--mono);letter-spacing:.07em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.status{padding:5px 7px;border:1px solid var(--line);border-radius:999px;color:#858c94;font:760 7px var(--mono);text-transform:uppercase;white-space:nowrap}.status.progress{color:#aac2d2;border-color:rgba(109,130,152,.3)}.status.done{color:#9fc6aa;border-color:rgba(98,169,120,.27)}.exam-card h3{min-height:38px;margin:13px 0 4px;font-size:14px;line-height:1.35}.exam-sub{min-height:29px;color:#7e848b;font-size:9.2px;line-height:1.45}.exam-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:13px}.exam-meta div{padding:8px;border:1px solid var(--line2);border-radius:9px;background:rgba(255,255,255,.008)}.exam-meta b{display:block;font:800 14px var(--cond)}.exam-meta span{display:block;margin-top:2px;color:#6f757c;font:730 6.7px var(--mono);text-transform:uppercase}.progress-line{margin-top:12px}.progress-head{display:flex;justify-content:space-between;gap:8px;color:#868c93;font-size:8.4px}.state-box{margin-top:11px;min-height:52px;padding:9px;border:1px solid var(--line2);border-radius:9px;background:#080a0d}.state-box b{font-size:9.8px}.state-box span{display:block;margin-top:3px;color:#777d84;font-size:8.3px;line-height:1.4}.exam-actions{display:flex;gap:6px;margin-top:auto;padding-top:13px}.exam-actions .small-btn:first-child{flex:1}.history-list{display:grid;gap:7px}.history-row{display:grid;grid-template-columns:124px minmax(0,1fr) 88px 88px 96px auto;align-items:center}.history-row strong{font-size:9.8px}.history-row span{display:block;color:#737981;font-size:8.3px;line-height:1.4}.history-num b{display:block;font:800 14px var(--cond)}.history-num span{font-size:7.3px}.history-actions{display:flex;gap:5px;justify-content:flex-end}.admin-details{margin-top:12px;border:1px solid var(--line2);border-radius:11px;background:#080a0d;overflow:hidden}.admin-details summary{cursor:pointer;list-style:none;padding:11px 14px;color:#959ba2;font-size:9px;font-weight:760}.admin-details summary::-webkit-details-marker{display:none}.admin-details summary:after{content:"+";float:right;color:#7c8288}.admin-details[open] summary:after{content:"−"}.admin{padding:0 14px 13px;color:#747a82;font-size:9px;line-height:1.5}.admin strong{color:#bbbfc5}.admin code{color:#b7c8d4}.danger{color:#e4abb1!important}
 @media(max-width:1250px){.simulation-grid{grid-template-columns:1fr 1fr}.history-row{grid-template-columns:100px minmax(0,1fr) repeat(3,75px)}.history-row .history-actions{grid-column:1/-1}}
 @media(max-width:900px){.next-panel{grid-template-columns:1fr}.official-head{grid-template-columns:1fr 1fr}.official-main{grid-column:1/-1}.official-breakdown{grid-template-columns:1fr}.official-section{border-right:0;border-bottom:1px solid var(--line2)}.official-section:last-child{border-bottom:0}.simulation-grid{grid-template-columns:1fr}.history-row{grid-template-columns:1fr 1fr}.history-row>div:nth-child(2){grid-column:1/-1}.history-actions{grid-column:1/-1;justify-content:flex-start}.exam-card{min-height:0}}
+
+
+/* ===== ETAPA D6 · SIMULADOS · refinamento local ===== */
+/* Ajuste fino da tela Simulados sobre a base global A+B+C. Sem mudanças funcionais. */
+body.pa-internal-mode[data-pa-page="simulations"] .hero-actions{
+  margin-top:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap
+}
+
+/* Próximo passo: card de ação com presença semelhante ao Foco Automático. */
+body.pa-internal-mode[data-pa-page="simulations"] .next-panel{
+  position:relative;overflow:hidden;
+  border-color:rgba(216,197,158,.18);
+  background:
+    radial-gradient(420px 170px at -7% -12%,rgba(216,197,158,.060),transparent 72%),
+    radial-gradient(300px 140px at 104% 0,rgba(109,130,152,.024),transparent 74%),
+    linear-gradient(112deg,rgba(15,14,12,.95),rgba(9,10,12,.98) 52%,rgba(7,9,12,.99));
+  box-shadow:0 17px 38px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.020)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .next-panel::before{
+  content:"";position:absolute;left:15px;top:0;width:80px;height:1px;
+  background:linear-gradient(90deg,rgba(216,197,158,.78),rgba(109,130,152,.30),transparent)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .next-k{
+  color:#bba77e;letter-spacing:.145em
+}
+body.pa-internal-mode[data-pa-page="simulations"] .next-panel h3{
+  color:#ece5d8;font:820 15px/1.18 var(--pa-condensed);
+  letter-spacing:.005em
+}
+body.pa-internal-mode[data-pa-page="simulations"] .next-panel p{
+  color:#8e8d87;line-height:1.5
+}
+
+/* Seções: mesma hierarquia editorial das telas D1–D5. */
+body.pa-internal-mode[data-pa-page="simulations"] .section{
+  margin-top:23px
+}
+body.pa-internal-mode[data-pa-page="simulations"] .section-head{
+  min-height:31px;margin-bottom:11px;align-items:center;
+  border-bottom:1px solid rgba(239,233,221,.055)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .section-head h2{
+  display:flex;align-items:center;gap:8px;margin:0;padding-bottom:10px;
+  color:#ddd8cf;font:800 10.5px/1 var(--pa-mono);
+  letter-spacing:.145em;text-transform:uppercase
+}
+body.pa-internal-mode[data-pa-page="simulations"] .section-head h2::before{
+  content:"";width:18px;height:1px;flex:0 0 auto;
+  background:linear-gradient(90deg,var(--pa-champagne-2),rgba(109,130,152,.50))
+}
+body.pa-internal-mode[data-pa-page="simulations"] .section-head>span,
+body.pa-internal-mode[data-pa-page="simulations"] .section-head>.filters{
+  padding-bottom:9px
+}
+
+/* Estrutura oficial da prova: leitura mais técnica, sem mexer na grade responsiva. */
+body.pa-internal-mode[data-pa-page="simulations"] .official{
+  border-color:rgba(239,233,221,.085);
+  background:
+    radial-gradient(430px 170px at -8% -15%,rgba(216,197,158,.030),transparent 72%),
+    linear-gradient(145deg,rgba(13,15,18,.92),rgba(8,10,13,.975));
+  box-shadow:0 16px 36px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.016)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .official-main strong{
+  color:#ead8b2;font-size:18px;line-height:1.05
+}
+body.pa-internal-mode[data-pa-page="simulations"] .official-main span{
+  color:#8c8d89
+}
+body.pa-internal-mode[data-pa-page="simulations"] .official-stat{
+  border-left-color:rgba(239,233,221,.060)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .official-stat b{
+  color:#ede8de;font-size:19px;line-height:.95
+}
+body.pa-internal-mode[data-pa-page="simulations"] .official-stat span{
+  color:#85827b;letter-spacing:.05em
+}
+body.pa-internal-mode[data-pa-page="simulations"] .official-breakdown{
+  border-top-color:rgba(239,233,221,.050)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .official-section{
+  border-right-color:rgba(239,233,221,.050);
+  background:rgba(255,255,255,.004)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .official-section strong{
+  color:#d7d2c8
+}
+body.pa-internal-mode[data-pa-page="simulations"] .official-section span{
+  color:#83817a
+}
+body.pa-internal-mode[data-pa-page="simulations"] .official-section b{
+  color:#c7d7e2
+}
+
+/* Cards de simulado: profundidade e hierarquia, mantendo alturas e ações. */
+body.pa-internal-mode[data-pa-page="simulations"] .exam-card{
+  border-color:rgba(239,233,221,.080);
+  background:
+    radial-gradient(330px 150px at -8% -12%,rgba(216,197,158,.028),transparent 72%),
+    radial-gradient(250px 120px at 105% 0,rgba(109,130,152,.022),transparent 74%),
+    linear-gradient(145deg,rgba(13,16,20,.94),rgba(8,10,13,.98) 62%,rgba(7,8,10,.99));
+  box-shadow:0 17px 38px rgba(0,0,0,.27),inset 0 1px rgba(255,255,255,.020);
+  transition:border-color .16s ease,box-shadow .16s ease,transform .14s ease
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-card:hover{
+  border-color:rgba(216,197,158,.16);
+  box-shadow:0 21px 46px rgba(0,0,0,.30),inset 0 1px rgba(255,255,255,.026);
+  transform:translateY(-1px)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-card::after{
+  content:"";position:absolute;left:16px;top:0;width:66px;height:1px;
+  background:linear-gradient(90deg,rgba(216,197,158,.70),rgba(109,130,152,.30),transparent)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-index{
+  border-color:rgba(216,197,158,.16);
+  background:rgba(216,197,158,.022);
+  color:#dac79e;
+  box-shadow:inset 0 1px rgba(255,255,255,.012)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-code{
+  color:#94a4b0;letter-spacing:.095em
+}
+body.pa-internal-mode[data-pa-page="simulations"] .status{
+  background:rgba(255,255,255,.006);
+  box-shadow:inset 0 1px rgba(255,255,255,.010)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-card h3{
+  color:#ece7df;font:820 16px/1.18 var(--pa-condensed);
+  letter-spacing:.004em
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-sub{
+  color:#8c8e91;line-height:1.5
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-meta div{
+  border-color:rgba(239,233,221,.060);
+  background:linear-gradient(145deg,rgba(255,255,255,.012),rgba(255,255,255,.003));
+  box-shadow:inset 0 1px rgba(255,255,255,.008)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-meta b{
+  color:#e4dfd5;font-size:16px;line-height:.95
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-meta span{
+  color:#817e78;letter-spacing:.045em
+}
+body.pa-internal-mode[data-pa-page="simulations"] .progress-head{
+  color:#8f8d87
+}
+body.pa-internal-mode[data-pa-page="simulations"] .state-box{
+  border-color:rgba(239,233,221,.060);
+  background:
+    linear-gradient(90deg,rgba(109,130,152,.020),transparent 28%),
+    rgba(255,255,255,.004);
+  box-shadow:inset 0 1px rgba(255,255,255,.008)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .state-box b{
+  color:#d8d4cc
+}
+body.pa-internal-mode[data-pa-page="simulations"] .state-box span{
+  color:#85847f
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-actions{
+  border-top:1px solid rgba(239,233,221,.045)
+}
+
+/* Histórico: linhas mais legíveis e números com maior hierarquia. */
+body.pa-internal-mode[data-pa-page="simulations"] .history-row{
+  border-color:rgba(239,233,221,.060);
+  background:
+    linear-gradient(90deg,rgba(109,130,152,.018),transparent 24%),
+    rgba(255,255,255,.005);
+  box-shadow:inset 0 1px rgba(255,255,255,.008)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .history-row:hover{
+  border-color:rgba(145,163,181,.18);
+  background:
+    linear-gradient(90deg,rgba(109,130,152,.032),transparent 26%),
+    rgba(255,255,255,.009)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .history-row strong{
+  color:#dcd8d0
+}
+body.pa-internal-mode[data-pa-page="simulations"] .history-row span{
+  color:#817f79
+}
+body.pa-internal-mode[data-pa-page="simulations"] .history-num b{
+  color:#ebe5da;font-size:16px;line-height:.95
+}
+body.pa-internal-mode[data-pa-page="simulations"] .history-num span{
+  color:#85817a
+}
+
+/* Catálogo administrativo fica subordinado, sem parecer outro painel principal. */
+body.pa-internal-mode[data-pa-page="simulations"] .admin-details{
+  border-color:rgba(239,233,221,.055);
+  background:rgba(255,255,255,.003)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .admin-details summary{
+  color:#8f8d87
+}
+body.pa-internal-mode[data-pa-page="simulations"] .admin{
+  color:#7f817f
+}
+
+@media(pointer:coarse){
+  body.pa-internal-mode[data-pa-page="simulations"] .exam-card:hover{transform:none}
+}
 </style>
 <link rel="stylesheet" href="assets/css/pa-tokens-v01.css"><link rel="stylesheet" href="assets/css/pa-shell-v16.css"><link rel="stylesheet" href="assets/css/pa-components-v01.css">
 <link rel="stylesheet" href="assets/css/pa-surfaces-v01.css">
