@@ -1,0 +1,55 @@
+name: Validar V1.1
+
+on:
+  push:
+    branches: [develop/v1.1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-v11-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Gerar dados derivados
+        run: |
+          python3 scripts/build_static_data.py
+          python3 scripts/build_materials_manifest.py
+          python3 scripts/build_topic_catalogs.py
+          python3 scripts/build_simulations_manifest.py
+          python3 scripts/build_files_manifest.py
+          python3 scripts/build_offline_pack.py
+
+      - name: Validar estrutura
+        run: python3 scripts/validate_production.py
+
+      - name: Validar contrato gráfico
+        run: python3 scripts/validate_layout_contract.py
+
+      - name: Validar CSS
+        run: python3 scripts/validate_css.py
+
+      - name: Validar JavaScript
+        run: python3 scripts/validate_javascript.py
+
+      - name: Validar PWA e cache
+        run: python3 scripts/validate_pwa_cache.py
+
+      - name: Preparar navegador
+        run: python3 -m pip install --disable-pip-version-check selenium
+
+      - name: Testar segurança dos dados
+        shell: bash
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/plano-arq-v11-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          python3 scripts/runtime_data_safety.py http://127.0.0.1:8765/
