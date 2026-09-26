@@ -74,13 +74,13 @@ try:
         return new Response('{}',{status:200,headers:{'Content-Type':'application/json'}});
       };
       (async()=>{try{
+        const recoveryBeforeGuard=D.lastRecoveryPoint()?.id||'';
         const guarded=await S.syncNow({reason:'ci-first'});
-        const unchanged=JSON.parse(localStorage.getItem(k)||'null');
-        const beforeConfirmRecovery=D.lastRecoveryPoint();
+        const unchanged=JSON.parse(localStorage.getItem(k)||'null'),recoveryAfterGuard=D.lastRecoveryPoint()?.id||'';
         const confirmed=await S.syncNow({reason:'ci-first',firstSyncConfirmed:true});
         const applied=JSON.parse(localStorage.getItem(k)||'null'),rp=D.lastRecoveryPoint();
         const rolled=D.restoreRecoveryPoint(rp.id),rollbackValue=JSON.parse(localStorage.getItem(k)||'null');
-        done({ok:guarded?.reason==='first-sync-confirmation-required'&&unchanged?.value===10&&!beforeConfirmRecovery&&confirmed?.ok===true&&applied?.value===20&&rp?.reason==='first-sync'&&rollbackValue?.value===10&&rolled.entries===1,guarded,confirmed:{ok:confirmed?.ok,recoveryIds:confirmed?.recoveryIds},recoveryReason:rp?.reason||'',unchanged,applied,rollbackValue});
+        done({ok:guarded?.reason==='first-sync-confirmation-required'&&unchanged?.value===10&&recoveryAfterGuard===recoveryBeforeGuard&&confirmed?.ok===true&&applied?.value===20&&rp?.reason==='first-sync'&&rollbackValue?.value===10&&rolled.entries===1,guarded,confirmed:{ok:confirmed?.ok,recoveryIds:confirmed?.recoveryIds},recoveryReason:rp?.reason||'',recoveryBeforeGuard,recoveryAfterGuard,unchanged,applied,rollbackValue});
       }catch(e){done({ok:false,error:String(e)})}finally{window.fetch=oldFetch}})();
     """)
     if not report["firstSync"].get("ok"):
