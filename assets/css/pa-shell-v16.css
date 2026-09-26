@@ -326,7 +326,7 @@ body.pa-internal-mode .pa-content>.today-section{margin-top:24px}
 }
 .pa-shell-modal.open{display:grid}
 .pa-shell-dialog{
-  width:min(460px,100%);padding:18px;border:1px solid rgba(255,255,255,.12);
+  width:min(460px,100%);max-height:calc(100dvh - 36px);overflow:auto;padding:18px;border:1px solid rgba(255,255,255,.12);
   border-radius:17px;background:linear-gradient(180deg,#0d1014,#080a0d);
   box-shadow:0 28px 80px rgba(0,0,0,.72)
 }
@@ -544,6 +544,8 @@ html.pa-reduce-motion *,html.pa-reduce-motion *::before,html.pa-reduce-motion *:
   .pa-nav-item,.pa-nav-link{min-height:47px;height:47px}
   .pa-nav-icon{width:20px;height:20px}
   .pa-shell-dialog button{min-height:46px}
+  .pa-common-menu{width:min(230px,calc(100vw - 20px))}
+  .pa-common-menu :is(button,a){min-height:44px;font-size:10.5px}
 }
 @media(prefers-reduced-motion:reduce){
   .pa-nav-item,.pa-nav-link,.pa-nav-icon,.pa-nav-icon-wrap,.pa-sidebar{transition:none!important}
