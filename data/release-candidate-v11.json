@@ -34,7 +34,9 @@
     "scripts/validate_release_qa.py",
     "scripts/validate_versions.py",
     "assets/js/pa-data-v03.js",
-    "data/cloud-config.json"
+    "data/cloud-config.json",
+    "scripts/validate_production.py",
+    "docs/RELEASE.md"
   ],
   "rules": [
     "nenhuma nova funcionalidade após functionalFreezeSha",

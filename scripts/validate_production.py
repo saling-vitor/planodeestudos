@@ -263,12 +263,19 @@ def main():
         errors.append(f"dados canônicos inválidos ({exc})")
 
     # Gate de release: documentação canônica e ausência de resíduos de arquivo.
+    try:
+        expected_release=json.loads((ROOT/"data/cloud-config.json").read_text("utf-8")).get("version")
+    except (OSError,ValueError,TypeError):
+        expected_release=""
     release_doc=ROOT/"docs/RELEASE.md"
     if not release_doc.is_file():
         errors.append("release: docs/RELEASE.md ausente")
     else:
         release_doc_text=release_doc.read_text("utf-8",errors="ignore")
-        for marker in ("1.0.0","BUILD_MAINTENANCE=false","MAINTENANCE_MODE=false","v1.0.0"):
+        markers=("BUILD_MAINTENANCE=false","MAINTENANCE_MODE=false")
+        if expected_release:
+            markers=(expected_release,f"v{expected_release}",*markers)
+        for marker in markers:
             if marker not in release_doc_text:
                 errors.append(f"release: checklist final incompleto em docs/RELEASE.md: {marker}")
 
@@ -292,16 +299,16 @@ def main():
             errors.append("release: identificador canônico ausente em pa-data-v03.js")
         else:
             release=rm.group(1)
-            if release not in ("1.0.0-rc","1.0.0"):
+            if release not in ("1.0.0-rc","1.0.0","1.1.0"):
                 errors.append(f"release: identificador inesperado: {release!r}")
-            if release=="1.0.0":
+            if release in ("1.0.0","1.1.0"):
                 dm_final=re.search(r"const BUILD_MAINTENANCE=(true|false);",data_runtime)
                 sw_final=(ROOT/"service-worker.js").read_text("utf-8",errors="ignore")
                 sm_final=re.search(r"const MAINTENANCE_MODE=(true|false);",sw_final)
                 if not dm_final or dm_final.group(1)!="false":
-                    errors.append("release: V1.0.0 exige BUILD_MAINTENANCE=false")
+                    errors.append(f"release: V{release} exige BUILD_MAINTENANCE=false")
                 if not sm_final or sm_final.group(1)!="false":
-                    errors.append("release: V1.0.0 exige MAINTENANCE_MODE=false")
+                    errors.append(f"release: V{release} exige MAINTENANCE_MODE=false")
             if cloud_release!=release:
                 errors.append(f"release: cloud-config ({cloud_release!r}) diverge do runtime ({release!r})")
             if f"app:{{version:RELEASE" not in data_runtime:

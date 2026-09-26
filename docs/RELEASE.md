@@ -1,36 +1,37 @@
-# Plano ARQ · Release V1.0.0
+# Plano ARQ · Release V1.1.0
 
-Documento canônico da primeira versão de produção.
+Documento canônico da versão final **1.1.0**.
 
 ## Estado de produção
 
-- Release: `1.0.0`.
-- Branch de produção: `main`.
+- Release alvo: `1.1.0`.
+- Branch final: `release/v1.1.0`.
+- Branch de produção após promoção: `main`.
 - Runtime local: `BUILD_MAINTENANCE=false`.
 - Service Worker: `MAINTENANCE_MODE=false`.
 - Modo de operação: local-first.
-- Service Worker, cache offline e atualização PWA estão liberados.
-- Supabase, Google Drive e automações operam conforme a configuração efetiva de cada dispositivo.
+- Compatibilidade com dados, URLs, localStorage, backups, contestId e identificadores da V1.0.0 preservada.
+- A baseline V1.0.0 continua congelada em `release/v1.0.0`.
 
 ## Gate obrigatório
 
-Toda publicação da V1.0.0 deve satisfazer, no mesmo estado de código:
+A V1.1.0 só pode ser promovida quando o mesmo estado de código satisfizer:
 
-1. release canônica `1.0.0` no runtime e em `data/cloud-config.json`;
+1. versão canônica `1.1.0` no runtime de dados, backups e `data/cloud-config.json`;
 2. `BUILD_MAINTENANCE=false` e `MAINTENANCE_MODE=false`;
-3. sucesso de todos os geradores e validadores estáticos;
-4. sucesso da auditoria visual/funcional em desktop, iPad e celular;
-5. sucesso do fluxo operacional de novo concurso;
-6. sucesso do smoke test PWA no deploy real fora da manutenção;
-7. ausência de arquivos temporários, backups ou resíduos de desenvolvimento rastreados.
+3. validadores de produção, layout, CSS, JavaScript, PWA/cache e versões sem erros;
+4. Data Safety e automação read-only aprovadas;
+5. auditoria dos 14 mapas em 84 casos aprovada;
+6. cold-offline aprovado;
+7. auditoria do Portal em 286 casos aprovada;
+8. QA manual em Chrome real aprovado em 80%, 125% e 150%;
+9. Gate V1.1 Release verde na branch final;
+10. ausência de temporários, backups de desenvolvimento ou resíduos rastreados.
 
-A tag/release `v1.0.0` deve apontar exatamente para o commit já publicado e aprovado por esse gate.
+Após o deploy real do `main`, a tag/GitHub Release `v1.1.0` deve apontar exatamente para o commit publicado e aprovado.
 
+## QA já concluído
 
-## Higiene final da V1.0.0
+O Release Candidate passou pelo QA manual em 80%, 125% e 150% e pelo Gate V1.1 Release antes da preparação final.
 
-- O shell não mantém hamburger/drawer oculto: desktop usa sidebar; tablet/iPad/celular usam bottom navigation + Mais.
-- Não há backups, ZIPs, temporários, cópias antigas de mapas/simulados ou shells paralelos rastreados.
-- `pwa-diagnostico.html` permanece por ser probe técnico ativo do smoke test PWA no CI.
-- Compatibilidade de dados antigos (como leitura de backup V1 e metadados de migração de storage) é mantida quando protege dados do usuário; isso não é considerado arquivo legado removível.
-- Nomes versionados estáveis dos assets compartilhados são preservados para evitar quebra de cache e referências.
+A preparação final altera apenas metadados de versão, documentação e contratos de release. Nenhuma nova funcionalidade entra após o feature freeze.
