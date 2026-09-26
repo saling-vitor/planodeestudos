@@ -147,7 +147,6 @@ def measure(page):
       }).slice(0,12).map(el=>({tag:el.tagName.toLowerCase(),rect:rect(el)}));
       const shifts=(window.__planoArqLayoutShifts||[]).reduce((a,x)=>a+Number(x.value||0),0);
       const sidebars=[...document.querySelectorAll('.pa-sidebar')];
-      const menuButtons=[...document.querySelectorAll('.pa-menu-btn')];
       const mobileNavs=[...document.querySelectorAll('#paMobileNav')];
       const mobileMores=[...document.querySelectorAll('#paMobileMore')];
       const legacyMobile=[...document.querySelectorAll('.mobile-bottom')];
@@ -155,12 +154,10 @@ def measure(page):
       const navigation={
         coarse:matchMedia('(pointer: coarse)').matches,
         sidebarCount:sidebars.length,
-        menuButtonCount:menuButtons.length,
         mobileNavCount:mobileNavs.length,
         mobileMoreCount:mobileMores.length,
         legacyMobileCount:legacyMobile.length,
         sidebarVisible:sidebars.some(visible),
-        menuVisible:menuButtons.some(visible),
         mobileNavVisible:mobileNavs.some(visible),
         mobileMoreVisible:mobileMores.some(visible),
         sidebarOpen:sidebars.some(x=>x.classList.contains('open')),
@@ -198,14 +195,12 @@ def append_errors(data,label,errors):
     if data.get("page")!="hoje":
         nav=data.get("navigation") or {}
         for key,expected in (
-            ("sidebarCount",1),("menuButtonCount",1),("mobileNavCount",1),("mobileMoreCount",1),("legacyMobileCount",0)
+            ("sidebarCount",1),("mobileNavCount",1),("mobileMoreCount",1),("legacyMobileCount",0)
         ):
             if int(nav.get(key,-1))!=expected:
                 errors.append(f"{label}: contrato de navegação divergente em {key}={nav.get(key)!r}; esperado {expected}")
         tablet_mode=int(data.get("vw") or 0)<=1199 or nav.get("coarse") is True
         if tablet_mode:
-            if nav.get("menuVisible"):
-                errors.append(f"{label}: hamburger/drawer apareceu junto da navegação tablet/mobile")
             if not nav.get("mobileNavVisible"):
                 errors.append(f"{label}: navegação tablet/mobile canônica não está visível")
             if nav.get("sidebarVisible") or nav.get("sidebarOpen"):
@@ -216,8 +211,6 @@ def append_errors(data,label,errors):
         else:
             if not nav.get("sidebarVisible"):
                 errors.append(f"{label}: sidebar desktop não está visível")
-            if nav.get("menuVisible"):
-                errors.append(f"{label}: botão do drawer apareceu no desktop")
             if nav.get("mobileNavVisible"):
                 errors.append(f"{label}: navegação tablet/mobile apareceu no desktop")
 
@@ -228,7 +221,7 @@ def rect_inside_viewport(rect,vw,vh,tolerance=2):
 rows=[]
 errors=[]
 modal_cases=[]
-sidebar_cases=[]
+responsive_nav_cases=[]
 long_text_cases=[]
 zoom_cases=[]
 scale_cases=[]
@@ -250,28 +243,28 @@ try:
             append_errors(data,f"{page}@{width}x{height}",errors)
             driver.save_screenshot(str(out_dir/f"{page}-{width}x{height}.png"))
 
-    # Contrato de navegação responsiva em portrait/landscape: tablet/mobile nunca usam drawer/sidebar.
+    # Contrato de navegação responsiva em portrait/landscape: tablet/mobile usam somente bottom navigation + Mais.
     for width,height in ((834,1112),(1180,820),(1024,768),(844,390),(430,932)):
         driver.set_window_size(width,height)
         driver.get(urljoin(base,f"planejamento.html?contest={contest}"))
         wait_ready()
         info=driver.execute_script("""
           const visible=e=>{if(!e)return false;const s=getComputedStyle(e),r=e.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>1&&r.height>1};
-          const sidebar=document.querySelector('.pa-sidebar'),menu=document.querySelector('.pa-menu-btn'),nav=document.getElementById('paMobileNav');
+          const sidebar=document.querySelector('.pa-sidebar'),nav=document.getElementById('paMobileNav');
           return {
             vw:document.documentElement.clientWidth,vh:document.documentElement.clientHeight,
-            sidebarVisible:visible(sidebar),menuVisible:visible(menu),mobileVisible:visible(nav),
+            sidebarVisible:visible(sidebar),mobileVisible:visible(nav),
             sidebarOpen:sidebar?.classList.contains('open')===true,
             navRect:nav?(()=>{const r=nav.getBoundingClientRect();return{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}})():null
           };
         """)
         info["requestedViewport"]={"width":width,"height":height}
-        info["ok"]=(info.get("sidebarVisible") is False and info.get("menuVisible") is False and info.get("mobileVisible") is True and info.get("sidebarOpen") is False and rect_inside_viewport(info.get("navRect"),info.get("vw"),info.get("vh")))
-        sidebar_cases.append(info)
-        if not info["ok"]:errors.append(f"responsive-nav@{width}x{height}: sidebar/hamburger competiu com bottom navigation")
+        info["ok"]=(info.get("sidebarVisible") is False and info.get("mobileVisible") is True and info.get("sidebarOpen") is False and rect_inside_viewport(info.get("navRect"),info.get("vw"),info.get("vh")))
+        responsive_nav_cases.append(info)
+        if not info["ok"]:errors.append(f"responsive-nav@{width}x{height}: sidebar competiu com bottom navigation")
         driver.save_screenshot(str(out_dir/f"responsive-nav-{width}x{height}.png"))
 
-    # Interação real por toque em iPad/celular: bottom navigation + Mais, sem drawer concorrente.
+    # Interação real por toque em iPad/celular: bottom navigation + Mais como único sistema compacto.
     for width,height in ((834,1112),(390,844)):
         driver.execute_cdp_cmd("Emulation.setDeviceMetricsOverride",{"width":width,"height":height,"deviceScaleFactor":2,"mobile":False})
         driver.execute_cdp_cmd("Emulation.setTouchEmulationEnabled",{"enabled":True,"maxTouchPoints":5})
@@ -289,13 +282,11 @@ try:
                 coarse:matchMedia('(pointer: coarse)').matches,
                 touchPoints:navigator.maxTouchPoints||0,
                 sidebarCount:document.querySelectorAll('.pa-sidebar').length,
-                menuCount:document.querySelectorAll('.pa-menu-btn').length,
                 mobileNavCount:document.querySelectorAll('#paMobileNav').length,
                 mobileMoreCount:document.querySelectorAll('#paMobileMore').length,
                 legacyCount:document.querySelectorAll('.mobile-bottom').length,
                 sidebarVisible:visible(document.querySelector('.pa-sidebar')),
                 mobileVisible:visible(document.getElementById('paMobileNav')),
-                menuVisible:visible(document.querySelector('.pa-menu-btn')),
                 moreActive:more?.classList.contains('active')===true,
                 targets
               };
@@ -317,12 +308,10 @@ try:
                 base_state.get("coarse") is True
                 and int(base_state.get("touchPoints") or 0)>0
                 and base_state.get("sidebarCount")==1
-                and base_state.get("menuCount")==1
                 and base_state.get("mobileNavCount")==1
                 and base_state.get("mobileMoreCount")==1
                 and base_state.get("legacyCount")==0
                 and base_state.get("mobileVisible") is True
-                and base_state.get("menuVisible") is False
                 and base_state.get("sidebarVisible") is False
                 and base_state.get("moreActive") is should_more_active
                 and all(t.get("width",0)>=44 and t.get("height",0)>=44 for t in base_state.get("targets") or [])
@@ -822,7 +811,7 @@ try:
             append_errors(data,f"escala-{page}@{dpr}",errors)
     driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride",{})
 
-    report={"base":base,"rows":rows,"modalCases":modal_cases,"sidebarCases":sidebar_cases,"touchCases":touch_cases,"functionalCases":functional_cases,"longTextCases":long_text_cases,"zoomCases":zoom_cases,"zoomEffective":zoom_effective,"scaleCases":scale_cases,"interactiveCases":interactive_cases,"errors":errors}
+    report={"base":base,"rows":rows,"modalCases":modal_cases,"responsiveNavCases":responsive_nav_cases,"touchCases":touch_cases,"functionalCases":functional_cases,"longTextCases":long_text_cases,"zoomCases":zoom_cases,"zoomEffective":zoom_effective,"scaleCases":scale_cases,"interactiveCases":interactive_cases,"errors":errors}
     (out_dir/"report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2),"utf-8")
     summary={
         "base":base,
@@ -830,7 +819,7 @@ try:
         "viewports":len(viewports),
         "cases":len(rows),
         "modalCases":len(modal_cases),
-        "sidebarCases":len(sidebar_cases),
+        "responsiveNavCases":len(responsive_nav_cases),
         "touchCases":len(touch_cases),
         "touchFailures":[x for x in touch_cases if not x.get("ok")],
         "functionalCases":len(functional_cases),
