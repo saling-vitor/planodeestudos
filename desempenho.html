@@ -125,6 +125,268 @@
 @media(max-width:520px){
 .chart-summary{grid-template-columns:1fr}
 }
+
+
+/* ===== ETAPA D9 · DESEMPENHO · refinamento local ===== */
+/* Ajuste fino da tela Desempenho sobre a base global A+B+C. Sem mudanças funcionais. */
+body.pa-internal-mode[data-pa-page="performance"] .hero-actions{
+  margin-top:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap
+}
+
+/* Período e escopo dos dados: barra operacional mais técnica. */
+body.pa-internal-mode[data-pa-page="performance"] .period-bar{
+  border-color:rgba(239,233,221,.085);
+  background:
+    radial-gradient(340px 120px at -6% -12%,rgba(109,130,152,.035),transparent 72%),
+    linear-gradient(145deg,rgba(11,14,18,.88),rgba(7,9,12,.94));
+  box-shadow:0 13px 30px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.012)
+}
+body.pa-internal-mode[data-pa-page="performance"] .period-note{
+  color:#87847d;letter-spacing:.025em
+}
+body.pa-internal-mode[data-pa-page="performance"] .device-note{
+  border-color:rgba(216,184,88,.16);
+  background:
+    radial-gradient(360px 130px at -5% -12%,rgba(216,184,88,.040),transparent 72%),
+    linear-gradient(145deg,rgba(15,13,10,.88),rgba(8,10,13,.94));
+  box-shadow:inset 0 1px rgba(255,255,255,.010)
+}
+body.pa-internal-mode[data-pa-page="performance"] .device-note.has-data{
+  border-color:rgba(98,169,120,.16);
+  background:
+    radial-gradient(360px 130px at -5% -12%,rgba(98,169,120,.032),transparent 72%),
+    linear-gradient(145deg,rgba(10,14,12,.88),rgba(8,10,13,.94))
+}
+body.pa-internal-mode[data-pa-page="performance"] .device-note strong{
+  color:#cdbb88
+}
+body.pa-internal-mode[data-pa-page="performance"] .device-note.has-data strong{
+  color:#aac7b2
+}
+body.pa-internal-mode[data-pa-page="performance"] .device-note span{
+  color:#89867e
+}
+body.pa-internal-mode[data-pa-page="performance"] .scope-pill{
+  border-color:rgba(239,233,221,.070);
+  background:rgba(255,255,255,.005);
+  color:#8b8a85
+}
+
+/* Insight: leitura de diagnóstico, não de alerta. */
+body.pa-internal-mode[data-pa-page="performance"] .insight{
+  position:relative;overflow:hidden;
+  border-color:rgba(109,130,152,.25);
+  background:
+    radial-gradient(430px 170px at -7% -12%,rgba(109,130,152,.078),transparent 72%),
+    radial-gradient(300px 140px at 104% 0,rgba(216,197,158,.022),transparent 74%),
+    linear-gradient(112deg,rgba(12,17,22,.95),rgba(8,10,13,.98) 52%,rgba(7,8,10,.99));
+  box-shadow:0 16px 36px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.018)
+}
+body.pa-internal-mode[data-pa-page="performance"] .insight::before{
+  content:"";position:absolute;left:16px;top:0;width:80px;height:1px;
+  background:linear-gradient(90deg,rgba(109,130,152,.82),rgba(216,197,158,.26),transparent)
+}
+body.pa-internal-mode[data-pa-page="performance"] .insight-k{
+  color:#9caeba;letter-spacing:.145em
+}
+body.pa-internal-mode[data-pa-page="performance"] .insight h3{
+  color:#ece7df;font:820 16px/1.18 var(--pa-condensed);
+  letter-spacing:.004em
+}
+body.pa-internal-mode[data-pa-page="performance"] .insight p{
+  color:#8d8e8e;line-height:1.52
+}
+
+/* Seções: mesma hierarquia editorial das demais telas refinadas. */
+body.pa-internal-mode[data-pa-page="performance"] .section{
+  margin-top:23px
+}
+body.pa-internal-mode[data-pa-page="performance"] .section-head{
+  min-height:31px;margin-bottom:11px;align-items:center;
+  border-bottom:1px solid rgba(239,233,221,.055)
+}
+body.pa-internal-mode[data-pa-page="performance"] .section-head h2{
+  display:flex;align-items:center;gap:8px;margin:0;padding-bottom:10px;
+  color:#ddd8cf;font:800 10.5px/1 var(--pa-mono);
+  letter-spacing:.145em;text-transform:uppercase
+}
+body.pa-internal-mode[data-pa-page="performance"] .section-head h2::before{
+  content:"";width:18px;height:1px;flex:0 0 auto;
+  background:linear-gradient(90deg,var(--pa-champagne-2),rgba(109,130,152,.50))
+}
+body.pa-internal-mode[data-pa-page="performance"] .section-head>span{
+  padding-bottom:10px;color:#817e77;font-size:9.4px
+}
+
+/* KPIs: números mais fortes, rótulos menos administrativos. */
+body.pa-internal-mode[data-pa-page="performance"] .kpi{
+  border-color:rgba(239,233,221,.065);
+  background:
+    radial-gradient(190px 90px at -10% -20%,rgba(216,197,158,.020),transparent 72%),
+    linear-gradient(145deg,rgba(255,255,255,.013),rgba(255,255,255,.003));
+  box-shadow:inset 0 1px rgba(255,255,255,.009)
+}
+body.pa-internal-mode[data-pa-page="performance"] .kpi span{
+  color:#8d877c;letter-spacing:.065em
+}
+body.pa-internal-mode[data-pa-page="performance"] .kpi b{
+  color:#eee8dd;font:820 22px/.95 var(--pa-condensed)
+}
+body.pa-internal-mode[data-pa-page="performance"] .kpi small{
+  color:#7f807d
+}
+
+/* Ritmo de estudo e comparativos. */
+body.pa-internal-mode[data-pa-page="performance"] .activity-chart{
+  border-bottom-color:rgba(239,233,221,.055)
+}
+body.pa-internal-mode[data-pa-page="performance"] .bar-study{
+  background:linear-gradient(180deg,#8298aa,#5e7488);
+  box-shadow:0 0 10px rgba(109,130,152,.10)
+}
+body.pa-internal-mode[data-pa-page="performance"] .bar-day b{
+  color:#908d86
+}
+body.pa-internal-mode[data-pa-page="performance"] .bar-day small{
+  color:#6f716f
+}
+body.pa-internal-mode[data-pa-page="performance"] .chart-legend{
+  color:#807f7b
+}
+body.pa-internal-mode[data-pa-page="performance"] .chart-summary-box{
+  border-color:rgba(239,233,221,.060);
+  background:linear-gradient(145deg,rgba(255,255,255,.012),rgba(255,255,255,.003));
+  box-shadow:inset 0 1px rgba(255,255,255,.008)
+}
+body.pa-internal-mode[data-pa-page="performance"] .chart-summary-box span{
+  color:#8a857b;letter-spacing:.06em
+}
+body.pa-internal-mode[data-pa-page="performance"] .chart-summary-box b{
+  color:#e5dfd5;font-size:17px;line-height:.95
+}
+body.pa-internal-mode[data-pa-page="performance"] .compare-row{
+  border-color:rgba(239,233,221,.060);
+  background:
+    linear-gradient(90deg,rgba(109,130,152,.022),transparent 24%),
+    rgba(255,255,255,.005);
+  box-shadow:inset 0 1px rgba(255,255,255,.008)
+}
+body.pa-internal-mode[data-pa-page="performance"] .compare-top strong{
+  color:#d8d4cc
+}
+body.pa-internal-mode[data-pa-page="performance"] .compare-top span{
+  color:#a9bbc7
+}
+body.pa-internal-mode[data-pa-page="performance"] .dual-track{
+  background:linear-gradient(180deg,#0c0f12,#11151a);
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.50),inset 0 0 0 1px rgba(255,255,255,.020)
+}
+body.pa-internal-mode[data-pa-page="performance"] .compare-foot{
+  color:#7d7d79
+}
+
+/* Progresso acumulado: anel e mini métricas com maior presença. */
+body.pa-internal-mode[data-pa-page="performance"] .progress-ring{
+  background:conic-gradient(#72899d calc(var(--pct)*1%),#11151a 0);
+  box-shadow:0 0 0 1px rgba(239,233,221,.035),0 15px 36px rgba(0,0,0,.20)
+}
+body.pa-internal-mode[data-pa-page="performance"] .progress-ring::before{
+  background:
+    radial-gradient(circle at 50% 38%,rgba(109,130,152,.035),transparent 55%),
+    #090b0e;
+  box-shadow:inset 0 1px rgba(255,255,255,.012)
+}
+body.pa-internal-mode[data-pa-page="performance"] .progress-ring-label b{
+  color:#eee8dd;font-size:34px
+}
+body.pa-internal-mode[data-pa-page="performance"] .progress-ring-label span{
+  color:#8b8881
+}
+body.pa-internal-mode[data-pa-page="performance"] .mini-stat{
+  border-color:rgba(239,233,221,.060);
+  background:linear-gradient(145deg,rgba(255,255,255,.012),rgba(255,255,255,.003));
+  box-shadow:inset 0 1px rgba(255,255,255,.008)
+}
+body.pa-internal-mode[data-pa-page="performance"] .mini-stat span{
+  color:#8b867c;letter-spacing:.055em
+}
+body.pa-internal-mode[data-pa-page="performance"] .mini-stat b{
+  color:#e7e1d7;font-size:18px;line-height:.95
+}
+
+/* Tabela por mapa: cabeçalho técnico, linhas discretas e ação clara. */
+body.pa-internal-mode[data-pa-page="performance"] .table-wrap{
+  border-color:rgba(239,233,221,.070);
+  background:rgba(5,7,9,.36);
+  box-shadow:inset 0 1px rgba(255,255,255,.006)
+}
+body.pa-internal-mode[data-pa-page="performance"] .perf-table th{
+  background:#0a0c0f;
+  color:#8f897f;
+  border-bottom-color:rgba(239,233,221,.065);
+  letter-spacing:.075em
+}
+body.pa-internal-mode[data-pa-page="performance"] .perf-table td{
+  border-bottom-color:rgba(239,233,221,.040);
+  color:#a7a5a0
+}
+body.pa-internal-mode[data-pa-page="performance"] .perf-table tbody tr{
+  transition:background .14s ease
+}
+body.pa-internal-mode[data-pa-page="performance"] .perf-table tbody tr:hover{
+  background:rgba(109,130,152,.020)
+}
+body.pa-internal-mode[data-pa-page="performance"] .perf-table td:first-child strong{
+  color:#dcd8d0
+}
+body.pa-internal-mode[data-pa-page="performance"] .perf-table td:first-child span{
+  color:#817f79
+}
+body.pa-internal-mode[data-pa-page="performance"] .state-pill{
+  background:rgba(255,255,255,.004);
+  box-shadow:inset 0 1px rgba(255,255,255,.008)
+}
+body.pa-internal-mode[data-pa-page="performance"] .map-toolbar{
+  border-bottom:1px solid rgba(239,233,221,.045);
+  padding-bottom:9px
+}
+body.pa-internal-mode[data-pa-page="performance"] .action-btn{
+  border-color:rgba(239,233,221,.090);
+  background:linear-gradient(180deg,rgba(18,21,26,.94),rgba(11,14,18,.97));
+  box-shadow:inset 0 1px rgba(255,255,255,.014)
+}
+
+/* Revisões: fechamento da página com métricas coerentes com o restante. */
+body.pa-internal-mode[data-pa-page="performance"] .review-card{
+  border-color:rgba(239,233,221,.060);
+  background:
+    radial-gradient(190px 90px at -10% -20%,rgba(216,197,158,.018),transparent 72%),
+    linear-gradient(145deg,rgba(255,255,255,.012),rgba(255,255,255,.003));
+  box-shadow:inset 0 1px rgba(255,255,255,.009)
+}
+body.pa-internal-mode[data-pa-page="performance"] .review-card span{
+  color:#8d877c;letter-spacing:.06em
+}
+body.pa-internal-mode[data-pa-page="performance"] .review-card b{
+  color:#eee8dd;font:820 22px/.95 var(--pa-condensed)
+}
+body.pa-internal-mode[data-pa-page="performance"] .review-card small{
+  color:#7f807d
+}
+
+/* Empty states gráficos. */
+body.pa-internal-mode[data-pa-page="performance"] .activity-chart.is-empty{
+  border-color:rgba(216,197,158,.16);
+  background:
+    radial-gradient(300px 120px at 50% 0,rgba(216,197,158,.024),transparent 72%),
+    rgba(255,255,255,.003)
+}
+body.pa-internal-mode[data-pa-page="performance"] .chart-empty strong{
+  color:#cfbe96;font:820 13px/1.1 var(--pa-condensed)
+}
+body.pa-internal-mode[data-pa-page="performance"] .chart-empty span{
+  color:#858680
+}
 </style>
 <script src="data/contests.js"></script>
 <script src="assets/js/pa-contest-context-v01.js"></script><script src="data/materials.js"></script><script src="data/exam-schemas.js"></script><script src="data/question-catalog.js"></script>
