@@ -135,6 +135,7 @@ jobs:
 
       - name: Registrar PWA publicado antes do deploy
         if: steps.package.outputs.ready == 'true'
+        continue-on-error: true
         env:
           PWA_URL: https://saling-vitor.github.io/planodeestudos/
           PWA_PHASE: before

@@ -16,6 +16,7 @@
   "status": "functional-freeze",
   "runtimeProductVersion": "1.1.0",
   "allowedPostFreezePaths": [
+    ".github/workflows/pages.yml",
     ".github/workflows/validate-development.yml",
     ".github/workflows/rc-gate-v12.yml",
     ".github/workflows/release-gate-v12.yml",
@@ -43,6 +44,7 @@
     "nenhuma nova funcionalidade após functionalFreezeSha",
     "mudanças pós-freeze ficam restritas a release metadata, documentação, QA, CI e bump coordenado da versão de produto",
     "qualquer correção funcional pós-freeze exige novo functionalFreezeSha e nova execução completa do gate",
-    "main e release/v1.1.0 permanecem intocados até a promoção final da V1.2"
+    "main e release/v1.1.0 permanecem intocados até a promoção final da V1.2",
+    "ajustes de recuperação do workflow de Pages são CI pós-freeze e exigem gate final verde"
   ]
 }
