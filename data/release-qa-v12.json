@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "candidate": "1.2.0-rc.1",
+  "targetRelease": "1.2.0",
+  "automated": {
+    "dataSafety": "ci",
+    "studyMapsMatrix": "ci",
+    "portalLayoutMatrix": "ci",
+    "automationReadOnly": "ci",
+    "offlineColdInstall": "ci",
+    "cssJsPwa": "ci",
+    "versionContract": "ci",
+    "freezeContract": "ci",
+    "releaseCandidateContract": "ci",
+    "portalInlineAudit": "ci",
+    "studyMapCssAudit": "ci",
+    "newContestFlow": "ci"
+  },
+  "manual": [
+    {
+      "id": "chrome-zoom-80",
+      "label": "Chrome real · zoom 80%",
+      "required": true,
+      "status": "pending",
+      "checkedAt": null,
+      "evidence": ""
+    },
+    {
+      "id": "chrome-zoom-125",
+      "label": "Chrome real · zoom 125%",
+      "required": true,
+      "status": "pending",
+      "checkedAt": null,
+      "evidence": ""
+    },
+    {
+      "id": "chrome-zoom-150",
+      "label": "Chrome real · zoom 150%",
+      "required": true,
+      "status": "pending",
+      "checkedAt": null,
+      "evidence": ""
+    }
+  ],
+  "manualScope": [
+    "biblioteca.html",
+    "configuracoes.html",
+    "um mapa real aberto pela Biblioteca"
+  ],
+  "acceptance": [
+    "sem overflow horizontal global",
+    "sem controles cortados",
+    "sem colisão de topbar/navegação",
+    "texto e botões legíveis",
+    "interações principais acessíveis",
+    "troca/contexto do concurso preservado"
+  ]
+}

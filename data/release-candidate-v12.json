@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "candidate": "1.2.0-rc.1",
+  "targetRelease": "1.2.0",
+  "candidateBranch": "release/v1.2.0-rc1",
+  "baselineRelease": "1.1.0",
+  "baselineSha": "79da5bfe2f486da208b6e04a3fc06e13eae9a54d",
+  "developmentSourceSha": "7e0199361719be0c7e8836a7239e22141e8a2486",
+  "functionalFreezeSha": "84afc81faf45af6d67ee9e3441d5f1204734bccd",
+  "functionalFreezeGate": {
+    "workflow": "Validar desenvolvimento",
+    "run": 11,
+    "status": "success",
+    "sha": "84afc81faf45af6d67ee9e3441d5f1204734bccd"
+  },
+  "featureFreeze": true,
+  "status": "manual-qa-pending",
+  "runtimeProductVersion": "1.1.0",
+  "manualBlockers": [
+    "chrome-zoom-80",
+    "chrome-zoom-125",
+    "chrome-zoom-150"
+  ],
+  "allowedPostFreezePaths": [
+    ".github/workflows/validate-development.yml",
+    ".github/workflows/rc-gate-v12.yml",
+    ".github/workflows/release-gate-v12.yml",
+    "assets/js/pa-data-v03.js",
+    "data/cloud-config.json",
+    "data/release-freeze-v12.json",
+    "data/release-candidate-v12.json",
+    "data/release-qa-v12.json",
+    "data/version-contract.json",
+    "docs/RELEASE.md",
+    "docs/V1.2.md",
+    "docs/V1.2_AUDIT.md",
+    "docs/V1.2_BACKLOG.md",
+    "docs/V1.2_RELEASE_NOTES.md",
+    "docs/V1.2_RELEASE_QA.md",
+    "docs/VERSIONING.md",
+    "README.md",
+    "scripts/validate_production.py",
+    "scripts/validate_release_freeze_v12.py",
+    "scripts/validate_release_candidate_v12.py",
+    "scripts/validate_release_qa_v12.py",
+    "scripts/validate_versions.py"
+  ],
+  "rules": [
+    "nenhuma nova funcionalidade após functionalFreezeSha",
+    "o RC mantém a versão pública/runtime em 1.1.0",
+    "mudanças no RC ficam restritas à allowlist do freeze",
+    "QA manual de zoom pode ficar pending no Gate V1.2 RC",
+    "promoção final para 1.2.0 exige QA manual aprovado e gate final verde"
+  ]
+}
