@@ -112,17 +112,23 @@ def main():
             if re.search(r"attributeFilter\s*:\s*\[\s*['\"]data-study-state['\"]\s*\]", text):
                 raise RuntimeError("study-map-runtime-v01.js: observer paralelo de data-study-state detectado")
         if path.name == "pa-actions-v01.js":
-            for token in ("const VERSION='2.0'","function focus(","function focusContext(","function diagnosticRows(","function temporalTier(","function audit(","function emptyState(","planContext","rankReason","examContext","materialsForContest","examSchemaForContest","readOnly:true","planning-replan","adaptiveProposal"):
+            for token in ("const VERSION='2.0'","function focus(","function focusContext(","function diagnosticRows(","function temporalTier(","function audit(","function emptyState(","planContext","rankReason","examContext","materialsForContest","examSchemaForContest","readOnly:true","planning-replan","adaptiveProposal","simulation-post-diagnostic","postSimulation"):
                 if token not in text:
                     raise RuntimeError(f"pa-actions-v01.js: contrato Focus 2.0 ausente: {token}")
             if text.count("localStorage.setItem") != 1:
                 raise RuntimeError("pa-actions-v01.js: focus/build/audit não podem introduzir novas escritas; apenas saveSettings é permitido")
         if path.name == "pa-replan-v01.js":
-            for token in ("const VERSION='1.0'","function propose(","function inspect(","function apply(","function touchedDates(","function compareFuture(","createRecoveryPoint","meaningful?'ready':'no-change'","readOnly:true","adaptive-replan"):
+            for token in ("const VERSION='1.0'","function propose(","function inspect(","function apply(","function touchedDates(","function compareFuture(","createRecoveryPoint","meaningful?'ready':'no-change'","readOnly:true","adaptive-replan","planningSignals","postSimulationFactor","post-sim","postSimulation"):
                 if token not in text:
-                    raise RuntimeError(f"pa-replan-v01.js: contrato AUT-02 ausente: {token}")
+                    raise RuntimeError(f"pa-replan-v01.js: contrato AUT-02/AUT-03 ausente: {token}")
             if text.count("localStorage.setItem") != 1:
                 raise RuntimeError("pa-replan-v01.js: somente apply pode gravar o plano futuro")
+        if path.name == "pa-post-sim-v01.js":
+            for token in ("const VERSION='1.0'","function analyzeAttempt(","function record(","function planningSignals(","function reviewSuggestions(","function sectionSignals(","function renderInline(","planoarq:simulation-finished","planoarq:post-sim-ready","readOnly:true"):
+                if token not in text:
+                    raise RuntimeError(f"pa-post-sim-v01.js: contrato AUT-03 ausente: {token}")
+            if text.count("localStorage.setItem") != 1:
+                raise RuntimeError("pa-post-sim-v01.js: somente record pode gravar o snapshot derivado do diagnóstico")
         check_node(path, str(path.relative_to(ROOT)))
         checked_external += 1
 
@@ -136,6 +142,8 @@ def main():
         for html in html_files:
             html_text = html.read_text("utf-8", errors="replace")
             check_invalid_dataset_notation(html_text, str(html.relative_to(ROOT)))
+            if "simulation-runtime-v01.js" in html_text and "pa-post-sim-v01.js" not in html_text:
+                raise RuntimeError(f"{html.relative_to(ROOT)}: simulado sem integração AUT-03 antes do runtime")
             parser = ScriptParser()
             parser.feed(html_text)
             for line, code in parser.scripts:
