@@ -47,9 +47,17 @@ if gate.get("sha")!=freeze:
 
 runtime=(ROOT/"assets/js/pa-data-v03.js").read_text("utf-8",errors="replace")
 sw=(ROOT/"service-worker.js").read_text("utf-8",errors="replace")
+contract=json.loads((ROOT/"data/version-contract.json").read_text("utf-8"))
 release=re.search(r"const RELEASE=['\"]([^'\"]+)['\"]",runtime)
-if not release or release.group(1)!=data.get("runtimeProductVersion"):
-    err("V1.2 freeze: versão runtime diverge da baseline declarada")
+expected_runtime=str(data.get("runtimeProductVersion") or "")
+if (
+    contract.get("releaseStatus")=="final-preparation"
+    and contract.get("targetRelease")==data.get("targetRelease")
+    and contract.get("productBaseline")==data.get("targetRelease")
+):
+    expected_runtime=str(data.get("targetRelease") or "")
+if not release or release.group(1)!=expected_runtime:
+    err(f"V1.2 freeze: versão runtime {release.group(1) if release else None!r} diverge do estado permitido {expected_runtime!r}")
 if "const BUILD_MAINTENANCE=false;" not in runtime:
     err("V1.2 freeze: BUILD_MAINTENANCE deve estar false")
 if "const MAINTENANCE_MODE=false;" not in sw:
