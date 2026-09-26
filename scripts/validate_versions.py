@@ -55,22 +55,28 @@ canonical=tech.get("studyRuntimeCanonical") or ""
 if canonical and f"window.{canonical}" not in runtime:
     errors.append(f"runtime canônico ausente: {canonical}")
 
-bridge=str(tech.get("studyBridge") or "")
-if bridge and f"bridgeVersion:'{bridge}'" not in runtime and f'bridgeVersion:"{bridge}"' not in runtime:
-    errors.append(f"bridge runtime divergente: esperado {bridge}")
+runtime_bridge=str(tech.get("studyBridgeRuntime") or "")
+bundled_bridge=str(tech.get("studyBridgeBundled") or "")
+blueprint_version=str(tech.get("studyBlueprint") or "")
+if runtime_bridge and f"bridgeVersion:'{runtime_bridge}'" not in runtime and f'bridgeVersion:"{runtime_bridge}"' not in runtime:
+    errors.append(f"bridge runtime divergente: esperado {runtime_bridge}")
+blueprint=text("assets/js/pa-study-blueprint-v01.js")
+if blueprint_version and not re.search(rf"const VERSION=['\"]{re.escape(blueprint_version)}['\"]",blueprint):
+    errors.append(f"Study Blueprint divergente: esperado {blueprint_version}")
 
 materials=sorted((ROOT/"materials").glob("*.html"))
 bridge_bad=[]
 for path in materials:
     t=path.read_text("utf-8",errors="replace")
-    m=re.search(r'<meta\s+name=["\']plano-arq-bridge-version["\']\s+content=["\']([^"\']+)["\']',t,re.I)
-    if not m or m.group(1)!=bridge:
+    tag=next((x for x in re.findall(r"<meta\b[^>]*>",t,re.I) if re.search(r"name=['\"]plano-arq-bridge-version['\"]",x,re.I)), "")
+    m=re.search(r"content=['\"]([^'\"]+)['\"]",tag,re.I)
+    if not m or m.group(1)!=bundled_bridge:
         bridge_bad.append(path.name)
 if bridge_bad:
-    errors.append("bridge divergente nos materiais: "+", ".join(bridge_bad[:6])+(f" +{len(bridge_bad)-6}" if len(bridge_bad)>6 else ""))
+    errors.append("bridge empacotado divergente: "+", ".join(bridge_bad[:6])+(f" +{len(bridge_bad)-6}" if len(bridge_bad)>6 else ""))
 
 docs=text("docs/VERSIONING.md")
-for token in (contract.get("targetRelease"),contract.get("productBaseline"),tech.get("pwa"),canonical):
+for token in (contract.get("targetRelease"),contract.get("productBaseline"),tech.get("pwa"),canonical,runtime_bridge,bundled_bridge):
     if token and str(token) not in docs:
         errors.append(f"VERSIONING.md não documenta {token}")
 
@@ -84,5 +90,8 @@ print(json.dumps({
     "productBaseline":contract.get("productBaseline"),
     "technical":tech,
     "aliases":contract.get("compatibilityAliases"),
-    "materialsBridgeValidated":len(materials)
+    "materialsBridgeValidated":len(materials),
+    "bundledBridge":bundled_bridge,
+    "runtimeBridge":runtime_bridge,
+    "studyBlueprint":blueprint_version
 },ensure_ascii=False,indent=2))
