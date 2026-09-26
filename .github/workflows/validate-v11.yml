@@ -43,6 +43,12 @@ jobs:
       - name: Validar PWA e cache
         run: python3 scripts/validate_pwa_cache.py
 
+      - name: Validar contrato de versões
+        run: python3 scripts/validate_versions.py
+
+      - name: Validar checklist de release
+        run: python3 scripts/validate_release_qa.py
+
       - name: Preparar navegador
         run: python3 -m pip install --disable-pip-version-check selenium
 
