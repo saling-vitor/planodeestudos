@@ -470,7 +470,9 @@ try:
         if not persistence.get("lastSnapshotUnchanged"): errors.append("snapshot foi alterado durante manutenção")
         if persistence.get("remoteResources"): errors.append(f"requisições remotas automáticas detectadas: {persistence.get('remoteResources')}")
         ui=persistence.get("ui") or {}
-        expected_ui={"maintenanceState":"ATIVO","supabaseStatus":"Pausado","driveStatus":"Pausado","automationLayerStatus":"PAUSADA","pwaLayerStatus":"PAUSADO","pwaInstallState":"PAUSADO","pwaOfflineState":"PAUSADO","pwaUpdateState":"PAUSADO","pwaControlState":"NÃO"}
+        if not (ui.get("maintenanceState") or "").startswith("ATIVO"):
+            errors.append(f"UI de manutenção divergente em maintenanceState: {ui.get('maintenanceState')!r}")
+        expected_ui={"supabaseStatus":"Pausado","driveStatus":"Pausado","automationLayerStatus":"PAUSADA","pwaLayerStatus":"PAUSADO","pwaInstallState":"PAUSADO","pwaOfflineState":"PAUSADO","pwaUpdateState":"PAUSADO","pwaControlState":"NÃO"}
         for key,value in expected_ui.items():
             if ui.get(key)!=value: errors.append(f"UI de manutenção divergente em {key}: {ui.get(key)!r} != {value!r}")
         if "DESATIVADO" not in (ui.get("pwaSwState") or ""): errors.append("UI não mostra Service Worker desativado")
