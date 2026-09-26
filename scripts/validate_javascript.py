@@ -89,6 +89,8 @@ def main():
     for path in js_files:
         text = path.read_text("utf-8", errors="replace")
         check_invalid_dataset_notation(text, str(path.relative_to(ROOT)))
+        if path.name == "study-map-preconfig-v01.js" and re.search(r"map-mode|map-focus|focusBranch", text):
+            raise RuntimeError("study-map-preconfig-v01.js: runtime legado de map-mode/map-focus detectado")
         check_node(path, str(path.relative_to(ROOT)))
         checked_external += 1
 
