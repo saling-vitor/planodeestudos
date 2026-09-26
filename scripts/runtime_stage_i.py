@@ -360,14 +360,23 @@ try:
         errors.append("Etapa I navegação: algum link perdeu contestId")
     report["navigation"]["links"]=nav
 
-    # Estado final deve continuar em manutenção; nenhum serviço de fundo é reativado pela Etapa I.
+    # O fluxo não pode alterar o estado operacional definido pelo build publicado.
     maintenance=driver.execute_script("""
-      const flags=JSON.parse(localStorage.getItem('planoarq:runtime-flags:v1')||'{}');
-      return {maintenance:flags.maintenanceMode===true,canBackground:window.PLANO_ARQ_DATA?.canRunBackgroundServices?.()===true}
+      const D=window.PLANO_ARQ_DATA||{},flags=D.runtimeFlags?.()||{};
+      return {
+        maintenance:flags.maintenanceMode===true,
+        buildMaintenance:D.isBuildMaintenance?.()===true,
+        canBackground:D.canRunBackgroundServices?.()===true,
+        release:D.RELEASE||''
+      }
     """)
     report["maintenance"]=maintenance
-    if not maintenance.get("maintenance") or maintenance.get("canBackground"):
-        errors.append("Etapa I: Maintenance Mode foi alterado/serviços de fundo reativados")
+    if maintenance.get("buildMaintenance"):
+        if not maintenance.get("maintenance") or maintenance.get("canBackground"):
+            errors.append("Fluxo operacional: build de manutenção reativou serviços de fundo")
+    else:
+        if maintenance.get("maintenance") or not maintenance.get("canBackground"):
+            errors.append("Fluxo operacional: build de produção permaneceu em manutenção")
 
 finally:
     report["errors"]=errors
