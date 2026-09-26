@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "candidate": "1.1.0-rc.1",
+  "targetRelease": "1.1.0",
+  "candidateBranch": "release/v1.1.0-rc1",
+  "baselineRelease": "1.0.0",
+  "baselineSha": "6249beebee753a5e51ed879fb8b7de924dee1a48",
+  "functionalFreezeSha": "db357f7fed6a7cdf8ac12c2c08c8a60c80156517",
+  "functionalFreezeGate": {
+    "workflow": "Validar V1.1",
+    "run": 58,
+    "status": "success"
+  },
+  "featureFreeze": true,
+  "status": "manual-qa-pending",
+  "manualBlockers": [
+    "chrome-zoom-80",
+    "chrome-zoom-125",
+    "chrome-zoom-150"
+  ],
+  "allowedPostFreezePaths": [
+    ".github/workflows/rc-gate-v11.yml",
+    ".github/workflows/release-gate-v11.yml",
+    ".github/workflows/validate-v11.yml",
+    "data/release-candidate-v11.json",
+    "data/release-qa-v11.json",
+    "data/version-contract.json",
+    "docs/V1.1.md",
+    "docs/V1.1_BACKLOG.md",
+    "docs/V1.1_RELEASE_NOTES.md",
+    "docs/V1.1_RELEASE_QA.md",
+    "docs/VERSIONING.md",
+    "scripts/validate_release_candidate.py",
+    "scripts/validate_release_qa.py",
+    "scripts/validate_versions.py"
+  ],
+  "rules": [
+    "nenhuma nova funcionalidade após functionalFreezeSha",
+    "mudanças pós-freeze ficam restritas a release metadata, documentação, QA e CI",
+    "correção funcional pós-freeze exige novo RC e novo functionalFreezeSha",
+    "promoção para 1.1.0 exige os três zooms reais aprovados e Gate V1.1 Release verde"
+  ]
+}
