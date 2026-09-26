@@ -52,17 +52,19 @@ function mobileItem(key,label){const item=allItems().find(x=>x.key===key),active
 function bindMobileMoreCloser(){
  if(document.documentElement.dataset.paMobileCloserBound)return;
  document.documentElement.dataset.paMobileCloserBound='1';
+ const close=(restoreFocus=false)=>{
+   const more=document.getElementById('paMobileMore'),btn=document.getElementById('paMobileMoreBtn');
+   if(!more?.classList.contains('open'))return;
+   more.classList.remove('open');btn?.setAttribute('aria-expanded','false');
+   if(restoreFocus)btn?.focus()
+ };
  document.addEventListener('pointerdown',e=>{
-   const more=document.getElementById('paMobileMore'),btn=document.getElementById('paMobileMoreBtn');
-   if(more?.classList.contains('open')&&!more.contains(e.target)&&!e.target.closest?.('#paMobileMoreBtn')){
-     more.classList.remove('open');btn?.setAttribute('aria-expanded','false')
-   }
+   const more=document.getElementById('paMobileMore');
+   if(more?.classList.contains('open')&&!more.contains(e.target)&&!e.target.closest?.('#paMobileMoreBtn'))close(false)
  });
- document.addEventListener('keydown',e=>{
-   if(e.key!=='Escape')return;
-   const more=document.getElementById('paMobileMore'),btn=document.getElementById('paMobileMoreBtn');
-   if(more?.classList.contains('open')){more.classList.remove('open');btn?.setAttribute('aria-expanded','false');btn?.focus()}
- })
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')close(true)});
+ window.addEventListener('resize',()=>close(false),{passive:true});
+ window.addEventListener('orientationchange',()=>close(false),{passive:true})
 }
 function mobileMoreEntry(item,current){
  const active=current===item.key,classes=active?'active':'';
