@@ -85,6 +85,10 @@ body.pa-internal-mode .topic span{
   display:block;margin-top:3px;color:#777d84;font-size:9px;line-height:1.4;
   overflow:hidden;text-overflow:ellipsis
 }
+body.pa-internal-mode .field{min-width:0}
+body.pa-internal-mode .field :is(input,select,textarea){
+  box-sizing:border-box;width:100%;min-width:0;max-width:100%
+}
 body.pa-internal-mode .field label{
   display:block;margin-bottom:6px;color:#8c9299;
   font:760 8px/1.2 var(--pa-mono);letter-spacing:.07em;text-transform:uppercase
