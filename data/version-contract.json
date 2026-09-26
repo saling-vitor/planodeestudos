@@ -33,5 +33,7 @@
     "aliases de mapas só podem ser removidos com migração explícita e teste de progresso",
     "os 14 mapas empacotados mantêm bridge 1.1 por compatibilidade; runtime/blueprint atual é 1.3",
     "novos mapas auditados pelo fluxo H3 usam o contrato de bridge atual"
-  ]
+  ],
+  "candidateRelease": "1.1.0-rc.1",
+  "functionalFreezeSha": "db357f7fed6a7cdf8ac12c2c08c8a60c80156517"
 }
