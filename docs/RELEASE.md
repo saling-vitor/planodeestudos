@@ -1,39 +1,48 @@
-# Plano ARQ · Release V1.1.0
+# Plano ARQ · Release V1.2.0
 
-Documento canônico da versão publicada **1.1.0**.
+Documento canônico da preparação final **1.2.0**.
 
-## Estado de produção
+## Estado
 
-- Release publicada: `1.1.0`.
-- SHA publicado: `79da5bfe2f486da208b6e04a3fc06e13eae9a54d`.
-- Branch congelada: `release/v1.1.0`.
-- Produção: `main` no mesmo SHA.
-- Tag/GitHub Release: `v1.1.0`.
-- Runtime local: `BUILD_MAINTENANCE=false`.
-- Service Worker: `MAINTENANCE_MODE=false`.
-- Modo de operação: local-first.
-- Compatibilidade com dados, URLs, localStorage, backups, contestId e identificadores da V1.0.0 preservada.
-- A baseline V1.0.0 continua congelada em `release/v1.0.0`.
+- Release alvo: `1.2.0`.
+- Branch final: `release/v1.2.0`.
+- RC aprovado: `1.2.0-rc.1`.
+- SHA do RC com QA aprovado: `93e163880e4f06b09c5ddac221c85938c984437f`.
+- Functional freeze: `84afc81faf45af6d67ee9e3441d5f1204734bccd`.
+- Runtime final preparado: `1.2.0`.
+- `BUILD_MAINTENANCE=false`.
+- `MAINTENANCE_MODE=false`.
+- QA manual Chrome 80%, 125% e 150%: **aprovado**.
+- V1.1.0 permanece a produção pública até a promoção do SHA final para `main`.
 
-## Gate de publicação — CONCLUÍDO
+## Gate obrigatório
 
-A V1.1.0 foi publicada depois de o mesmo estado de código satisfazer:
+A V1.2.0 só pode ser promovida quando o mesmo SHA da branch final satisfizer:
 
-1. versão canônica `1.1.0` no runtime de dados, backups e `data/cloud-config.json`;
-2. `BUILD_MAINTENANCE=false` e `MAINTENANCE_MODE=false`;
-3. validadores de produção, layout, CSS, JavaScript, PWA/cache e versões sem erros;
-4. Data Safety e automação read-only aprovadas;
-5. auditoria dos 14 mapas em 84 casos aprovada;
-6. cold-offline aprovado;
-7. auditoria do Portal em 286 casos aprovada;
-8. QA manual em Chrome real aprovado em 80%, 125% e 150%;
-9. Gate V1.1 Release verde na branch final;
-10. ausência de temporários, backups de desenvolvimento ou resíduos rastreados.
+1. versão canônica `1.2.0` no runtime, backups e `data/cloud-config.json`;
+2. contrato de versões em `final-preparation`;
+3. `BUILD_MAINTENANCE=false` e `MAINTENANCE_MODE=false`;
+4. validadores de produção, layout, CSS, JavaScript, PWA/cache e versões;
+5. auditor de manutenção do CSS dos mapas;
+6. auditor de modularização do Portal;
+7. validação do functional freeze e allowlist pós-freeze;
+8. QA manual 80%, 125% e 150% aprovado;
+9. Data Safety e automação read-only;
+10. auditoria real dos 14 mapas;
+11. cold-offline;
+12. auditoria visual completa do Portal;
+13. fluxo operacional de concurso novo;
+14. ausência de resíduos/temporários rastreados.
 
-Após o deploy real do `main`, a tag/GitHub Release `v1.1.0` foi publicada apontando exatamente para o commit aprovado.
+## Promoção
 
-## QA e produção concluídos
+Somente um SHA com **Gate V1.2 Release verde** pode ser promovido para `main`.
 
-O Release Candidate passou pelo QA manual em 80%, 125% e 150% e pelo Gate V1.1 Release antes da preparação final.
+Após o deploy real aprovado:
 
-Gate V1.1 Release #4 e Publicar Plano ARQ #598 terminaram com `success`. A V1.1.0 está congelada; desenvolvimento posterior ocorre em `develop/v1.2`.
+- congelar `release/v1.2.0`;
+- criar tag `v1.2.0` no SHA publicado;
+- publicar GitHub Release `Plano ARQ V1.2.0`;
+- fechar o contrato como `released`.
+
+A tag/release **não deve ser criada antes do deploy real aprovado**.
