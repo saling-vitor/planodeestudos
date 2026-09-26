@@ -1,5 +1,5 @@
 const VERSION='19.4-source';
-const MAINTENANCE_MODE=true;
+const MAINTENANCE_MODE=false;
 const CORE=`plano-arq-core-${VERSION}`;
 const RUNTIME=`plano-arq-runtime-${VERSION}`;
 const OFFLINE='plano-arq-offline-user-v1';
