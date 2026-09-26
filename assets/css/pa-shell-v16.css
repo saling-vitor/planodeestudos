@@ -486,15 +486,37 @@ body.pa-internal-mode .pa-content>.today-section{margin-top:24px}
 
 @media(max-width:600px){
   body.pa-internal-mode .pa-content>.today-hero,
-  body.pa-internal-mode[data-pa-page="planning"] .pa-content>.hero,
-  body.pa-internal-mode[data-pa-page="edital"] .pa-content>.hero,
-  body.pa-internal-mode[data-pa-page="maps"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="files"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="settings"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="reviews"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="questions"] .pa-content>.hero,
   body.pa-internal-mode[data-pa-page="performance"] .pa-content>.hero{
     grid-template-columns:1fr
+  }
+  body.pa-internal-mode[data-pa-page="planning"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="edital"] .pa-content>.hero,
+  body.pa-internal-mode[data-pa-page="maps"] .pa-content>.hero{
+    grid-template-columns:repeat(3,minmax(0,1fr));gap:8px
+  }
+  body.pa-internal-mode[data-pa-page="planning"] .hero>.hero-main,
+  body.pa-internal-mode[data-pa-page="edital"] .hero>.hero-main,
+  body.pa-internal-mode[data-pa-page="maps"] .hero>.hero-main{
+    grid-column:1/-1
+  }
+  body.pa-internal-mode[data-pa-page="planning"] .hero>.metric,
+  body.pa-internal-mode[data-pa-page="edital"] .hero>.metric,
+  body.pa-internal-mode[data-pa-page="maps"] .hero>.metric{
+    min-height:88px;padding:11px 10px
+  }
+  body.pa-internal-mode[data-pa-page="planning"] .hero>.metric>strong,
+  body.pa-internal-mode[data-pa-page="edital"] .hero>.metric>strong,
+  body.pa-internal-mode[data-pa-page="maps"] .hero>.metric>strong{
+    font-size:clamp(19px,6vw,25px)
+  }
+  body.pa-internal-mode[data-pa-page="planning"] .hero>.metric>small,
+  body.pa-internal-mode[data-pa-page="edital"] .hero>.metric>small,
+  body.pa-internal-mode[data-pa-page="maps"] .hero>.metric>small{
+    font-size:8.5px;line-height:1.3
   }
 }
 @media(max-width:600px){
