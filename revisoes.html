@@ -7,6 +7,157 @@
 <style>.reviewed-today{color:#777c84;font:740 8.5px var(--mono);text-transform:uppercase}.sync-stamp{color:#71767d;font:740 8px var(--mono);white-space:nowrap}.chip-count{display:grid;place-items:center;min-width:18px;height:18px;padding:0 4px;border-radius:999px;background:rgba(255,255,255,.055);color:#aeb4bb;font-size:7.5px}.chip.active .chip-count{background:rgba(109,130,152,.18);color:#d9e5ed}.section-actions{display:flex;align-items:center;gap:8px}.review-row{position:relative;display:grid;grid-template-columns:100px 64px minmax(0,1fr) 128px auto;gap:9px;align-items:center;padding:10px 11px 10px 15px;border:1px solid var(--line2);border-radius:11px;background:rgba(255,255,255,.012);overflow:hidden}.review-row:hover{border-color:rgba(255,255,255,.13);background:rgba(255,255,255,.017)}.review-row.overdue{--accent:var(--red)}.review-row.difficult{--accent:#d26e7a}.review-row.review{--accent:var(--yellow)}.review-row.upcoming{--accent:var(--blue)}.due b{display:block;color:#a5abb2;font:800 8.8px var(--mono)}.due span{display:block;margin-top:3px;color:#656b73;font-size:8px;line-height:1.25}.topic-stats{text-align:right}.state-badge{display:inline-flex;min-height:23px;align-items:center;padding:0 7px;border:1px solid var(--line);border-radius:999px;font:800 8px var(--mono)}.state-badge.dif{color:#e397a0;border-color:rgba(217,103,115,.26)}.state-badge.rev{color:#d8c275;border-color:rgba(216,184,88,.25)}.state-badge.ok{color:#9fc3aa;border-color:rgba(98,169,120,.24)}.topic-stats span{display:block;margin-top:4px;color:#73777f;font-size:8.4px}
 .review-timeline{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.review-day{padding:11px;border:1px solid var(--line2);border-radius:10px;background:rgba(255,255,255,.012);transition:.15s}.review-day.today{border-color:rgba(109,130,152,.22);background:rgba(109,130,152,.035)}.review-day span{display:block;color:#767a81;font:750 8px var(--mono);text-transform:uppercase}.review-day b{display:block;margin-top:6px;font:800 19px var(--cond)}.review-day small{display:block;margin-top:3px;color:#6f747b;font-size:8.4px}.review-day em{display:block;margin-top:5px;color:#777d84;font-size:7.8px;font-style:normal}.grade-actions{display:flex;gap:8px}.grade{min-height:45px;padding:0 14px;border:1px solid var(--line);border-radius:9px;background:#11141a;color:#d0d3d8;font-size:10px;font-weight:780}.grade:disabled{opacity:.4;cursor:default}.grade.wrong{border-color:rgba(217,103,115,.38);color:#e09aa2}.grade.doubt{border-color:rgba(216,184,88,.34);color:#d8c37e}.grade.right{border-color:rgba(98,169,120,.34);color:#acd1b6}.viewer-status b{color:#aab1b8}.keyboard-hint{display:block;margin-top:3px;color:#595f67;font-size:8px}
 @media(max-width:1220px){.review-row{grid-template-columns:90px 58px minmax(0,1fr) auto}.topic-stats{display:none}.review-timeline{grid-template-columns:repeat(4,1fr)}}@media(max-width:900px){.review-row{grid-template-columns:68px minmax(0,1fr);gap:8px}.map-code{grid-column:1}.topic{grid-column:2}.due{grid-column:1}.row-actions{grid-column:1/-1}.review-timeline{grid-template-columns:repeat(2,1fr)}.grade-actions{display:grid;grid-template-columns:repeat(3,1fr)}.sync-stamp{display:none}}
+
+
+/* ===== ETAPA D4 · REVISÕES · refinamento local ===== */
+/* Ajuste fino da tela Revisões sobre a base global A+B+C. Sem mudanças funcionais. */
+body.pa-internal-mode[data-pa-page="reviews"] .hero-actions{
+  margin-top:13px;display:flex;align-items:center;gap:10px;flex-wrap:wrap
+}
+body.pa-internal-mode[data-pa-page="reviews"] .reviewed-today{
+  display:inline-flex;min-height:27px;align-items:center;padding:0 8px;
+  border:1px solid rgba(239,233,221,.07);border-radius:8px;
+  background:rgba(255,255,255,.006);color:#8f8b83;
+  letter-spacing:.07em
+}
+
+/* Seções: hierarquia editorial consistente com Hoje/Planejamento/Biblioteca. */
+body.pa-internal-mode[data-pa-page="reviews"] .section{
+  margin-top:23px
+}
+body.pa-internal-mode[data-pa-page="reviews"] .section>.section-head{
+  min-height:31px;margin-bottom:11px;align-items:center;
+  border-bottom:1px solid rgba(239,233,221,.055)
+}
+body.pa-internal-mode[data-pa-page="reviews"] .section-head h2{
+  display:flex;align-items:center;gap:8px;margin:0;padding-bottom:10px;
+  color:#ddd8cf;font:800 10.5px/1 var(--pa-mono);
+  letter-spacing:.145em;text-transform:uppercase
+}
+body.pa-internal-mode[data-pa-page="reviews"] .section-head h2::before{
+  content:"";width:18px;height:1px;flex:0 0 auto;
+  background:linear-gradient(90deg,var(--pa-champagne-2),rgba(109,130,152,.50))
+}
+body.pa-internal-mode[data-pa-page="reviews"] .section-head>span,
+body.pa-internal-mode[data-pa-page="reviews"] .section-actions{
+  padding-bottom:9px
+}
+body.pa-internal-mode[data-pa-page="reviews"] .section-actions>span{
+  color:#817e77;font-size:9.5px
+}
+
+/* Fila: cada item assume o acento sem virar card neon. */
+body.pa-internal-mode[data-pa-page="reviews"] .review-row{
+  border-color:rgba(239,233,221,.062);
+  background:
+    linear-gradient(90deg,color-mix(in srgb,var(--accent,var(--pa-blue)) 3.5%,transparent),transparent 22%),
+    rgba(255,255,255,.006);
+  box-shadow:inset 0 1px rgba(255,255,255,.008);
+  transition:border-color .15s ease,background .15s ease,box-shadow .15s ease
+}
+body.pa-internal-mode[data-pa-page="reviews"] .review-row::before{
+  content:"";position:absolute;left:0;top:7px;bottom:7px;width:2px;
+  border-radius:0 3px 3px 0;
+  background:linear-gradient(180deg,transparent,var(--accent,var(--pa-blue)) 18%,var(--accent,var(--pa-blue)) 82%,transparent);
+  opacity:.82
+}
+body.pa-internal-mode[data-pa-page="reviews"] .review-row:hover{
+  border-color:color-mix(in srgb,var(--accent,var(--pa-blue)) 24%,rgba(239,233,221,.10));
+  background:
+    linear-gradient(90deg,color-mix(in srgb,var(--accent,var(--pa-blue)) 5.5%,transparent),transparent 24%),
+    rgba(255,255,255,.010);
+  box-shadow:0 9px 22px rgba(0,0,0,.12),inset 0 1px rgba(255,255,255,.012)
+}
+body.pa-internal-mode[data-pa-page="reviews"] .due b{
+  color:#aaa59b;letter-spacing:.035em
+}
+body.pa-internal-mode[data-pa-page="reviews"] .due span{
+  color:#74736f
+}
+body.pa-internal-mode[data-pa-page="reviews"] .state-badge{
+  background:rgba(255,255,255,.006);
+  box-shadow:inset 0 1px rgba(255,255,255,.010)
+}
+body.pa-internal-mode[data-pa-page="reviews"] .topic-stats span{
+  color:#807e78
+}
+
+/* Contadores dos chips mais discretos e precisos. */
+body.pa-internal-mode[data-pa-page="reviews"] .chip-count{
+  border:1px solid rgba(239,233,221,.055);
+  background:rgba(255,255,255,.035);
+  color:#aaa79f
+}
+body.pa-internal-mode[data-pa-page="reviews"] .chip.active .chip-count{
+  border-color:rgba(109,130,152,.18);
+  background:rgba(109,130,152,.15);
+  color:#dce6ec
+}
+
+/* Semana: leitura de calendário mais clara, hoje com elevação sutil. */
+body.pa-internal-mode[data-pa-page="reviews"] .review-day{
+  border-color:rgba(239,233,221,.060);
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.013),rgba(255,255,255,.003));
+  box-shadow:inset 0 1px rgba(255,255,255,.009);
+  transition:border-color .15s ease,background .15s ease,box-shadow .15s ease
+}
+body.pa-internal-mode[data-pa-page="reviews"] .review-day:hover{
+  border-color:rgba(145,163,181,.18);
+  background:linear-gradient(145deg,rgba(255,255,255,.018),rgba(255,255,255,.005))
+}
+body.pa-internal-mode[data-pa-page="reviews"] .review-day.today{
+  border-color:rgba(109,130,152,.30);
+  background:
+    radial-gradient(170px 90px at -10% -20%,rgba(109,130,152,.08),transparent 72%),
+    linear-gradient(145deg,rgba(109,130,152,.055),rgba(255,255,255,.004));
+  box-shadow:0 12px 28px rgba(0,0,0,.16),inset 0 1px rgba(255,255,255,.015)
+}
+body.pa-internal-mode[data-pa-page="reviews"] .review-day span{
+  color:#8d887d;letter-spacing:.07em
+}
+body.pa-internal-mode[data-pa-page="reviews"] .review-day b{
+  color:#ece6dc;font:820 22px/.95 var(--pa-condensed)
+}
+body.pa-internal-mode[data-pa-page="reviews"] .review-day small{
+  color:#7f807d
+}
+body.pa-internal-mode[data-pa-page="reviews"] .review-day em{
+  color:#8a8882
+}
+
+/* Classificação no viewer: três estados claros, sem alterar atalhos ou targets. */
+body.pa-internal-mode[data-pa-page="reviews"] .grade{
+  background:linear-gradient(180deg,rgba(18,21,26,.96),rgba(11,14,18,.98));
+  box-shadow:inset 0 1px rgba(255,255,255,.018);
+  transition:border-color .15s ease,background .15s ease,box-shadow .15s ease,transform .12s ease
+}
+body.pa-internal-mode[data-pa-page="reviews"] .grade:hover:not(:disabled){
+  background:linear-gradient(180deg,rgba(22,25,30,.98),rgba(12,15,19,.99));
+  box-shadow:0 8px 20px rgba(0,0,0,.16),inset 0 1px rgba(255,255,255,.028)
+}
+body.pa-internal-mode[data-pa-page="reviews"] .grade:active:not(:disabled){
+  transform:translateY(1px)
+}
+body.pa-internal-mode[data-pa-page="reviews"] .grade.wrong{
+  background:linear-gradient(180deg,rgba(217,103,115,.045),rgba(12,14,18,.98))
+}
+body.pa-internal-mode[data-pa-page="reviews"] .grade.doubt{
+  background:linear-gradient(180deg,rgba(216,184,88,.040),rgba(12,14,18,.98))
+}
+body.pa-internal-mode[data-pa-page="reviews"] .grade.right{
+  background:linear-gradient(180deg,rgba(98,169,120,.040),rgba(12,14,18,.98))
+}
+body.pa-internal-mode[data-pa-page="reviews"] .viewer-status{
+  color:#908f8b
+}
+body.pa-internal-mode[data-pa-page="reviews"] .keyboard-hint{
+  color:#686b6d;letter-spacing:.02em
+}
+
+@media(pointer:coarse){
+  body.pa-internal-mode[data-pa-page="reviews"] .grade:active:not(:disabled){transform:none}
+}
 </style>
 <script src="data/contests.js"></script>
 <script src="assets/js/pa-contest-context-v01.js"></script><script src="data/materials.js"></script><script src="data/review-catalog.js"></script>
