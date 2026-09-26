@@ -269,17 +269,10 @@
     }
 
     // Estados são controlados pela engine original. Esta camada apenas lê e resume.
+    document.addEventListener('mindmap:study-state-changed',()=>{updateDashboard();syncReviewMode(true)});
     document.addEventListener('click',e=>{
-      if(e.target.closest('.state-btn')) setTimeout(()=>{updateDashboard();syncReviewMode(true)},0);
       if(e.target.closest('#reviewBtn')) setTimeout(()=>syncReviewMode(true),0);
     },false);
-
-    const topicObserver=new MutationObserver(muts=>{
-      if(muts.some(m=>m.type==='attributes'&&m.attributeName==='data-study-state')){
-        updateDashboard();syncReviewMode(true);
-      }
-    });
-    topics().forEach(t=>topicObserver.observe(t,{attributes:true,attributeFilter:['data-study-state']}));
 
     const bodyObserver=new MutationObserver(muts=>{
       if(muts.some(m=>m.type==='attributes'&&m.attributeName==='class')) syncReviewMode(true);
@@ -315,15 +308,8 @@
       });
     }
 
+    /* A estrutura de ramos/tópicos é estática após o carregamento dos materiais. */
     applyAdaptiveDensity();
-    if(main && 'MutationObserver' in window){
-      let timer=0;
-      new MutationObserver(muts=>{
-        if(!muts.some(m=>m.type==='childList')) return;
-        clearTimeout(timer);
-        timer=setTimeout(applyAdaptiveDensity,40);
-      }).observe(main,{childList:true,subtree:true});
-    }
   });
 })();
 
@@ -662,19 +648,8 @@
   addEventListener('resize',schedule,{passive:true});
   addEventListener('orientationchange',schedule,{passive:true});
 
-  /* Atualiza também quando um material real substituir placeholders. */
-  const main=document.querySelector('main');
-  if(main){
-    const mo=new MutationObserver(mutations=>{
-      if(mutations.some(m=>
-        m.type==='childList' ||
-        m.type==='characterData' ||
-        (m.type==='attributes' && (m.attributeName==='class' || m.attributeName==='style'))
-      )) schedule();
-    });
-    mo.observe(main,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['class']});
-  }
-
+  /* ResizeObserver + fonts.ready cobrem as únicas mudanças que afetam
+     a largura real dos títulos; classes internas não exigem refit. */
   if('ResizeObserver' in window){
     const ro=new ResizeObserver(schedule);
     titles().forEach(t=>ro.observe(t.parentElement || t));
@@ -882,7 +857,7 @@
   /* Botão Mais e mudanças externas de estado. */
   moreBtn.addEventListener('click',()=>requestAnimationFrame(sync));
 
-  ['highBtn','hardBtn','expandBtn','collapseBtn','clearBtn'].forEach(id=>{
+  ['highBtn','hardBtn','expandBtn','collapseBtn','clearBtn','reviewBtn','eveBtn'].forEach(id=>{
     target(id)?.addEventListener('click',()=>requestAnimationFrame(sync));
   });
 
@@ -890,24 +865,7 @@
   document.addEventListener('toggle',e=>{
     if(e.target?.classList?.contains('topic-card')) requestAnimationFrame(sync);
   },true);
-
-  /* Mantém estados corretos após filtros/limpezas/alterações de classes. */
-  const mo=new MutationObserver(mutations=>{
-    if(mutations.some(m=>
-      m.type==='attributes' &&
-      (
-        m.attributeName==='aria-pressed' ||
-        m.attributeName==='class' ||
-        m.attributeName==='open'
-      )
-    )){
-      requestAnimationFrame(sync);
-    }
-  });
-
-  [body,target('highBtn'),target('hardBtn')].filter(Boolean).forEach(el=>{
-    mo.observe(el,{attributes:true,attributeFilter:['class','aria-pressed']});
-  });
+  document.addEventListener('mindmap:study-state-changed',()=>requestAnimationFrame(sync));
 
   /* Fechar ao sair do modo touch. */
   mq.addEventListener?.('change',()=>{
@@ -1073,19 +1031,7 @@
   window.visualViewport?.addEventListener('resize',scheduleViewport,{passive:true});
   syncViewport();
 
-  // Reclassifica páginas geradas dinamicamente sem observar o documento inteiro em scroll.
-  const main=document.querySelector('main');
-  if(main && 'MutationObserver' in window){
-    let timer=0;
-    new MutationObserver(()=>{
-      clearTimeout(timer);
-      timer=setTimeout(()=>{
-        const tc=document.querySelectorAll('.topic-card').length;
-        const sc=document.querySelectorAll('main > .ramo, main > .global').length;
-        root.classList.toggle('touch-long-page',tc>24||sc>10);
-      },180);
-    }).observe(main,{childList:true,subtree:true});
-  }
+  // A classificação longa é estática: tópicos/ramos não são adicionados após o boot.
 })();
 
 /* bloco compartilhado 16 */
@@ -1158,8 +1104,8 @@
   overlay.addEventListener('pointerdown',e=>{if(e.target===overlay)closeFocus()});
   dialog.addEventListener('pointerdown',e=>e.stopPropagation());
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay.classList.contains('open')){e.preventDefault();closeFocus()}});
-  const obs=new MutationObserver(()=>enhanceAll()); obs.observe(document.documentElement,{subtree:true,childList:true});
-  enhanceAll(); requestAnimationFrame(enhanceAll); setTimeout(enhanceAll,80);
+  /* Os painéis de nota são montados pelo preconfig antes deste runtime. */
+  enhanceAll();
 })();
 
 /* bloco compartilhado 19 */
@@ -1758,10 +1704,7 @@ function boot(){
     if(parent&&parent!==window)parent.postMessage(payload,bridgeTargetOrigin());
   });
 
-  const mo=new MutationObserver(ms=>{
-    if(ms.some(m=>m.type==='attributes'&&m.attributeName==='data-study-state'))emit('mutation');
-  });
-  topics().forEach(t=>mo.observe(t,{attributes:true,attributeFilter:['data-study-state']}));
+  document.addEventListener('mindmap:study-state-changed',()=>emit('mutation'));
   addEventListener('pagehide',()=>emit('pagehide'));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
