@@ -36,7 +36,7 @@ jobs:
 
       - name: Validar contratos finais
         run: |
-          python3 scripts/validate_production.py
+          python3 scripts/validate_production.py --strict
           python3 scripts/validate_layout_contract.py
           python3 scripts/validate_css.py
           python3 scripts/audit_study_map_css.py
