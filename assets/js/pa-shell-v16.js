@@ -1,6 +1,7 @@
 (()=>{
 'use strict';
 const VERSION='canonical-2026-09',NAV=window.PLANO_ARQ_NAVIGATION||{groups:[],footer:[]};
+if(!Array.isArray(NAV.groups)||!NAV.groups.length||!Array.isArray(NAV.footer)||!NAV.footer.length)console.error('[Plano ARQ] navigation.js não carregado ou navegação vazia.');
 const pageMap={'planejamento.html':'planning','edital.html':'edital','biblioteca.html':'maps','revisoes.html':'reviews','questoes.html':'questions','simulados.html':'simulations','erros.html':'errors','desempenho.html':'performance','diagnostico.html':'diagnostic','historico.html':'history','arquivos.html':'files','configuracoes.html':'settings','creditos.html':'credits'};
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const safeJSON=(v,f)=>{try{return JSON.parse(v)??f}catch(_){return f}};
