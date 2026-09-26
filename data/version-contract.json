@@ -10,7 +10,9 @@
     "offlinePack": "19.4-production",
     "studyPreconfig": "V134.0",
     "studyRuntimeCanonical": "MINDMAP_V139",
-    "studyBridge": "1.3"
+    "studyBridgeBundled": "1.1",
+    "studyBridgeRuntime": "1.3",
+    "studyBlueprint": "1.3"
   },
   "compatibilityAliases": [
     {
@@ -28,6 +30,7 @@
     "productBaseline é a versão usada nos backups enquanto a V1.1 ainda não foi promovida",
     "pwa, serviceWorker e offlinePack devem permanecer coordenados",
     "aliases de mapas só podem ser removidos com migração explícita e teste de progresso",
-    "bridge 1.3 é compatibilidade de integração entre mapa e portal"
+    "os 14 mapas empacotados mantêm bridge 1.1 por compatibilidade; runtime/blueprint atual é 1.3",
+    "novos mapas auditados pelo fluxo H3 usam o contrato de bridge atual"
   ]
 }
