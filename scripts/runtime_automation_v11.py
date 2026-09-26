@@ -122,6 +122,21 @@ try:
     report["diagnostic"]=diagnostic
     if not diagnostic.get("ok"): errors.append("Diagnóstico/peso/contexto de prova não foram integrados corretamente ao Foco 2.0")
 
+    # Immediate agenda keeps precedence over derived diagnostic/review signals.
+    temporal=driver.execute_script("""
+      const cid=arguments[0],A=window.PlanoARQActions,key='planoarq:generated-plan::'+cid;
+      const plan=JSON.parse(localStorage.getItem(key)||'{}'),day=(plan.days||[]).find(d=>d.date===arguments[1]);
+      if(!day?.sessions?.length)return {ok:false,reason:'sem sessão de hoje'};
+      day.sessions[0].start='00:00';day.sessions[0].end='00:50';
+      localStorage.setItem(key,JSON.stringify(plan));
+      localStorage.setItem('planoarq:session-log::'+cid,JSON.stringify({schema:2,sessions:{},extras:[],dayClosures:{}}));
+      A.saveSettings({enabled:true,maxActions:6,rules:{planning:true,reviews:true,errors:true,simulations:true,questions:true}});
+      const rows=A.build(cid),planned=rows.find(x=>x.id==='planning-today'),diag=rows.find(x=>x.id==='diagnostic-priority');
+      return {ok:!!planned&&!!diag&&rows[0]?.id==='planning-today'&&planned.temporalTier===2&&diag.temporalTier===0,order:rows.map(x=>({id:x.id,score:x.score,temporalTier:x.temporalTier}))};
+    """,cid,today)
+    report["temporalPrecedence"]=temporal
+    if not temporal.get("ok"): errors.append("Foco 2.0 deixou sinal derivado ultrapassar agenda imediata")
+
     # Empty state with no sources enabled is explicit and harmless.
     empty=driver.execute_script("""
       const cid=arguments[0],A=window.PlanoARQActions;
