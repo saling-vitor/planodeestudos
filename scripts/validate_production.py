@@ -268,7 +268,7 @@ def main():
         errors.append("release: docs/RELEASE.md ausente")
     else:
         release_doc_text=release_doc.read_text("utf-8",errors="ignore")
-        for marker in ("1.0.0-rc","BUILD_MAINTENANCE=false","MAINTENANCE_MODE=false","v1.0.0"):
+        for marker in ("1.0.0","BUILD_MAINTENANCE=false","MAINTENANCE_MODE=false","v1.0.0"):
             if marker not in release_doc_text:
                 errors.append(f"release: checklist final incompleto em docs/RELEASE.md: {marker}")
 
@@ -292,6 +292,16 @@ def main():
             errors.append("release: identificador canônico ausente em pa-data-v03.js")
         else:
             release=rm.group(1)
+            if release not in ("1.0.0-rc","1.0.0"):
+                errors.append(f"release: identificador inesperado: {release!r}")
+            if release=="1.0.0":
+                dm_final=re.search(r"const BUILD_MAINTENANCE=(true|false);",data_runtime)
+                sw_final=(ROOT/"service-worker.js").read_text("utf-8",errors="ignore")
+                sm_final=re.search(r"const MAINTENANCE_MODE=(true|false);",sw_final)
+                if not dm_final or dm_final.group(1)!="false":
+                    errors.append("release: V1.0.0 exige BUILD_MAINTENANCE=false")
+                if not sm_final or sm_final.group(1)!="false":
+                    errors.append("release: V1.0.0 exige MAINTENANCE_MODE=false")
             if cloud_release!=release:
                 errors.append(f"release: cloud-config ({cloud_release!r}) diverge do runtime ({release!r})")
             if f"app:{{version:RELEASE" not in data_runtime:
@@ -318,7 +328,7 @@ def main():
                 f"produção: manutenção divergente entre runtime ({dm.group(1)}) e Service Worker ({sm.group(1)})"
             )
         settings_text=(ROOT/"configuracoes.html").read_text("utf-8",errors="ignore")
-        for marker in ("isBuildMaintenance","maintenanceToggle').disabled=buildMaintenance","Bloqueado até V1.0.0"):
+        for marker in ("isBuildMaintenance","maintenanceToggle').disabled=buildMaintenance","Bloqueado pelo build"):
             if marker not in settings_text:
                 errors.append(f"produção: Configurações não protege a manutenção de build: {marker}")
         readme=(ROOT/"README.md").read_text("utf-8",errors="ignore")
