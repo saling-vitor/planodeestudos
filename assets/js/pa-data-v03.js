@@ -1,8 +1,8 @@
 (()=>{
 'use strict';
-const RELEASE='1.0.0-rc';
+const RELEASE='1.0.0';
 const API={version:'3.5',release:RELEASE};
-const BUILD_MAINTENANCE=true;
+const BUILD_MAINTENANCE=false;
 const RUNTIME_KEY='planoarq:runtime-flags:v1';
 const CONTESTS_KEY='planoarq:contests:v1',EXAM_SCHEMA_PREFIX='planoarq:exam-schema::',CONTEST_FILES_PREFIX='planoarq:contest-files::',CONTEST_MATERIALS_PREFIX='planoarq:contest-materials::',IMPORT_DRAFT_PREFIX='planoarq:contest-import-draft::';
 const safeJSON=(v,f)=>{try{return JSON.parse(v)??f}catch(_){return f}};
