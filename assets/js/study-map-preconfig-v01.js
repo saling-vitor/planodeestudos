@@ -41,6 +41,36 @@
 const APP=document.body, MAP=document.getElementById('mindmap')||document.querySelector('.mindmap'), SEARCH=document.getElementById('search');if(MAP&&!MAP.id)MAP.id='mindmap';
 const COLORS=["#B23A48","#486387","#BA87AE","#CFB291","#59614B","#5B3765","#D77A7D","#1E2840","#9E9B88","#6A040F","#83A2CD","#5A3122"];
 const filters=new Set(); let highOnly=false, observerLock=false;
+
+/* V1.1 · barramento único para mudanças de estado OK/REV/DIF.
+   Um MutationObserver central substitui observers paralelos em dashboard,
+   progresso e bridge. */
+(()=>{
+  const main=document.querySelector('main');
+  if(!main||window.PLANO_ARQ_STUDY_STATE_BUS)return;
+  const stats={batches:0,topics:0};
+  let frame=0;
+  const pending=new Set();
+  const flush=()=>{
+    frame=0;
+    if(!pending.size)return;
+    const topicIds=[...pending];
+    pending.clear();
+    stats.batches++;
+    stats.topics+=topicIds.length;
+    document.dispatchEvent(new CustomEvent('mindmap:study-state-changed',{detail:{topicIds}}));
+  };
+  const observer=new MutationObserver(mutations=>{
+    for(const m of mutations){
+      if(m.type!=='attributes'||m.attributeName!=='data-study-state')continue;
+      const topic=m.target?.closest?.('.topic-card')||m.target;
+      if(topic?.id)pending.add(topic.id);
+    }
+    if(pending.size&&!frame)frame=requestAnimationFrame(flush);
+  });
+  observer.observe(main,{subtree:true,attributes:true,attributeFilter:['data-study-state']});
+  window.PLANO_ARQ_STUDY_STATE_BUS={version:'1.1',event:'mindmap:study-state-changed',observer,stats};
+})();
 const roman=n=>{const m=[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];let s='';for(const[v,r]of m){while(n>=v){s+=r;n-=v}}return s||'I'};
 const branches=()=>MAP?[...MAP.querySelectorAll(':scope > .branch-card')]:[]; const ramos=()=>[...document.querySelectorAll('main > .ramo')];
 const accent=i=>COLORS[i%COLORS.length];
@@ -524,8 +554,7 @@ normalize();applyFilters();window.MindMapApp={normalize,setView,focus:i=>{const 
   // Fecha o menu quando muda de modo e mantém busca independente.
   document.querySelectorAll('[data-view],#reviewBtn,#eveBtn').forEach(b=>b?.addEventListener('click',()=>setMore(false)));
   ['highBtn','hardBtn','expandBtn','collapseBtn','clearBtn','reviewBtn','eveBtn'].forEach(id=>document.getElementById(id)?.addEventListener('click',()=>setTimeout(syncPanel,0)));
-  const progressNode=document.getElementById('studyProgressText');
-  if(progressNode){new MutationObserver(syncPanel).observe(progressNode,{childList:true,characterData:true,subtree:true});}
+  document.addEventListener('mindmap:study-state-changed',()=>requestAnimationFrame(syncPanel));
   update();syncPanel();
 })();
 
@@ -706,11 +735,9 @@ normalize();applyFilters();window.MindMapApp={normalize,setView,focus:i=>{const 
     let fastTimer=0,prev=scrollY,prevT=performance.now();addEventListener('scroll',()=>{const now=performance.now(),v=Math.abs(scrollY-prev)/Math.max(8,now-prevT);prev=scrollY;prevT=now;if(v>.9){body.classList.add('is-fast-scrolling');clearTimeout(fastTimer);fastTimer=setTimeout(()=>body.classList.remove('is-fast-scrolling'),140)}},{passive:true});
   }
 
-  /* Recalcula após marcações OK/REV/DIF e mudanças de conteúdo. */
+  /* Recalcula uma vez por lote de mudanças OK/REV/DIF. */
   let raf=0;const schedule=()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;updateProgress();adaptiveOrder()})};
-  const mo=new MutationObserver(muts=>{if(muts.some(m=>m.type==='attributes'&&m.attributeName==='data-study-state'))schedule()});
-  mo.observe(main,{subtree:true,attributes:true,attributeFilter:['data-study-state']});
-  main.addEventListener('click',e=>{if(e.target.closest('.state-btn'))setTimeout(schedule,0)});
+  document.addEventListener('mindmap:study-state-changed',schedule);
 
   buildIndex();ensureProgress();initNotes();initMemoryQuiz();adaptiveOrder();updateProgress();
 })();
