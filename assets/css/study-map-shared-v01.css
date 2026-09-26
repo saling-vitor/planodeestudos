@@ -550,12 +550,12 @@ html.touch-performance .note-personal-btn{
   body.mindmap-app.touch-more-open > .touch-more-panel.touch-more-panel-v2{display:block !important;}
   .branch-index-toggle,.branch-index{display:flex !important;}
   .branch-index{flex-direction:column !important;}
-  .mindmap,body.map-mode .mindmap{--cols:3 !important;}
+  .mindmap{--cols:3 !important;}
 }
 
 /* Tablets portrait / menores: duas colunas; celular: uma. */
 @media (pointer:coarse) and (min-width:761px) and (max-width:1180px){
-  .mindmap,body.map-mode .mindmap{--cols:2 !important;}
+  .mindmap{--cols:2 !important;}
 }
 @media (pointer:coarse) and (max-width:760px){
   html{scroll-padding-top:126px !important;}.mindmap{--cols:1 !important;}
@@ -586,9 +586,7 @@ html.touch-performance .note-personal-btn{
 /* =====================================================================
    iPad / WKWebView compatibility v2 — additive, visual design preserved
    ===================================================================== */
-@supports not (overflow:clip){
-  html.touch-performance,html.touch-performance body{overflow-x:hidden !important;}
-}
+
 
 /* Mixed-input iPad (trackpad/mouse + touch): keep the intended tablet layout
    even when the WebView reports the primary pointer as fine. */
@@ -617,7 +615,7 @@ html.touch-performance .note-personal-btn{
   html.ios-webkit-touch body.mindmap-app .toolbar .tool-group.actions #expandBtn,
   html.ios-webkit-touch body.mindmap-app .toolbar .tool-group.actions #collapseBtn,
   html.ios-webkit-touch body.mindmap-app .toolbar .tool-group.actions #clearBtn{display:none !important;}
-  html.ios-webkit-touch .mindmap,html.ios-webkit-touch body.map-mode .mindmap{--cols:3 !important;}
+  html.ios-webkit-touch .mindmap{--cols:3 !important;}
 }
 
 @media (min-width:761px) and (max-width:1180px){html.ios-webkit-touch .mindmap{--cols:2 !important;}
