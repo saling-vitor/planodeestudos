@@ -19,6 +19,7 @@ A promoção da V1.1.0 deverá atualizar o contrato de produto de forma coordena
 | PWA | 19.4 | Runtime de instalação/cache |
 | Service Worker | 19.4-source | Fonte do worker antes do versionamento por SHA no deploy |
 | Offline Pack | 19.4-production | Contrato do manifesto offline |
+| Automação | 1.1 | Motor read-only de sugestões e prioridades do Hoje |
 
 PWA, Service Worker e Offline Pack formam um grupo coordenado. Mudança incompatível em cache/offline deve atualizar esse grupo de forma consciente.
 
