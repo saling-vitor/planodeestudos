@@ -181,16 +181,11 @@ body.pa-internal-mode :is(button,a,input,select,textarea):focus-visible{
 .pa-top-k{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pa-top-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
 .pa-top-actions .ghost-btn{white-space:nowrap}
-.pa-menu-btn{
-  display:none;min-width:42px;width:42px;height:42px;padding:0;
-  border:1px solid var(--pa-line);border-radius:11px;background:rgba(255,255,255,.025);color:#c5c7cc
-}
 .pa-content{
   box-sizing:border-box;width:min(100%,calc(var(--pa-shell-content-max) + (var(--pa-shell-content-x) * 2)));
   min-width:0;margin:0 auto;
   padding:var(--pa-shell-content-top) var(--pa-shell-content-x) var(--pa-shell-content-bottom)
 }
-.pa-backdrop{display:none}
 @media(min-width:1200px) and (pointer:fine){
   .pa-topbar{
     padding-left:max(var(--pa-shell-content-x),calc((100% - var(--pa-shell-content-max))/2 + var(--pa-shell-content-x)));
@@ -366,14 +361,11 @@ body.pa-internal-mode .pa-content>.today-section{margin-top:24px}
   .pa-shell{display:block;grid-template-columns:none}
   .pa-main{width:100%}
   .pa-sidebar{display:none!important}
-  .pa-backdrop,.pa-backdrop.show{display:none!important}
-  .pa-menu-btn{display:none!important}
   .pa-topbar{height:70px;min-height:70px;max-height:70px;padding:0 14px}
   .pa-top-title{font-size:18px}
   .pa-content{width:100%;padding:18px 14px calc(94px + env(safe-area-inset-bottom))}
   .pa-nav-scroll{padding-bottom:15px}
   .pa-icon-credits{padding-bottom:max(2px,env(safe-area-inset-bottom))}
-  .mobile-bottom{display:none!important}
 
   .pa-mobile-nav{
     position:fixed;left:0;right:0;bottom:0;z-index:220;
