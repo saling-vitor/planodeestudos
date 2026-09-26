@@ -42,6 +42,199 @@
 .q-row{grid-template-columns:58px minmax(0,1fr);gap:8px}.map-code{grid-column:1}.topic{grid-column:2}.q-stat{grid-column:1;text-align:left}.row-actions{grid-column:1/-1}.stats-row{grid-template-columns:minmax(0,1fr) 60px 60px}.stats-row>:nth-child(4){display:none}
 .rec-grid{grid-template-columns:1fr}.rec-actions{justify-content:flex-start}.device-data{align-items:flex-start}.device-actions{width:100%}.device-actions button{flex:1}
 }
+
+
+/* ===== ETAPA D5 · QUESTÕES · refinamento local ===== */
+/* Ajuste fino da tela Questões sobre a base global A+B+C. Sem mudanças funcionais. */
+body.pa-internal-mode[data-pa-page="questions"] .hero-actions{
+  margin-top:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap
+}
+body.pa-internal-mode[data-pa-page="questions"] .hero-tech{
+  display:inline-flex;align-items:center;min-height:25px;margin-top:11px;padding:0 8px;
+  border:1px solid rgba(239,233,221,.065);border-radius:8px;
+  background:rgba(255,255,255,.005);color:#85827b;
+  letter-spacing:.07em
+}
+
+/* Dados locais: informação operacional integrada ao sistema, sem virar alerta. */
+body.pa-internal-mode[data-pa-page="questions"] .device-data{
+  border-color:rgba(239,233,221,.075);
+  background:
+    radial-gradient(360px 130px at -6% -15%,rgba(216,197,158,.026),transparent 72%),
+    linear-gradient(145deg,rgba(13,15,18,.86),rgba(8,10,13,.94));
+  box-shadow:0 13px 30px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.012)
+}
+body.pa-internal-mode[data-pa-page="questions"] .device-copy strong{
+  color:#d9d5cd
+}
+body.pa-internal-mode[data-pa-page="questions"] .device-copy>span{
+  color:#898985
+}
+body.pa-internal-mode[data-pa-page="questions"] .device-badge{
+  border-color:rgba(216,184,88,.20);
+  background:rgba(216,184,88,.030);
+  color:#c5ae69
+}
+body.pa-internal-mode[data-pa-page="questions"] .device-badge.has-data{
+  border-color:rgba(98,169,120,.22);
+  background:rgba(98,169,120,.030);
+  color:#a4c9ae
+}
+
+/* Recomendação principal: mesma família do Foco Automático, com acento frio controlado. */
+body.pa-internal-mode[data-pa-page="questions"] .recommendation{
+  position:relative;overflow:hidden;
+  border-color:rgba(109,130,152,.28);
+  background:
+    radial-gradient(420px 180px at -6% -12%,rgba(109,130,152,.085),transparent 72%),
+    radial-gradient(300px 150px at 105% 0,rgba(216,197,158,.024),transparent 74%),
+    linear-gradient(112deg,rgba(12,17,22,.96),rgba(8,10,13,.98) 52%,rgba(7,8,10,.99));
+  box-shadow:0 17px 38px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.020)
+}
+body.pa-internal-mode[data-pa-page="questions"] .recommendation::before{
+  content:"";position:absolute;left:16px;top:0;width:82px;height:1px;
+  background:linear-gradient(90deg,rgba(109,130,152,.82),rgba(216,197,158,.28),transparent)
+}
+body.pa-internal-mode[data-pa-page="questions"] .rec-k{
+  color:#9badb9;letter-spacing:.145em
+}
+body.pa-internal-mode[data-pa-page="questions"] .recommendation h3{
+  color:#ece7df;font:820 16px/1.18 var(--pa-condensed);
+  letter-spacing:.005em
+}
+body.pa-internal-mode[data-pa-page="questions"] .recommendation p{
+  color:#8c8e91
+}
+body.pa-internal-mode[data-pa-page="questions"] .rec-chip{
+  border-color:rgba(239,233,221,.080);
+  background:rgba(255,255,255,.006);
+  color:#979792
+}
+
+/* Seções: títulos editoriais e separadores consistentes com as telas anteriores. */
+body.pa-internal-mode[data-pa-page="questions"] .section{
+  margin-top:23px
+}
+body.pa-internal-mode[data-pa-page="questions"] .section-head{
+  min-height:31px;margin-bottom:11px;align-items:center;
+  border-bottom:1px solid rgba(239,233,221,.055)
+}
+body.pa-internal-mode[data-pa-page="questions"] .section-head h2{
+  display:flex;align-items:center;gap:8px;margin:0;padding-bottom:10px;
+  color:#ddd8cf;font:800 10.5px/1 var(--pa-mono);
+  letter-spacing:.145em;text-transform:uppercase
+}
+body.pa-internal-mode[data-pa-page="questions"] .section-head h2::before{
+  content:"";width:18px;height:1px;flex:0 0 auto;
+  background:linear-gradient(90deg,var(--pa-champagne-2),rgba(109,130,152,.50))
+}
+body.pa-internal-mode[data-pa-page="questions"] .section-head>span{
+  padding-bottom:10px;color:#817e77;font-size:9.4px
+}
+
+/* Fila de treino: acento sem excesso, leitura mais clara dos indicadores. */
+body.pa-internal-mode[data-pa-page="questions"] .q-row{
+  border-color:rgba(239,233,221,.060);
+  background:
+    linear-gradient(90deg,color-mix(in srgb,var(--accent,var(--pa-blue)) 3.5%,transparent),transparent 22%),
+    rgba(255,255,255,.006);
+  box-shadow:inset 0 1px rgba(255,255,255,.008);
+  transition:border-color .15s ease,background .15s ease,box-shadow .15s ease
+}
+body.pa-internal-mode[data-pa-page="questions"] .q-row::before{
+  content:"";position:absolute;left:0;top:7px;bottom:7px;width:2px;
+  border-radius:0 3px 3px 0;
+  background:linear-gradient(180deg,transparent,var(--accent,var(--pa-blue)) 18%,var(--accent,var(--pa-blue)) 82%,transparent);
+  opacity:.82
+}
+body.pa-internal-mode[data-pa-page="questions"] .q-row:hover{
+  border-color:color-mix(in srgb,var(--accent,var(--pa-blue)) 23%,rgba(239,233,221,.10));
+  background:
+    linear-gradient(90deg,color-mix(in srgb,var(--accent,var(--pa-blue)) 5.5%,transparent),transparent 24%),
+    rgba(255,255,255,.010);
+  box-shadow:0 9px 22px rgba(0,0,0,.12),inset 0 1px rgba(255,255,255,.012)
+}
+body.pa-internal-mode[data-pa-page="questions"] .q-stat b{
+  color:#ddd8cf;font:820 13px/.98 var(--pa-condensed)
+}
+body.pa-internal-mode[data-pa-page="questions"] .q-stat span{
+  color:#807e78
+}
+body.pa-internal-mode[data-pa-page="questions"] .status{
+  color:#9a978f;letter-spacing:.055em
+}
+body.pa-internal-mode[data-pa-page="questions"] .more-btn{
+  border-color:rgba(239,233,221,.095);
+  background:linear-gradient(180deg,rgba(18,21,26,.94),rgba(11,14,18,.97));
+  color:#bdbab4;
+  box-shadow:inset 0 1px rgba(255,255,255,.015)
+}
+
+/* Análises: blocos mais técnicos, mantendo a densidade atual. */
+body.pa-internal-mode[data-pa-page="questions"] .stats-row{
+  border-color:rgba(239,233,221,.060);
+  background:linear-gradient(145deg,rgba(255,255,255,.013),rgba(255,255,255,.003));
+  box-shadow:inset 0 1px rgba(255,255,255,.009)
+}
+body.pa-internal-mode[data-pa-page="questions"] .stats-row.head{
+  border-color:rgba(216,197,158,.080);
+  background:rgba(216,197,158,.012);
+  color:#918b80;letter-spacing:.07em
+}
+body.pa-internal-mode[data-pa-page="questions"] .stats-row b{
+  color:#d7d4ce
+}
+body.pa-internal-mode[data-pa-page="questions"] .bar{
+  background:linear-gradient(180deg,#0c0f12,#11151a);
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.50),inset 0 0 0 1px rgba(255,255,255,.022)
+}
+body.pa-internal-mode[data-pa-page="questions"] .bar i{
+  background:linear-gradient(90deg,#657c91,#8299ab);
+  box-shadow:0 0 10px rgba(109,130,152,.10)
+}
+body.pa-internal-mode[data-pa-page="questions"] .bar-row span{
+  color:#98968f
+}
+body.pa-internal-mode[data-pa-page="questions"] .bar-row b{
+  color:#d6d1c7;font-family:var(--pa-condensed);font-size:12px
+}
+body.pa-internal-mode[data-pa-page="questions"] .level{
+  border-color:rgba(239,233,221,.065);
+  background:
+    radial-gradient(190px 90px at -10% -20%,rgba(216,197,158,.020),transparent 72%),
+    linear-gradient(145deg,rgba(255,255,255,.013),rgba(255,255,255,.003));
+  box-shadow:inset 0 1px rgba(255,255,255,.010)
+}
+body.pa-internal-mode[data-pa-page="questions"] .level span{
+  color:#8e887d;letter-spacing:.065em
+}
+body.pa-internal-mode[data-pa-page="questions"] .level b{
+  color:#eee8dd;font:820 25px/.95 var(--pa-condensed)
+}
+body.pa-internal-mode[data-pa-page="questions"] .level small{
+  color:#7f807d
+}
+body.pa-internal-mode[data-pa-page="questions"] .source-bars{
+  border-top-color:rgba(239,233,221,.055)
+}
+body.pa-internal-mode[data-pa-page="questions"] .source-bars h3{
+  color:#cfc9be;letter-spacing:.13em
+}
+
+/* Empty state local continua informativo, mas integrado ao restante da tela. */
+body.pa-internal-mode[data-pa-page="questions"] .local-empty{
+  border-color:rgba(216,184,88,.18);
+  background:
+    radial-gradient(300px 120px at 0 0,rgba(216,184,88,.045),transparent 72%),
+    rgba(216,184,88,.018);
+  box-shadow:inset 0 1px rgba(255,255,255,.010)
+}
+body.pa-internal-mode[data-pa-page="questions"] .local-empty strong{
+  color:#d8c89a
+}
+body.pa-internal-mode[data-pa-page="questions"] .local-empty p{
+  color:#938d78
+}
 </style>
 <script src="data/contests.js"></script>
 <script src="assets/js/pa-contest-context-v01.js"></script><script src="data/materials.js"></script><script src="data/question-catalog.js"></script>
