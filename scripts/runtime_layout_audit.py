@@ -80,8 +80,6 @@ def measure(page):
       const page=arguments[0],vw=document.documentElement.clientWidth,vh=document.documentElement.clientHeight;
       const hiddenByClosedLayer=el=>{
         if(el.closest('[hidden]'))return true;
-        const sidebar=el.closest('.pa-sidebar');
-        if(vw<=900&&sidebar&&!sidebar.classList.contains('open'))return true;
         const more=el.closest('.pa-mobile-more');
         if(more&&!more.classList.contains('open'))return true;
         const viewer=el.closest('.viewer');
@@ -155,6 +153,7 @@ def measure(page):
       const legacyMobile=[...document.querySelectorAll('.mobile-bottom')];
       const mobileTargets=mobileNavs.flatMap(nav=>[...nav.querySelectorAll('a,button')]).filter(visible).map(el=>rect(el));
       const navigation={
+        coarse:matchMedia('(pointer: coarse)').matches,
         sidebarCount:sidebars.length,
         menuButtonCount:menuButtons.length,
         mobileNavCount:mobileNavs.length,
@@ -203,23 +202,24 @@ def append_errors(data,label,errors):
         ):
             if int(nav.get(key,-1))!=expected:
                 errors.append(f"{label}: contrato de navegação divergente em {key}={nav.get(key)!r}; esperado {expected}")
-        if int(data.get("vw") or 0)<=900:
-            if not nav.get("menuVisible"):
-                errors.append(f"{label}: botão do drawer não está visível em tablet/mobile")
+        tablet_mode=int(data.get("vw") or 0)<=1199 or nav.get("coarse") is True
+        if tablet_mode:
+            if nav.get("menuVisible"):
+                errors.append(f"{label}: hamburger/drawer apareceu junto da navegação tablet/mobile")
             if not nav.get("mobileNavVisible"):
-                errors.append(f"{label}: navegação mobile canônica não está visível")
+                errors.append(f"{label}: navegação tablet/mobile canônica não está visível")
             if nav.get("sidebarVisible") or nav.get("sidebarOpen"):
-                errors.append(f"{label}: sidebar iniciou aberta junto da navegação mobile")
+                errors.append(f"{label}: sidebar apareceu junto da navegação tablet/mobile")
             tiny=[r for r in nav.get("mobileTargets") or [] if r.get("height",0)<44 or r.get("width",0)<44]
             if tiny:
-                errors.append(f"{label}: alvo da navegação mobile menor que 44px")
+                errors.append(f"{label}: alvo da navegação tablet/mobile menor que 44px")
         else:
             if not nav.get("sidebarVisible"):
                 errors.append(f"{label}: sidebar desktop não está visível")
             if nav.get("menuVisible"):
                 errors.append(f"{label}: botão do drawer apareceu no desktop")
             if nav.get("mobileNavVisible"):
-                errors.append(f"{label}: navegação mobile apareceu no desktop")
+                errors.append(f"{label}: navegação tablet/mobile apareceu no desktop")
 
 def rect_inside_viewport(rect,vw,vh,tolerance=2):
     if not rect:return False
@@ -250,25 +250,28 @@ try:
             append_errors(data,f"{page}@{width}x{height}",errors)
             driver.save_screenshot(str(out_dir/f"{page}-{width}x{height}.png"))
 
-    # Sidebar aberta em tablet/mobile, incluindo rotação.
-    for width,height in ((834,1112),(430,932),(844,390)):
+    # Contrato de navegação responsiva em portrait/landscape: tablet/mobile nunca usam drawer/sidebar.
+    for width,height in ((834,1112),(1180,820),(1024,768),(844,390),(430,932)):
         driver.set_window_size(width,height)
         driver.get(urljoin(base,f"planejamento.html?contest={contest}"))
         wait_ready()
-        menu=driver.find_element(By.CSS_SELECTOR,".pa-menu-btn")
-        menu.click()
-        WebDriverWait(driver,5).until(lambda d:d.execute_script("const e=document.querySelector('.pa-sidebar');return e?.classList.contains('open')===true && e.getBoundingClientRect().left>=-2"))
         info=driver.execute_script("""
-          const e=document.querySelector('.pa-sidebar'),r=e.getBoundingClientRect(),vw=document.documentElement.clientWidth,vh=document.documentElement.clientHeight;
-          return {rect:{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height},vw,vh,scrollHeight:e.scrollHeight,clientHeight:e.clientHeight};
+          const visible=e=>{if(!e)return false;const s=getComputedStyle(e),r=e.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>1&&r.height>1};
+          const sidebar=document.querySelector('.pa-sidebar'),menu=document.querySelector('.pa-menu-btn'),nav=document.getElementById('paMobileNav');
+          return {
+            vw:document.documentElement.clientWidth,vh:document.documentElement.clientHeight,
+            sidebarVisible:visible(sidebar),menuVisible:visible(menu),mobileVisible:visible(nav),
+            sidebarOpen:sidebar?.classList.contains('open')===true,
+            navRect:nav?(()=>{const r=nav.getBoundingClientRect();return{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}})():null
+          };
         """)
         info["requestedViewport"]={"width":width,"height":height}
-        info["ok"]=info["rect"]["left"]>=-2 and info["rect"]["right"]<=info["vw"]+2 and info["rect"]["top"]>=-2 and info["rect"]["bottom"]<=info["vh"]+2
+        info["ok"]=(info.get("sidebarVisible") is False and info.get("menuVisible") is False and info.get("mobileVisible") is True and info.get("sidebarOpen") is False and rect_inside_viewport(info.get("navRect"),info.get("vw"),info.get("vh")))
         sidebar_cases.append(info)
-        if not info["ok"]:errors.append(f"sidebar@{width}x{height}: painel fora da viewport")
-        driver.save_screenshot(str(out_dir/f"sidebar-open-{width}x{height}.png"))
+        if not info["ok"]:errors.append(f"responsive-nav@{width}x{height}: sidebar/hamburger competiu com bottom navigation")
+        driver.save_screenshot(str(out_dir/f"responsive-nav-{width}x{height}.png"))
 
-    # Interação real por toque em iPad/celular: um único menu mobile, drawer e "Mais" sem sobreposição.
+    # Interação real por toque em iPad/celular: bottom navigation + Mais, sem drawer concorrente.
     for width,height in ((834,1112),(390,844)):
         driver.execute_cdp_cmd("Emulation.setDeviceMetricsOverride",{"width":width,"height":height,"deviceScaleFactor":2,"mobile":False})
         driver.execute_cdp_cmd("Emulation.setTouchEmulationEnabled",{"enabled":True,"maxTouchPoints":5})
@@ -281,6 +284,7 @@ try:
             base_state=driver.execute_script("""
               const visible=e=>{if(!e)return false;const s=getComputedStyle(e),r=e.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>1&&r.height>1};
               const targets=[...document.querySelectorAll('#paMobileNav a,#paMobileNav button')].filter(visible).map(e=>{const r=e.getBoundingClientRect();return{width:r.width,height:r.height}});
+              const more=document.getElementById('paMobileMoreBtn');
               return {
                 coarse:matchMedia('(pointer: coarse)').matches,
                 touchPoints:navigator.maxTouchPoints||0,
@@ -289,21 +293,13 @@ try:
                 mobileNavCount:document.querySelectorAll('#paMobileNav').length,
                 mobileMoreCount:document.querySelectorAll('#paMobileMore').length,
                 legacyCount:document.querySelectorAll('.mobile-bottom').length,
+                sidebarVisible:visible(document.querySelector('.pa-sidebar')),
                 mobileVisible:visible(document.getElementById('paMobileNav')),
                 menuVisible:visible(document.querySelector('.pa-menu-btn')),
+                moreActive:more?.classList.contains('active')===true,
                 targets
               };
             """)
-            driver.find_element(By.CSS_SELECTOR,".pa-menu-btn").click()
-            WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.querySelector('.pa-sidebar')?.classList.contains('open')===true"))
-            drawer_state=driver.execute_script("""
-              return {
-                sidebarOpen:document.querySelector('.pa-sidebar')?.classList.contains('open')===true,
-                moreOpen:document.getElementById('paMobileMore')?.classList.contains('open')===true
-              };
-            """)
-            driver.execute_script("document.querySelector('.pa-backdrop')?.click()")
-            WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.querySelector('.pa-sidebar')?.classList.contains('open')!==true"))
             driver.find_element(By.ID,"paMobileMoreBtn").click()
             WebDriverWait(driver,5).until(lambda d:d.execute_script("return document.getElementById('paMobileMore')?.classList.contains('open')===true"))
             more_state=driver.execute_script("""
@@ -311,10 +307,12 @@ try:
               return {
                 moreOpen:m?.classList.contains('open')===true,
                 sidebarOpen:document.querySelector('.pa-sidebar')?.classList.contains('open')===true,
+                sidebarVisible:(()=>{const e=document.querySelector('.pa-sidebar');if(!e)return false;const s=getComputedStyle(e),r=e.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>1&&r.height>1})(),
                 rect:{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height},
                 vw,vh
               };
             """)
+            should_more_active=page in ("planejamento","configuracoes")
             ok=(
                 base_state.get("coarse") is True
                 and int(base_state.get("touchPoints") or 0)>0
@@ -324,18 +322,19 @@ try:
                 and base_state.get("mobileMoreCount")==1
                 and base_state.get("legacyCount")==0
                 and base_state.get("mobileVisible") is True
-                and base_state.get("menuVisible") is True
+                and base_state.get("menuVisible") is False
+                and base_state.get("sidebarVisible") is False
+                and base_state.get("moreActive") is should_more_active
                 and all(t.get("width",0)>=44 and t.get("height",0)>=44 for t in base_state.get("targets") or [])
-                and drawer_state.get("sidebarOpen") is True
-                and drawer_state.get("moreOpen") is False
                 and more_state.get("moreOpen") is True
                 and more_state.get("sidebarOpen") is False
+                and more_state.get("sidebarVisible") is False
                 and rect_inside_viewport(more_state.get("rect"),more_state.get("vw"),more_state.get("vh"))
             )
-            case={"page":page,"viewport":{"width":width,"height":height},"base":base_state,"drawer":drawer_state,"more":more_state,"ok":ok}
+            case={"page":page,"viewport":{"width":width,"height":height},"base":base_state,"more":more_state,"ok":ok}
             touch_cases.append(case)
             if not ok:
-                errors.append(f"touch-{page}@{width}x{height}: contrato de navegação responsiva falhou")
+                errors.append(f"touch-{page}@{width}x{height}: contrato bottom navigation + Mais falhou")
             driver.save_screenshot(str(out_dir/f"touch-{page}-{width}x{height}.png"))
             driver.find_element(By.ID,"paMobileMoreBtn").click()
         driver.execute_cdp_cmd("Emulation.setTouchEmulationEnabled",{"enabled":False,"maxTouchPoints":1})
@@ -519,7 +518,7 @@ try:
 
         # Navegação entre módulos pelo controle canônico visível em cada largura.
         driver.get(urljoin(base,f"planejamento.html?contest={contest}"));wait_ready()
-        if width>900:
+        if width>=1200:
             nav=driver.find_element(By.CSS_SELECTOR,'.pa-sidebar [data-pa-nav="edital"]')
         else:
             nav=driver.find_element(By.CSS_SELECTOR,'#paMobileNav a[href*="edital.html"]')
