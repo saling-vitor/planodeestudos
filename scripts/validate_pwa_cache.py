@@ -31,6 +31,7 @@ maintenance="const MAINTENANCE_MODE=true;" in sw
 common_checks=[
     ("service worker: fetch online não usa no-store", "fetch(req,{cache:'no-store'})" in sw),
     ("service worker: cache offline estável ausente", "const OFFLINE='plano-arq-offline-user-v1'" in sw),
+    ("service worker: pacote externo não usa no-cors", "mode:'no-cors'" in sw and "response.type==='opaque'" in sw),
     ("service worker: mapas/simulados/edital não entram no network-first", "/(materials|simulados|edital)/" in sw or "/\\/(materials|simulados|edital)\\//" in sw),
     ("service worker: CSS/JS/data não entram no network-first", "['style','script','font'].includes(req.destination)" in sw and "/data/" in sw),
     ("service worker: imagens locais não entram no network-first", "if(req.destination==='image')" in sw and "event.respondWith(networkFirst(req))" in sw),
@@ -112,9 +113,10 @@ else:
                 + ", ".join(missing[:8])
                 + (f" +{len(missing)-8}" if len(missing)>8 else "")
             )
+        external={p for p in full_set if p.startswith(("https://","http://"))}
         broken=sorted(
             p for p in full_set
-            if p and not (ROOT/p).is_file()
+            if p and p not in external and not (ROOT/p).is_file()
         )
         if broken:
             errors.append(
@@ -122,6 +124,29 @@ else:
                 + ", ".join(broken[:8])
                 + (f" +{len(broken)-8}" if len(broken)>8 else "")
             )
+        try:
+            nav=json.loads((ROOT/"data/navigation.json").read_text("utf-8"))
+            nav_icons=set()
+            for group in nav.get("groups") or []:
+                for item in group.get("items") or []:
+                    icon=str(item.get("icon") or "")
+                    if icon.startswith(("https://","http://")):
+                        nav_icons.add(icon)
+            for item in nav.get("footer") or []:
+                icon=str(item.get("icon") or "")
+                if icon.startswith(("https://","http://")):
+                    nav_icons.add(icon)
+            essential_set={x.get("path","") for x in (pack.get("essential") or []) if isinstance(x,dict)}
+            missing_external=sorted(nav_icons-full_set)
+            missing_essential=sorted(nav_icons-essential_set)
+            if missing_external:
+                errors.append("PWA: ícones externos ausentes do pacote completo: "+", ".join(missing_external[:4]))
+            if missing_essential:
+                errors.append("PWA: ícones externos ausentes do pacote essencial: "+", ".join(missing_essential[:4]))
+            if pack.get("externalCount")!=len(nav_icons):
+                errors.append(f"PWA: externalCount={pack.get('externalCount')} diverge dos {len(nav_icons)} ícones remotos da navegação")
+        except (OSError,ValueError,TypeError) as exc:
+            errors.append(f"PWA: não foi possível validar ícones remotos ({exc})")
     except (OSError,ValueError,TypeError) as exc:
         errors.append(f"PWA: manifesto offline inválido ({exc})")
 
