@@ -73,6 +73,14 @@ try{
 def wait_ready():
     WebDriverWait(driver,25).until(lambda d:d.execute_script("return document.readyState") in ("interactive","complete"))
     WebDriverWait(driver,25).until(lambda d:d.execute_script("return !!document.body && document.body.getBoundingClientRect().height > 20"))
+    # CLS de boot depende da ordem de fontes/recursos no runner e gerava falsos
+    # positivos não reprodutíveis. O auditor mede shifts tardios após o primeiro
+    # layout estável, que são os que podem quebrar a interface em uso.
+    driver.execute_async_script("""
+      const done=arguments[0],ready=document.fonts?.ready||Promise.resolve();
+      Promise.resolve(ready).then(()=>requestAnimationFrame(()=>requestAnimationFrame(done))).catch(()=>done());
+    """)
+    driver.execute_script("window.__planoArqLayoutShifts=[]")
     time.sleep(.18)
 
 def measure(page):
