@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Gerar dados derivados
         run: |
@@ -30,6 +32,7 @@ jobs:
           python3 scripts/validate_javascript.py
           python3 scripts/validate_pwa_cache.py
           python3 scripts/validate_versions.py
+          python3 scripts/validate_release_candidate.py --git
 
       - name: Exigir QA manual de release
         run: python3 scripts/validate_release_qa.py --release
