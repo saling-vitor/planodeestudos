@@ -12,7 +12,8 @@
     "studyRuntimeCanonical": "MINDMAP_V139",
     "studyBridgeBundled": "1.1",
     "studyBridgeRuntime": "1.3",
-    "studyBlueprint": "1.3"
+    "studyBlueprint": "1.3",
+    "automation": "1.1"
   },
   "compatibilityAliases": [
     {
