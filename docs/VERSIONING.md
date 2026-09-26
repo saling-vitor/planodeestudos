@@ -4,12 +4,16 @@ Este documento separa **versão de produto** de **versões técnicas de compatib
 
 ## Produto
 
-- Baseline pública atual antes da promoção: **1.0.0**.
-- Versão final preparada: **1.1.0**.
-- Branch final: `release/v1.1.0`.
-- Na branch final, `productBaseline` é **1.1.0** e novos backups passam a registrar **1.1.0**.
+- Baseline pública atual: **1.1.0**.
+- SHA publicado: `79da5bfe2f486da208b6e04a3fc06e13eae9a54d`.
+- Branch congelada: `release/v1.1.0`.
+- Tag/GitHub Release: `v1.1.0`.
+- `main`, branch de release e tag apontam para o mesmo estado aprovado.
+- Novos backups da V1.1.0 registram **1.1.0**.
 
-As versões técnicas internas permanecem independentes da versão do produto; não são alteradas apenas para “parecerem” iguais à V1.1.0.
+A próxima linha de desenvolvimento parte de `develop/v1.2`. A versão estruturada do produto **não deve ser alterada para 1.2.0 apenas por abrir a branch**; isso ocorrerá quando o escopo do próximo ciclo for formalmente iniciado.
+
+As versões técnicas internas permanecem independentes da versão do produto.
 
 ## Runtime e PWA
 
@@ -48,15 +52,15 @@ A representação estruturada deste documento é:
 
 O CI executa `scripts/validate_versions.py` e bloqueia divergências entre o contrato e os runtimes.
 
-## Regra para release
-
-Na preparação da V1.1.0:
+## Release V1.1.0 — concluída
 
 1. gate funcional: **concluído**;
 2. checklist manual 80% / 125% / 150%: **concluído**;
-3. versão de produto atualizada de forma coordenada para **1.1.0** na branch final;
-4. rodar novamente todos os validadores e a regressão final;
-5. congelar o commit aprovado;
-6. promover esse commit para `main`;
-7. validar o deploy real;
-8. somente então criar tag/release `v1.1.0`.
+3. versão de produto coordenada em **1.1.0**;
+4. validadores e regressão final: **concluídos**;
+5. SHA final congelado: `79da5bfe2f486da208b6e04a3fc06e13eae9a54d`;
+6. promoção para `main`: **concluída**;
+7. deploy real + auditorias: **concluídos**;
+8. tag/release `v1.1.0`: **publicada**.
+
+Qualquer ciclo posterior deve começar em branch de desenvolvimento nova e preservar esta baseline.
