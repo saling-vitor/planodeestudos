@@ -51,5 +51,11 @@
     "mudanças no RC ficam restritas à allowlist do freeze",
     "QA manual de zoom pode ficar pending no Gate V1.2 RC",
     "promoção final para 1.2.0 exige QA manual aprovado e gate final verde"
-  ]
+  ],
+  "rcGate": {
+    "workflow": "Gate V1.2 RC",
+    "run": 1,
+    "status": "success",
+    "sha": "9cdf4eb50d953c0631e3e2795f71f922fdcf0521"
+  }
 }
