@@ -33,6 +33,9 @@ body.pa-internal-mode .icon-btn{
 body.pa-internal-mode :is(.primary-btn,.ghost-btn,.icon-btn):hover{
   border-color:rgba(145,163,181,.42);filter:brightness(1.08)
 }
+body.pa-internal-mode :is(button,a,input,select,textarea):focus-visible{
+  outline:2px solid rgba(160,185,204,.82);outline-offset:2px
+}
 body.pa-internal-mode :is(.primary-btn,.ghost-btn,.icon-btn):disabled{
   opacity:.42;cursor:not-allowed;filter:none
 }
@@ -277,7 +280,7 @@ body.pa-internal-mode .table-wrap table{margin:0}
 body.pa-internal-mode .table-wrap th{position:sticky;top:0;z-index:1}
 
 /* ===== Tablet / iPad ===== */
-@media(max-width:900px){
+@media(max-width:1199px), (pointer:coarse){
   body.pa-internal-mode :is(.tools,.toolbar){
     grid-template-columns:repeat(2,minmax(0,1fr));gap:8px
   }
@@ -310,14 +313,20 @@ body.pa-internal-mode .table-wrap th{position:sticky;top:0;z-index:1}
   body.pa-internal-mode :is(.tools,.toolbar) :is(input,select,.search),
   body.pa-internal-mode :is(input[type="search"],input.search){font-size:16px}
   body.pa-internal-mode select{padding-right:30px}
-  body.pa-internal-mode :is(button.chip,button.filter,button.map-filter,.period-tabs button){min-height:38px}
-  body.pa-internal-mode :is(.mini,.mini-btn,.small){min-height:38px}
+  body.pa-internal-mode :is(.primary-btn,.ghost-btn){font-size:11px}
+  body.pa-internal-mode :is(button.chip,button.filter,button.map-filter,.period-tabs button){
+    min-height:42px;font-size:9.5px
+  }
+  body.pa-internal-mode .tab{min-height:44px;font-size:10px}
+  body.pa-internal-mode :is(.mini,.mini-btn,.small,.small-btn){min-height:42px;font-size:9.5px}
+  body.pa-internal-mode :is(.badge,.tag){min-height:24px;font-size:8px}
+  body.pa-internal-mode .field label{font-size:8.5px}
   body.pa-internal-mode :is(.review-row,.q-row,.error-row,.topic-row,.file-row,.history-row,.priority-row,.stats-row){
     padding-block:13px
   }
 }
 @supports (-webkit-touch-callout:none){
-  @media(max-width:900px){
+  @media(max-width:1199px){
     body.pa-internal-mode{-webkit-text-size-adjust:100%}
     body.pa-internal-mode :is(input,select,textarea){font-size:16px}
   }
