@@ -2,6 +2,9 @@ name: Gate V1.1 Release
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - 'release/v1.1.0-rc*'
 
 permissions:
   contents: read
