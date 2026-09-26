@@ -73,6 +73,8 @@ for name in PAGES:
         errors.append(f"{name}: menu mobile legado detectado; use somente paMobileNav do shell")
     if re.search(r'id=["\'](?:mobileNav|mobileMoreMenu)["\']',text,re.I):
         errors.append(f"{name}: IDs de navegação mobile legada detectados")
+    if re.search(r'\b(?:pa-menu-btn|pa-backdrop|mobile-bottom)\b',text,re.I):
+        errors.append(f"{name}: resíduo de drawer/hamburger legado detectado")
     content_open=re.search(r'class=["\']pa-content["\'][^>]*>\s*<section\s+class=["\'](?:hero|page-hero)["\']',text,re.I)
     if not content_open:
         errors.append(
@@ -92,8 +94,8 @@ for name in PAGES:
         errors.append(f"{name}: .pa-topbar ausente")
     else:
         top=topbar.group(1)
-        if len(re.findall(r'\bpa-menu-btn\b',top)) != 1:
-            errors.append(f"{name}: topbar deve ter exatamente um pa-menu-btn")
+        if re.search(r'\bpa-menu-btn\b',top):
+            errors.append(f"{name}: hamburger legado detectado na topbar")
         if len(re.findall(r'\bpa-top-title\b',top)) != 1:
             errors.append(f"{name}: topbar deve ter exatamente um pa-top-title")
         if len(re.findall(r'\bpa-top-actions\b',top)) != 1:
@@ -222,7 +224,6 @@ if not shell_js.is_file():
 else:
     shell_js_text=shell_js.read_text("utf-8",errors="replace")
     for marker in (
-        "document.querySelectorAll('.mobile-bottom').forEach(x=>x.remove())",
         'id="paMobileNav"',
         'id="paMobileMore"',
         "if(current==='home')",
@@ -234,6 +235,9 @@ else:
             errors.append(f"pa-shell-v16.js: contrato de navegação mobile canônica ausente: {marker}")
     if 'data-common="settings"' in shell_js_text or '>Trocar concurso</a>' in shell_js_text:
         errors.append("pa-shell-v16.js: menu ••• voltou a competir com a navegação principal")
+    for residue in ("bindDrawer","closeDrawer","pa-menu-btn","pa-backdrop","mobile-bottom"):
+        if residue in shell_js_text:
+            errors.append(f"pa-shell-v16.js: resíduo de navegação obsoleta detectado: {residue}")
 
 shell=(ROOT/"assets/css/pa-shell-v16.css")
 if shell.is_file():
@@ -252,6 +256,9 @@ if shell.is_file():
             errors.append(f"pa-shell-v16.css: contrato canônico ausente: {marker}")
     if "@media(max-width:900px)" in css or "901px" in css:
         errors.append("pa-shell-v16.css: breakpoint legado 900/901 detectado no shell canônico")
+    for residue in (".pa-menu-btn",".pa-backdrop",".mobile-bottom"):
+        if residue in css:
+            errors.append(f"pa-shell-v16.css: resíduo de navegação obsoleta detectado: {residue}")
     if re.search(r"body\.pa-internal-mode\s*\{[^}]*overflow-x\s*:\s*hidden",css,re.I):
         errors.append("pa-shell-v16.css: overflow-x:hidden no body mascara overflow estrutural")
     if re.search(r"\.pa-main\s*\{[^}]*overflow\s*:\s*(?:hidden|clip)",css,re.I):
