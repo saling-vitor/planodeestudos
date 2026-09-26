@@ -35,6 +35,26 @@ def entries(paths):
             out.append({'path':rel,'bytes':p.stat().st_size})
     return out
 
+def navigation_external_entries():
+    path=ROOT/'data/navigation.json'
+    if not path.is_file():
+        return []
+    try:
+        nav=json.loads(path.read_text('utf-8'))
+    except (OSError,ValueError,TypeError):
+        return []
+    urls=[]
+    for group in nav.get('groups') or []:
+        for item in group.get('items') or []:
+            icon=str(item.get('icon') or '').strip()
+            if icon.startswith(('https://','http://')):
+                urls.append(icon)
+    for item in nav.get('footer') or []:
+        icon=str(item.get('icon') or '').strip()
+        if icon.startswith(('https://','http://')):
+            urls.append(icon)
+    return [{'path':url,'bytes':0,'external':True,'kind':'navigation-icon'} for url in sorted(dict.fromkeys(urls))]
+
 def add_tree(paths,folder):
     base=ROOT/folder
     if not base.exists():
@@ -48,10 +68,17 @@ full=list(essential)
 for d in FULL_ASSET_DIRS+FULL_DIRS:
     add_tree(full,d)
 
-payload={'schema':1,'version':'19.4-production','essential':entries(essential),'full':entries(full)}
+external=navigation_external_entries()
+payload={
+    'schema':2,
+    'version':'19.4-production',
+    'essential':entries(essential)+external,
+    'full':entries(full)+external,
+    'externalCount':len(external),
+}
 payload['essentialBytes']=sum(x['bytes'] for x in payload['essential'])
 payload['fullBytes']=sum(x['bytes'] for x in payload['full'])
 
 (ROOT/'data/offline-pack.json').write_text(json.dumps(payload,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 (ROOT/'data/offline-pack.js').write_text('window.PLANO_ARQ_OFFLINE_PACK='+json.dumps(payload,ensure_ascii=False)+';\n',encoding='utf-8')
-print(f"essential={len(payload['essential'])} ({payload['essentialBytes']} bytes) full={len(payload['full'])} ({payload['fullBytes']} bytes)")
+print(f"essential={len(payload['essential'])} ({payload['essentialBytes']} bytes) full={len(payload['full'])} ({payload['fullBytes']} bytes) external={payload['externalCount']}")
