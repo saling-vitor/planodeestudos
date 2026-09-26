@@ -1,10 +1,17 @@
 :root{
- --pa-bg:#030406;--pa-surface:#090a0d;--pa-surface-2:#0d0f13;--pa-surface-3:#12151a;
- --pa-text:#f5f5f7;--pa-text-2:#d3d4d8;--pa-muted:#90939a;--pa-muted-2:#686c74;
+ --pa-bg:#030406;
+ --pa-surface:#080a0d;--pa-surface-2:#0c0f13;--pa-surface-3:#12161b;
+ --pa-surface-warm:#0d0c0b;--pa-surface-cool:#090d12;
+ --pa-text:#f2efe8;--pa-text-2:#cbc9c4;--pa-muted:#8f9298;--pa-muted-2:#676b73;
  --pa-champagne:#d8c59e;--pa-champagne-2:#b99c68;--pa-blue:#6d8298;--pa-green:#62a978;
  --pa-red:#d96773;--pa-yellow:#d8b858;--pa-violet:#9a70b3;--pa-cyan:#5ea7bb;
- --pa-line:rgba(255,255,255,.095);--pa-line-2:rgba(255,255,255,.055);
- --pa-shadow:0 22px 60px rgba(0,0,0,.50);--pa-shadow-soft:0 14px 34px rgba(0,0,0,.28);
+ --pa-line:rgba(239,233,221,.105);--pa-line-2:rgba(239,233,221,.055);
+ --pa-line-warm:rgba(216,197,158,.19);--pa-line-blue:rgba(109,130,152,.34);
+ --pa-grid-line:rgba(216,197,158,.014);--pa-grid-size:76px;
+ --pa-glow-warm:rgba(216,197,158,.045);--pa-glow-cool:rgba(14,26,41,.34);
+ --pa-shadow:0 24px 68px rgba(0,0,0,.56);--pa-shadow-soft:0 14px 34px rgba(0,0,0,.28);
+ --pa-shadow-panel:0 18px 44px rgba(0,0,0,.30),inset 0 1px rgba(255,255,255,.026);
+ --pa-shadow-raised:0 26px 72px rgba(0,0,0,.44),inset 0 1px rgba(255,255,255,.035);
  --pa-sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
  --pa-condensed:"Bahnschrift Condensed","Arial Narrow","Aptos Narrow","Segoe UI",sans-serif;
  --pa-mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
@@ -20,4 +27,13 @@
  --sans:var(--pa-sans);--cond:var(--pa-condensed);--mono:var(--pa-mono);
 }
 html{background:var(--pa-bg)}
-body.pa-internal-mode{background:radial-gradient(1000px 650px at 7% 0%,rgba(14,26,41,.30),transparent 60%),radial-gradient(720px 520px at 93% 18%,rgba(216,197,158,.028),transparent 64%),linear-gradient(180deg,#030406,#040507 44%,#020304);color:var(--pa-text);font-family:var(--pa-sans);-webkit-font-smoothing:antialiased}
+body.pa-internal-mode{
+ background:
+  radial-gradient(1050px 680px at 5% -4%,var(--pa-glow-cool),transparent 60%),
+  radial-gradient(760px 560px at 98% 16%,var(--pa-glow-warm),transparent 65%),
+  linear-gradient(var(--pa-grid-line) 1px,transparent 1px),
+  linear-gradient(90deg,var(--pa-grid-line) 1px,transparent 1px),
+  linear-gradient(180deg,#030406,#040507 44%,#020304);
+ background-size:auto,auto,var(--pa-grid-size) var(--pa-grid-size),var(--pa-grid-size) var(--pa-grid-size),auto;
+ color:var(--pa-text);font-family:var(--pa-sans);-webkit-font-smoothing:antialiased
+}
