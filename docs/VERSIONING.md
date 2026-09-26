@@ -4,11 +4,12 @@ Este documento separa **versão de produto** de **versões técnicas de compatib
 
 ## Produto
 
-- Baseline publicada/congelada: **1.0.0**
-- Alvo do ciclo atual: **1.1.0**
-- Enquanto a V1.1 não for promovida, backups continuam registrando a baseline **1.0.0**.
+- Baseline pública atual antes da promoção: **1.0.0**.
+- Versão final preparada: **1.1.0**.
+- Branch final: `release/v1.1.0`.
+- Na branch final, `productBaseline` é **1.1.0** e novos backups passam a registrar **1.1.0**.
 
-A promoção da V1.1.0 deverá atualizar o contrato de produto de forma coordenada no gate de release. Não se deve alterar versões técnicas apenas para que “pareçam” iguais à versão do produto.
+As versões técnicas internas permanecem independentes da versão do produto; não são alteradas apenas para “parecerem” iguais à V1.1.0.
 
 ## Runtime e PWA
 
@@ -51,9 +52,11 @@ O CI executa `scripts/validate_versions.py` e bloqueia divergências entre o con
 
 Na preparação da V1.1.0:
 
-1. concluir o gate funcional;
-2. concluir o checklist manual obrigatório;
-3. atualizar a versão de produto de forma coordenada;
-4. rodar novamente todos os validadores;
-5. congelar o commit;
-6. somente então criar tag/release.
+1. gate funcional: **concluído**;
+2. checklist manual 80% / 125% / 150%: **concluído**;
+3. versão de produto atualizada de forma coordenada para **1.1.0** na branch final;
+4. rodar novamente todos os validadores e a regressão final;
+5. congelar o commit aprovado;
+6. promover esse commit para `main`;
+7. validar o deploy real;
+8. somente então criar tag/release `v1.1.0`.
