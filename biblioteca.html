@@ -41,10 +41,10 @@
 <div class="viewer" id="viewer"><div class="viewerbar"><div class="viewer-title"><strong id="viewerName">Material</strong><span id="viewerProgress">Aguardando sincronização…</span></div><div class="viewer-actions"><button type="button" class="ghost-btn newtab" id="externalBtn">Nova aba</button><button type="button" class="primary-btn" id="closeBtn">Voltar</button></div></div><iframe id="frame" title="Material de estudo"></iframe></div><div class="toast" id="toast"></div>
 <script>
 (()=>{'use strict';
+const C=window.PLANO_ARQ_CONTEST_CONTEXT;
 let catalog=window.PLANO_ARQ_MATERIALS||{schema:2,materials:[]},
-contestCatalog=window.PLANO_ARQ_CONTESTS||{schema:1,contests:[]},
 queryParams=new URLSearchParams(location.search),
-contestParam=window.PLANO_ARQ_CONTEST_CONTEXT.resolveId(),
+contestParam=C.resolveId(),
 autoOpenMaterial=queryParams.get('open')||'',
 autoOpenTopic=queryParams.get('topic')||'',
 materials=(catalog.materials||[]).filter(m=>!m.contestId||m.contestId===contestParam),
@@ -61,8 +61,7 @@ function refreshMaterials(){
 refreshMaterials();
 
 function currentContest(){
-  const local=(()=>{try{return JSON.parse(localStorage.getItem('planoarq:contests:v1')||'[]')}catch(_){return[]}})();
-  return local.find(c=>c.id===contestParam)||(contestCatalog.contests||[]).find(c=>c.id===contestParam)||null;
+  return C.contests().find(c=>c.id===contestParam)||null;
 }
 
 function refreshContestHeader(){

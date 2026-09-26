@@ -80,8 +80,8 @@
 <script src="assets/js/pa-pwa-v01.js"></script><script src="assets/js/pa-shell-v16.js"></script>
 <script>
 (()=>{'use strict';
-const $=id=>document.getElementById(id),D=window.PLANO_ARQ_DATA,S=window.PLANO_ARQ_SYNC,G=window.PLANO_ARQ_DRIVE,A=window.PlanoARQActions,P=window.PLANO_ARQ_PWA,cfg=window.PLANO_ARQ_CLOUD||{},cid=window.PLANO_ARQ_CONTEST_CONTEXT.resolveId();
-const contests=()=>{let local=[];try{local=JSON.parse(localStorage.getItem('planoarq:contests:v1')||'[]')}catch(_){}const seed=window.PLANO_ARQ_CONTESTS?.contests||[],m=new Map(seed.map(x=>[x.id,{...x}]));local.forEach(x=>m.set(x.id,{...(m.get(x.id)||{}),...x}));return[...m.values()]},contest=()=>contests().find(x=>x.id===cid)||{};
+const C=window.PLANO_ARQ_CONTEST_CONTEXT,$=id=>document.getElementById(id),D=window.PLANO_ARQ_DATA,S=window.PLANO_ARQ_SYNC,G=window.PLANO_ARQ_DRIVE,A=window.PlanoARQActions,P=window.PLANO_ARQ_PWA,cfg=window.PLANO_ARQ_CLOUD||{},cid=C.resolveId();
+const contest=()=>C.contests().find(x=>x.id===cid)||{};
 const prefs=()=>{try{return JSON.parse(localStorage.getItem('planoarq:preferences:v1')||'{}')}catch(_){return{}}},savePrefs=p=>{localStorage.setItem('planoarq:preferences:v1',JSON.stringify(p));dispatchEvent(new Event('planoarq:preferences'))};
 const fmtBytes=n=>n<1024?`${n} B`:n<1048576?`${(n/1024).toFixed(1).replace('.',',')} KB`:`${(n/1048576).toFixed(1).replace('.',',')} MB`,fmtDate=v=>{if(!v)return'—';const d=new Date(v);return isNaN(d)?'—':d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})};
 function toast(t){const x=$('toast12');x.textContent=t;x.classList.add('show');clearTimeout(window.__t12);window.__t12=setTimeout(()=>x.classList.remove('show'),2600)}
