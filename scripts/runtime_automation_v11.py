@@ -61,6 +61,47 @@ try:
     report["ranking"]=ranking
     if not ranking.get("ok"): errors.append("ordenação/urgência da automação não priorizou sessão ativa")
 
+    # Focus 2.0 exposes one canonical, read-only answer with exam context.
+    focus_v2=driver.execute_script("""
+      const cid=arguments[0],A=window.PlanoARQActions;
+      const snap=()=>JSON.stringify(Object.keys(localStorage).sort().map(k=>[k,localStorage.getItem(k)]));
+      const before=snap(),f=A.focus(cid),after=snap();
+      return {
+        ok:A.version==='2.0'&&before===after&&f?.readOnly===true&&Array.isArray(f?.actions)&&Array.isArray(f?.selected)&&f?.context?.readOnly===true&&f?.context?.exam?.contestId===cid&&f?.top?.id==='session-active',
+        version:A.version,beforeEqAfter:before===after,top:f?.top||null,context:f?.context||null
+      };
+    """,cid)
+    report["focusV2"]=focus_v2
+    if not focus_v2.get("ok"): errors.append("Foco Automático 2.0 não expôs uma fonte única/read-only com contexto de prova")
+
+    # Diagnostic signal is derived from study evidence, exam weight and enabled sources.
+    diagnostic=driver.execute_script("""
+      const cid=arguments[0],A=window.PlanoARQActions;
+      const mats=(window.PLANO_ARQ_MATERIALS?.materials||[]).filter(m=>!m.contestId||m.contestId===cid);
+      const qs=(window.PLANO_ARQ_QUESTION_CATALOG?.topics||[]).filter(t=>!t.contestId||t.contestId===cid);
+      const pair=mats.map(m=>({m,ts:qs.filter(t=>t.materialId===m.id)})).find(x=>x.ts.length);
+      if(!pair)return {ok:false,reason:'sem material/tópico para semear'};
+      const m=pair.m,t=pair.ts[0],ns=t.storageNamespace||m.storageNamespace,key='mindmap_state::'+ns;
+      const st=JSON.parse(localStorage.getItem(key)||'{}');st.topicStates=st.topicStates||{};st.reviewMeta=st.reviewMeta||{};st.quizMeta=st.quizMeta||{};
+      st.topicStates[t.topicId]='difficult';st.topicStates.__focus_v2_done_1='done';st.topicStates.__focus_v2_done_2='done';
+      st.reviewMeta[t.topicId]={...(st.reviewMeta[t.topicId]||{}),nextReview:new Date(Date.now()-86400000).toISOString()};
+      const hist=Array.from({length:5},(_,i)=>({correct:false,at:new Date(Date.now()-(i+1)*3600000).toISOString()}));
+      st.quizMeta[t.topicId]={...(st.quizMeta[t.topicId]||{}),attempts:5,correct:0,answerHistory:hist};
+      localStorage.setItem(key,JSON.stringify(st));
+      localStorage.setItem('planoarq:session-log::'+cid,JSON.stringify({schema:2,sessions:{},extras:[],dayClosures:{}}));
+      A.saveSettings({enabled:true,maxActions:6,rules:{planning:false,reviews:true,errors:true,simulations:true,questions:true}});
+      const snap=()=>JSON.stringify(Object.keys(localStorage).sort().map(k=>[k,localStorage.getItem(k)]));
+      const before=snap(),audit=A.audit(cid),after=snap(),x=(audit.actions||[]).find(r=>r.id==='diagnostic-priority');
+      return {
+        ok:before===after&&!!x&&x.source==='diagnostic'&&x.diagnostic?.confidence>=40&&x.examContext?.contestId===cid&&x.why?.includes('peso oficial da prova')&&audit.context?.primaryDiagnostic?.materialId===x.diagnostic?.materialId,
+        beforeEqAfter:before===after,
+        diagnostic:x||null,
+        context:audit.context||null
+      };
+    """,cid)
+    report["diagnostic"]=diagnostic
+    if not diagnostic.get("ok"): errors.append("Diagnóstico/peso/contexto de prova não foram integrados corretamente ao Foco 2.0")
+
     # Empty state with no sources enabled is explicit and harmless.
     empty=driver.execute_script("""
       const cid=arguments[0],A=window.PlanoARQActions;
