@@ -645,14 +645,15 @@
   }
 
   document.fonts?.ready?.then(schedule).catch(()=>{});
-  addEventListener('resize',schedule,{passive:true});
-  addEventListener('orientationchange',schedule,{passive:true});
 
-  /* ResizeObserver + fonts.ready cobrem as únicas mudanças que afetam
-     a largura real dos títulos; classes internas não exigem refit. */
+  /* ResizeObserver + fonts.ready cobrem as mudanças que afetam
+     a largura real dos títulos. Resize/orientation ficam só como fallback. */
   if('ResizeObserver' in window){
     const ro=new ResizeObserver(schedule);
     titles().forEach(t=>ro.observe(t.parentElement || t));
+  }else{
+    addEventListener('resize',schedule,{passive:true});
+    addEventListener('orientationchange',schedule,{passive:true});
   }
 
   window.fitBranchTitlesSingleLine=schedule;
