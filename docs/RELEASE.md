@@ -1,21 +1,23 @@
 # Plano ARQ · Release V1.1.0
 
-Documento canônico da versão final **1.1.0**.
+Documento canônico da versão publicada **1.1.0**.
 
 ## Estado de produção
 
-- Release alvo: `1.1.0`.
-- Branch final: `release/v1.1.0`.
-- Branch de produção após promoção: `main`.
+- Release publicada: `1.1.0`.
+- SHA publicado: `79da5bfe2f486da208b6e04a3fc06e13eae9a54d`.
+- Branch congelada: `release/v1.1.0`.
+- Produção: `main` no mesmo SHA.
+- Tag/GitHub Release: `v1.1.0`.
 - Runtime local: `BUILD_MAINTENANCE=false`.
 - Service Worker: `MAINTENANCE_MODE=false`.
 - Modo de operação: local-first.
 - Compatibilidade com dados, URLs, localStorage, backups, contestId e identificadores da V1.0.0 preservada.
 - A baseline V1.0.0 continua congelada em `release/v1.0.0`.
 
-## Gate obrigatório
+## Gate de publicação — CONCLUÍDO
 
-A V1.1.0 só pode ser promovida quando o mesmo estado de código satisfizer:
+A V1.1.0 foi publicada depois de o mesmo estado de código satisfazer:
 
 1. versão canônica `1.1.0` no runtime de dados, backups e `data/cloud-config.json`;
 2. `BUILD_MAINTENANCE=false` e `MAINTENANCE_MODE=false`;
@@ -28,10 +30,10 @@ A V1.1.0 só pode ser promovida quando o mesmo estado de código satisfizer:
 9. Gate V1.1 Release verde na branch final;
 10. ausência de temporários, backups de desenvolvimento ou resíduos rastreados.
 
-Após o deploy real do `main`, a tag/GitHub Release `v1.1.0` deve apontar exatamente para o commit publicado e aprovado.
+Após o deploy real do `main`, a tag/GitHub Release `v1.1.0` foi publicada apontando exatamente para o commit aprovado.
 
-## QA já concluído
+## QA e produção concluídos
 
 O Release Candidate passou pelo QA manual em 80%, 125% e 150% e pelo Gate V1.1 Release antes da preparação final.
 
-A preparação final altera apenas metadados de versão, documentação e contratos de release. Nenhuma nova funcionalidade entra após o feature freeze.
+Gate V1.1 Release #4 e Publicar Plano ARQ #598 terminaram com `success`. A V1.1.0 está congelada; desenvolvimento posterior ocorre em `develop/v1.2`.

@@ -7,13 +7,14 @@ Portal estático de estudos para concursos, publicado por GitHub Pages e prepara
 - URL: `https://saling-vitor.github.io/planodeestudos/`
 - Branch: `main`
 - Deploy: `.github/workflows/pages.yml`
-- Release atual: `1.0.0`
+- Release atual: `1.1.0`
+- SHA de produção: `79da5bfe2f486da208b6e04a3fc06e13eae9a54d`
 - Checklist de liberação: `docs/RELEASE.md`
 - 14 mapas em `materials/`
 - 3 simulados em `simulados/`
 - edital/documentos oficiais em `edital/`
 
-O workflow gera os dados derivados e só publica depois de validar estrutura, contrato gráfico, CSS, JavaScript, referências e pacote PWA.
+O workflow de produção gera os dados derivados e só publica depois de validar estrutura, contrato gráfico, CSS, JavaScript, referências e pacote PWA. Desenvolvimento em `develop/**` passa pelo gate separado `.github/workflows/validate-development.yml`, sem depender de contratos históricos de RC.
 
 **Estado de produção:** manutenção de build encerrada. O Portal opera em modo local-first com Service Worker/PWA disponíveis; Supabase, Google Drive e automações seguem as configurações efetivas de cada dispositivo.
 
