@@ -24,7 +24,7 @@ O Portal usa uma única camada compartilhada. Páginas individuais não devem cr
 - `assets/css/pa-tokens-v01.css` — única fonte de cores, tipografia e tokens.
 - `assets/css/pa-shell-v16.css` — shell canônico: sidebar, topbar, largura do conteúdo, heroes, métricas, navegação mobile e breakpoints.
 - `assets/css/pa-components-v01.css` — componentes canônicos: botões, campos, filtros, tabs, painéis, listas, tabelas e estados vazios.
-- `assets/js/pa-shell-v16.js` — única fonte da navegação lateral, drawer, identificação do concurso, menu comum e navegação mobile.
+- `assets/js/pa-shell-v16.js` — única fonte da sidebar desktop, identificação do concurso, menu comum e navegação compacta.
 
 Os nomes dos arquivos permanecem estáveis por compatibilidade de cache/referências, mas o conteúdo interno é canônico e não contém camadas históricas Vxx.
 
@@ -34,8 +34,8 @@ Os nomes dos arquivos permanecem estáveis por compatibilidade de cache/referên
 - CSS específico da página vem primeiro; depois `tokens → shell → components`.
 - CSS local contém somente componentes exclusivos do módulo.
 - Heroes seguem apenas três famílias: 3 métricas diretas, 4 métricas diretas ou bloco 2×2.
-- O breakpoint principal de tablet/iPad é 900px.
-- O CI bloqueia sidebars hardcoded, cascata invertida, paletas locais e camadas históricas.
+- Desktop com ponteiro fino a partir de 1200px usa sidebar; até 1199px ou em dispositivo `pointer: coarse`, a navegação canônica é bottom navigation + Mais.
+- O CI bloqueia sidebars hardcoded, hamburger/drawer legado, navegação mobile paralela, cascata invertida, paletas locais e camadas históricas.
 
 ## Dados e build
 
