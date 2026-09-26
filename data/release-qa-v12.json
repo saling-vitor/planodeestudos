@@ -21,25 +21,25 @@
       "id": "chrome-zoom-80",
       "label": "Chrome real · zoom 80%",
       "required": true,
-      "status": "pending",
-      "checkedAt": null,
-      "evidence": ""
+      "status": "approved",
+      "checkedAt": "2026-09-26T16:07:50-03:00",
+      "evidence": "Vídeo manual no Chrome/Windows em 1920×1032 (Plano ARQ · Concursos - Google Chrome 2026-09-26 16-07-50.mp4): Biblioteca, Configurações e mapa real; sem overflow horizontal global, cortes, colisões ou perda de acesso às interações principais no nível de zoom correspondente."
     },
     {
       "id": "chrome-zoom-125",
       "label": "Chrome real · zoom 125%",
       "required": true,
-      "status": "pending",
-      "checkedAt": null,
-      "evidence": ""
+      "status": "approved",
+      "checkedAt": "2026-09-26T16:07:50-03:00",
+      "evidence": "Vídeo manual no Chrome/Windows em 1920×1032 (Plano ARQ · Concursos - Google Chrome 2026-09-26 16-07-50.mp4): Biblioteca, Configurações e mapa real; sem overflow horizontal global, cortes, colisões ou perda de acesso às interações principais no nível de zoom correspondente."
     },
     {
       "id": "chrome-zoom-150",
       "label": "Chrome real · zoom 150%",
       "required": true,
-      "status": "pending",
-      "checkedAt": null,
-      "evidence": ""
+      "status": "approved",
+      "checkedAt": "2026-09-26T16:07:50-03:00",
+      "evidence": "Vídeo manual no Chrome/Windows em 1920×1032 (Plano ARQ · Concursos - Google Chrome 2026-09-26 16-07-50.mp4): Biblioteca, Configurações e mapa real; sem overflow horizontal global, cortes, colisões ou perda de acesso às interações principais no nível de zoom correspondente."
     }
   ],
   "manualScope": [
