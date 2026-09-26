@@ -16,6 +16,213 @@
 @media(max-width:520px){
 .period-panel{padding:8px}.summary-strip{grid-template-columns:1fr 1fr}.empty-actions button{width:100%}
 }
+
+
+/* ===== ETAPA D11 · HISTÓRICO · refinamento local ===== */
+/* Ajuste fino da tela Histórico sobre a base global A+B+C. Sem mudanças funcionais. */
+body.pa-internal-mode[data-pa-page="history"] .hero-actions{
+  margin-top:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap
+}
+
+/* Período + resumo: faixa operacional mais coesa. */
+body.pa-internal-mode[data-pa-page="history"] .period-panel{
+  position:relative;overflow:hidden;
+  border-color:rgba(239,233,221,.085);
+  background:
+    radial-gradient(430px 150px at -6% -12%,rgba(109,130,152,.040),transparent 72%),
+    linear-gradient(145deg,rgba(11,14,18,.90),rgba(7,9,12,.96));
+  box-shadow:0 14px 32px rgba(0,0,0,.20),inset 0 1px rgba(255,255,255,.012)
+}
+body.pa-internal-mode[data-pa-page="history"] .period-panel::before{
+  content:"";position:absolute;left:14px;top:0;width:72px;height:1px;
+  background:linear-gradient(90deg,rgba(109,130,152,.72),rgba(216,197,158,.26),transparent)
+}
+body.pa-internal-mode[data-pa-page="history"] .coverage-note{
+  color:#88857e;letter-spacing:.025em
+}
+body.pa-internal-mode[data-pa-page="history"] .sum{
+  border-color:rgba(239,233,221,.060);
+  background:
+    radial-gradient(160px 80px at -10% -20%,rgba(216,197,158,.018),transparent 72%),
+    linear-gradient(145deg,rgba(255,255,255,.012),rgba(255,255,255,.003));
+  box-shadow:inset 0 1px rgba(255,255,255,.008)
+}
+body.pa-internal-mode[data-pa-page="history"] .sum span{
+  color:#8b857b;letter-spacing:.055em
+}
+body.pa-internal-mode[data-pa-page="history"] .sum strong{
+  color:#e8e2d8;font:820 15px/.95 var(--pa-condensed)
+}
+
+/* Ritmo dos 14 dias: pequeno heatmap com leitura mais técnica. */
+body.pa-internal-mode[data-pa-page="history"] .heat-wrap{
+  margin-top:18px
+}
+body.pa-internal-mode[data-pa-page="history"] .heat-head{
+  padding-bottom:8px;border-bottom:1px solid rgba(239,233,221,.045)
+}
+body.pa-internal-mode[data-pa-page="history"] .heat-head strong{
+  color:#cfc9be;letter-spacing:.13em
+}
+body.pa-internal-mode[data-pa-page="history"] .heat-head span{
+  color:#7f807d
+}
+body.pa-internal-mode[data-pa-page="history"] .heat-day{
+  border-color:rgba(239,233,221,.055);
+  background:linear-gradient(145deg,rgba(255,255,255,.010),rgba(255,255,255,.002));
+  box-shadow:inset 0 1px rgba(255,255,255,.006)
+}
+body.pa-internal-mode[data-pa-page="history"] .heat-day.active{
+  border-color:rgba(109,130,152,.24);
+  background:
+    radial-gradient(100px 60px at 0 0,rgba(109,130,152,.070),transparent 72%),
+    rgba(109,130,152,.030)
+}
+body.pa-internal-mode[data-pa-page="history"] .heat-day strong{
+  color:#d2cec7
+}
+body.pa-internal-mode[data-pa-page="history"] .heat-day span{
+  color:#777873
+}
+body.pa-internal-mode[data-pa-page="history"] .heat-day i{
+  background:linear-gradient(90deg,#647b90,#879cad);
+  box-shadow:0 0 8px rgba(109,130,152,.10)
+}
+
+/* Ferramentas: integra busca e filtros à cronologia sem mudar controles. */
+body.pa-internal-mode[data-pa-page="history"] .tools-wrap{
+  margin-top:18px
+}
+body.pa-internal-mode[data-pa-page="history"] .tools-wrap .tools{
+  border-color:rgba(239,233,221,.075);
+  background:
+    radial-gradient(360px 120px at -6% -10%,rgba(109,130,152,.028),transparent 72%),
+    linear-gradient(180deg,rgba(11,14,18,.90),rgba(7,9,12,.94));
+  box-shadow:0 12px 28px rgba(0,0,0,.17),inset 0 1px rgba(255,255,255,.010)
+}
+
+/* Seções: hierarquia editorial consistente com as demais telas. */
+body.pa-internal-mode[data-pa-page="history"] .section{
+  margin-top:23px
+}
+body.pa-internal-mode[data-pa-page="history"] .section-head{
+  min-height:31px;margin-bottom:11px;align-items:center;
+  border-bottom:1px solid rgba(239,233,221,.055)
+}
+body.pa-internal-mode[data-pa-page="history"] .section-head h2{
+  display:flex;align-items:center;gap:8px;margin:0;padding-bottom:10px;
+  color:#ddd8cf;font:800 10.5px/1 var(--pa-mono);
+  letter-spacing:.145em;text-transform:uppercase
+}
+body.pa-internal-mode[data-pa-page="history"] .section-head h2::before{
+  content:"";width:18px;height:1px;flex:0 0 auto;
+  background:linear-gradient(90deg,var(--pa-champagne-2),rgba(109,130,152,.50))
+}
+body.pa-internal-mode[data-pa-page="history"] .section-head>span{
+  padding-bottom:10px;color:#817e77;font-size:9.4px
+}
+
+/* Linha do tempo: dias funcionam como marcos, eventos como unidades técnicas. */
+body.pa-internal-mode[data-pa-page="history"] .history-timeline{
+  gap:18px
+}
+body.pa-internal-mode[data-pa-page="history"] .history-day{
+  position:relative
+}
+body.pa-internal-mode[data-pa-page="history"] .history-day-head{
+  padding-top:10px
+}
+body.pa-internal-mode[data-pa-page="history"] .history-day-head strong{
+  color:#d8c59e;letter-spacing:.055em
+}
+body.pa-internal-mode[data-pa-page="history"] .history-day-head span{
+  color:#7d7d78;line-height:1.5
+}
+body.pa-internal-mode[data-pa-page="history"] .history-day-head::after{
+  content:"";display:block;width:34px;height:1px;margin-top:9px;
+  background:linear-gradient(90deg,rgba(216,197,158,.52),rgba(109,130,152,.24),transparent)
+}
+body.pa-internal-mode[data-pa-page="history"] .day-events{
+  position:relative
+}
+body.pa-internal-mode[data-pa-page="history"] .history-event{
+  position:relative;overflow:hidden;
+  border-color:rgba(239,233,221,.060);
+  border-left-color:color-mix(in srgb,var(--accent,var(--pa-blue)) 60%,rgba(239,233,221,.08));
+  background:
+    linear-gradient(90deg,color-mix(in srgb,var(--accent,var(--pa-blue)) 3.5%,transparent),transparent 23%),
+    rgba(255,255,255,.005);
+  box-shadow:inset 0 1px rgba(255,255,255,.008);
+  transition:border-color .15s ease,background .15s ease,box-shadow .15s ease
+}
+body.pa-internal-mode[data-pa-page="history"] .history-event:hover{
+  border-color:color-mix(in srgb,var(--accent,var(--pa-blue)) 20%,rgba(239,233,221,.10));
+  border-left-color:color-mix(in srgb,var(--accent,var(--pa-blue)) 72%,rgba(239,233,221,.08));
+  background:
+    linear-gradient(90deg,color-mix(in srgb,var(--accent,var(--pa-blue)) 5.5%,transparent),transparent 25%),
+    rgba(255,255,255,.009);
+  box-shadow:0 9px 22px rgba(0,0,0,.12),inset 0 1px rgba(255,255,255,.011)
+}
+body.pa-internal-mode[data-pa-page="history"] .event-time{
+  color:#9a978f;letter-spacing:.025em
+}
+body.pa-internal-mode[data-pa-page="history"] .event-kind{
+  background:color-mix(in srgb,var(--accent,var(--pa-blue)) 4%,transparent);
+  box-shadow:inset 0 1px rgba(255,255,255,.007)
+}
+body.pa-internal-mode[data-pa-page="history"] .event-main strong{
+  color:#dcd8d0
+}
+body.pa-internal-mode[data-pa-page="history"] .event-main span{
+  color:#81827e
+}
+body.pa-internal-mode[data-pa-page="history"] .event-value b{
+  color:#e5dfd5;font-size:15px;line-height:.95
+}
+body.pa-internal-mode[data-pa-page="history"] .event-value small{
+  color:#807d76
+}
+body.pa-internal-mode[data-pa-page="history"] .open-btn{
+  border-color:rgba(239,233,221,.090);
+  background:linear-gradient(180deg,rgba(18,21,26,.94),rgba(11,14,18,.97));
+  color:#c9c6c0;
+  box-shadow:inset 0 1px rgba(255,255,255,.014)
+}
+body.pa-internal-mode[data-pa-page="history"] .open-btn:hover{
+  border-color:rgba(109,130,152,.38);
+  background:linear-gradient(180deg,rgba(109,130,152,.12),rgba(11,14,18,.98));
+  color:#e3e8eb
+}
+
+/* Empty state e nota metodológica. */
+body.pa-internal-mode[data-pa-page="history"] .history-timeline .empty{
+  border-color:rgba(216,197,158,.16);
+  background:
+    radial-gradient(320px 130px at 50% 0,rgba(216,197,158,.025),transparent 72%),
+    rgba(255,255,255,.003)
+}
+body.pa-internal-mode[data-pa-page="history"] .history-timeline .empty strong{
+  color:#d3c49f;font:820 14px/1.12 var(--pa-condensed)
+}
+body.pa-internal-mode[data-pa-page="history"] .history-timeline .empty p{
+  color:#838480
+}
+body.pa-internal-mode[data-pa-page="history"] .empty-context span{
+  border-color:rgba(239,233,221,.060);
+  background:rgba(255,255,255,.004);
+  color:#8d8b85
+}
+body.pa-internal-mode[data-pa-page="history"] .data-note{
+  border-color:rgba(109,130,152,.14);
+  background:
+    radial-gradient(420px 140px at -6% -10%,rgba(109,130,152,.030),transparent 72%),
+    rgba(109,130,152,.018);
+  color:#818582;
+  box-shadow:inset 0 1px rgba(255,255,255,.007)
+}
+body.pa-internal-mode[data-pa-page="history"] .data-note strong{
+  color:#b8c5cf
+}
 </style>
 <link rel="stylesheet" href="assets/css/pa-tokens-v01.css"><link rel="stylesheet" href="assets/css/pa-shell-v16.css"><link rel="stylesheet" href="assets/css/pa-components-v01.css">
 <link rel="stylesheet" href="assets/css/pa-surfaces-v01.css">
