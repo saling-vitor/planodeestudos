@@ -12,7 +12,7 @@
     "status": "success"
   },
   "featureFreeze": true,
-  "status": "manual-qa-pending",
+  "status": "release-gate-ready",
   "manualBlockers": [
     "chrome-zoom-80",
     "chrome-zoom-125",
