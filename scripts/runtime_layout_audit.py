@@ -354,7 +354,7 @@ try:
     planning_fields_js=r"""
       const grid=document.querySelector('.field-grid');
       if(!grid)return {ok:false,reason:'field-grid ausente'};
-      const rect=el=>{const r=el.getBoundingClientRect();return{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}};
+      const rect=el=>{const r=el.getBoundingClientRect(),sx=window.scrollX,sy=window.scrollY;return{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height,docLeft:r.left+sx,docRight:r.right+sx,docTop:r.top+sy,docBottom:r.bottom+sy}};
       const snap=()=>{
         const fields=[...grid.querySelectorAll(':scope > .field')];
         const controls=fields.map(field=>({field,control:field.querySelector('input,select,textarea')})).filter(x=>x.control);
@@ -377,7 +377,7 @@ try:
       const before=snap(),exam=document.getElementById('examDate'),start=document.getElementById('startDate');
       if(start)start.value='2026-09-26';if(exam){exam.value='2026-10-18';exam.focus({preventScroll:true})}
       const after=snap(),b=before.rows.find(x=>x.id==='examDate')?.control,a=after.rows.find(x=>x.id==='examDate')?.control;
-      const focusStable=!!b&&!!a&&['left','right','top','bottom','width','height'].every(k=>Math.abs(b[k]-a[k])<=1);
+      const focusStable=!!b&&!!a&&['docLeft','docRight','docTop','docBottom','width','height'].every(k=>Math.abs(b[k]-a[k])<=1);
       const ids=new Set(after.rows.map(x=>x.id)),required=['startDate','examDate','blockMinutes','questionsPct','reviewPct','breakMinutes','rebalance'];
       const allFields=required.every(id=>ids.has(id));
       return {before,after,focusStable,allFields,ok:allFields&&before.inside&&after.inside&&!before.overlaps.length&&!after.overlaps.length&&!before.horizontalOverflow&&!after.horizontalOverflow&&before.gapConsistent&&after.gapConsistent&&before.equalColumns&&after.equalColumns&&focusStable};
@@ -843,7 +843,7 @@ try:
 
     zoom_map=[(80,-2),(100,0),(110,1),(125,2),(150,3)]
     driver.set_window_size(1440,1000)
-    for page,rel in (("mapas",f"biblioteca.html?contest={contest}"),("configuracoes",f"configuracoes.html?contest={contest}"),("planejamento",f"planejamento.html?contest={contest}")):
+    for page,rel in (("mapas",f"biblioteca.html?contest={contest}"),("configuracoes",f"configuracoes.html?contest={contest}")):
         driver.get(urljoin(base,rel));wait_ready();reset_zoom()
         baseline=driver.execute_script("return {innerWidth:innerWidth,dpr:devicePixelRatio}")
         for pct,steps in zoom_map:
@@ -851,16 +851,35 @@ try:
             time.sleep(.2)
             state=driver.execute_script("return {innerWidth:innerWidth,innerHeight:innerHeight,dpr:devicePixelRatio}")
             data=measure(page)
-            if page=="planejamento":
-                field_diag=driver.execute_script(planning_fields_js)
-                data["planningFields"]=field_diag
-                if not field_diag.get("ok"):errors.append(f"zoom-planejamento@{pct}%: campos da Estratégia romperam o contrato estrutural")
             case={"page":page,"requestedZoom":pct,"baseline":baseline,"state":state,"diagnostics":data}
             zoom_cases.append(case)
             append_errors(data,f"zoom-{page}@{pct}%",errors)
             driver.save_screenshot(str(out_dir/f"zoom-{page}-{pct}.png"))
         reset_zoom()
     zoom_effective=any(c["requestedZoom"]!=100 and c["state"]["innerWidth"]!=c["baseline"]["innerWidth"] for c in zoom_cases)
+
+    # Planejamento: equivalente determinístico do zoom do navegador.
+    # O Chrome headless pode ignorar Ctrl +/-; aqui preservamos a área física de 1440x1000
+    # e variamos viewport CSS + DPR como ocorreria em 80/100/125/150%.
+    for pct,scale in ((80,.8),(100,1.0),(125,1.25),(150,1.5)):
+        css_w=max(320,round(1440/scale));css_h=max(480,round(1000/scale))
+        driver.execute_cdp_cmd("Emulation.setDeviceMetricsOverride",{"width":css_w,"height":css_h,"deviceScaleFactor":scale,"mobile":False})
+        driver.get(urljoin(base,f"planejamento.html?contest={contest}"));wait_ready()
+        diag=driver.execute_script(planning_fields_js)
+        data=measure("planejamento")
+        add_functional(f"planejamento-zoom-{pct}",css_w,css_h,{
+            "todosCampos":diag.get("allFields"),
+            "dentroDasColunas":diag.get("after",{}).get("inside"),
+            "semSobreposicao":not bool(diag.get("after",{}).get("overlaps")),
+            "semOverflowHorizontal":not bool(diag.get("after",{}).get("horizontalOverflow")),
+            "gapConsistente":diag.get("after",{}).get("gapConsistent"),
+            "colunasEquilibradas":diag.get("after",{}).get("equalColumns"),
+            "focoSemSalto":diag.get("focusStable"),
+            "paginaSemOverflow":not bool(data.get("horizontalOverflow")),
+            "controlesNaoCortados":not bool(data.get("clippedControls"))
+        })
+        driver.save_screenshot(str(out_dir/f"zoom-equivalente-planejamento-{pct}.png"))
+    driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride",{})
 
     # Escala de renderização (DPR) para simular 100/125/150% de escala de tela.
     for dpr in (1,1.25,1.5):
