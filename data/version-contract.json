@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "targetRelease": "1.1.0",
+  "productBaseline": "1.0.0",
+  "technical": {
+    "dataApi": "3.5",
+    "sync": "3.1",
+    "pwa": "19.4",
+    "serviceWorker": "19.4-source",
+    "offlinePack": "19.4-production",
+    "studyPreconfig": "V134.0",
+    "studyRuntimeCanonical": "MINDMAP_V139",
+    "studyBridge": "1.3"
+  },
+  "compatibilityAliases": [
+    {
+      "alias": "MINDMAP_V133",
+      "target": "MINDMAP_V134",
+      "reason": "compatibilidade com mapas/estados gerados por versões anteriores"
+    },
+    {
+      "alias": "MINDMAP_V135",
+      "target": "MINDMAP_V139",
+      "reason": "compatibilidade com chamadas históricas do runtime adaptativo"
+    }
+  ],
+  "rules": [
+    "productBaseline é a versão usada nos backups enquanto a V1.1 ainda não foi promovida",
+    "pwa, serviceWorker e offlinePack devem permanecer coordenados",
+    "aliases de mapas só podem ser removidos com migração explícita e teste de progresso",
+    "bridge 1.3 é compatibilidade de integração entre mapa e portal"
+  ]
+}
