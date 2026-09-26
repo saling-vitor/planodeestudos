@@ -215,13 +215,17 @@ body.pa-internal-mode[data-pa-page="planning"] .plan-alert.ok{
   border-color:rgba(98,169,120,.20);
   background:linear-gradient(90deg,rgba(98,169,120,.050),rgba(98,169,120,.018))
 }
+
+.adaptive-panel{padding:18px}.adaptive-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center}.adaptive-head strong{display:block;color:#d9d7d1;font-size:13px}.adaptive-head p{max-width:760px;margin:5px 0 0;color:#7f8389;font-size:9.5px;line-height:1.55}.adaptive-kicker{display:block;margin-bottom:6px;color:#9caeb9;font:800 7.5px/1 var(--mono);letter-spacing:.09em;text-transform:uppercase}.adaptive-area{margin-top:14px}.adaptive-state{padding:13px 14px;border:1px solid var(--line2);border-radius:11px;background:rgba(255,255,255,.007)}.adaptive-state strong{display:block;color:#cfd1d4;font-size:11px}.adaptive-state span{display:block;margin-top:5px;color:#7e838a;font-size:9px;line-height:1.5}.adaptive-state.ready{border-color:rgba(109,130,152,.25);background:rgba(109,130,152,.035)}.adaptive-state.ok{border-color:rgba(98,169,120,.20);background:rgba(98,169,120,.025)}.adaptive-state.warn{border-color:rgba(216,184,88,.22);background:rgba(216,184,88,.025)}.adaptive-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-bottom:10px}.adaptive-metric{padding:11px;border:1px solid var(--line2);border-radius:9px;background:rgba(255,255,255,.008)}.adaptive-metric span{display:block;color:#777c83;font:760 7px var(--mono);text-transform:uppercase}.adaptive-metric b{display:block;margin-top:6px;color:#dedbd4;font:820 15px var(--cond)}.adaptive-reasons{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.adaptive-reason{padding:6px 8px;border:1px solid rgba(109,130,152,.16);border-radius:999px;background:rgba(109,130,152,.025);color:#98a8b4;font:760 7.5px var(--mono);text-transform:uppercase}.adaptive-diffs{display:grid;gap:7px}.adaptive-diff{padding:10px 11px;border:1px solid var(--line2);border-radius:9px;background:rgba(255,255,255,.006)}.adaptive-diff-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.adaptive-diff-head strong{font-size:10px;color:#cfd1d4}.adaptive-diff-head span{color:#7f848b;font:750 7.5px var(--mono)}.adaptive-diff-lines{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.adaptive-diff-line{padding:8px;border:1px solid rgba(255,255,255,.04);border-radius:7px;background:#0b0d11;color:#858a91;font-size:8.6px;line-height:1.45}.adaptive-diff-line b{display:block;margin-bottom:4px;color:#a6abb1;font:760 7px var(--mono);text-transform:uppercase}.adaptive-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line2)}.adaptive-confirm{margin-top:10px;padding:9px 10px;border:1px solid rgba(216,184,88,.22);border-radius:8px;background:rgba(216,184,88,.03);color:#bfae7e;font-size:8.8px;line-height:1.5}.adaptive-note{margin-top:9px;color:#72777e;font-size:8.7px;line-height:1.5}
+@media(max-width:900px){.adaptive-head{grid-template-columns:1fr}.adaptive-head .primary-btn{justify-self:start}.adaptive-metrics{grid-template-columns:1fr 1fr}.adaptive-diff-lines{grid-template-columns:1fr}}
+@media(max-width:560px){.adaptive-metrics{grid-template-columns:1fr}.adaptive-actions{display:grid;grid-template-columns:1fr}.adaptive-actions button{width:100%}}
 </style>
 <script src="data/contests.js"></script>
 <script src="assets/js/pa-contest-context-v01.js"></script>
 <script src="data/materials.js"></script>
 <script src="data/exam-schemas.js"></script>
 <script src="data/navigation.js"></script>
-<script src="assets/js/pa-study-blueprint-v01.js"></script>
+<script src="assets/js/pa-study-blueprint-v01.js"></script>\n<script src="assets/js/pa-replan-v01.js"></script>
 <link rel="stylesheet" href="assets/css/pa-tokens-v01.css"><link rel="stylesheet" href="assets/css/pa-shell-v16.css">
 
 <link rel="stylesheet" href="assets/css/pa-components-v01.css">
@@ -299,6 +303,17 @@ body.pa-internal-mode[data-pa-page="planning"] .plan-alert.ok{
   <div class="section-head"><h2>Plano gerado</h2><div class="plan-actions"><button type="button" class="ghost-btn" id="saveOnlyBtn">Salvar configuração</button><button type="button" class="primary-btn" id="generateBtn">Salvar e gerar plano</button></div></div>
   <article class="panel">
     <div id="planArea"><div class="empty"><strong>Nenhum plano gerado ainda</strong><span>Configure sua disponibilidade e clique em “Salvar e gerar plano”.</span></div></div>
+  </article>
+ </section>
+
+ <section class="section" id="adaptivePlanning">
+  <div class="section-head"><h2>Replanejamento adaptativo</h2><span>somente por proposta</span></div>
+  <article class="panel adaptive-panel">
+   <div class="adaptive-head">
+    <div><span class="adaptive-kicker">AUT-02 · Controle total</span><strong>Recalcular apenas o futuro</strong><p>O sistema pode redistribuir os próximos dias conforme progresso, faltas, revisões, materiais e data da prova. Hoje, passado e atividades futuras já tocadas ficam protegidos.</p></div>
+    <button type="button" class="primary-btn" id="adaptiveAnalyze">Analisar proposta</button>
+   </div>
+   <div class="adaptive-area" id="adaptiveArea"><div class="adaptive-state"><strong>Nenhuma análise feita nesta tela</strong><span>O plano não será alterado enquanto você não revisar e confirmar uma proposta.</span></div></div>
   </article>
  </section>
 </div>
@@ -640,13 +655,41 @@ function renderPlan(plan){
 }
 function generate(){
  saveConfig(false);const plan=generatePlanData();if(plan.error){renderPlan(plan);toast(plan.error);return}
- localStorage.setItem(PLAN_KEY,JSON.stringify(plan));window.PlanoARQHistory?.record?.(contestId,{type:'planning',at:plan.generatedAt||new Date().toISOString(),code:'PLANO',title:'Planejamento gerado',subtitle:`${plan.summary?.dayCount||plan.days?.length||0} dias · ${Math.round(Number(plan.summary?.totalAvailableMinutes||0)/60)}h disponíveis`,href:`planejamento.html?contest=${encodeURIComponent(contestId)}`});renderPlan(plan);toast('Plano gerado e salvo')
+ localStorage.setItem(PLAN_KEY,JSON.stringify(plan));window.PlanoARQHistory?.record?.(contestId,{type:'planning',at:plan.generatedAt||new Date().toISOString(),code:'PLANO',title:'Planejamento gerado',subtitle:`${plan.summary?.dayCount||plan.days?.length||0} dias · ${Math.round(Number(plan.summary?.totalAvailableMinutes||0)/60)}h disponíveis`,href:`planejamento.html?contest=${encodeURIComponent(contestId)}`});renderPlan(plan);adaptiveProposal=null;adaptiveArmed=false;renderAdaptiveStatus();toast('Plano gerado e salvo')
 }
 
 function initExistingPlan(){
  const plan=safeJSON(localStorage.getItem(PLAN_KEY),null);if(plan&&plan.contestId===contestId)renderPlan(plan)
 }
 
+let adaptiveProposal=null,adaptiveArmed=false;
+function adaptiveSessionText(list){if(!list?.length)return'Sem sessão';return list.slice(0,4).map(s=>`${s.start||'flex'} · ${s.shortCode||'MAPA'} · ${s.type==='questions'?'questões':s.type==='review'?'revisão':'mapa'} · ${s.minutes} min`).join(' · ')+(list.length>4?` · +${list.length-4}`:'')}
+function adaptiveState(kind,title,detail){$('adaptiveArea').innerHTML=`<div class="adaptive-state ${kind||''}"><strong>${esc(title)}</strong><span>${esc(detail)}</span></div>`}
+function bindAdaptiveProposal(){
+ const apply=$('adaptiveApply'),cancel=$('adaptiveCancel');if(cancel)cancel.onclick=()=>{adaptiveArmed=false;renderAdaptiveProposal(adaptiveProposal)};
+ if(apply)apply.onclick=()=>{
+  if(!adaptiveProposal)return;
+  if(!adaptiveArmed){adaptiveArmed=true;apply.textContent='Confirmar aplicação';apply.classList.add('danger');const n=$('adaptiveConfirmNote');if(n)n.hidden=false;return}
+  try{const result=window.PLANO_ARQ_REPLAN.apply(contestId,adaptiveProposal);adaptiveProposal=null;adaptiveArmed=false;renderPlan(result.plan);renderAdaptiveStatus();toast('Proposta aplicada · histórico preservado')}catch(err){adaptiveArmed=false;toast(err?.message||'Não foi possível aplicar a proposta');analyzeAdaptive()}
+ }
+}
+function renderAdaptiveProposal(p){
+ if(!p||p.status!=='ready'){adaptiveState(p?.status==='no-change'?'ok':p?.status==='blocked'?'warn':'',p?.title||'Proposta indisponível',p?.detail||'Não foi possível calcular o replanejamento.');return}
+ const d=p.diff||{},delta=Number(d.futureMinutesDelta||0),rows=(d.rows||[]).slice(0,6),more=Math.max(0,(d.rows||[]).length-rows.length),reasons=(p.reasons||[]).map(x=>`<span class="adaptive-reason">${esc(x.label)}</span>`).join('');
+ $('adaptiveArea').innerHTML=`<div class="adaptive-metrics"><div class="adaptive-metric"><span>Início das mudanças</span><b>${esc(fmtDate(p.cutoverDate))}</b></div><div class="adaptive-metric"><span>Dias alterados</span><b>${Number(d.changedDays||0)}</b></div><div class="adaptive-metric"><span>Hoje + passado</span><b>${Number(d.preservedPastDays||0)} dias</b></div><div class="adaptive-metric"><span>Saldo futuro</span><b>${delta>0?'+':''}${minsLabel(delta)}</b></div></div><div class="adaptive-reasons">${reasons}</div><div class="adaptive-diffs">${rows.map(r=>`<div class="adaptive-diff"><div class="adaptive-diff-head"><strong>${esc(fmtLong(r.date))}</strong><span>${r.beforeSessions} → ${r.afterSessions} sessões · ${minsLabel(r.beforeMinutes)} → ${minsLabel(r.afterMinutes)}</span></div><div class="adaptive-diff-lines"><div class="adaptive-diff-line"><b>Plano atual</b>${esc(adaptiveSessionText(r.before))}</div><div class="adaptive-diff-line"><b>Proposta</b>${esc(adaptiveSessionText(r.after))}</div></div></div>`).join('')}</div>${more?`<div class="adaptive-note">+${more} dia${more===1?'':'s'} com alteração não exibido${more===1?'':'s'} nesta prévia.</div>`:''}<div class="adaptive-note">Protegidos: hoje, todo o histórico anterior e ${Number(d.lockedFutureDays||0)} dia${Number(d.lockedFutureDays||0)===1?' futuro já tocado':'s futuros já tocados'}. A proposta usa a configuração salva.</div><div class="adaptive-confirm" id="adaptiveConfirmNote" ${adaptiveArmed?'':'hidden'}><b>Confirmação necessária:</b> somente o plano futuro será substituído. Um ponto de recuperação será criado antes da aplicação.</div><div class="adaptive-actions"><button type="button" class="ghost-btn" id="adaptiveCancel">Cancelar</button><button type="button" class="primary-btn" id="adaptiveApply">${adaptiveArmed?'Confirmar aplicação':'Aplicar proposta'}</button></div>`;
+ bindAdaptiveProposal()
+}
+function analyzeAdaptive(){
+ const R=window.PLANO_ARQ_REPLAN;if(!R){adaptiveState('warn','Motor adaptativo indisponível','Recarregue a página para carregar o componente de replanejamento.');return}
+ adaptiveArmed=false;adaptiveState('','Analisando o plano futuro','Nenhuma alteração está sendo aplicada.');
+ try{adaptiveProposal=R.propose(contestId);renderAdaptiveProposal(adaptiveProposal)}catch(err){adaptiveProposal=null;adaptiveState('warn','Não foi possível criar a proposta',err?.message||'Falha de análise.')}
+}
+function renderAdaptiveStatus(){
+ const R=window.PLANO_ARQ_REPLAN;if(!R)return;
+ try{const info=R.inspect(contestId);if(info.available)adaptiveState('ready','Há uma proposta possível',`${info.diff?.changedDays||0} dia${info.diff?.changedDays===1?'':'s'} futuro${info.diff?.changedDays===1?'':'s'} pode${info.diff?.changedDays===1?'':'m'} ser redistribuído${info.diff?.changedDays===1?'':'s'}. Clique em “Analisar proposta” para revisar antes de aplicar.`);else adaptiveState(info.status==='no-change'?'ok':info.status==='blocked'?'warn':'',info.title||'Sem proposta agora',info.detail||'O plano atual será preservado.')}catch(err){adaptiveState('warn','Análise adaptativa indisponível',err?.message||'Não foi possível avaliar o plano.')}
+}
+$('adaptiveAnalyze').addEventListener('click',analyzeAdaptive);
+if(params.get('adaptive')==='1')setTimeout(analyzeAdaptive,0);else renderAdaptiveStatus();
 
 
 $('saveBtn').addEventListener('click',()=>saveConfig(true));
