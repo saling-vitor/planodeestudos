@@ -59,6 +59,7 @@ jobs:
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           python3 scripts/runtime_data_safety.py http://127.0.0.1:8765/
+          python3 scripts/runtime_automation_v11.py http://127.0.0.1:8765/
           STUDY_MAP_AUDIT_DIR=${{ runner.temp }}/study-map-audit python3 scripts/runtime_study_map_audit.py http://127.0.0.1:8765/
           python3 scripts/runtime_offline_reliability.py http://127.0.0.1:8765/
           LAYOUT_AUDIT_DIR=${{ runner.temp }}/layout-audit LAYOUT_AUDIT_STRICT=1 python3 scripts/runtime_layout_audit.py http://127.0.0.1:8765/
