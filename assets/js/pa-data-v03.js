@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const RELEASE='1.0.0';
+const RELEASE='1.1.0';
 const API={version:'3.5',release:RELEASE};
 const BUILD_MAINTENANCE=false;
 const RUNTIME_KEY='planoarq:runtime-flags:v1';

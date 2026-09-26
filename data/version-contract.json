@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "targetRelease": "1.1.0",
-  "productBaseline": "1.0.0",
+  "productBaseline": "1.1.0",
   "technical": {
     "dataApi": "3.5",
     "sync": "3.1",
@@ -28,12 +28,21 @@
     }
   ],
   "rules": [
-    "productBaseline é a versão usada nos backups enquanto a V1.1 ainda não foi promovida",
+    "productBaseline é a versão de produto preparada/publicada e usada nos novos backups",
     "pwa, serviceWorker e offlinePack devem permanecer coordenados",
     "aliases de mapas só podem ser removidos com migração explícita e teste de progresso",
     "os 14 mapas empacotados mantêm bridge 1.1 por compatibilidade; runtime/blueprint atual é 1.3",
     "novos mapas auditados pelo fluxo H3 usam o contrato de bridge atual"
   ],
   "candidateRelease": "1.1.0-rc.1",
-  "functionalFreezeSha": "db357f7fed6a7cdf8ac12c2c08c8a60c80156517"
+  "functionalFreezeSha": "db357f7fed6a7cdf8ac12c2c08c8a60c80156517",
+  "releaseStatus": "final-preparation",
+  "releaseBranch": "release/v1.1.0",
+  "sourceCandidateSha": "ecae8ef1927c8ea8a1e5086a77959dfc15a0e34d",
+  "releaseGate": {
+    "workflow": "Gate V1.1 Release",
+    "run": 1,
+    "status": "success",
+    "sha": "ecae8ef1927c8ea8a1e5086a77959dfc15a0e34d"
+  }
 }

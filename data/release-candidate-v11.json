@@ -12,7 +12,7 @@
     "status": "success"
   },
   "featureFreeze": true,
-  "status": "release-gate-ready",
+  "status": "promoted-to-final-preparation",
   "manualBlockers": [
     "chrome-zoom-80",
     "chrome-zoom-125",
@@ -32,12 +32,21 @@
     "docs/VERSIONING.md",
     "scripts/validate_release_candidate.py",
     "scripts/validate_release_qa.py",
-    "scripts/validate_versions.py"
+    "scripts/validate_versions.py",
+    "assets/js/pa-data-v03.js",
+    "data/cloud-config.json"
   ],
   "rules": [
     "nenhuma nova funcionalidade após functionalFreezeSha",
     "mudanças pós-freeze ficam restritas a release metadata, documentação, QA e CI",
     "correção funcional pós-freeze exige novo RC e novo functionalFreezeSha",
     "promoção para 1.1.0 exige os três zooms reais aprovados e Gate V1.1 Release verde"
-  ]
+  ],
+  "finalBranch": "release/v1.1.0",
+  "releaseGate": {
+    "workflow": "Gate V1.1 Release",
+    "run": 1,
+    "status": "success",
+    "sha": "ecae8ef1927c8ea8a1e5086a77959dfc15a0e34d"
+  }
 }

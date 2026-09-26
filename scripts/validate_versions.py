@@ -39,6 +39,13 @@ for key,value in checks.items():
     if value!=expected.get(key):
         errors.append(f"{key}: runtime={value!r} contrato={expected.get(key)!r}")
 
+cloud=json.loads((ROOT/"data/cloud-config.json").read_text("utf-8"))
+if cloud.get("version")!=contract.get("productBaseline"):
+    errors.append(f"cloud-config: version={cloud.get('version')!r} contrato={contract.get('productBaseline')!r}")
+release_status=str(contract.get("releaseStatus") or "")
+if release_status in {"final-preparation","released"} and contract.get("productBaseline")!=contract.get("targetRelease"):
+    errors.append("release final: productBaseline deve coincidir com targetRelease")
+
 builder=text("scripts/build_offline_pack.py")
 offline=tech.get("offlinePack") or ""
 if offline and f"'version':'{offline}'" not in builder and f'"version":"{offline}"' not in builder:
@@ -90,6 +97,7 @@ print(json.dumps({
     "ok":True,
     "targetRelease":contract.get("targetRelease"),
     "productBaseline":contract.get("productBaseline"),
+    "releaseStatus":contract.get("releaseStatus"),
     "technical":tech,
     "aliases":contract.get("compatibilityAliases"),
     "materialsBridgeValidated":len(materials),
