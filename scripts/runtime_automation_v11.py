@@ -74,6 +74,26 @@ try:
     report["focusV2"]=focus_v2
     if not focus_v2.get("ok"): errors.append("Foco Automático 2.0 não expôs uma fonte única/read-only com contexto de prova")
 
+    # Imported contests keep their local ExamSchema as the source of truth.
+    imported_schema=driver.execute_script("""
+      const A=window.PlanoARQActions,sid='focus-v2-local-schema-test';
+      const contestsKey='planoarq:contests:v1',schemaKey='planoarq:exam-schema::'+sid;
+      const prevContests=localStorage.getItem(contestsKey),prevSchema=localStorage.getItem(schemaKey);
+      try{
+        const rows=JSON.parse(prevContests||'[]').filter(x=>x?.id!==sid);
+        rows.push({id:sid,title:'Focus V2 local',examDate:'2026-12-31',examSchemaId:sid});
+        localStorage.setItem(contestsKey,JSON.stringify(rows));
+        localStorage.setItem(schemaKey,JSON.stringify({id:sid,contestId:sid,stages:[{type:'objective',sections:[{id:'local',label:'Estrutura local',totalPoints:77,mapGroups:['LOCAL']}]}]}));
+        const ctx=A.focusContext(sid);
+        return {ok:ctx?.exam?.contestId===sid&&ctx?.exam?.totalPoints===77&&ctx?.exam?.sections?.[0]?.label==='Estrutura local',exam:ctx?.exam||null};
+      }finally{
+        if(prevContests===null)localStorage.removeItem(contestsKey);else localStorage.setItem(contestsKey,prevContests);
+        if(prevSchema===null)localStorage.removeItem(schemaKey);else localStorage.setItem(schemaKey,prevSchema);
+      }
+    """)
+    report["importedSchema"]=imported_schema
+    if not imported_schema.get("ok"): errors.append("Foco 2.0 não respeitou o ExamSchema local de concurso importado")
+
     # Diagnostic signal is derived from study evidence, exam weight and enabled sources.
     diagnostic=driver.execute_script("""
       const cid=arguments[0],A=window.PlanoARQActions;
