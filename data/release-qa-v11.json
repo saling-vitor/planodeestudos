@@ -4,9 +4,12 @@
   "automated": {
     "dataSafety": "ci",
     "studyMaps84Cases": "ci",
+    "portalLayout286Cases": "ci",
+    "automationReadOnly": "ci",
     "offlineColdInstall": "ci",
     "cssJsPwa": "ci",
-    "versionContract": "ci"
+    "versionContract": "ci",
+    "releaseCandidateContract": "ci"
   },
   "manual": [
     {
