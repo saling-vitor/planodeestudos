@@ -128,7 +128,7 @@ const NON_OBJECTIVE_STAGE=/\b(?:PROVA\s+PRATICA|AVALIACAO\s+PRATICA|PROVA\s+ORAL
 const OBJECTIVE_SCHEDULE=/\b(?:APLICACAO|REALIZACAO|DATA|HORARIO|LOCAL|CONVOCACAO|GABARITO|RECURSO|RESULTADO|CRONOGRAMA)\b/;
 const SECTION_STOP=/\b(?:PROVA\s+PRATICA|AVALIACAO\s+PRATICA|PROVA\s+ORAL|AVALIACAO\s+PSICOLOGICA|EXAME\s+PSICOLOGICO|TESTE\s+DE\s+APTIDAO\s+FISICA|TAF|PROVA\s+DE\s+TITULOS|AVALIACAO\s+DE\s+TITULOS|CURSO\s+DE\s+FORMACAO|CONTEUDO\s+PROGRAMATICO|PROGRAMA\s+DAS\s+PROVAS)\b/;
 function objectiveHeading(text){
- const raw=clean(text),f=fold(raw);if(!raw||raw.length>180||NON_OBJECTIVE_STAGE.test(f))return null;
+ const raw=clean(text),f=fold(raw);if(!raw||raw.length>180||NON_OBJECTIVE_STAGE.test(f)||(/^A\s+PROVA\b/.test(f)&&/\b(?:TERA|SERA|DEVERA|CARATER|DURACAO|PONTUACAO|CANDIDATO)\b/.test(f)))return null;
  for(const [kind,label,rx] of OBJECTIVE_HEADINGS)if(rx.test(f)){
   if(OBJECTIVE_SCHEDULE.test(f)&&(/\b\d{1,2}[\/.-]\d{1,2}(?:[\/.-]\d{2,4})?\b/.test(raw)||f.length>70))return null;
   return{type:'objective',kind,label,sourceLabel:raw}
