@@ -295,7 +295,7 @@ function objectiveDuration(rows,localRows){
 }
 function objectiveCharacter(rows,localRows){
  const candidates=[...(localRows||[]),...rows.filter(x=>/ELIMINATOR|CLASSIFICATOR/.test(fold(x.text)))],seen=new Set();
- for(const row of candidates){if(!row||seen.has(row.ref))continue;seen.add(row.ref);const f=fold(row.text);if(/ELIMINATORIA?\s+E\s+CLASSIFICATORIA?/.test(f))return{value:'Eliminatório e classificatório',sourceRef:row.ref};if(/ELIMINATOR/.test(f))return{value:'Eliminatório',sourceRef:row.ref};if(/CLASSIFICATOR/.test(f))return{value:'Classificatório',sourceRef:row.ref}}
+ for(const row of candidates){if(!row||seen.has(row.ref))continue;seen.add(row.ref);const f=fold(row.text);if(/ELIMINATORI[OA]\s+E\s+CLASSIFICATORI[OA]/.test(f))return{value:'Eliminatório e classificatório',sourceRef:row.ref};if(/ELIMINATOR/.test(f))return{value:'Eliminatório',sourceRef:row.ref};if(/CLASSIFICATOR/.test(f))return{value:'Classificatório',sourceRef:row.ref}}
  return null
 }
 function objectiveMinimum(rows,localRows){
