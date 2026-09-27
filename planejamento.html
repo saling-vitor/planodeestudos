@@ -808,7 +808,7 @@ function renderAdaptiveProposal(p){
 }
 function analyzeAdaptive(){
  const R=window.PLANO_ARQ_REPLAN;if(!R){adaptiveState('warn','Motor adaptativo indisponível','Recarregue a página para carregar o componente de replanejamento.');return}
- adaptiveArmed=false;adaptiveState('','Analisando o plano futuro','Nenhuma alteração está sendo aplicada.');
+ adaptiveArmed=false;adaptiveState('loading','Analisando o plano futuro','Nenhuma alteração está sendo aplicada.');
  try{adaptiveProposal=R.propose(contestId);renderAdaptiveProposal(adaptiveProposal)}catch(err){adaptiveProposal=null;adaptiveState('warn','Não foi possível criar a proposta',err?.message||'Falha de análise.')}
 }
 function renderAdaptiveStatus(){

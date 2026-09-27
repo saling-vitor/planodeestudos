@@ -547,3 +547,261 @@ html.pa-reduce-motion body.pa-internal-mode :is(
   input,select,textarea
 ){transition:none!important}
 
+/* ===== ETAPA E4 · Estados visuais canônicos ===== */
+/* Estado é semântico: azul=ativo/info, verde=sucesso/concluído,
+   dourado=atenção/pendência, vermelho=erro/crítico. */
+body.pa-internal-mode{
+  --pa-state-info:var(--pa-accent-blue);
+  --pa-state-success:var(--pa-accent-green);
+  --pa-state-warning:var(--pa-accent-gold);
+  --pa-state-error:var(--pa-accent-red);
+  --pa-state-neutral:#8a9098
+}
+
+/* EMPTY / NO-DATA — compacto, legível e com CTA quando o HTML já o oferece. */
+body.pa-internal-mode :is(.empty,.today-empty,.local-empty,.empty-state,.snapshot-empty){
+  box-sizing:border-box;min-height:108px;padding:20px 18px;
+  display:grid;justify-items:center;align-content:center;gap:5px;
+  border:1px dashed rgba(239,233,221,.09);border-radius:13px;
+  background:
+    radial-gradient(280px 105px at 50% 0,rgba(109,130,152,.026),transparent 72%),
+    rgba(255,255,255,.003);
+  color:#7d838b;text-align:center;box-shadow:none
+}
+body.pa-internal-mode :is(.empty,.today-empty,.local-empty,.snapshot-empty)::before{
+  content:"○";display:grid;place-items:center;width:25px;height:25px;margin-bottom:2px;
+  border:1px solid rgba(239,233,221,.085);border-radius:8px;
+  background:rgba(255,255,255,.005);color:#7d8993;
+  font:800 10px/1 var(--pa-mono)
+}
+body.pa-internal-mode .empty-state .empty-icon{
+  width:26px;height:26px;display:grid;place-items:center;margin:0 auto 2px;
+  border:1px solid rgba(239,233,221,.085);border-radius:8px;
+  background:rgba(255,255,255,.005);color:#7d8993;
+  font:800 9px/1 var(--pa-mono)
+}
+body.pa-internal-mode :is(.empty,.today-empty,.local-empty,.empty-state,.snapshot-empty) :is(strong,b){
+  color:#cfd0ce;font-size:10.5px;line-height:1.35
+}
+body.pa-internal-mode :is(.empty,.today-empty,.local-empty,.empty-state,.snapshot-empty) :is(span,p){
+  max-width:var(--pa-reading-measure-compact);margin-block:0;color:#7d838b;font-size:9px;line-height:1.5
+}
+body.pa-internal-mode :is(.empty,.today-empty,.local-empty,.empty-state,.snapshot-empty) :is(.empty-actions,.row-actions){
+  margin-top:8px
+}
+body.pa-internal-mode :is(.pattern-empty,.auto-empty,.automation-preview-empty,.post-sim-empty){
+  min-height:0;padding:10px 11px;
+  border:1px solid rgba(239,233,221,.045);border-radius:9px;
+  background:rgba(255,255,255,.004);color:#777e86;
+  font-size:8.8px;line-height:1.5;text-align:left
+}
+body:not(.pa-internal-mode) :is(.empty,.today-empty){
+  min-height:108px;padding:20px 18px;border-color:rgba(239,233,221,.09);
+  background:rgba(255,255,255,.004)
+}
+
+/* LOADING — spinner mínimo; nenhum skeleton pesado nem mudança de geometria. */
+@keyframes pa-state-spin{to{transform:rotate(360deg)}}
+body.pa-internal-mode :is(.viewer-status.is-loading,.adaptive-state.loading,.pwa-result.is-loading){
+  color:#98a8b5
+}
+body.pa-internal-mode :is(.viewer-status.is-loading,.adaptive-state.loading,.pwa-result.is-loading)::before{
+  content:"";display:inline-block;box-sizing:border-box;width:11px;height:11px;
+  margin-right:7px;vertical-align:-1px;border:1px solid rgba(109,130,152,.25);
+  border-top-color:var(--pa-state-info);border-radius:50%;
+  animation:pa-state-spin .75s linear infinite
+}
+body.pa-internal-mode .next-panel.is-loading .next-k::before{
+  content:"";display:inline-block;box-sizing:border-box;width:9px;height:9px;
+  margin-right:6px;vertical-align:-1px;border:1px solid rgba(109,130,152,.25);
+  border-top-color:var(--pa-state-info);border-radius:50%;
+  animation:pa-state-spin .75s linear infinite
+}
+body.pa-internal-mode :is([aria-busy="true"],.loading,.is-loading){
+  cursor:progress
+}
+
+/* ACTIVE — somente elementos realmente em execução/recomendação. */
+body.pa-internal-mode :is(
+  .session-card.running,.featured-session.running,
+  .exam-card[data-status="progress"],.auto-target,.recommendation
+){
+  border-color:color-mix(in srgb,var(--pa-state-info) 42%,var(--pa-border-soft));
+  background:
+    radial-gradient(340px 130px at 0 0,color-mix(in srgb,var(--pa-state-info) 7%,transparent),transparent 76%),
+    linear-gradient(145deg,rgba(11,15,19,.88),rgba(7,9,12,.96));
+  box-shadow:0 13px 30px rgba(0,0,0,.19),inset 0 1px rgba(255,255,255,.015)
+}
+body:not(.pa-internal-mode) .contest-card:has(.status-badge.active){
+  border-color:color-mix(in srgb,var(--pa-state-info,var(--pa-blue)) 30%,rgba(239,233,221,.08));
+  background:
+    radial-gradient(360px 140px at -5% -8%,rgba(109,130,152,.045),transparent 74%),
+    linear-gradient(145deg,rgba(11,14,18,.88),rgba(7,9,12,.95))
+}
+
+/* SELECTED — seleção não substitui focus-visible. */
+body.pa-internal-mode :is(
+  button.chip,button.filter,button.map-filter,.period-tabs button,.tab,
+  .toggle,.automation-source
+):is(.active,.selected,[aria-selected="true"],[aria-pressed="true"]){
+  border-color:color-mix(in srgb,var(--pa-page-accent,var(--pa-state-info)) 50%,rgba(239,233,221,.08));
+  background:
+    radial-gradient(120px 48px at 0 50%,color-mix(in srgb,var(--pa-page-accent,var(--pa-state-info)) 10%,transparent),transparent 78%),
+    rgba(109,130,152,.045);
+  color:#dce5eb;
+  box-shadow:inset 0 -2px color-mix(in srgb,var(--pa-page-accent,var(--pa-state-info)) 22%,transparent)
+}
+body.pa-internal-mode :is(.cargo-choice,.automation-source):has(input:checked){
+  border-color:color-mix(in srgb,var(--pa-page-accent,var(--pa-state-info)) 38%,var(--pa-border-soft));
+  background:color-mix(in srgb,var(--pa-page-accent,var(--pa-state-info)) 7%,transparent)
+}
+
+/* SUCCESS / COMPLETED. */
+body.pa-internal-mode :is(
+  .status.ok,.status-chip.done,.state-badge.ok,.source-state.confirmed,
+  .priority-chip.resolved,.step.done,.analysis-row.done
+){
+  border-color:color-mix(in srgb,var(--pa-state-success) 35%,transparent);
+  background:color-mix(in srgb,var(--pa-state-success) 5%,transparent);
+  color:#a9cdb2
+}
+body.pa-internal-mode :is(.selected-file,.plan-alert.ok,.adaptive-state.ok){
+  border-color:color-mix(in srgb,var(--pa-state-success) 28%,transparent);
+  background:color-mix(in srgb,var(--pa-state-success) 4%,rgba(8,10,13,.58));
+  color:#9fc5aa
+}
+body.pa-internal-mode :is(.session-card.done,.exam-card[data-status="done"],.error-row.resolved){
+  border-color:color-mix(in srgb,var(--pa-state-success) 16%,var(--pa-border-soft));
+  background:
+    linear-gradient(90deg,color-mix(in srgb,var(--pa-state-success) 2.5%,transparent),transparent 22%),
+    rgba(255,255,255,.003);
+  opacity:.74
+}
+body.pa-internal-mode :is(.session-card.done,.exam-card[data-status="done"],.error-row.resolved):hover{
+  opacity:.88
+}
+
+/* WARNING — atenção, prazo, prioridade e pendência. */
+body.pa-internal-mode :is(
+  .status.wait,.status-chip.skipped,.state-badge.rev,.source-state.review,
+  .priority-chip.repeat,.metric.repeat
+){
+  border-color:color-mix(in srgb,var(--pa-state-warning) 30%,transparent);
+  background:color-mix(in srgb,var(--pa-state-warning) 4%,transparent);
+  color:#d1bc80
+}
+body.pa-internal-mode :is(.warning,.notice,.plan-alert:not(.ok),.adaptive-state.warn,.plan-break-warning){
+  border-color:color-mix(in srgb,var(--pa-state-warning) 24%,transparent);
+  background:
+    linear-gradient(90deg,color-mix(in srgb,var(--pa-state-warning) 4.5%,transparent),transparent 34%),
+    rgba(8,10,13,.52);
+  color:#b8aa7e
+}
+
+/* ERROR — erro, DIF crítico, falha e validação inválida. */
+body.pa-internal-mode :is(
+  .status.bad,.state-badge.dif,.source-state.missing,.metric.attn strong,
+  .priority-chip:not(.repeat):not(.resolved)
+){
+  color:#dfa1a9
+}
+body.pa-internal-mode :is(.status.bad,.state-badge.dif,.source-state.missing,.priority-chip:not(.repeat):not(.resolved)){
+  border-color:color-mix(in srgb,var(--pa-state-error) 32%,transparent);
+  background:color-mix(in srgb,var(--pa-state-error) 4%,transparent)
+}
+body.pa-internal-mode :is(.wizard-message.error,.settings-lock-status:not(:empty)){
+  border-color:color-mix(in srgb,var(--pa-state-error) 28%,transparent);
+  background:color-mix(in srgb,var(--pa-state-error) 4%,rgba(8,10,13,.58));
+  color:#d99ca4
+}
+body.pa-internal-mode :is(input,select,textarea):is([aria-invalid="true"],.invalid){
+  border-color:color-mix(in srgb,var(--pa-state-error) 62%,rgba(239,233,221,.08));
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--pa-state-error) 8%,transparent)
+}
+
+/* DISABLED — indisponível sem apagar o conteúdo. */
+body.pa-internal-mode :is(button,input,select,textarea):disabled,
+body.pa-internal-mode :is(button,a,input,select,textarea)[aria-disabled="true"],
+body.pa-internal-mode .disabled{
+  opacity:.58!important;cursor:not-allowed!important;filter:saturate(.62)!important;
+  box-shadow:none!important
+}
+body.pa-internal-mode :is(input,select,textarea):disabled{
+  color:#9da2a8!important;background:#0c0f13!important
+}
+
+/* MENSAGENS — mesma anatomia; a semântica fica no modifier. */
+body.pa-internal-mode :is(
+  .info-note,.wizard-message,.adaptive-state,.data-note,.pwa-result,
+  .security-note,.sync-result
+){
+  box-sizing:border-box;padding:10px 11px;border:1px solid rgba(109,130,152,.15);
+  border-radius:9px;background:rgba(109,130,152,.022);
+  color:#8797a3;font-size:8.8px;line-height:1.52
+}
+body.pa-internal-mode :is(.adaptive-state.ready,.info-note){
+  border-color:color-mix(in srgb,var(--pa-state-info) 24%,transparent);
+  background:color-mix(in srgb,var(--pa-state-info) 3.5%,rgba(8,10,13,.52))
+}
+body.pa-internal-mode .adaptive-state.loading{
+  border-color:color-mix(in srgb,var(--pa-state-info) 20%,transparent);
+  background:rgba(109,130,152,.022)
+}
+body:not(.pa-internal-mode) :is(.warning,.wizard-message){
+  border-radius:9px
+}
+
+/* CONTADORES / BADGES / STATUS — pills pequenas e previsíveis. */
+body.pa-internal-mode :is(
+  .badge,.tag,.status-badge,.status-chip,.priority-chip,.source-badge,.source-state,.state-badge,
+  .exam-card .status,.settings-card .status
+){
+  box-sizing:border-box;min-height:22px;padding:0 7px;display:inline-flex;align-items:center;justify-content:center;
+  border-radius:999px;background:rgba(255,255,255,.008);
+  font-family:var(--pa-mono);font-size:7.2px;font-weight:800;line-height:1;
+  letter-spacing:.025em;text-transform:uppercase
+}
+body.pa-internal-mode :is(.chip-count,button.chip>b,button.filter>i,.auto-count){
+  box-sizing:border-box;min-width:20px;height:20px;padding:0 5px;display:inline-grid;place-items:center;
+  margin-left:3px;border:1px solid rgba(239,233,221,.055);border-radius:999px;
+  background:rgba(255,255,255,.025);color:#aeb6bd;
+  font:800 7.4px/1 var(--pa-mono)
+}
+body.pa-internal-mode :is(button.chip,button.filter).active :is(.chip-count,b,i){
+  border-color:color-mix(in srgb,var(--pa-page-accent,var(--pa-state-info)) 22%,transparent);
+  background:color-mix(in srgb,var(--pa-page-accent,var(--pa-state-info)) 10%,transparent);
+  color:#dce7ed
+}
+
+/* PROGRESSO — só estiliza tracks já alimentados por dados reais. */
+body.pa-internal-mode :is(.track,.coverage-track,.bar,.pattern-track,.focus-progress,.blue-bar){
+  box-sizing:border-box;overflow:hidden;border:1px solid rgba(239,233,221,.035);
+  border-radius:999px;background:#0d1115;box-shadow:inset 0 1px 2px rgba(0,0,0,.42)
+}
+body.pa-internal-mode :is(.track,.coverage-track,.bar,.pattern-track,.focus-progress,.blue-bar)>:is(i,span,.fill){
+  display:block;height:100%;border-radius:inherit;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--pa-page-accent,var(--pa-state-info)) 74%,#8ea5b5),var(--pa-page-accent,var(--pa-state-info)))
+}
+body.pa-internal-mode .state.ok{--pa-page-accent:var(--pa-state-success)}
+body.pa-internal-mode .state.rev{--pa-page-accent:var(--pa-state-warning)}
+body.pa-internal-mode .state.dif{--pa-page-accent:var(--pa-state-error)}
+
+@media(pointer:coarse){
+  body.pa-internal-mode :is(.empty,.today-empty,.local-empty,.empty-state,.snapshot-empty){
+    min-height:96px;padding:17px 15px
+  }
+  body.pa-internal-mode :is(.chip-count,button.chip>b,button.filter>i,.auto-count){
+    min-width:22px;height:22px
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  body.pa-internal-mode :is(.viewer-status.is-loading,.adaptive-state.loading,.pwa-result.is-loading)::before,
+  body.pa-internal-mode .next-panel.is-loading .next-k::before{
+    animation:none;border-top-color:rgba(109,130,152,.75)
+  }
+}
+html.pa-reduce-motion body.pa-internal-mode :is(.viewer-status.is-loading,.adaptive-state.loading,.pwa-result.is-loading)::before,
+html.pa-reduce-motion body.pa-internal-mode .next-panel.is-loading .next-k::before{
+  animation:none;border-top-color:rgba(109,130,152,.75)
+}
+
