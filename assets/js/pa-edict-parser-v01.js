@@ -45,7 +45,7 @@ function groupValue(value){
  let m=raw.match(/\bG\s*0*(\d{1,3})\b/i);if(m)return'G'+String(m[1]).padStart(Math.max(2,m[1].length),'0');
  m=raw.match(/\bGRUPO(?:\s+DE\s+PROVA)?\s*[:–—-]?\s*(?!DE\b|PROVA\b)([A-Z0-9][A-Z0-9.-]*)\b/i);if(m)return/^G\d+$/i.test(m[1])?m[1].toUpperCase():'Grupo '+m[1].toUpperCase();
  m=raw.match(/\bTIPO(?:\s+DE\s+PROVA)?\s*[:–—-]?\s*(?!DE\b|PROVA\b)([A-Z0-9][A-Z0-9.-]*)\b/i);if(m)return'Tipo '+m[1].toUpperCase();
- m=raw.match(/\b[ÁA]REA\s*[:–—-]?\s*([A-Z0-9][A-Z0-9.-]*)\b/i);if(m)return'Área '+m[1].toUpperCase();
+ m=raw.match(/(?:^|\s)[ÁA]REA\s*[:–—-]?\s*([A-Z0-9][A-Z0-9.-]*)\b/i);if(m)return'Área '+m[1].toUpperCase();
  m=raw.match(/\bN[ÍI]VEL\s+(SUPERIOR|M[ÉE]DIO|FUNDAMENTAL(?:\s+(?:COMPLETO|INCOMPLETO))?)\b/i);if(m)return titleCase('Nível '+m[1]);
  return''
 }
