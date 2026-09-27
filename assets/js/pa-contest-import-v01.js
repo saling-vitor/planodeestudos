@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.1', $=id=>document.getElementById(id);
+const VERSION='1.2', $=id=>document.getElementById(id);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const state={step:1,mode:'choice',file:null,draft:null,returnFocus:null};
 function fmtBytes(n){n=Number(n||0);if(n<1024)return n+' B';if(n<1024*1024)return Math.round(n/1024)+' KB';return (n/1024/1024).toFixed(1).replace('.',',')+' MB'}
@@ -29,64 +29,113 @@ function objectiveOf(d){return (d?.schema?.stages||d?.stages||[]).find(s=>s?.typ
 function sectionsOf(d){const s=d?.sections||objectiveOf(d)?.sections;return Array.isArray(s)?s:[]}
 function scheduleOf(d){const s=d?.schedule||d?.schema?.schedule;return Array.isArray(s)?s:[]}
 function manualDraft(){return{title:'',officialName:'',organization:'',position:'',positionCode:'',board:'',city:'',cityName:'',uf:'',notice:'',publicationDate:'',examDate:'',examDateStatus:'',durationMinutes:null,vacancies:null,reserve:false,workloadHours:null,remuneration:'',requirements:'',stages:[],sections:[],schedule:[],rules:[],content:[],schema:null,source:'user',_status:{title:'missing',organization:'missing',position:'missing',board:'missing',city:'missing',notice:'missing',examDate:'missing'}}}
-function renderExamReview(d){
- const objective=objectiveOf(d),sections=sectionsOf(d),duration=d?.durationMinutes??objective?.durationMinutes??'';
- if(!sections.length)return '<div class="review-section"><div class="review-section-head"><h3>Estrutura da prova</h3><span>Não identificada</span></div><div class="wizard-message">A composição da prova não foi identificada automaticamente. O concurso pode ser criado, mas o Planejamento só receberá pesos quando essa estrutura for cadastrada.</div></div>';
- const tq=sections.reduce((a,s)=>a+(Number(s.questions)||0),0),tp=sections.reduce((a,s)=>a+(Number(s.totalPoints)||0),0);
- return '<div class="review-section"><div class="review-section-head"><h3>Estrutura da prova</h3><span>Edite qualquer valor que não coincidir com o edital</span></div>'+
- '<div class="review-metrics"><div><span>Questões</span><b id="rwTotalQuestions">'+tq+'</b></div><div><span>Pontos</span><b id="rwTotalPoints">'+String(tp).replace('.',',')+'</b></div><label><span>Duração (min)</span><input id="rwDuration" type="number" min="0" step="1" value="'+esc(duration)+'"></label></div>'+
- '<div class="review-table"><div class="review-table-head"><span>Componente</span><span>Questões</span><span>Valor</span><span>Pontos</span><span>Mínimo</span></div>'+
- sections.map((s,i)=>'<div class="review-table-row" data-review-section="'+i+'"><input data-sec="label" value="'+esc(s.label||'')+'" aria-label="Componente '+(i+1)+'"><input data-sec="questions" type="number" min="0" step="1" value="'+esc(s.questions??'')+'" aria-label="Questões '+(i+1)+'"><input data-sec="pointsPerQuestion" type="number" min="0" step="any" value="'+esc(s.pointsPerQuestion??'')+'" aria-label="Valor por questão '+(i+1)+'"><input data-sec="totalPoints" type="number" min="0" step="any" value="'+esc(s.totalPoints??'')+'" aria-label="Pontos '+(i+1)+'"><input data-sec="minimumPoints" type="number" min="0" step="any" value="'+esc(s.minimumPoints??'')+'" aria-label="Mínimo '+(i+1)+'"></div>').join('')+
- '</div></div>';
+function evidenceRoot(d){return d?._evidence||d?.schema?.evidence||null}
+function fieldEvidence(d,key){return evidenceRoot(d)?.fields?.[key]||null}
+function sectionEvidence(d,section,index){const list=evidenceRoot(d)?.sections||[];return list.find(x=>section?.id&&x.id===section.id)||list[index]||null}
+function contentEvidence(d,block,index){const list=evidenceRoot(d)?.content||[];return list.find(x=>block?.sectionId&&x.id===block.sectionId)||list[index]||null}
+function sourceRefsLabel(refs){const list=[...new Set((refs||[]).filter(Boolean))];return list.length?list.slice(0,3).join(', ')+(list.length>3?' +'+(list.length-3):''):''}
+function reviewEvidence(e){
+ if(!e)return'';
+ const pct=Math.round((Number(e.confidence)||0)*100),refs=sourceRefsLabel(e.sourceRefs),label=e.status==='missing'?'Sem evidência':'Confiança '+pct+'%';
+ return '<small class="review-evidence '+esc(e.status||'review')+'"><span>'+esc(label)+'</span>'+(refs?'<span>Fonte '+esc(refs)+'</span>':'')+'</small>'
 }
-function renderScheduleReview(d){
- const events=scheduleOf(d);
- if(!events.length)return '<div class="review-section"><div class="review-section-head"><h3>Cronograma</h3><span>Não identificado</span></div><div class="wizard-message">Nenhuma data do cronograma foi identificada automaticamente. A data da prova acima continua editável.</div></div>';
- return '<div class="review-section"><div class="review-section-head"><h3>Cronograma</h3><span>'+events.length+' evento'+(events.length===1?'':'s')+' identificado'+(events.length===1?'':'s')+'</span></div><div class="schedule-review">'+
- events.map((e,i)=>'<div class="schedule-review-row" data-review-event="'+i+'" data-kind="'+esc(e.kind||'event')+'"><input data-event="date" type="date" value="'+esc(e.date||'')+'" aria-label="Data do evento '+(i+1)+'"><input data-event="label" value="'+esc(e.label||'')+'" aria-label="Descrição do evento '+(i+1)+'"><span>'+esc(e.kind||'evento')+'</span></div>').join('')+
- '</div></div>';
-}
-function renderContentReview(d){
- const content=Array.isArray(d?.content)?d.content:[],labels=content.map(x=>x?.label).filter(Boolean);
- if(!labels.length)return '';
- return '<div class="review-section"><div class="review-section-head"><h3>Programa identificado</h3><span>'+labels.length+' bloco'+(labels.length===1?'':'s')+'</span></div><div class="content-review">'+labels.map(x=>'<span>'+esc(x)+'</span>').join('')+'</div></div>';
-}
-function renderReview(){
- const d=state.draft||manualDraft(),auto=state.mode==='auto',fallback=auto?'review':'missing';
- $('reviewForm').innerHTML='<div class="review-section"><div class="review-section-head"><h3>Identificação</h3><span>'+(auto?'Dados extraídos do edital e editáveis':'Preenchimento manual')+'</span></div><div class="form-grid">'+
- '<div class="field full"><label>Concurso '+statusTag(fieldStatus(d,'title',fallback))+'</label><input id="rwTitle" value="'+esc(d.title)+'" placeholder="Nome curto do concurso"></div>'+
- '<div class="field full"><label>Órgão / instituição '+statusTag(fieldStatus(d,'organization',fallback))+'</label><input id="rwOrg" value="'+esc(d.organization)+'" placeholder="Órgão / instituição"></div>'+
- '<div class="field"><label>Cargo '+statusTag(fieldStatus(d,'position',fallback))+'</label><input id="rwPosition" value="'+esc(d.position)+'" placeholder="Arquiteto"></div>'+
- '<div class="field"><label>Banca '+statusTag(fieldStatus(d,'board',fallback))+'</label><input id="rwBoard" value="'+esc(d.board)+'" placeholder="Ex.: FUNDATEC"></div>'+
- '<div class="field full"><label>Cidade / UF '+statusTag(fieldStatus(d,'city',fallback))+'</label><input id="rwCity" value="'+esc(d.city)+'" placeholder="Ex.: Porto Alegre/RS"></div>'+
+function renderIdentificationReview(d,auto,fallback){
+ const noteVisible=!auto||!!d.note;
+ return '<div class="review-section"><div class="review-section-head"><h3>Identificação</h3><span>'+(auto?'Dados extraídos do edital e editáveis':'Preenchimento manual')+'</span></div><div class="form-grid">'+
+ '<div class="field full"><label>Concurso '+statusTag(fieldStatus(d,'title',fallback))+'</label><input id="rwTitle" value="'+esc(d.title)+'" placeholder="Nome curto do concurso">'+reviewEvidence(fieldEvidence(d,'title'))+'</div>'+
+ '<div class="field full"><label>Órgão / instituição '+statusTag(fieldStatus(d,'organization',fallback))+'</label><input id="rwOrg" value="'+esc(d.organization)+'" placeholder="Órgão / instituição">'+reviewEvidence(fieldEvidence(d,'organization'))+'</div>'+
+ '<div class="field"><label>Cargo '+statusTag(fieldStatus(d,'position',fallback))+'</label><input id="rwPosition" value="'+esc(d.position)+'" placeholder="Arquiteto">'+reviewEvidence(fieldEvidence(d,'position'))+'</div>'+
+ '<div class="field"><label>Banca '+statusTag(fieldStatus(d,'board',fallback))+'</label><input id="rwBoard" value="'+esc(d.board)+'" placeholder="Ex.: FUNDATEC">'+reviewEvidence(fieldEvidence(d,'board'))+'</div>'+
+ '<div class="field full"><label>Cidade / UF '+statusTag(fieldStatus(d,'city',fallback))+'</label><input id="rwCity" value="'+esc(d.city)+'" placeholder="Ex.: Porto Alegre/RS">'+reviewEvidence(fieldEvidence(d,'city'))+'</div>'+
+ (noteVisible?'<div class="field full"><label>Observação</label><input id="rwNote" value="'+esc(d.note||'')+'" placeholder="Opcional"></div>':'')+
  '</div>'+
- ((d.positionCode||d.vacancies!=null||d.workloadHours||d.remuneration)?'<div class="review-inline-meta">'+
- (d.positionCode?'<span><b>Código</b>'+esc(d.positionCode)+'</span>':'')+
+ ((d.positionCode||d.examGroup||d.vacancies!=null||d.workloadHours||d.remuneration)?'<div class="review-inline-meta">'+
+ (d.positionCode?'<span><b>Código</b>'+esc(d.positionCode)+reviewEvidence(fieldEvidence(d,'positionCode'))+'</span>':'')+
+ (d.examGroup?'<span><b>Grupo</b>'+esc(d.examGroup)+reviewEvidence(fieldEvidence(d,'examGroup'))+'</span>':'')+
  (d.vacancies!=null?'<span><b>Vagas</b>'+esc(d.vacancies)+(d.reserve?' + CR':'')+'</span>':'')+
  (d.workloadHours?'<span><b>Jornada</b>'+esc(d.workloadHours)+'h/sem</span>':'')+
  (d.remuneration?'<span><b>Remuneração</b>'+esc(d.remuneration)+'</span>':'')+
  '</div>':'')+
- '</div>'+
- '<div class="review-section"><div class="review-section-head"><h3>Edital e prova</h3><span>Revise antes de criar</span></div><div class="form-grid">'+
- '<div class="field"><label>Edital '+statusTag(fieldStatus(d,'notice',fallback))+'</label><input id="rwNotice" value="'+esc(d.notice)+'" placeholder="Ex.: Edital 001/2027"></div>'+
- '<div class="field"><label>Data da prova '+statusTag(fieldStatus(d,'examDate',fallback))+'</label><input id="rwExamDate" type="date" value="'+esc(d.examDate)+'"></div>'+
- '<div class="field full"><label>Observação</label><input id="rwNote" value="'+esc(d.note||'')+'" placeholder="Opcional"></div>'+
- '</div></div>'+
- renderExamReview(d)+renderScheduleReview(d)+renderContentReview(d);
+ '</div>'
+}
+function minimumLabel(kind,value){if(value===null||value===undefined||value==='')return'';return kind==='percentage'?'mínimo geral de '+String(value).replace('.',',')+'%':'mínimo geral de '+String(value).replace('.',',')+' pontos'}
+function renderObjectiveReview(d,auto,fallback){
+ const objective=objectiveOf(d),duration=d?.durationMinutes??objective?.durationMinutes??null,minimum=objective?.minimum||null,character=objective?.character||'',showDuration=duration!==null&&duration!==undefined&&duration!=='';
+ return '<div class="review-section"><div class="review-section-head"><h3>Prova Objetiva</h3><span>Revise somente os dados da objetiva</span></div><div class="form-grid">'+
+ '<div class="field"><label>Edital '+statusTag(fieldStatus(d,'notice',fallback))+'</label><input id="rwNotice" value="'+esc(d.notice)+'" placeholder="Ex.: Edital 001/2027">'+reviewEvidence(fieldEvidence(d,'notice'))+'</div>'+
+ '<div class="field"><label>Data da prova '+statusTag(fieldStatus(d,'examDate',fallback))+'</label><input id="rwExamDate" type="date" value="'+esc(d.examDate)+'">'+reviewEvidence(fieldEvidence(d,'examDate'))+'</div>'+
+ (showDuration?'<div class="field"><label>Duração (min) '+statusTag(fieldEvidence(d,'durationMinutes')?.status||'review')+'</label><input id="rwDuration" type="number" min="0" step="1" value="'+esc(duration)+'">'+reviewEvidence(fieldEvidence(d,'durationMinutes'))+'</div>':'')+
+ (character?'<div class="field"><label>Caráter '+statusTag(fieldEvidence(d,'character')?.status||'review')+'</label><input id="rwCharacter" value="'+esc(character)+'">'+reviewEvidence(fieldEvidence(d,'character'))+'</div>':'')+
+ (minimum?'<div class="field full"><label>Mínimo geral '+statusTag(fieldEvidence(d,'minimum')?.status||'review')+'</label><div class="review-unit-field"><input id="rwMinimum" type="number" min="0" step="any" value="'+esc(minimum.value??'')+'"><select id="rwMinimumKind" aria-label="Unidade do mínimo geral"><option value="points" '+(minimum.kind==='points'?'selected':'')+'>pontos</option><option value="percentage" '+(minimum.kind==='percentage'?'selected':'')+'>%</option></select></div>'+reviewEvidence(fieldEvidence(d,'minimum'))+'</div>':'')+
+ '</div></div>'
+}
+function sectionRowHtml(s,i,sourceIndex,d){
+ const minimum=s.minimumPoints??s.minimumQuestions??'',minKind=s.minimumQuestions!==null&&s.minimumQuestions!==undefined?'questions':'points',ev=sourceIndex>=0?sectionEvidence(d,s,sourceIndex):null;
+ return '<div class="review-table-row" data-review-section="'+i+'" data-source-index="'+sourceIndex+'" data-min-kind="'+minKind+'">'+
+ '<input data-sec="label" value="'+esc(s.label||'')+'" aria-label="Componente '+(i+1)+'">'+
+ '<input data-sec="questions" type="number" min="0" step="1" value="'+esc(s.questions??'')+'" aria-label="Questões '+(i+1)+'">'+
+ '<input data-sec="pointsPerQuestion" type="number" min="0" step="any" value="'+esc(s.pointsPerQuestion??'')+'" aria-label="Valor por questão '+(i+1)+'">'+
+ '<input data-sec="totalPoints" type="number" min="0" step="any" value="'+esc(s.totalPoints??'')+'" aria-label="Pontos '+(i+1)+'">'+
+ '<input data-sec="minimum" type="number" min="0" step="any" value="'+esc(minimum)+'" aria-label="Mínimo '+(i+1)+'">'+
+ '<button type="button" class="icon-btn review-remove" data-remove-review-section aria-label="Remover componente '+(i+1)+'">×</button>'+
+ (ev?'<div class="review-row-evidence">'+reviewEvidence(ev)+'</div>':'')+
+ '</div>'
+}
+function renderExamReview(d){
+ const sections=sectionsOf(d),tq=sections.reduce((a,s)=>a+(Number(s.questions)||0),0),tp=sections.reduce((a,s)=>a+(Number(s.totalPoints)||0),0);
+ return '<div class="review-section"><div class="review-section-head"><h3>Estrutura</h3><span>'+(sections.length?sections.length+' componente'+(sections.length===1?'':'s')+' identificado'+(sections.length===1?'':'s'):'Nenhum componente identificado')+'</span></div>'+
+ '<div class="review-metrics"><div><span>Questões</span><b id="rwTotalQuestions">'+tq+'</b></div><div><span>Pontos</span><b id="rwTotalPoints">'+String(tp).replace('.',',')+'</b></div></div>'+
+ (sections.length?'<div class="review-table"><div class="review-table-head"><span>Componente</span><span>Questões</span><span>Valor</span><span>Pontos</span><span>Mínimo</span><span>Ação</span></div>'+sections.map((s,i)=>sectionRowHtml(s,i,i,d)).join('')+'</div>':'<div class="review-table"><div class="review-table-head"><span>Componente</span><span>Questões</span><span>Valor</span><span>Pontos</span><span>Mínimo</span><span>Ação</span></div></div><div class="wizard-message">A composição da prova objetiva não foi identificada automaticamente. Adicione os componentes que constam no edital.</div>')+
+ '<div class="review-section-actions"><button type="button" class="ghost-btn review-add" data-add-review-section>Adicionar componente</button></div></div>'
+}
+function renderContentReview(d){
+ const content=Array.isArray(d?.content)?d.content:[];
+ return '<div class="review-section"><div class="review-section-head"><h3>Conteúdo Programático</h3><span>'+(content.length?content.length+' bloco'+(content.length===1?'':'s')+' identificado'+(content.length===1?'':'s'):'Não identificado')+'</span></div>'+
+ (content.length?'<div class="review-program-list">'+content.map((b,i)=>{const ev=contentEvidence(d,b,i);return '<div class="review-program-card" data-review-content="'+i+'" data-source-index="'+i+'"><div class="review-program-head"><input data-content="label" value="'+esc(b.label||'')+'" aria-label="Componente do conteúdo '+(i+1)+'">'+reviewEvidence(ev)+'</div><textarea data-content="text" rows="4" aria-label="Conteúdo programático '+(i+1)+'">'+esc(b.text||'')+'</textarea></div>'}).join('')+'</div>':'<div class="wizard-message">O conteúdo programático não foi localizado para o cargo/grupo selecionado. Não será inventado conteúdo ausente no edital.</div>')+
+ '</div>'
+}
+function conflictValueText(v){
+ const x=v?.value??v;if(x===null||x===undefined)return'';
+ if(typeof x==='object'){if(x.sourceLabel)return x.sourceLabel+(x.page?' · p.'+x.page:'');if(x.label)return x.label;try{return JSON.stringify(x)}catch(_){return String(x)}}
+ return (v?.kind?v.kind+': ':'')+String(x)
+}
+function renderReviewIssues(d){
+ const evidence=evidenceRoot(d),conflicts=evidence?.conflicts||d?.schema?.conflicts||[],labels={organization:'Órgão',position:'Cargo',objectiveLocation:'Localização da objetiva',objectiveTable:'Estrutura da objetiva',examDate:'Data da prova',durationMinutes:'Duração',minimum:'Mínimo geral',program:'Conteúdo programático'},attention=[];
+ for(const key of Object.keys(labels)){const e=evidence?.fields?.[key];if(e&&(e.status==='review'||e.status==='missing'))attention.push({key,label:labels[key],e})}
+ const ok=!conflicts.length&&!attention.length;
+ return '<div class="review-section review-issues '+(ok?'ok':'needs-review')+'"><div class="review-section-head"><h3>Conflitos / Dados a revisar</h3><span>'+(ok?'Nenhum conflito detectado':(conflicts.length+attention.length)+' ponto'+((conflicts.length+attention.length)===1?'':'s')+' para conferir')+'</span></div>'+
+ (ok?'<div class="wizard-message review-ok">Os dados principais da prova objetiva não apresentam conflitos detectados.</div>':'')+
+ (conflicts.length?'<div class="review-conflict-list">'+conflicts.map(c=>'<div class="review-conflict"><strong>'+esc(c.message||'Conflito identificado')+'</strong>'+(Array.isArray(c.values)&&c.values.length?'<span>Valores: '+esc(c.values.map(conflictValueText).filter(Boolean).join(' · '))+'</span>':'')+(c.sourceRefs?.length?'<small>Fontes '+esc(sourceRefsLabel(c.sourceRefs))+'</small>':'')+'</div>').join('')+'</div>':'')+
+ (attention.length?'<div class="review-attention-list">'+attention.map(x=>'<div class="review-attention"><div><strong>'+esc(x.label)+'</strong><span>'+esc(x.e.reason||'Requer conferência antes de criar.')+'</span></div>'+reviewEvidence(x.e)+'</div>').join('')+'</div>':'')+
+ '</div>'
+}
+function recalcReviewTotals(){
+ const rows=[...document.querySelectorAll('[data-review-section]')],q=rows.reduce((a,row)=>a+(nval(row.querySelector('[data-sec="questions"]')?.value)||0),0),p=rows.reduce((a,row)=>a+(nval(row.querySelector('[data-sec="totalPoints"]')?.value)||0),0);
+ const tq=$('rwTotalQuestions'),tp=$('rwTotalPoints');if(tq)tq.textContent=String(q);if(tp)tp.textContent=String(Math.round(p*10000)/10000).replace('.',',')
+}
+function bindReviewActions(){
+ const form=$('reviewForm');if(!form)return;
+ form.onclick=e=>{const add=e.target.closest('[data-add-review-section]'),remove=e.target.closest('[data-remove-review-section]');if(add){const table=form.querySelector('.review-table');if(!table)return;const rows=table.querySelectorAll('[data-review-section]'),wrap=document.createElement('div');wrap.innerHTML=sectionRowHtml({label:'',questions:null,pointsPerQuestion:null,totalPoints:null,minimumPoints:null},rows.length,-1,state.draft||{});table.appendChild(wrap.firstElementChild);recalcReviewTotals();return}if(remove){remove.closest('[data-review-section]')?.remove();recalcReviewTotals()}};
+ form.oninput=e=>{if(e.target.closest('[data-review-section]'))recalcReviewTotals()}
+}
+function renderReview(){
+ const d=state.draft||manualDraft(),auto=state.mode==='auto',fallback=auto?'review':'missing';
+ $('reviewForm').innerHTML=renderIdentificationReview(d,auto,fallback)+renderObjectiveReview(d,auto,fallback)+renderExamReview(d)+renderContentReview(d)+renderReviewIssues(d);
+ bindReviewActions()
 }
 function collectReview(){
- const base={...(state.draft||{})},title=$('rwTitle')?.value.trim()||'',organization=$('rwOrg')?.value.trim()||'',position=$('rwPosition')?.value.trim()||'',board=$('rwBoard')?.value.trim()||'',city=$('rwCity')?.value.trim()||'',notice=$('rwNotice')?.value.trim()||'',examDate=$('rwExamDate')?.value||'',note=$('rwNote')?.value.trim()||'',durationMinutes=nval($('rwDuration')?.value);
+ const base={...(state.draft||{})},title=$('rwTitle')?.value.trim()||'',organization=$('rwOrg')?.value.trim()||'',position=$('rwPosition')?.value.trim()||'',board=$('rwBoard')?.value.trim()||'',city=$('rwCity')?.value.trim()||'',notice=$('rwNotice')?.value.trim()||'',examDate=$('rwExamDate')?.value||'',note=$('rwNote')?$('rwNote').value.trim():(base.note||''),durationMinutes=$('rwDuration')?nval($('rwDuration').value):(base.durationMinutes??objectiveOf(base)?.durationMinutes??null);
  const previous=sectionsOf(base),rows=[...document.querySelectorAll('[data-review-section]')];
- let sections=rows.map((row,i)=>{const q=nval(row.querySelector('[data-sec="questions"]')?.value),w=nval(row.querySelector('[data-sec="pointsPerQuestion"]')?.value),p=nval(row.querySelector('[data-sec="totalPoints"]')?.value),mn=nval(row.querySelector('[data-sec="minimumPoints"]')?.value),old=previous[i]||{};return{...old,label:row.querySelector('[data-sec="label"]')?.value.trim()||old.label||('Componente '+(i+1)),questions:q,pointsPerQuestion:w,totalPoints:p,minimumPoints:mn,mapGroups:Array.isArray(old.mapGroups)&&old.mapGroups.length?old.mapGroups:[row.querySelector('[data-sec="label"]')?.value.trim()||old.label||('Componente '+(i+1))]}}).filter(s=>s.label);
+ let sections=rows.map((row,i)=>{const sourceIndex=Number(row.dataset.sourceIndex),old=sourceIndex>=0?(previous[sourceIndex]||{}):{},q=nval(row.querySelector('[data-sec="questions"]')?.value),w=nval(row.querySelector('[data-sec="pointsPerQuestion"]')?.value),p=nval(row.querySelector('[data-sec="totalPoints"]')?.value),mn=nval(row.querySelector('[data-sec="minimum"]')?.value),kind=row.dataset.minKind||'points',label=row.querySelector('[data-sec="label"]')?.value.trim()||old.label||('Componente '+(i+1)),next={...old,id:old.id||slugId(label)||('section-'+(i+1)),label,questions:q,pointsPerQuestion:w,totalPoints:p,mapGroups:Array.isArray(old.mapGroups)&&old.mapGroups.length?old.mapGroups:[label]};if(kind==='questions'){next.minimumQuestions=mn;next.minimumPoints=null;next.minimum=mn===null?null:{kind:'questions',value:mn,source:old.minimum?.source||'user-review'}}else{next.minimumPoints=mn;next.minimumQuestions=null;next.minimum=mn===null?null:{kind:'points',value:mn,source:old.minimum?.source||'user-review'}}return next}).filter(s=>s.label);
  const totalQuestions=sections.reduce((a,s)=>a+(Number(s.questions)||0),0),totalPoints=sections.reduce((a,s)=>a+(Number(s.totalPoints)||0),0);
  if(totalPoints>0)sections=sections.map(s=>({...s,planWeight:Math.round((Number(s.totalPoints)||0)*10000/totalPoints)/100,planWeightSource:'calculated'}));
- const oldSchedule=scheduleOf(base),eventRows=[...document.querySelectorAll('[data-review-event]')],schedule=eventRows.length?eventRows.map((row,i)=>({...oldSchedule[i],date:row.querySelector('[data-event="date"]')?.value||'',label:row.querySelector('[data-event="label"]')?.value.trim()||'',kind:row.dataset.kind||oldSchedule[i]?.kind||'event'})).filter(e=>e.date||e.label):oldSchedule;
- const oldSchema=base.schema||{},oldStages=oldSchema.stages||base.stages||[],oldObjective=oldStages.find(s=>s?.type==='objective')||null,others=oldStages.filter(s=>s?.type!=='objective');
- const objective=sections.length?{...(oldObjective||{}),id:oldObjective?.id||'objective',type:'objective',label:oldObjective?.label||'Prova Objetiva',planningMode:oldObjective?.planningMode||'weighted-sections',date:examDate||oldObjective?.date||'',durationMinutes:durationMinutes??oldObjective?.durationMinutes??null,totalQuestions:totalQuestions||null,totalPoints:totalPoints||null,sections}:oldObjective;
- const stages=objective?[objective,...others]:oldStages;
- const schema={...oldSchema,board,organization,position,notice,examDate:{...(oldSchema.examDate||{}),date:examDate||oldSchema.examDate?.date||''},stages,schedule};
- return{...base,title,organization,position,board,city,notice,examDate,note,durationMinutes:durationMinutes??base.durationMinutes??null,sections,stages,schedule,schema};
+ const oldContent=Array.isArray(base.content)?base.content:[],contentRows=[...document.querySelectorAll('[data-review-content]')],content=contentRows.length?contentRows.map((row,i)=>{const sourceIndex=Number(row.dataset.sourceIndex),old=sourceIndex>=0?(oldContent[sourceIndex]||{}):{};return{...old,label:row.querySelector('[data-content="label"]')?.value.trim()||old.label||('Conteúdo '+(i+1)),text:row.querySelector('[data-content="text"]')?.value.trim()||''}}).filter(x=>x.label||x.text):oldContent;
+ const schedule=scheduleOf(base),oldSchema=base.schema||{},oldStages=oldSchema.stages||base.stages||[],oldObjective=oldStages.find(s=>s?.type==='objective')||null,character=$('rwCharacter')?$('rwCharacter').value.trim():(oldObjective?.character||''),minimumValue=$('rwMinimum')?nval($('rwMinimum').value):(oldObjective?.minimum?.value??null),minimumKind=$('rwMinimumKind')?.value||oldObjective?.minimum?.kind||'points',minimum=$('rwMinimum')?(minimumValue===null?null:{...(oldObjective?.minimum||{}),kind:minimumKind,value:minimumValue,label:minimumLabel(minimumKind,minimumValue)}):(oldObjective?.minimum||null);
+ const objectiveNeeded=!!oldObjective||sections.length>0||!!examDate||durationMinutes!==null,objective=objectiveNeeded?{...(oldObjective||{}),id:oldObjective?.id||'objective',type:'objective',label:oldObjective?.label||'Prova Objetiva',planningMode:oldObjective?.planningMode||'weighted-sections',character,date:examDate||oldObjective?.date||'',durationMinutes,totalQuestions:sections.length?(totalQuestions||null):(oldObjective?.totalQuestions??null),totalPoints:sections.length?(totalPoints||null):(oldObjective?.totalPoints??null),minimum,sections}:null;
+ const stages=objective?[objective]:[],schema={...oldSchema,board,organization,position,notice,examDate:{...(oldSchema.examDate||{}),date:examDate||oldSchema.examDate?.date||''},stages,schedule,content};
+ return{...base,title,organization,position,board,city,notice,examDate,note,durationMinutes,sections,stages,schedule,content,schema}
 }
+
 function renderSummary(){
  const d=collectReview();state.draft=d;const objective=objectiveOf(d),sections=sectionsOf(d),events=scheduleOf(d),content=Array.isArray(d.content)?d.content:[];
  const structure=objective?(String(objective.totalQuestions??'—')+' questões · '+String(objective.totalPoints??'—')+' pontos · '+sections.length+' componente'+(sections.length===1?'':'s')):'Não estruturada';

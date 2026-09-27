@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const js=fs.readFileSync(new URL('../assets/js/pa-contest-import-v01.js',import.meta.url),'utf8');
+const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+assert.match(js,/const VERSION='1\.2'/);
+for(const title of ['Identificação','Prova Objetiva','Estrutura','Conteúdo Programático','Conflitos / Dados a revisar'])assert.ok(js.includes(title),'Seção ausente: '+title);
+for(const token of ['reviewEvidence','sourceRefsLabel','Confiança ','Fonte ','data-add-review-section','data-remove-review-section','bindReviewActions','data-review-content','textarea data-content="text"'])assert.ok(js.includes(token),'Recurso ausente: '+token);
+assert.ok(js.includes("const stages=objective?[objective]:[]"),'ExamSchema deve manter somente a objetiva');
+const reviewStart=js.indexOf('function renderReview(){'),reviewEnd=js.indexOf('function collectReview(){',reviewStart),review=js.slice(reviewStart,reviewEnd);
+for(const forbidden of ['renderScheduleReview(d)','Títulos','Prova Prática','Psicológica','TAF'])assert.equal(review.includes(forbidden),false,'Tela Revisar contém etapa fora da objetiva: '+forbidden);
+for(const token of ['.review-evidence','.review-conflict','.review-program-card','.review-add','@media(max-width:620px){.review-program-head'])assert.ok(html.includes(token),'CSS ausente: '+token);
+console.log('OBJ-08 OK · Tela Revisar objetiva, dinâmica e baseada em evidências');
