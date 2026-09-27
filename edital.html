@@ -14,6 +14,158 @@
 .edital-event>div:nth-child(2){display:grid;gap:4px;min-width:0}.edital-event strong,.edital-event span{display:block}.doc>div:first-child{min-width:0}.doc strong,.doc span{display:block}.rule strong{display:block;margin-bottom:3px}
 
 @media(max-width:900px){.edital-grid2{grid-template-columns:1fr}.exam-row{grid-template-columns:minmax(0,1fr) 65px 75px 75px}.exam-row>:nth-child(5){display:none}}@media(max-width:620px){.maps{grid-template-columns:1fr}.exam-row{grid-template-columns:minmax(0,1fr) 58px 65px}.exam-row>:nth-child(4),.exam-row>:nth-child(5){display:none}.edital-event{grid-template-columns:85px 1fr}.edital-event>:last-child{grid-column:2}}
+
+
+/* ===== ETAPA E3.3 · EDITAL · hierarquia editorial/técnica ===== */
+body.pa-internal-mode[data-pa-page="edital"] .hero-main{
+  border-color:color-mix(in srgb,var(--pa-accent-gold) 22%,var(--pa-border-medium))
+}
+body.pa-internal-mode[data-pa-page="edital"] .hero-main::before{
+  background:linear-gradient(90deg,var(--pa-accent-gold),rgba(109,130,152,.40),transparent)
+}
+body.pa-internal-mode[data-pa-page="edital"] .hero>.metric{
+  border-color:rgba(239,233,221,.055);
+  background:rgba(8,10,13,.54);box-shadow:none
+}
+body.pa-internal-mode[data-pa-page="edital"] .hero>.metric>span{
+  color:#8e887c;letter-spacing:.15em
+}
+body.pa-internal-mode[data-pa-page="edital"] .hero>.metric>strong{
+  color:#ece8df
+}
+
+/* Navegação por blocos editoriais, sem aparência de formulário administrativo. */
+body.pa-internal-mode[data-pa-page="edital"] .tabs{
+  margin-top:18px;padding:5px;
+  border-color:rgba(239,233,221,.055);
+  background:rgba(8,10,13,.58);
+  box-shadow:inset 0 1px rgba(255,255,255,.009)
+}
+body.pa-internal-mode[data-pa-page="edital"] .tab{
+  min-height:38px
+}
+body.pa-internal-mode[data-pa-page="edital"] .view{
+  margin-top:18px
+}
+body.pa-internal-mode[data-pa-page="edital"] .panel{
+  border-color:rgba(239,233,221,.065);
+  background:
+    radial-gradient(420px 160px at -6% -10%,rgba(109,130,152,.025),transparent 72%),
+    rgba(8,10,13,.66);
+  box-shadow:0 14px 32px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.012)
+}
+body.pa-internal-mode[data-pa-page="edital"] .panel>h2{
+  display:flex;align-items:center;gap:8px;margin-bottom:14px;
+  color:#ded9cf;font-size:9.5px;letter-spacing:.155em
+}
+body.pa-internal-mode[data-pa-page="edital"] .panel>h2::before{
+  content:"";width:20px;height:1px;flex:0 0 auto;
+  background:linear-gradient(90deg,var(--pa-accent-gold),transparent)
+}
+
+/* Ficha da prova: pares label/valor com leitura rápida. */
+body.pa-internal-mode[data-pa-page="edital"] .facts{
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:7px
+}
+body.pa-internal-mode[data-pa-page="edital"] .fact{
+  min-height:58px;padding:10px 11px;
+  display:grid;align-content:center;gap:5px;
+  border-color:transparent;background:rgba(255,255,255,.006)
+}
+body.pa-internal-mode[data-pa-page="edital"] .fact span{
+  color:#777c83;font:800 7px/1.2 var(--pa-mono);
+  letter-spacing:.09em;text-transform:uppercase
+}
+body.pa-internal-mode[data-pa-page="edital"] .fact b{
+  text-align:left;color:#d9d8d4;font-size:11.5px;line-height:1.35
+}
+
+/* Etapas e regras: agrupamento editorial, menos caixas competindo. */
+body.pa-internal-mode[data-pa-page="edital"] .stages{
+  gap:7px
+}
+body.pa-internal-mode[data-pa-page="edital"] .stage{
+  padding:12px 13px;
+  border-color:rgba(239,233,221,.045);
+  background:rgba(255,255,255,.006);box-shadow:none
+}
+body.pa-internal-mode[data-pa-page="edital"] .stage+.stage{
+  margin-top:0
+}
+body.pa-internal-mode[data-pa-page="edital"] .stage h3{
+  color:#d8d6d0;font-size:12px
+}
+body.pa-internal-mode[data-pa-page="edital"] .stage p{
+  color:#81858b;line-height:1.45
+}
+body.pa-internal-mode[data-pa-page="edital"] .rules{
+  gap:0
+}
+body.pa-internal-mode[data-pa-page="edital"] .rule{
+  position:relative;padding:10px 10px 10px 18px;
+  border:0;border-radius:0;background:transparent;
+  border-top:1px solid rgba(239,233,221,.04)
+}
+body.pa-internal-mode[data-pa-page="edital"] .rule:first-child{border-top:0}
+body.pa-internal-mode[data-pa-page="edital"] .rule::before{
+  content:"";position:absolute;left:2px;top:16px;width:6px;height:6px;border-radius:50%;
+  background:var(--pa-accent-gold);opacity:.55
+}
+
+/* Composição da objetiva vira ficha técnica em linhas compactas. */
+body.pa-internal-mode[data-pa-page="edital"] .exam-table{
+  gap:0;border-top:1px solid rgba(239,233,221,.055)
+}
+body.pa-internal-mode[data-pa-page="edital"] .exam-row{
+  min-height:50px;padding:9px 10px;
+  border:0;border-bottom:1px solid rgba(239,233,221,.045);border-radius:0;
+  background:transparent
+}
+body.pa-internal-mode[data-pa-page="edital"] .exam-row.head{
+  min-height:34px;background:rgba(255,255,255,.005);
+  color:#777c83;letter-spacing:.08em
+}
+body.pa-internal-mode[data-pa-page="edital"] .exam-row:not(.head):hover{
+  background:rgba(255,255,255,.008)
+}
+body.pa-internal-mode[data-pa-page="edital"] .exam-row .pct{
+  color:var(--pa-accent-gold)
+}
+
+/* Conteúdo, cronograma e arquivos seguem a mesma densidade editorial. */
+body.pa-internal-mode[data-pa-page="edital"] .coverage-group,
+body.pa-internal-mode[data-pa-page="edital"] .doc{
+  border-color:rgba(239,233,221,.05);
+  background:rgba(255,255,255,.006);box-shadow:none
+}
+body.pa-internal-mode[data-pa-page="edital"] .map{
+  border-color:transparent;background:rgba(255,255,255,.006)
+}
+body.pa-internal-mode[data-pa-page="edital"] .edital-timeline{
+  padding-left:18px
+}
+body.pa-internal-mode[data-pa-page="edital"] .edital-timeline::before{
+  content:"";position:absolute;left:5px;top:10px;bottom:10px;width:1px;
+  background:linear-gradient(180deg,var(--pa-accent-gold),rgba(239,233,221,.04))
+}
+body.pa-internal-mode[data-pa-page="edital"] .edital-event{
+  position:relative;border-color:rgba(239,233,221,.045);
+  background:rgba(255,255,255,.005)
+}
+body.pa-internal-mode[data-pa-page="edital"] .edital-event::before{
+  content:"";position:absolute;left:-17px;top:50%;width:7px;height:7px;border-radius:50%;
+  transform:translateY(-50%);background:var(--pa-accent-gold);
+  box-shadow:0 0 0 3px #080a0d
+}
+@media(max-width:900px){
+  body.pa-internal-mode[data-pa-page="edital"] .facts{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){
+  body.pa-internal-mode[data-pa-page="edital"] .facts{grid-template-columns:1fr}
+  body.pa-internal-mode[data-pa-page="edital"] .fact{min-height:52px}
+  body.pa-internal-mode[data-pa-page="edital"] .edital-timeline{padding-left:14px}
+  body.pa-internal-mode[data-pa-page="edital"] .edital-event::before{left:-13px}
+}
 </style>
 <script src="data/contests.js"></script>
 <script src="assets/js/pa-contest-context-v01.js"></script>
