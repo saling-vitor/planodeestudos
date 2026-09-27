@@ -53,7 +53,7 @@ result=P.parseDocument(doc(cangucuText),arq);assertObjectiveOnly(result);o=objec
 
 // Banca desconhecida + sete disciplinas arbitrárias: nenhuma lista fixa de nomes/bancas.
 const unknownRows=['EDITAL Nº 09/2026','ORGANIZADORA XYZ PESQUISA','Cargo: Especialista em Planejamento Urbano','PROVA DE CONHECIMENTOS','Disciplina | Questões | Pontuação','Administração Pública | 5 | 5','Direito Constitucional | 5 | 5','Arquitetura Hospitalar | 5 | 5','Geoprocessamento | 5 | 5','Mobilidade Urbana | 5 | 5','História Regional | 5 | 5','Políticas de Habitação | 5 | 5','CONTEÚDO PROGRAMÁTICO','MOBILIDADE URBANA','Sistemas de transporte; desenho viário; acessibilidade.'];
-result=P.parseDocument(doc(unknownRows),{code:'',name:'Especialista em Planejamento Urbano',group:'',source:'explicit'});assertObjectiveOnly(result);o=objectiveOf(result);assert.equal(result.draft.board,'');assert.equal(o.sections.length,7);assert.equal(o.totalQuestions,35);assert.equal(o.date,'');assert.equal(o.durationMinutes,null);assert.equal(o.minimum,null);
+result=P.parseDocument(doc(unknownRows),{code:'',name:'Especialista em Planejamento Urbano',group:'',source:'explicit'});assertObjectiveOnly(result);o=objectiveOf(result);assert.equal(result.draft.board,'XYZ PESQUISA');assert.equal(o.sections.length,7);assert.equal(o.totalQuestions,35);assert.equal(o.date,'');assert.equal(o.durationMinutes,null);assert.equal(o.minimum,null);
 
 // Certo/Errado e penalização ficam representáveis, sem inventar fórmula.
 let ceDoc=doc(['EDITAL Nº 10/2026','PROVA OBJETIVA','Disciplina | Questões | Pontuação','Conhecimentos Técnicos | 20 | 20','Os itens serão julgados como CERTO ou ERRADO.','Uma resposta errada anula uma resposta certa.']);
