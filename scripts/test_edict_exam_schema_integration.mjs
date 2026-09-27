@@ -10,7 +10,7 @@ const window={dispatchEvent(){}};
 const context={window,localStorage,CustomEvent:function(type,init){this.type=type;this.detail=init?.detail},console,DOMParser:undefined,CSS:{escape:x=>x},structuredClone};
 vm.createContext(context);vm.runInContext(source,context,{filename:'pa-study-blueprint-v01.js'});
 const B=window.PLANO_ARQ_STUDY_BLUEPRINT;
-assert.equal(B.version,'1.4');assert.ok(B.allocationForSchema);assert.ok(B.loadOrBuild);
+assert.equal(B.version,'1.5');assert.ok(B.allocationForSchema);assert.ok(B.loadOrBuild);
 const schema1={notice:'Edital 01/2026',position:'Arquiteto',stages:[{id:'objective',type:'objective',sections:[
  {id:'a',label:'Conhecimentos Gerais',questions:20,totalPoints:30,planWeight:60,sourceRefs:['p1:l1']},
  {id:'b',label:'Conhecimentos Específicos',questions:30,totalPoints:60,planWeight:30,sourceRefs:['p1:l2']},
@@ -31,4 +31,6 @@ const incomplete={stages:[{type:'objective',sections:[{id:'x',label:'X',planWeig
 const byPoints={stages:[{type:'objective',sections:[{id:'x',label:'X',totalPoints:30},{id:'y',label:'Y',totalPoints:70}]}]};a=B.allocationForSchema(byPoints);assert.equal(a.mode,'points');assert.equal(a.fractions.x,.3);assert.equal(a.fractions.y,.7);
 for(const token of ['loadOrBuild?.(contestId,examSchema,contest)','allocationForSchema?.(examSchema)','linkedIds=new Set(prepared.map(x=>x.materialId)','let unmappedWeight=schemaUnallocatedWeight','examSchemaSignature:studyBlueprint?.sourceSignature',"allocationMode:allocationReport.mode||'unknown'",'overallocatedWeight:schemaOverallocatedWeight'])assert.ok(planning.includes(token),'Planejamento sem integração: '+token);
 assert.equal(planning.includes('nos 14 mapas'),false);
+const unknown=B.allocationForSections([{id:'u1',label:'Sem peso A'},{id:'u2',label:'Sem peso B'}]);
+assert.equal(unknown.mode,'review');assert.equal(unknown.fractions.u1,0);assert.equal(unknown.fractions.u2,0);assert.equal(unknown.unallocatedWeight,1);
 console.log('OBJ-09 OK · ExamSchema, Blueprint e Planejamento integrados');
