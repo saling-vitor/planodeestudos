@@ -222,6 +222,136 @@ body.pa-internal-mode[data-pa-page="simulations"] .admin{
 @media(pointer:coarse){
   body.pa-internal-mode[data-pa-page="simulations"] .exam-card:hover{transform:none}
 }
+
+
+/* ===== ETAPA E3.6 · SIMULADOS · hierarquia funcional ===== */
+/* Estrutura oficial → simulados disponíveis → histórico. */
+body.pa-internal-mode[data-pa-page="simulations"] .hero-main{
+  border-color:color-mix(in srgb,var(--pa-accent-blue) 22%,var(--pa-border-medium))
+}
+body.pa-internal-mode[data-pa-page="simulations"] .hero>.summary-grid .metric{
+  border-color:rgba(239,233,221,.045);
+  background:rgba(8,10,13,.50);box-shadow:none
+}
+
+/* Estrutura oficial = referência técnica compacta. */
+body.pa-internal-mode[data-pa-page="simulations"] .section:nth-of-type(2)>.section-head{
+  opacity:.9
+}
+body.pa-internal-mode[data-pa-page="simulations"] .official{
+  border-color:color-mix(in srgb,var(--pa-accent-gold) 16%,var(--pa-border-soft));
+  background:
+    radial-gradient(480px 160px at -5% -12%,rgba(185,156,104,.035),transparent 72%),
+    rgba(8,10,13,.58);
+  box-shadow:none
+}
+body.pa-internal-mode[data-pa-page="simulations"] .official-head{
+  padding:13px 15px
+}
+body.pa-internal-mode[data-pa-page="simulations"] .official-main strong{
+  color:#e2d5b8;font-size:16px
+}
+body.pa-internal-mode[data-pa-page="simulations"] .official-stat{
+  border-left-color:rgba(239,233,221,.045)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .official-breakdown{
+  border-top-color:rgba(239,233,221,.04)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .official-section{
+  padding:10px 13px;border-color:rgba(239,233,221,.035);
+  background:rgba(255,255,255,.003)
+}
+
+/* Simulados disponíveis = camada principal de ação. */
+body.pa-internal-mode[data-pa-page="simulations"] .section:nth-of-type(3)>.section-head{
+  border-bottom-color:color-mix(in srgb,var(--pa-accent-blue) 18%,rgba(239,233,221,.05))
+}
+body.pa-internal-mode[data-pa-page="simulations"] .simulation-grid{
+  gap:11px
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-card{
+  min-height:286px;padding:15px;
+  border-color:rgba(239,233,221,.055);
+  background:
+    radial-gradient(360px 150px at -7% -10%,rgba(109,130,152,.032),transparent 72%),
+    linear-gradient(145deg,rgba(11,14,17,.82),rgba(7,9,12,.92));
+  box-shadow:0 13px 30px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.012)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-card[data-status="progress"]{
+  border-color:color-mix(in srgb,var(--pa-accent-blue) 38%,var(--pa-border-soft));
+  box-shadow:0 16px 36px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.016)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-card[data-status="done"]{
+  border-color:color-mix(in srgb,var(--pa-accent-green) 18%,var(--pa-border-soft))
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-card h3{
+  min-height:34px;color:#e3e0da;font-size:14px
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-meta{
+  gap:4px;margin-top:11px
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-meta div{
+  padding:7px 8px;
+  border-color:transparent;background:rgba(255,255,255,.006);box-shadow:none
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-meta b{
+  font-size:15px;color:#dedbd5
+}
+body.pa-internal-mode[data-pa-page="simulations"] .state-box{
+  min-height:48px;margin-top:9px;padding:8px 9px;
+  border-color:transparent;background:rgba(255,255,255,.006);box-shadow:none
+}
+body.pa-internal-mode[data-pa-page="simulations"] .exam-actions{
+  padding-top:11px
+}
+
+/* Pós-simulado aparece como consequência, sem competir com a lista quando presente. */
+body.pa-internal-mode[data-pa-page="simulations"] #postSimSection{
+  margin-top:20px
+}
+body.pa-internal-mode[data-pa-page="simulations"] .post-sim-panel{
+  border-color:color-mix(in srgb,var(--pa-accent-purple) 18%,var(--pa-border-soft));
+  background:
+    radial-gradient(420px 160px at -6% -10%,rgba(154,112,179,.035),transparent 72%),
+    rgba(8,10,13,.62);
+  box-shadow:0 14px 32px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.012)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .post-sim-metric,
+body.pa-internal-mode[data-pa-page="simulations"] .post-sim-box{
+  border-color:transparent;background:rgba(255,255,255,.006);box-shadow:none
+}
+
+/* Histórico = leitura retrospectiva, mais densa e silenciosa. */
+body.pa-internal-mode[data-pa-page="simulations"] #historySection{
+  margin-top:29px;padding-top:3px;
+  border-top:1px solid rgba(239,233,221,.035)
+}
+body.pa-internal-mode[data-pa-page="simulations"] #historySection>.section-head{
+  opacity:.86
+}
+body.pa-internal-mode[data-pa-page="simulations"] #historySection>.panel{
+  border-color:rgba(239,233,221,.04);
+  background:rgba(8,10,13,.44);box-shadow:none
+}
+body.pa-internal-mode[data-pa-page="simulations"] .history-list{
+  gap:0
+}
+body.pa-internal-mode[data-pa-page="simulations"] .history-row{
+  min-height:58px;border:0;border-bottom:1px solid rgba(239,233,221,.04);
+  border-radius:0;background:transparent;box-shadow:none
+}
+body.pa-internal-mode[data-pa-page="simulations"] .history-row:last-child{
+  border-bottom:0
+}
+body.pa-internal-mode[data-pa-page="simulations"] .history-row:hover{
+  background:rgba(255,255,255,.006)
+}
+body.pa-internal-mode[data-pa-page="simulations"] .admin-details{
+  border-color:rgba(239,233,221,.035);background:rgba(8,10,13,.38)
+}
+@media(max-width:900px){
+  body.pa-internal-mode[data-pa-page="simulations"] .exam-card{min-height:0}
+}
 </style>
 <link rel="stylesheet" href="assets/css/pa-tokens-v01.css"><link rel="stylesheet" href="assets/css/pa-shell-v16.css"><link rel="stylesheet" href="assets/css/pa-components-v01.css">
 <link rel="stylesheet" href="assets/css/pa-surfaces-v01.css">
