@@ -1,0 +1,24 @@
+name: Preflight release recovery
+
+on:
+  push:
+    branches:
+      - 'develop/preflight-release-recovery'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preflight-release-recovery-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Preparar Selenium
+        run: python3 -m pip install --disable-pip-version-check selenium
+      - name: Executar preflight completo
+        run: bash scripts/preflight_release.sh
