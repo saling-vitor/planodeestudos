@@ -1,8 +1,8 @@
 /* Plano ARQ · Componentes canônicos de produção · 2026-09
    Única fonte de botões, campos, filtros, painéis, tabelas e estados. */
 body.pa-internal-mode{
-  --pa-ui-control-h:42px;
-  --pa-ui-control-radius:10px;
+  --pa-ui-control-h:44px;
+  --pa-ui-control-radius:9px;
   --pa-ui-panel-radius:16px;
   --pa-ui-row-radius:11px;
   --pa-ui-toolbar-gap:10px;
@@ -26,7 +26,7 @@ body.pa-internal-mode .ghost-btn{
   color:#c9cbd0;font-size:10.5px;font-weight:750;line-height:1
 }
 body.pa-internal-mode .icon-btn{
-  width:42px;min-width:42px;height:var(--pa-ui-control-h);min-height:var(--pa-ui-control-h);padding:0;
+  width:44px;min-width:44px;height:var(--pa-ui-control-h);min-height:var(--pa-ui-control-h);padding:0;
   border:1px solid rgba(255,255,255,.10);border-radius:var(--pa-ui-control-radius);
   background:linear-gradient(180deg,#111318,#0d0f13);color:#c7cbd1
 }
@@ -87,7 +87,7 @@ body.pa-internal-mode .field label{
   font:760 8px/1.2 var(--pa-mono);letter-spacing:.07em;text-transform:uppercase
 }
 body.pa-internal-mode .field select{
-  width:100%;height:42px;padding:0 10px;
+  width:100%;height:var(--pa-ui-control-h);padding:0 10px;
   border:1px solid rgba(255,255,255,.10);border-radius:9px;
   background:#111319;color:#e0e3e6
 }
@@ -312,10 +312,10 @@ body.pa-internal-mode .table-wrap th{position:sticky;top:0;z-index:1}
   body.pa-internal-mode select{padding-right:30px}
   body.pa-internal-mode :is(.primary-btn,.ghost-btn){font-size:11px}
   body.pa-internal-mode :is(button.chip,button.filter,button.map-filter,.period-tabs button){
-    min-height:42px;font-size:9.5px
+    min-height:44px;font-size:9.5px
   }
   body.pa-internal-mode .tab{min-height:44px;font-size:10px}
-  body.pa-internal-mode :is(.mini,.mini-btn,.small,.small-btn){min-height:42px;font-size:9.5px}
+  body.pa-internal-mode :is(.mini,.mini-btn,.small,.small-btn){min-height:44px;font-size:9.5px}
   body.pa-internal-mode :is(.badge,.tag){min-height:24px;font-size:8px}
   body.pa-internal-mode .field label{font-size:8.5px}
   body.pa-internal-mode :is(.review-row,.q-row,.error-row,.topic-row,.file-row,.history-row,.priority-row,.stats-row){

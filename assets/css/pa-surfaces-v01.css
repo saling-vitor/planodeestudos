@@ -306,11 +306,10 @@ body.pa-internal-mode button.chip.active :is(.chip-count,b){
 
 /* Toolbars: grupos passam a parecer uma única peça técnica. */
 body.pa-internal-mode :is(.tools,.toolbar,.tabs){
-  border-color:rgba(239,233,221,.095);
-  background:
-    radial-gradient(360px 120px at 0 0,rgba(109,130,152,.045),transparent 72%),
-    linear-gradient(180deg,rgba(12,15,19,.90),rgba(7,9,12,.92));
-  box-shadow:0 12px 30px rgba(0,0,0,.20),inset 0 1px rgba(255,255,255,.022)
+  align-items:center;
+  border-color:rgba(239,233,221,.095);border-radius:var(--pa-radius-card);
+  background:var(--pa-surface-panel);
+  box-shadow:0 10px 24px rgba(0,0,0,.16),inset 0 1px rgba(255,255,255,.020)
 }
 body.pa-internal-mode .tab{
   transition:border-color .15s ease,background .15s ease,color .15s ease
@@ -513,14 +512,17 @@ body.pa-internal-mode .pa-mobile-nav :is(a,button).active{
 /* Tablet/touch: controles em trilho horizontal para o sticky não dominar a viewport. */
 @media(max-width:1199px), (pointer:coarse){
   body.pa-internal-mode .pa-topbar{
-    -webkit-backdrop-filter:blur(5px) saturate(102%);backdrop-filter:blur(5px) saturate(102%)
+    -webkit-backdrop-filter:blur(4px) saturate(101%);backdrop-filter:blur(4px) saturate(101%);
+    box-shadow:inset 0 -1px rgba(255,255,255,.008)
   }
   body.pa-internal-mode .pa-topbar.is-scrolled{
-    -webkit-backdrop-filter:blur(9px) saturate(106%);backdrop-filter:blur(9px) saturate(106%)
+    -webkit-backdrop-filter:blur(6px) saturate(103%);backdrop-filter:blur(6px) saturate(103%);
+    box-shadow:0 6px 16px rgba(0,0,0,.11),inset 0 -1px rgba(255,255,255,.010)
   }
   body.pa-internal-mode .pa-sticky-controls{
     top:78px;padding:7px;
-    -webkit-backdrop-filter:blur(8px) saturate(104%);backdrop-filter:blur(8px) saturate(104%)
+    box-shadow:0 7px 18px rgba(0,0,0,.10),inset 0 1px rgba(255,255,255,.014);
+    -webkit-backdrop-filter:blur(5px) saturate(102%);backdrop-filter:blur(5px) saturate(102%)
   }
   body.pa-internal-mode .pa-sticky-controls>.tools{
     display:flex;grid-template-columns:none;flex-wrap:nowrap;gap:8px;
@@ -864,5 +866,61 @@ body.pa-internal-mode :is(.status-card,.plan-stat,.mix-box,.data-box,.pwa-status
 }
 body.pa-internal-mode :is(.signal,.event-kind,.automation-preview-meta i){
   border-radius:var(--pa-radius-micro)
+}
+
+/* ===== V3.4 · CONTROLS + TOOLBAR + TOUCH ===== */
+/* Geometria comum nas barras: inputs/selects/ações principais compartilham eixo, altura e raio. */
+body.pa-internal-mode :is(.tools,.toolbar) :is(
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,.search,.primary-btn,.ghost-btn,.icon-btn
+){
+  box-sizing:border-box;height:var(--pa-ui-control-h);min-height:var(--pa-ui-control-h);
+  border-radius:var(--pa-radius-control)
+}
+body.pa-internal-mode .pa-sticky-controls>.tools{align-items:center}
+
+/* Configurações possui vários grupos técnicos fora de .toolbar; mantêm a mesma geometria principal. */
+body.pa-internal-mode[data-pa-page="settings"] :is(
+  .control,.auth-form,.otp-row,.security-form,.security-actions,.automation-head-controls
+) :is(input:not([type="checkbox"]):not([type="radio"]),select){
+  box-sizing:border-box;height:var(--pa-ui-control-h);min-height:var(--pa-ui-control-h);
+  border-radius:var(--pa-radius-control)
+}
+
+/* Touch/iPad: nenhum hover/active pode deslocar geometria; feedback fica em cor/borda/sombra curta. */
+@media(pointer:coarse){
+  body.pa-internal-mode :is(
+    .primary-btn,.ghost-btn,.icon-btn,.small-btn,.mini,.mini-btn,.small,
+    button.chip,button.filter,button.map-filter,.period-tabs button,.tab,
+    .library-card,.exam-card,.review-row,.q-row,.error-row,.file-row,.history-event,.priority-row
+  ):is(:hover,:active){
+    transform:none!important
+  }
+  body:not(.pa-internal-mode) :is(
+    .primary-btn,.ghost-btn,.icon-btn,.small-btn,.session-btn,.featured-primary,.featured-pause,
+    .contest-card,.session-card,.featured-session
+  ):is(:hover,:active){
+    transform:none!important
+  }
+  body.pa-internal-mode :is(.panel,.settings-card,.analysis-card,.exam-card,.library-card,.review-card,.priority-card,.diag-card){
+    box-shadow:0 8px 20px rgba(0,0,0,.14),inset 0 1px rgba(255,255,255,.012)
+  }
+}
+
+/* Preferência do sistema: movimento reduzido sem perder estados visuais. */
+@media(prefers-reduced-motion:reduce){
+  body.pa-internal-mode *,body.pa-internal-mode *::before,body.pa-internal-mode *::after,
+  body:not(.pa-internal-mode) *,body:not(.pa-internal-mode) *::before,body:not(.pa-internal-mode) *::after{
+    animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important;scroll-behavior:auto!important
+  }
+}
+
+/* Fallback sólido quando o navegador expõe redução de transparência. */
+@media(prefers-reduced-transparency:reduce){
+  body.pa-internal-mode :is(.pa-topbar,.pa-topbar.is-scrolled,.pa-sticky-controls,.pa-common-menu,.pa-mobile-more,.pa-shell-dialog){
+    -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+    background:var(--pa-surface-panel)!important
+  }
 }
 
