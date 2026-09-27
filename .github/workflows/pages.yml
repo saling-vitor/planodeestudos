@@ -74,7 +74,18 @@ jobs:
 
       - name: Validar importador de edital · OBJ-10
         if: steps.package.outputs.ready == 'true'
-        run: node scripts/test_edict_regressions.mjs
+        shell: bash
+        run: |
+          node scripts/test_edict_document_map.mjs
+          node scripts/test_edict_cargos_groups.mjs
+          node scripts/test_edict_objective_locator.mjs
+          node scripts/test_edict_objective_table.mjs
+          node scripts/test_edict_program_content.mjs
+          node scripts/test_edict_objective_rules.mjs
+          node scripts/test_edict_evidence_conflicts.mjs
+          node scripts/test_edict_review_screen.mjs
+          node scripts/test_edict_exam_schema_integration.mjs
+          node scripts/test_edict_regressions.mjs
 
       - name: Validar contrato gráfico
         if: steps.package.outputs.ready == 'true'
