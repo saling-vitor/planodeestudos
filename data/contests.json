@@ -53,6 +53,86 @@
       },
       "examSchemaId": "demhab-poa-arquiteto-2026",
       "editalCenterVersion": "1.0"
+    },
+    {
+      "id": "casan-arquiteto-urbanista-2026",
+      "title": "CASAN",
+      "organization": "Companhia Catarinense de Águas e Saneamento – CASAN",
+      "position": "Arquiteto e Urbanista",
+      "positionCode": "406",
+      "board": "Instituto AOCP",
+      "notice": "Edital 003/2026",
+      "city": "Florianópolis/SC",
+      "examDate": "2026-11-22",
+      "status": "active",
+      "createdAt": "2026-09-27",
+      "source": "seed",
+      "publicationDate": "2026-09-04",
+      "examDateLabel": "22/11/2026",
+      "examDateStatus": "provável",
+      "examDateSource": "Edital 003/2026 · Anexo I + item 10.2",
+      "vacancies": {
+        "open": "CR",
+        "pcd": "CR",
+        "totalNumeric": null
+      },
+      "workloadHours": 40,
+      "remuneration": "R$ 12.600,62",
+      "requirements": "Diploma de bacharel em Arquitetura e Urbanismo, com registro profissional no órgão de classe. CNH categoria B.",
+      "examBlueprint": {
+        "totalQuestions": 50,
+        "totalPoints": 50,
+        "durationMinutes": 240,
+        "categories": [
+          {
+            "id": "portuguese",
+            "group": "Língua Portuguesa",
+            "label": "Língua Portuguesa",
+            "questions": 10,
+            "questionWeight": 1,
+            "points": 10,
+            "planWeight": 20
+          },
+          {
+            "id": "logic",
+            "group": "Raciocínio Lógico - Matemático",
+            "label": "Raciocínio Lógico - Matemático",
+            "questions": 7,
+            "questionWeight": 1,
+            "points": 7,
+            "planWeight": 14
+          },
+          {
+            "id": "general",
+            "group": "Conhecimentos Gerais - Atualidades",
+            "label": "Conhecimentos Gerais - Atualidades",
+            "questions": 3,
+            "questionWeight": 1,
+            "points": 3,
+            "planWeight": 6
+          },
+          {
+            "id": "legislation",
+            "group": "Legislação",
+            "label": "Legislação",
+            "questions": 5,
+            "questionWeight": 1,
+            "points": 5,
+            "planWeight": 10
+          },
+          {
+            "id": "specific",
+            "group": "Conhecimentos Específicos",
+            "label": "Conhecimentos Específicos",
+            "questions": 25,
+            "questionWeight": 1,
+            "points": 25,
+            "planWeight": 50
+          }
+        ]
+      },
+      "examSchemaId": "casan-arquiteto-urbanista-2026",
+      "editalCenterVersion": "1.0"
     }
   ]
 }
