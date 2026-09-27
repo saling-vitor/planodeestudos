@@ -23,7 +23,7 @@ body.pa-internal-mode[data-pa-page="reviews"] .reviewed-today{
 
 /* Seções: hierarquia editorial consistente com Hoje/Planejamento/Biblioteca. */
 body.pa-internal-mode[data-pa-page="reviews"] .section{
-  margin-top:23px
+  margin-top:var(--pa-space-block)
 }
 body.pa-internal-mode[data-pa-page="reviews"] .section>.section-head{
   min-height:31px;margin-bottom:11px;align-items:center;
@@ -188,13 +188,13 @@ body.pa-internal-mode[data-pa-page="reviews"] .section:first-of-type>.panel{
   box-shadow:0 17px 38px rgba(0,0,0,.21),inset 0 1px rgba(255,255,255,.014)
 }
 body.pa-internal-mode[data-pa-page="reviews"] .queue{
-  gap:6px
+  gap:var(--pa-space-micro)
 }
 body.pa-internal-mode[data-pa-page="reviews"] .review-row{
   min-height:58px;
-  border-color:rgba(239,233,221,.035);
-  background:rgba(255,255,255,.004);
-  box-shadow:none
+  border-color:var(--pa-border-soft);
+  background:color-mix(in srgb,var(--pa-surface-card) 46%,var(--pa-surface-panel));
+  box-shadow:inset 0 1px rgba(255,255,255,.006)
 }
 body.pa-internal-mode[data-pa-page="reviews"] .review-row:not(:first-child){
   opacity:.86
@@ -243,22 +243,28 @@ body.pa-internal-mode[data-pa-page="reviews"] button.chip[data-filter="upcoming"
 
 /* Semana = contexto futuro; visualmente mais leve. */
 body.pa-internal-mode[data-pa-page="reviews"] .section:nth-of-type(3){
-  margin-top:27px;padding-top:2px
+  margin-top:var(--pa-space-section);padding-top:0
 }
 body.pa-internal-mode[data-pa-page="reviews"] .section:nth-of-type(3)>.section-head{
   opacity:.86
 }
 body.pa-internal-mode[data-pa-page="reviews"] .review-timeline{
-  gap:6px
+  gap:var(--pa-space-internal)
 }
 body.pa-internal-mode[data-pa-page="reviews"] .review-day{
   min-height:76px;padding:10px;
-  border-color:rgba(239,233,221,.035);
-  background:rgba(255,255,255,.004);box-shadow:none
+  border-color:var(--pa-border-soft);
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.010),transparent 58%),
+    color-mix(in srgb,var(--pa-surface-card) 70%,var(--pa-surface-panel));
+  box-shadow:inset 0 1px rgba(255,255,255,.010)
 }
 body.pa-internal-mode[data-pa-page="reviews"] .review-day.today{
-  border-color:color-mix(in srgb,var(--pa-accent-purple) 30%,var(--pa-border-soft));
-  background:rgba(154,112,179,.025)
+  border-color:color-mix(in srgb,var(--pa-accent-purple) 34%,var(--pa-border-medium));
+  background:
+    radial-gradient(170px 90px at -10% -20%,color-mix(in srgb,var(--pa-accent-purple) 10%,transparent),transparent 72%),
+    color-mix(in srgb,var(--pa-surface-card) 82%,var(--pa-surface-panel));
+  box-shadow:0 10px 24px rgba(0,0,0,.15),inset 0 1px rgba(255,255,255,.014)
 }
 body.pa-internal-mode[data-pa-page="reviews"] .review-day:not(.today) b{
   color:#c8c7c2

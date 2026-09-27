@@ -18,16 +18,23 @@ body.pa-internal-mode :is(.status-card,.pwa-action-panel,.planned-card,.diag-car
 }
 body.pa-internal-mode .empty{
   min-height:132px;padding:28px 20px;display:grid;place-items:center;align-content:center;
-  border:1px dashed rgba(216,197,158,.20);border-radius:14px;
-  background:radial-gradient(340px 150px at 50% 0,rgba(216,197,158,.030),transparent 72%),linear-gradient(180deg,rgba(216,197,158,.010),rgba(255,255,255,.003));
-  box-shadow:inset 0 1px rgba(255,255,255,.012);color:#858991;text-align:center;line-height:1.5
+  border:1px dashed color-mix(in srgb,var(--pa-accent-gold) 28%,var(--pa-border-soft));border-radius:14px;
+  background:
+    radial-gradient(340px 150px at 50% 0,color-mix(in srgb,var(--pa-accent-gold) 4%,transparent),transparent 72%),
+    color-mix(in srgb,var(--pa-surface-card) 82%,var(--pa-surface-panel));
+  box-shadow:inset 0 1px rgba(255,255,255,.014);color:#858991;text-align:center;line-height:1.5
 }
 body.pa-internal-mode :is(.empty-state,.today-empty,.local-empty,.empty-priority,.pattern-empty){
-  border-color:rgba(216,197,158,.18);
-  background:radial-gradient(300px 120px at 50% 0,rgba(216,197,158,.025),transparent 75%),rgba(255,255,255,.004)
+  border-color:color-mix(in srgb,var(--pa-accent-gold) 22%,var(--pa-border-soft));
+  background:
+    radial-gradient(300px 120px at 50% 0,color-mix(in srgb,var(--pa-accent-gold) 3%,transparent),transparent 75%),
+    color-mix(in srgb,var(--pa-surface-card) 72%,var(--pa-surface-panel))
 }
 body.pa-internal-mode .empty strong{color:#d8c59e;margin-bottom:6px}
 body.pa-internal-mode .empty span{font-size:9.3px;line-height:1.5}
+body.pa-internal-mode[data-pa-page="maps"] #empty:not([hidden]){
+  width:100%;margin-top:var(--pa-space-block)
+}
 
 /* Portal / Hoje: mesma família visual do mapa, sem copiar sua composição. */
 body:not(.pa-internal-mode) :is(.hero-card,.side-card,.today-main-card,.today-metric,.today-panel,.focus-card,.day-close-card,.auto-main,.auto-list){
