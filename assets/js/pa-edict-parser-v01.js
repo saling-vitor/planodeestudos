@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.4';
+const VERSION='1.5';
 const UF={"acre":"AC","alagoas":"AL","amapa":"AP","amazonas":"AM","bahia":"BA","ceara":"CE","distrito federal":"DF","espirito santo":"ES","goias":"GO","maranhao":"MA","mato grosso":"MT","mato grosso do sul":"MS","minas gerais":"MG","para":"PA","paraiba":"PB","parana":"PR","pernambuco":"PE","piaui":"PI","rio de janeiro":"RJ","rio grande do norte":"RN","rio grande do sul":"RS","rondonia":"RO","roraima":"RR","santa catarina":"SC","sao paulo":"SP","sergipe":"SE","tocantins":"TO"};
 const BOARDS=[['FUNDATEC','FUNDATEC'],['CEBRASPE','CEBRASPE'],['CESPE','CEBRASPE'],['FUNDAÇÃO GETULIO VARGAS','FGV'],['FGV','FGV'],['FUNDAÇÃO CARLOS CHAGAS','FCC'],['FCC','FCC'],['VUNESP','VUNESP'],['INSTITUTO AOCP','Instituto AOCP'],['LEGALLE','Legalle Concursos'],['INSTITUTO OBJETIVA','Instituto Objetiva'],['INSTITUTO AVALIA','Instituto Avalia']];
 const escRe=s=>String(s||'').replace(/[.*+?^$(){}|[\]\\]/g,'\\$&');
@@ -181,7 +181,7 @@ const OBJECTIVE_TABLE_HEADER_PATTERNS=[
  ['label',/\b(?:DISCIPLINA|DISCIPLINAS|MATERIA|MATERIAS|COMPONENTE\s+CURRICULAR|COMPONENTES\s+CURRICULARES|AREA\s+DE\s+CONHECIMENTO|AREAS\s+DE\s+CONHECIMENTO|CONHECIMENTOS)\b/],
  ['questions',/\b(?:(?:N|NUMERO|QTD|QUANTIDADE)(?:\s+DE)?\s+)?(?:QUESTAO|QUESTOES|ITENS?)\b/],
  ['weight',/\b(?:PESO|VALOR\s+(?:DA|DE\s+CADA|POR)\s+QUESTAO|PONTOS?\s+POR\s+QUESTAO|PONTUACAO\s+POR\s+QUESTAO)\b/],
- ['minimum',/\b(?:MINIMO|MINIMA|PONTUACAO\s+MINIMA|PONTOS?\s+MINIMOS?|NOTA\s+MINIMA)\b/],
+ ['minimum',/\b(?:MINIMO|MINIMA|PONTUACAO\s+MINIMA|PONTOS?\s+MINIMOS?|NOTA\s+MINIMA|ACERTOS?\s+MINIMOS?|MINIMO\s+DE\s+ACERTOS?|QUESTOES?\s+MINIMAS?)\b/],
  ['total',/\b(?:PONTUACAO\s+MAXIMA|TOTAL\s+DE\s+PONTOS|PONTOS\s+TOTAIS|VALOR\s+TOTAL|PONTUACAO|PONTOS|TOTAL)\b/]
 ];
 function tableHeaderKind(value){
@@ -189,7 +189,7 @@ function tableHeaderKind(value){
  if(/^(?:DISCIPLINA|DISCIPLINAS|MATERIA|MATERIAS|COMPONENTE CURRICULAR|COMPONENTES CURRICULARES|AREA DE CONHECIMENTO|AREAS DE CONHECIMENTO|CONHECIMENTOS)$/.test(n))return'label';
  if(/^(?:(?:N|NUMERO|QTD|QUANTIDADE)(?: DE)? )?(?:QUESTAO|QUESTOES|ITENS?)$/.test(n))return'questions';
  if(/^(?:PESO|VALOR (?:DA|DE CADA|POR) QUESTAO|PONTOS? POR QUESTAO|PONTUACAO POR QUESTAO)$/.test(n))return'weight';
- if(/^(?:MINIMO|MINIMA|PONTUACAO MINIMA|PONTOS? MINIMOS?|NOTA MINIMA)$/.test(n))return'minimum';
+ if(/^(?:MINIMO|MINIMA|PONTUACAO MINIMA|PONTOS? MINIMOS?|NOTA MINIMA|ACERTOS? MINIMOS?|MINIMO DE ACERTOS?|QUESTOES? MINIMAS?)$/.test(n))return'minimum';
  if(/^(?:PONTUACAO MAXIMA|TOTAL DE PONTOS|PONTOS TOTAIS|VALOR TOTAL|PONTUACAO|PONTOS|TOTAL)$/.test(n))return'total';
  return''
 }
@@ -217,17 +217,21 @@ function tableValue(value,kind){
  if(kind==='questions')return Number.isInteger(n)&&n>0&&n<=500?n:null;
  return n<=100000?n:null
 }
+function minimumKindFromHeader(value){
+ const f=fold(value);if(/ACERTO|QUESTAO/.test(f))return'questions';if(/PONTO|PONTUACAO|NOTA/.test(f))return'points';if(/%|PERCENT/.test(f))return'percentage';return'value'
+}
 function sectionId(label,used){
  let base=fold(label).toLocaleLowerCase('pt-BR').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'secao',id=base,n=2;while(used.has(id))id=base+'-'+n++;used.add(id);return id
 }
 function sectionFromCells(cells,sourceRef,mode,used){
  const label=clean(cells.label||'');if(!validSectionLabel(label))return null;
- const questions=tableValue(cells.questions,'questions'),givenWeight=tableValue(cells.weight,'weight'),givenTotal=tableValue(cells.total,'total');
+ const questions=tableValue(cells.questions,'questions'),givenWeight=tableValue(cells.weight,'weight'),givenTotal=tableValue(cells.total,'total'),minimumValue=tableValue(cells.minimum,'minimum'),minimumKind=cells.minimumKind||'value';
  if(questions===null&&givenTotal===null)return null;
  let pointsPerQuestion=givenWeight,totalPoints=givenTotal,pointsPerQuestionSource=givenWeight!==null?'edital':null,totalPointsSource=givenTotal!==null?'edital':null;
  if(totalPoints===null&&questions!==null&&pointsPerQuestion!==null){totalPoints=Math.round(questions*pointsPerQuestion*10000)/10000;totalPointsSource='calculated'}
  if(pointsPerQuestion===null&&questions&&totalPoints!==null){pointsPerQuestion=Math.round(totalPoints/questions*10000)/10000;pointsPerQuestionSource='calculated'}
- return{id:sectionId(label,used),label,questions,pointsPerQuestion,totalPoints,minimumPoints:null,mapGroups:[label],sourceRefs:sourceRef?[sourceRef]:[],extractionMode:mode,pointsPerQuestionSource,totalPointsSource}
+ const minimum=minimumValue===null?null:{kind:minimumKind,value:minimumValue,source:'edital'};
+ return{id:sectionId(label,used),label,questions,pointsPerQuestion,totalPoints,minimum,minimumPoints:minimumKind==='points'?minimumValue:null,minimumQuestions:minimumKind==='questions'?minimumValue:null,mapGroups:[label],sourceRefs:sourceRef?[sourceRef]:[],extractionMode:mode,pointsPerQuestionSource,totalPointsSource}
 }
 function finalizeObjectiveSections(sections,meta={}){
  const unique=[];for(const s of sections||[]){const key=fold(s.label)+'|'+String(s.questions??'')+'|'+String(s.totalPoints??'');if(!unique.some(x=>x._key===key))unique.push({...s,_key:key})}
@@ -239,7 +243,7 @@ function parseGeometryObjectiveTable(rows,locationStatus){
  for(let i=0;i<Math.min(rows.length,18);i++){const anchors=tableHeaderAnchors(rows[i].items);if(!anchors.some(x=>x.kind==='label')||!anchors.some(x=>['questions','weight','total'].includes(x.kind)))continue;
   const used=new Set(),sections=[],columns=anchors.map(x=>x.kind),headerRef=rows[i].ref;let pending='',misses=0;
   for(let r=i+1;r<rows.length;r++){const row=rows[r];if(objectiveHeading(row.text)||stageBoundary(row.text))break;const repeated=tableHeaderAnchors(row.items);if(repeated.some(x=>x.kind==='label')&&repeated.some(x=>['questions','weight','total'].includes(x.kind)))continue;
-   const cells={label:'',questions:'',weight:'',total:'',minimum:''};for(const item of row.items||[]){if(!clean(item.text))continue;let chosen=anchors[0];for(const a of anchors)if(Math.abs((Number(item.x)||0)-a.x)<Math.abs((Number(item.x)||0)-chosen.x))chosen=a;cells[chosen.kind]+=(cells[chosen.kind]?' ':'')+clean(item.text)}
+   const cells={label:'',questions:'',weight:'',total:'',minimum:'',minimumKind:minimumKindFromHeader(anchors.find(x=>x.kind==='minimum')?.text||'')};for(const item of row.items||[]){if(!clean(item.text))continue;let chosen=anchors[0];for(const a of anchors)if(Math.abs((Number(item.x)||0)-a.x)<Math.abs((Number(item.x)||0)-chosen.x))chosen=a;cells[chosen.kind]+=(cells[chosen.kind]?' ':'')+clean(item.text)}
    const hasNumeric=['questions','weight','total'].some(k=>tableValue(cells[k],k)!==null),label=clean(cells.label);
    if(!hasNumeric&&validSectionLabel(label)){pending=label;continue}
    if(hasNumeric&&!label&&pending)cells.label=pending;
@@ -251,14 +255,14 @@ function parseGeometryObjectiveTable(rows,locationStatus){
 }
 function parseDelimitedObjectiveTable(rows,locationStatus){
  const sep=/\s*[|;\t]\s*/;for(let i=0;i<Math.min(rows.length,20);i++){if(!/[|;\t]/.test(rows[i].text))continue;const heads=rows[i].text.split(sep).map(clean),kinds=heads.map(tableHeaderKind),labelIndex=kinds.indexOf('label');if(labelIndex<0||!kinds.some(x=>['questions','weight','total'].includes(x)))continue;
-  const used=new Set(),sections=[];let misses=0;for(let r=i+1;r<rows.length;r++){if(objectiveHeading(rows[r].text)||stageBoundary(rows[r].text))break;if(!/[|;\t]/.test(rows[r].text)){if(sections.length&&++misses>=4)break;continue}const cols=rows[r].text.split(sep).map(clean),cells={};for(let c=0;c<kinds.length;c++)if(kinds[c])cells[kinds[c]]=cols[c]||'';const s=sectionFromCells(cells,rows[r].ref,'delimited',used);if(s){sections.push(s);misses=0}}
+  const used=new Set(),sections=[];let misses=0;for(let r=i+1;r<rows.length;r++){if(objectiveHeading(rows[r].text)||stageBoundary(rows[r].text))break;if(!/[|;\t]/.test(rows[r].text)){if(sections.length&&++misses>=4)break;continue}const cols=rows[r].text.split(sep).map(clean),cells={minimumKind:minimumKindFromHeader(heads[kinds.indexOf('minimum')]||'')};for(let c=0;c<kinds.length;c++)if(kinds[c])cells[kinds[c]]=cols[c]||'';const s=sectionFromCells(cells,rows[r].ref,'delimited',used);if(s){sections.push(s);misses=0}}
   if(sections.length)return finalizeObjectiveSections(sections,{mode:'delimited',headerRef:rows[i].ref,columns:kinds.filter(Boolean),locationStatus})
  }
  return finalizeObjectiveSections([],{locationStatus})
 }
 function parseTextObjectiveTable(rows,locationStatus){
  for(let i=0;i<Math.min(rows.length,20);i++){const kinds=tableHeaderKindsFromText(rows[i].text),numeric=kinds.filter(x=>x.kind!=='label').map(x=>x.kind);if(!kinds.some(x=>x.kind==='label')||!numeric.some(x=>['questions','weight','total'].includes(x)))continue;
-  const used=new Set(),sections=[];let misses=0;for(let r=i+1;r<rows.length;r++){const row=rows[r];if(objectiveHeading(row.text)||stageBoundary(row.text))break;const tokens=[...row.text.matchAll(/\d{1,5}(?:[.,]\d+)?/g)];if(!tokens.length){if(sections.length&&++misses>=7)break;continue}const take=Math.min(tokens.length,numeric.length),selected=tokens.slice(-take),suffix=row.text.slice(selected[0].index);if(!/^[\d\s,.;]+$/.test(suffix)){if(sections.length&&++misses>=7)break;continue}const label=clean(row.text.slice(0,selected[0].index)),cells={label};for(let k=0;k<take;k++)cells[numeric[k]]=selected[k][0];const s=sectionFromCells(cells,row.ref,'text',used);if(s){sections.push(s);misses=0}else if(sections.length&&++misses>=7)break}
+  const used=new Set(),sections=[];let misses=0;for(let r=i+1;r<rows.length;r++){const row=rows[r];if(objectiveHeading(row.text)||stageBoundary(row.text))break;const tokens=[...row.text.matchAll(/\d{1,5}(?:[.,]\d+)?/g)];if(!tokens.length){if(sections.length&&++misses>=7)break;continue}const take=Math.min(tokens.length,numeric.length),selected=tokens.slice(-take),suffix=row.text.slice(selected[0].index);if(!/^[\d\s,.;]+$/.test(suffix)){if(sections.length&&++misses>=7)break;continue}const label=clean(row.text.slice(0,selected[0].index)),minHeader=kinds.find(x=>x.kind==='minimum')?.text||'',cells={label,minimumKind:minimumKindFromHeader(minHeader)};for(let k=0;k<take;k++)cells[numeric[k]]=selected[k][0];const s=sectionFromCells(cells,row.ref,'text',used);if(s){sections.push(s);misses=0}else if(sections.length&&++misses>=7)break}
   if(sections.length)return finalizeObjectiveSections(sections,{mode:'text',headerRef:rows[i].ref,columns:kinds.map(x=>x.kind),locationStatus})
  }
  return finalizeObjectiveSections([],{locationStatus})
@@ -268,6 +272,44 @@ function parseObjectiveTable(doc,location){
  const geometry=parseGeometryObjectiveTable(rows,location?.status);if(geometry.sections.length)return geometry;
  const delimited=parseDelimitedObjectiveTable(rows,location?.status);if(delimited.sections.length)return delimited;
  return parseTextObjectiveTable(rows,location?.status)
+}
+const MONTHS_PT={JANEIRO:'01',FEVEREIRO:'02',MARCO:'03','MARÇO':'03',ABRIL:'04',MAIO:'05',JUNHO:'06',JULHO:'07',AGOSTO:'08',SETEMBRO:'09',OUTUBRO:'10',NOVEMBRO:'11',DEZEMBRO:'12'};
+function parseAnyDate(value){
+ const raw=clean(value);let m=raw.match(/\b(\d{1,2})[\/.-](\d{1,2})[\/.-](20\d{2})\b/);if(m)return m[3]+'-'+String(m[2]).padStart(2,'0')+'-'+String(m[1]).padStart(2,'0');
+ m=raw.match(/\b(\d{1,2})\s+de\s+(janeiro|fevereiro|mar[cç]o|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\s+de\s+(20\d{2})\b/i);if(!m)return'';const mm=MONTHS_PT[fold(m[2])]||'';return mm?m[3]+'-'+mm+'-'+String(m[1]).padStart(2,'0'):''
+}
+function parseDurationMinutes(value){
+ const raw=clean(value);let m=raw.match(/\b(\d{1,2})\s*h(?:oras?)?\s*(?:(?:e\s*)?(\d{1,2})\s*(?:min(?:utos?)?)?)?\b/i);if(m){const h=Number(m[1]),min=Number(m[2]||0);if(h<=12&&min<60)return h*60+min}
+ m=raw.match(/\b(\d{1,3})\s*minutos?\b/i);if(m){const min=Number(m[1]);if(min>=30&&min<=720)return min}
+ m=raw.match(/\bdura[cç][aã]o[^\d]{0,30}(\d{1,2})\s*\([^)]*\)\s*horas?(?:\s*e\s*(\d{1,2})\s*\([^)]*\)\s*minutos?)?/i);if(m)return Number(m[1])*60+Number(m[2]||0);
+ return null
+}
+function objectiveExamDate(rows){
+ const out=[];for(let i=0;i<rows.length;i++){const row=rows[i],f=fold(row.text);if(/GABARITO|RESULTADO|RECURSO|PUBLICACAO|CONVOCACAO/.test(f))continue;const context=[rows[i-1]?.text,row.text,rows[i+1]?.text].filter(Boolean).join(' '),date=parseAnyDate(context);if(!date)continue;let score=0;if(/APLICA|REALIZA/.test(f))score+=6;if(/PROVA\s+(?:TEORICO\s*[-–—]?\s*)?OBJETIVA|PROVA\s+ESCRITA\s+OBJETIVA|PROVA\s+DE\s+CONHECIMENTOS/.test(f))score+=5;if(/DATA/.test(f))score+=1;if(score>0)out.push({date,status:/PROVAVEL|PREVIST[AO]/.test(f)?'provável':'edital',sourceRef:row.ref,score})}
+ out.sort((a,b)=>b.score-a.score);return out[0]||null
+}
+function objectiveDuration(rows,localRows){
+ const candidates=[...(localRows||[]),...rows.filter(x=>/DURA[CÇ][AÃ]O|TEMPO\s+(?:DE|PARA)|HORAS?\s+DE\s+PROVA/.test(fold(x.text)))],seen=new Set(),out=[];
+ for(const row of candidates){if(!row||seen.has(row.ref))continue;seen.add(row.ref);const context=[row.text].join(' '),minutes=parseDurationMinutes(context);if(minutes===null)continue;let score=1;const f=fold(row.text);if(/DURA[CÇ][AÃ]O|TEMPO\s+(?:DE|PARA)/.test(f))score+=4;if(/PROVA/.test(f))score+=2;out.push({minutes,sourceRef:row.ref,score})}
+ out.sort((a,b)=>b.score-a.score);return out[0]||null
+}
+function objectiveCharacter(rows,localRows){
+ const candidates=[...(localRows||[]),...rows.filter(x=>/ELIMINATOR|CLASSIFICATOR/.test(fold(x.text)))],seen=new Set();
+ for(const row of candidates){if(!row||seen.has(row.ref))continue;seen.add(row.ref);const f=fold(row.text);if(/ELIMINATORIA?\s+E\s+CLASSIFICATORIA?/.test(f))return{value:'Eliminatório e classificatório',sourceRef:row.ref};if(/ELIMINATOR/.test(f))return{value:'Eliminatório',sourceRef:row.ref};if(/CLASSIFICATOR/.test(f))return{value:'Classificatório',sourceRef:row.ref}}
+ return null
+}
+function objectiveMinimum(rows,localRows){
+ const candidates=[...(localRows||[]),...rows.filter(x=>/MINIM|APROVAD|ELIMINAD/.test(fold(x.text)))],seen=new Set();
+ for(const row of candidates){if(!row||seen.has(row.ref))continue;seen.add(row.ref);const text=clean(row.text),f=fold(text);if(!/MINIM|APROVAD|ELIMINAD/.test(f))continue;
+  let m=text.match(/(?:pontua[cç][aã]o|nota)?\s*m[ií]nima(?:\s+geral)?(?:\s+de)?\s*(\d{1,3}(?:[.,]\d+)?)\s*(%|pontos?)/i)||text.match(/(?:obter|alcan[cç]ar|atingir)[^\d%]{0,60}(?:no\s+m[ií]nimo\s+)?(\d{1,3}(?:[.,]\d+)?)\s*(%|pontos?)/i)||text.match(/(\d{1,3}(?:[.,]\d+)?)\s*(%|pontos?)[^\n]{0,80}(?:m[ií]nimo|m[ií]nima|aprova[cç][aã]o)/i);
+  if(!m)continue;const value=num(m[1]);if(value===null)continue;const unit=m[2]==='%'?'percentage':'points';return{kind:unit,value,label:unit==='percentage'?'mínimo geral de '+String(value).replace('.',',')+'%':'mínimo geral de '+String(value).replace('.',',')+' pontos',sourceRef:row.ref}
+ }
+ return null
+}
+function extractObjectiveRules(doc,location,exam){
+ const rows=objectiveRows(doc),localRows=objectiveRegionRows(doc,location),date=objectiveExamDate(rows),dur=objectiveDuration(rows,localRows),character=objectiveCharacter(rows,localRows),minimum=objectiveMinimum(rows,localRows),sectionMinimums=(exam?.sections||[]).filter(x=>x.minimum).map(x=>({sectionId:x.id,label:x.label,...x.minimum,sourceRefs:x.sourceRefs||[]}));
+ const sourceRefs=[date?.sourceRef,dur?.sourceRef,character?.sourceRef,minimum?.sourceRef,...sectionMinimums.flatMap(x=>x.sourceRefs||[])].filter(Boolean);
+ return{status:(date||dur||character||minimum||sectionMinimums.length)?'parsed':'missing',date:date?.date||'',dateStatus:date?.status||'',durationMinutes:dur?.minutes??null,character:character?.value||'',minimum:minimum?{kind:minimum.kind,value:minimum.value,label:minimum.label}:null,sectionMinimums,sourceRefs:[...new Set(sourceRefs)]}
 }
 function duration(text){const area=text.match(/Tempo para realiza[cç][aã]o da Prova[\s\S]{0,700}/i)?.[0]||text.match(/dura[cç][aã]o da prova[\s\S]{0,500}/i)?.[0]||'',m=area.match(/(\d{1,2})\s*\([^)]*\)\s*horas?(?:\s*e?\s*(\d{1,2})\s*\([^)]*\)\s*minutos?)?/i)||area.match(/(\d{1,2})\s*h(?:oras?)?\s*(?:e\s*)?(\d{1,2})?\s*min?/i);return m?(Number(m[1])*60+Number(m[2]||0)):null}
 function examSections(text){
@@ -338,13 +380,13 @@ function extractProgram(doc,cargo,sections=[],available=[]){
 function program(input,cargo,sections=[],available=[]){return extractProgram(input,cargo,sections,available).blocks}
 
 function parseDocument(doc,cargo){
- const text=clean(doc.text),lines=doc.pages.flatMap(p=>p.lines||String(p.text||'').split(/\r?\n/)).map(x=>typeof x==='string'?clean(x):clean(x?.text)).filter(Boolean),loc=locality(text),org=organization(lines,text),nt=notice(text),bd=board(text),available=cargos(text,lines,doc),picked=cargo||available[0]||null,selected=picked?{...picked,group:resolveCargoGroup(picked,text,lines)}:null,objectiveLocation=locateObjective(doc,selected,available),objectiveTable=parseObjectiveTable(doc,objectiveLocation),objectiveText=objectiveRegionRows(doc,objectiveLocation).map(x=>x.text).join('\n'),exam=objectiveTable.sections.length?objectiveTable:examSections(objectiveText||text),programExtraction=extractProgram(doc,selected,exam.sections,available),sched=schedule(lines),examEvent=sched.find(e=>e.kind==='exam')||null,min=minimumTotal(text),dur=duration(text),pub=publicationDate(text),details=cargoDetails(text,lines,selected);
- const objective=exam.sections.length?{id:'objective',type:'objective',label:/Te[oó]rico-Objetiva/i.test(text)?'Prova Teórico-Objetiva':'Prova Objetiva',character:/eliminat[oó]ria e classificat[oó]ria/i.test(text)?'Eliminatório e classificatório':'',planningMode:'weighted-sections',date:examEvent?.date||'',dateStatus:examEvent?.status||'',durationMinutes:dur,totalQuestions:exam.totalQuestions,totalPoints:exam.totalPoints,minimum:min!==null?{kind:'points',value:min,label:'mínimo geral de '+String(min).replace('.',',')+' pontos'}:null,sections:exam.sections}:null;
+ const text=clean(doc.text),lines=doc.pages.flatMap(p=>p.lines||String(p.text||'').split(/\r?\n/)).map(x=>typeof x==='string'?clean(x):clean(x?.text)).filter(Boolean),loc=locality(text),org=organization(lines,text),nt=notice(text),bd=board(text),available=cargos(text,lines,doc),picked=cargo||available[0]||null,selected=picked?{...picked,group:resolveCargoGroup(picked,text,lines)}:null,objectiveLocation=locateObjective(doc,selected,available),objectiveTable=parseObjectiveTable(doc,objectiveLocation),objectiveText=objectiveRegionRows(doc,objectiveLocation).map(x=>x.text).join('\n'),exam=objectiveTable.sections.length?objectiveTable:examSections(objectiveText||text),programExtraction=extractProgram(doc,selected,exam.sections,available),objectiveRules=extractObjectiveRules(doc,objectiveLocation,exam),sched=schedule(lines),examEvent=sched.find(e=>e.kind==='exam')||null,min=objectiveRules.minimum?.kind==='points'?objectiveRules.minimum.value:minimumTotal(text),dur=objectiveRules.durationMinutes??duration(text),pub=publicationDate(text),details=cargoDetails(text,lines,selected),examDate=objectiveRules.date||examEvent?.date||'',examDateStatus=objectiveRules.dateStatus||examEvent?.status||'';
+ const objective=exam.sections.length?{id:'objective',type:'objective',label:/Te[oó]rico-Objetiva/i.test(text)?'Prova Teórico-Objetiva':'Prova Objetiva',character:objectiveRules.character||(/eliminat[oó]ria e classificat[oó]ria/i.test(text)?'Eliminatório e classificatório':''),planningMode:'weighted-sections',date:examDate,dateStatus:examDateStatus,durationMinutes:dur,totalQuestions:exam.totalQuestions,totalPoints:exam.totalPoints,minimum:objectiveRules.minimum||(min!==null?{kind:'points',value:min,label:'mínimo geral de '+String(min).replace('.',',')+' pontos'}:null),sections:exam.sections}:null;
  const content=programExtraction.blocks,officialName=org.organization,title=org.acronym?(org.acronym+(loc.cityName?' '+loc.cityName:'')):officialName,rules=[];
- if(objective?.character)rules.push(objective.label+' de caráter '+objective.character.toLowerCase()+'.');if(min!==null)rules.push('Pontuação mínima geral: '+String(min).replace('.',',')+' pontos.');for(const s of exam.sections)if(s.minimumPoints!==null&&s.minimumPoints!==undefined)rules.push('Mínimo em '+s.label+': '+String(s.minimumPoints).replace('.',',')+' pontos.');
- const schema={id:'',kind:'user',status:'reviewed',board:bd,organization:officialName,position:selected?.name||'',positionCode:selected?.code||'',examGroup:selected?.group||'',notice:nt,examDate:{date:examEvent?.date||'',status:examEvent?.status||''},stages:objective?[objective]:[],schedule:sched,rules,content,documents:[],sourceNote:'Extraído localmente do PDF; revisar antes de criar.'};
- const draft={title:title||officialName,officialName,organization:officialName,position:selected?.name||'',positionCode:selected?.code||'',examGroup:selected?.group||'',board:bd,city:loc.city,cityName:loc.cityName,uf:loc.uf,notice:nt,publicationDate:pub,examDate:examEvent?.date||'',examDateStatus:examEvent?.status||'',durationMinutes:dur,vacancies:details.vacancies,reserve:details.reserve,workloadHours:details.workloadHours,remuneration:details.remuneration,requirements:details.requirements,stages:schema.stages,sections:exam.sections,schedule:sched,rules,content,schema,source:'pdf-import',_status:{title:title?'confirmed':'missing',organization:officialName?'confirmed':'missing',position:selected?.name?'confirmed':'missing',board:bd?'confirmed':'missing',city:loc.city?'review':'missing',notice:nt?'confirmed':'missing',examDate:examEvent?.date?'review':'missing'}};
- return{draft,schema,cargos:available,selectedCargo:selected,objectiveLocation,objectiveTable,programExtraction,meta:{pages:doc.numPages,nativeChars:doc.nativeChars||0,ocr:!!doc.ocr,ocrPartial:!!doc.ocrPartial,examGroup:selected?.group||'',objectiveLocationStatus:objectiveLocation.status,objectiveTableStatus:objectiveTable.status,objectiveTableMode:objectiveTable.mode,programStatus:programExtraction.status,programMode:programExtraction.mode}};
+ if(objective?.character)rules.push(objective.label+' de caráter '+objective.character.toLowerCase()+'.');if(objective?.minimum)rules.push(objective.minimum.kind==='percentage'?'Mínimo geral: '+String(objective.minimum.value).replace('.',',')+'%.':'Pontuação mínima geral: '+String(objective.minimum.value).replace('.',',')+' pontos.');for(const s of exam.sections){if(s.minimumPoints!==null&&s.minimumPoints!==undefined)rules.push('Mínimo em '+s.label+': '+String(s.minimumPoints).replace('.',',')+' pontos.');else if(s.minimumQuestions!==null&&s.minimumQuestions!==undefined)rules.push('Mínimo em '+s.label+': '+String(s.minimumQuestions).replace('.',',')+' questões.')}
+ const schema={id:'',kind:'user',status:'reviewed',board:bd,organization:officialName,position:selected?.name||'',positionCode:selected?.code||'',examGroup:selected?.group||'',notice:nt,examDate:{date:examDate,status:examDateStatus},stages:objective?[objective]:[],schedule:sched,rules,content,documents:[],sourceNote:'Extraído localmente do PDF; revisar antes de criar.'};
+ const draft={title:title||officialName,officialName,organization:officialName,position:selected?.name||'',positionCode:selected?.code||'',examGroup:selected?.group||'',board:bd,city:loc.city,cityName:loc.cityName,uf:loc.uf,notice:nt,publicationDate:pub,examDate:examDate,examDateStatus:examDateStatus,durationMinutes:dur,vacancies:details.vacancies,reserve:details.reserve,workloadHours:details.workloadHours,remuneration:details.remuneration,requirements:details.requirements,stages:schema.stages,sections:exam.sections,schedule:sched,rules,content,schema,source:'pdf-import',_status:{title:title?'confirmed':'missing',organization:officialName?'confirmed':'missing',position:selected?.name?'confirmed':'missing',board:bd?'confirmed':'missing',city:loc.city?'review':'missing',notice:nt?'confirmed':'missing',examDate:examEvent?.date?'review':'missing'}};
+ return{draft,schema,cargos:available,selectedCargo:selected,objectiveLocation,objectiveTable,programExtraction,objectiveRules,meta:{pages:doc.numPages,nativeChars:doc.nativeChars||0,ocr:!!doc.ocr,ocrPartial:!!doc.ocrPartial,examGroup:selected?.group||'',objectiveLocationStatus:objectiveLocation.status,objectiveTableStatus:objectiveTable.status,objectiveTableMode:objectiveTable.mode,programStatus:programExtraction.status,programMode:programExtraction.mode,objectiveRulesStatus:objectiveRules.status}};
 }
-window.PLANO_ARQ_EDICT_PARSER={version:VERSION,parseDocument,cargos,resolveCargoGroup,locateObjective,objectiveHeading,parseObjectiveTable,extractProgram,program,examSections,schedule};
+window.PLANO_ARQ_EDICT_PARSER={version:VERSION,parseDocument,cargos,resolveCargoGroup,locateObjective,objectiveHeading,parseObjectiveTable,extractProgram,program,extractObjectiveRules,parseAnyDate,parseDurationMinutes,examSections,schedule};
 })();
