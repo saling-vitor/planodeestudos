@@ -377,6 +377,7 @@ function extractProgram(doc,cargo,sections=[],available=[]){
  const matched=blocks.filter(x=>x.status==='confirmed').length,status=blocks.length?(genericHeadings||matched<blocks.length?'review':'parsed'):'missing';
  return{status,mode:blocks.length?'document-map':'none',blocks,regions:regions.length,excludedScopes,sourceRefs:[...new Set(blocks.flatMap(x=>x.sourceRefs||[]))]}
 }
+function program(input,cargo,sections=[],available=[]){return extractProgram(input,cargo,sections,available).blocks}
 function evidenceRefs(rows,values,limit=8){
  const needles=(Array.isArray(values)?values:[values]).map(clean).filter(Boolean),out=[];for(const row of rows||[]){if(!row?.ref)continue;let hit=false;for(const value of needles){const short=value.replace(/^Edital\s+/i,'');if(tokenMatch(row.text,value)||tokenMatch(row.text,short)||fold(row.text).includes(fold(short))){hit=true;break}}if(hit&&!out.includes(row.ref)){out.push(row.ref);if(out.length>=limit)break}}return out
 }
@@ -386,7 +387,7 @@ function evidenceField(value,confidence,sourceRefs=[],reason='',derived=false){
  return{value:present?value:null,confidence:Math.round(score*100)/100,level:confidenceLevel(score),status:present?(score>=.85?'confirmed':'review'):'missing',sourceRefs:[...new Set((sourceRefs||[]).filter(Boolean))],reason,derived:!!derived,conflictIds:[]}
 }
 function objectiveDateCandidates(rows){
- const out=[];for(let i=0;i<(rows||[]).length;i++){const row=rows[i],f=fold(row.text);if(!/APLICA|REALIZA/.test(f)||!/PROVA/.test(f)||/GABARITO|RESULTADO|RECURSO/.test(f))continue;const context=[rows[i-1]?.text,row.text,rows[i+1]?.text].filter(Boolean).join(' '),date=parseAnyDate(context);if(date&&!out.some(x=>x.value===date&&x.ref===row.ref))out.push({value:date,ref:row.ref})}return out
+ const out=[];for(let i=0;i<(rows||[]).length;i++){const row=rows[i],f=fold(row.text);if(!/APLICA|REALIZA/.test(f)||!/PROVA/.test(f)||/GABARITO|RESULTADO|RECURSO/.test(f))continue;const context=[rows[i-1]?.text,row.text,rows[i+1]?.text].filter(Boolean).join(' '),date=parseAnyDate(row.text)||parseAnyDate(context);if(date&&!out.some(x=>x.value===date&&x.ref===row.ref))out.push({value:date,ref:row.ref})}return out
 }
 function objectiveDurationCandidates(rows){
  const out=[];for(const row of rows||[]){const f=fold(row.text);if(!/DURA[CÇ][AÃ]O|TEMPO\s+(?:DE|PARA)|HORAS?\s+DE\s+PROVA/.test(f))continue;const value=parseDurationMinutes(row.text);if(value!==null&&!out.some(x=>x.value===value&&x.ref===row.ref))out.push({value,ref:row.ref})}return out
