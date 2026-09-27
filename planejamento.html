@@ -566,28 +566,21 @@ function legacySchemaFromContest(c){
 const localExamSchema=safeJSON(localStorage.getItem('planoarq:exam-schema::'+contestId),null);
 const examSchema=(localExamSchema&&typeof localExamSchema==='object'?localExamSchema:null)||schemaCatalog.find(s=>s.id===(contest.examSchemaId||contest.id))||legacySchemaFromContest(contest);
 const objectiveStage=examSchema?.stages?.find(s=>s.type==='objective')||null;
-const blueprint=objectiveStage?.sections||[];
-const studyBlueprint=window.PLANO_ARQ_STUDY_BLUEPRINT?.load?.(contestId)||null;
+const blueprint=objectiveStage?.sections||[],BlueprintAPI=window.PLANO_ARQ_STUDY_BLUEPRINT;
+const studyBlueprint=BlueprintAPI?.loadOrBuild?.(contestId,examSchema,contest)||BlueprintAPI?.load?.(contestId)||null;
+const finiteNumber=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)),sectionKey=sec=>sec?.id||slug(sec?.label);
 function sectionPoints(sec){
- if(Number.isFinite(Number(sec.totalPoints)))return Number(sec.totalPoints);
- if(Number.isFinite(Number(sec.questions))&&Number.isFinite(Number(sec.pointsPerQuestion)))return Number(sec.questions)*Number(sec.pointsPerQuestion);
+ if(finiteNumber(sec?.totalPoints))return Number(sec.totalPoints);
+ if(finiteNumber(sec?.questions)&&finiteNumber(sec?.pointsPerQuestion))return Number(sec.questions)*Number(sec.pointsPerQuestion);
  return null;
 }
-function allocationMap(){
- const known=blueprint.map(s=>sectionPoints(s));
- const allPoints=known.length&&known.every(v=>v!==null);
- const denomPoints=allPoints?known.reduce((a,b)=>a+b,0):0;
- const allQuestions=blueprint.length&&blueprint.every(s=>Number.isFinite(Number(s.questions)));
- const denomQuestions=allQuestions?blueprint.reduce((a,s)=>a+Number(s.questions),0):0;
- const out={};
- blueprint.forEach((s,i)=>{
-   if(allPoints&&denomPoints>0)out[s.id]=known[i]/denomPoints;
-   else if(allQuestions&&denomQuestions>0)out[s.id]=Number(s.questions)/denomQuestions;
-   else out[s.id]=1/Math.max(1,blueprint.length);
- });
- return out;
+function fallbackAllocationReport(){
+ const out={},explicit=blueprint.map(s=>finiteNumber(s?.planWeight)&&Number(s.planWeight)>=0?Number(s.planWeight):null),allExplicit=blueprint.length&&explicit.every(v=>v!==null),known=blueprint.map(sectionPoints),allPoints=blueprint.length&&known.every(v=>v!==null),denomPoints=allPoints?known.reduce((a,b)=>a+b,0):0,questions=blueprint.map(s=>finiteNumber(s?.questions)?Number(s.questions):null),allQuestions=blueprint.length&&questions.every(v=>v!==null),denomQuestions=allQuestions?questions.reduce((a,b)=>a+b,0):0;
+ let mode='equal',values;if(allExplicit){mode='planWeight';values=explicit}else if(allPoints&&denomPoints>0){mode='points';values=known.map(v=>v*100/denomPoints)}else if(allQuestions&&denomQuestions>0){mode='questions';values=questions.map(v=>v*100/denomQuestions)}else values=blueprint.map(()=>100/Math.max(1,blueprint.length));
+ blueprint.forEach((s,i)=>out[sectionKey(s)]=(Number(values[i]||0)/100));const total=Object.values(out).reduce((a,b)=>a+b,0);
+ return{mode,fractions:out,unallocatedWeight:Math.max(0,1-total),overallocatedWeight:Math.max(0,total-1)}
 }
-const officialAllocation=allocationMap();
+const allocationReport=BlueprintAPI?.allocationForSchema?.(examSchema)||fallbackAllocationReport(),officialAllocation=allocationReport.fractions||{},schemaUnallocatedWeight=Number(allocationReport.unallocatedWeight||0),schemaOverallocatedWeight=Number(allocationReport.overallocatedWeight||0);
 
 function defaultConfig(){
  const today=new Date();today.setHours(12,0,0,0);
@@ -619,8 +612,9 @@ function materialProgress(m){
 }
 function priorityFactor(id){return({low:.7,normal:1,high:1.55})[cfg.priorities[id]]||1}
 function groupMaterials(groupOrSection){
- const groups=Array.isArray(groupOrSection?.mapGroups)?groupOrSection.mapGroups:Array.isArray(groupOrSection)?groupOrSection:[groupOrSection?.group||groupOrSection];
- return materials.filter(m=>groups.filter(Boolean).includes(m.group));
+ const prepared=BlueprintAPI?.mapsForSection?.(studyBlueprint,groupOrSection)||[],linkedIds=new Set(prepared.map(x=>x.materialId).filter(Boolean)),groups=Array.isArray(groupOrSection?.mapGroups)?groupOrSection.mapGroups:Array.isArray(groupOrSection)?groupOrSection:[groupOrSection?.group||groupOrSection],groupSet=new Set(groups.filter(Boolean)),out=new Map();
+ materials.forEach(m=>{if(linkedIds.has(m.id)||groupSet.has(m.group))out.set(m.id,m)});
+ return [...out.values()]
 }
 function effectiveMinutes(day){
  if(day.useWindows){
@@ -652,10 +646,10 @@ function renderBlueprint(){
  }
  $('generateBtn').disabled=false;
  $('blueprint').innerHTML=blueprint.map(c=>{
-   const pct=Math.round((officialAllocation[c.id]||0)*1000)/10;
+   const pct=Math.round((officialAllocation[sectionKey(c)]||0)*1000)/10;
    const pts=sectionPoints(c);
    const rule=pts!==null?`${c.questions??'—'} questões × ${String(c.pointsPerQuestion??'—').replace('.',',')} = ${String(pts).replace('.',',')} pontos`:`${c.questions??'—'} questões`;
-   const min=c.minimumCorrect!=null?` · mínimo ${c.minimumCorrect} acerto${Number(c.minimumCorrect)===1?'':'s'}`:'';
+   const minimum=c.minimumQuestions??c.minimumPoints??c.minimum?.value??null,minUnit=c.minimumQuestions!=null?' questão'+(Number(c.minimumQuestions)===1?'':'s'):c.minimum?.kind==='percentage'?'%':' ponto'+(Number(minimum)===1?'':'s'),min=minimum!=null?` · mínimo ${String(minimum).replace('.',',')}${c.minimum?.kind==='percentage'?'':minUnit}`:'';
    return `<div class="blue-card"><strong>${esc(c.label)}</strong><span class="weight">${String(pct).replace('.',',')}%</span><p>${esc(rule)}${min}</p><div class="blue-bar"><i style="width:${pct}%"></i></div></div>`;
  }).join('');
 }
@@ -686,7 +680,7 @@ function renderPriorities(){
  if(!blueprint.length){$('priorities').innerHTML='<div class="empty"><strong>Sem componentes de prova</strong><span>A estrutura do edital precisa ser confirmada.</span></div>';return}
  $('priorities').innerHTML=blueprint.map(sec=>{
    const list=groupMaterials(sec);
-   const pct=Math.round((officialAllocation[sec.id]||0)*1000)/10;
+   const pct=Math.round((officialAllocation[sectionKey(sec)]||0)*1000)/10;
    const prepared=window.PLANO_ARQ_STUDY_BLUEPRINT?.mapsForSection?.(studyBlueprint,sec)||[],preparedTopics=prepared.reduce((a,x)=>a+Number(x.topicCount||0),0);
    const body=list.length?list.map(m=>{const pr=materialProgress(m);return `<div class="priority-row"><div class="priority-code">${esc(m.shortCode||'MAPA')}</div><div class="priority-title"><strong>${esc(m.title)}</strong><span>${pr.remaining} tópicos pendentes de ${pr.total}</span></div><div class="priority-progress">${pr.pct}% estudado</div><select class="priority-select" data-priority="${esc(m.id)}"><option value="low" ${cfg.priorities[m.id]==='low'?'selected':''}>Baixa</option><option value="normal" ${cfg.priorities[m.id]==='normal'?'selected':''}>Normal</option><option value="high" ${cfg.priorities[m.id]==='high'?'selected':''}>Alta</option></select></div>`}).join(''):prepared.length?`<div class="info-note" data-study-blueprint-note><b>${prepared.length} mapa${prepared.length===1?'':'s'} preparado${prepared.length===1?'':'s'} pelo edital</b> · ${preparedTopics} tópico${preparedTopics===1?'':'s'} identificado${preparedTopics===1?'':'s'}. Os ${String(pct).replace('.',',')}% permanecem reservados até os mapas HTML serem vinculados.</div>`:`<div class="info-note">Nenhum mapa vinculado a este componente. Os ${String(pct).replace('.',',')}% correspondentes não serão redistribuídos silenciosamente.</div>`;
    return `<section class="priority-group"><h3>${esc(sec.label)} · ${String(pct).replace('.',',')}%</h3><div class="priority-table">${body}</div></section>`;
@@ -723,9 +717,9 @@ function saveConfig(show=true){
  if(show)toast('Planejamento salvo');
 }
 function categoryShareMap(){
- const out={};let unmappedWeight=0;
+ const out={};let unmappedWeight=schemaUnallocatedWeight;
  blueprint.forEach(sec=>{
-   const list=groupMaterials(sec),official=officialAllocation[sec.id]||0;
+   const list=groupMaterials(sec),official=officialAllocation[sectionKey(sec)]||0;
    if(!list.length){unmappedWeight+=official;return}
    const scores=list.map(m=>{const pr=materialProgress(m),score=Math.max(pr.remaining,.25)*priorityFactor(m.id);return{m,score,pr}});
    const sum=scores.reduce((a,x)=>a+x.score,0)||1;
@@ -826,7 +820,7 @@ function generatePlanData(){
  }
  const theoryMinutes=days.flatMap(d=>d.sessions).filter(s=>s.type==='study').reduce((a,s)=>a+s.minutes,0);
  const remain=remainingTopics(),minPerTopic=remain?Math.round(theoryMinutes/remain):0;
- return{schema:3,breakPolicy:'between-sessions-v1',contestId,examSchemaId:examSchema?.id||null,generatedAt:new Date().toISOString(),startDate:cfg.startDate,examDate:cfg.examDate,config:{blockMinutes:cfg.blockMinutes,breakMinutes:cfg.breakMinutes,questionsPct:cfg.questionsPct,reviewPct:cfg.reviewPct,rebalance:cfg.rebalance},summary:{totalAvailableMinutes:totalAvail,theoryMinutes,remainingTopics:remain,minutesPerRemainingTopic:minPerTopic,dayCount:days.length,unmappedWeight},days};
+ return{schema:3,breakPolicy:'between-sessions-v1',contestId,examSchemaId:examSchema?.id||null,examSchemaSignature:studyBlueprint?.sourceSignature||BlueprintAPI?.signature?.(examSchema)||'',studyBlueprintVersion:studyBlueprint?.version||'',generatedAt:new Date().toISOString(),startDate:cfg.startDate,examDate:cfg.examDate,config:{blockMinutes:cfg.blockMinutes,breakMinutes:cfg.breakMinutes,questionsPct:cfg.questionsPct,reviewPct:cfg.reviewPct,rebalance:cfg.rebalance},summary:{totalAvailableMinutes:totalAvail,theoryMinutes,remainingTopics:remain,minutesPerRemainingTopic:minPerTopic,dayCount:days.length,unmappedWeight,allocationMode:allocationReport.mode||'unknown',schemaUnallocatedWeight,overallocatedWeight:schemaOverallocatedWeight},days};
 }
 function typeLabel(t){return t==='study'?'MAPA':t==='questions'?'QUESTÕES':'REVISÃO'}
 function renderPlan(plan){
@@ -835,7 +829,7 @@ function renderPlan(plan){
  const intensity=s.remainingTopics?Math.round(s.theoryMinutes/s.remainingTopics):0;
  let alert=intensity>=20?`<div class="plan-alert ok">Com a disponibilidade atual, o plano reserva cerca de <b>${intensity} min de teoria por tópico ainda pendente</b> até a prova, além de questões e revisões.</div>`:`<div class="plan-alert">A disponibilidade atual deixa cerca de <b>${intensity} min de teoria por tópico pendente</b>. Isso pode exigir uma seleção mais agressiva de conteúdos ou mais horas disponíveis.</div>`;
  if((s.unmappedWeight||0)>0){alert+=`<div class="plan-alert">Há <b>${Math.round(s.unmappedWeight*1000)/10}% da prova sem mapas vinculados</b>. O Portal não redistribuiu esse peso para outras matérias.</div>`}
- $('planArea').innerHTML=`<div class="plan-summary"><div class="plan-stat"><span>Capacidade</span><b>${minsLabel(s.totalAvailableMinutes)}</b><small>até a véspera</small></div><div class="plan-stat"><span>Dias de estudo</span><b>${s.dayCount}</b><small>com disponibilidade</small></div><div class="plan-stat"><span>Tópicos pendentes</span><b>${s.remainingTopics}</b><small>nos 14 mapas</small></div><div class="plan-stat"><span>Teoria / tópico</span><b>${s.minutesPerRemainingTopic} min</b><small>média estimada</small></div></div>${alert}<div class="days">${first.map(d=>`<article class="plan-day"><div class="day-head"><strong>${esc(fmtLong(d.date))}</strong><span>${minsLabel(d.availableMinutes)}</span></div><div class="sessions">${d.sessions.map(x=>`<div class="session"><div class="session-time">${esc(x.time)}</div><div class="session-type ${x.type}">${typeLabel(x.type)}</div><div class="session-name"><strong>${esc(x.shortCode||'MAPA')} · ${esc(x.type==='study'?x.title:typeLabel(x.type)+' · '+x.title)}</strong><span>${esc(x.type==='study'?'Avançar no conteúdo do mapa':x.type==='questions'?'Prática dirigida pelo mesmo peso da prova':'Revisar conteúdo já estudado')}</span></div><div class="session-min">${x.minutes} min</div></div>`).join('')}</div></article>`).join('')}</div>${plan.days.length>7?`<div class="info-note">Mostrando os próximos 7 dias com estudo. O plano completo possui ${plan.days.length} dias e já está disponível na tela Hoje.</div>`:''}`;
+ $('planArea').innerHTML=`<div class="plan-summary"><div class="plan-stat"><span>Capacidade</span><b>${minsLabel(s.totalAvailableMinutes)}</b><small>até a véspera</small></div><div class="plan-stat"><span>Dias de estudo</span><b>${s.dayCount}</b><small>com disponibilidade</small></div><div class="plan-stat"><span>Tópicos pendentes</span><b>${s.remainingTopics}</b><small>nos ${materials.length} mapa${materials.length===1?'':'s'}</small></div><div class="plan-stat"><span>Teoria / tópico</span><b>${s.minutesPerRemainingTopic} min</b><small>média estimada</small></div></div>${alert}<div class="days">${first.map(d=>`<article class="plan-day"><div class="day-head"><strong>${esc(fmtLong(d.date))}</strong><span>${minsLabel(d.availableMinutes)}</span></div><div class="sessions">${d.sessions.map(x=>`<div class="session"><div class="session-time">${esc(x.time)}</div><div class="session-type ${x.type}">${typeLabel(x.type)}</div><div class="session-name"><strong>${esc(x.shortCode||'MAPA')} · ${esc(x.type==='study'?x.title:typeLabel(x.type)+' · '+x.title)}</strong><span>${esc(x.type==='study'?'Avançar no conteúdo do mapa':x.type==='questions'?'Prática dirigida pelo mesmo peso da prova':'Revisar conteúdo já estudado')}</span></div><div class="session-min">${x.minutes} min</div></div>`).join('')}</div></article>`).join('')}</div>${plan.days.length>7?`<div class="info-note">Mostrando os próximos 7 dias com estudo. O plano completo possui ${plan.days.length} dias e já está disponível na tela Hoje.</div>`:''}`;
 }
 function generate(){
  saveConfig(false);const plan=generatePlanData();if(plan.error){renderPlan(plan);toast(plan.error);return}
