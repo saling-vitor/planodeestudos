@@ -924,3 +924,143 @@ body.pa-internal-mode[data-pa-page="settings"] :is(
   }
 }
 
+/* ===== V3.7 · CONFIGURAÇÕES + EMPTY STATES ===== */
+/* Configurações permanece técnica, mas deixa de apresentar todos os blocos com a mesma importância. */
+body.pa-internal-mode[data-pa-page="settings"] .pa-content>.section{
+  box-sizing:border-box;width:min(100%,1180px);min-width:0
+}
+body.pa-internal-mode[data-pa-page="settings"] .section-head{
+  position:relative;padding-left:11px
+}
+body.pa-internal-mode[data-pa-page="settings"] .section-head::before{
+  content:"";position:absolute;left:0;top:3px;bottom:3px;width:2px;border-radius:999px;
+  background:color-mix(in srgb,var(--settings-domain-accent,var(--pa-accent-blue)) 58%,transparent)
+}
+
+/* Domínios existentes: sem criar novos títulos nem reordenar a página. */
+body.pa-internal-mode[data-pa-page="settings"] :is(#cloud,#account,#sync,#layers){
+  --settings-domain-accent:var(--pa-accent-blue)
+}
+body.pa-internal-mode[data-pa-page="settings"] :is(#drive,#pwa),
+body.pa-internal-mode[data-pa-page="settings"] .section:has(#autoDriveSnapshot){
+  --settings-domain-accent:var(--pa-accent-gold)
+}
+body.pa-internal-mode[data-pa-page="settings"] #automation{
+  --settings-domain-accent:var(--pa-accent-purple)
+}
+body.pa-internal-mode[data-pa-page="settings"] #backup{
+  --settings-domain-accent:var(--pa-accent-green)
+}
+body.pa-internal-mode[data-pa-page="settings"] #security,
+body.pa-internal-mode[data-pa-page="settings"] .section:has(.danger-zone){
+  --settings-domain-accent:var(--pa-accent-red)
+}
+body.pa-internal-mode[data-pa-page="settings"] .section:has(#density){
+  --settings-domain-accent:var(--pa-accent-blue)
+}
+
+/* Inícios de domínio ganham um pouco mais de respiro; subblocos do mesmo domínio permanecem próximos. */
+body.pa-internal-mode[data-pa-page="settings"] :is(#cloud,#drive,#automation,#backup),
+body.pa-internal-mode[data-pa-page="settings"] .section:has(#density){
+  margin-top:30px
+}
+
+/* Hierarquia de superfície: estrutural > funcional > agrupamento. */
+body.pa-internal-mode[data-pa-page="settings"] :is(
+  .security-card,.cloud-project-card,.automation-card
+){
+  border-color:color-mix(in srgb,var(--settings-domain-accent,var(--pa-accent-blue)) 18%,var(--pa-border-medium));
+  background:var(--pa-surface-panel);
+  box-shadow:0 14px 30px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.014)
+}
+body.pa-internal-mode[data-pa-page="settings"] :is(
+  .settings-card,.account-box,.drive-box,.pwa-card
+){
+  background:var(--pa-surface-card)
+}
+
+/* Agrupamentos informativos deixam de competir com o card que os contém. */
+body.pa-internal-mode[data-pa-page="settings"] :is(
+  .maintenance-card .data-box,
+  #account .data-box,
+  #backup .data-box,
+  .sync-observability .status-card,
+  #layers .status-card,
+  .cloud-project-meta>div,
+  .folder-card,
+  .pwa-action-panel,
+  .pwa-mini-stats>div,
+  .pwa-tech-grid>div
+){
+  border-color:transparent;
+  background:color-mix(in srgb,var(--pa-surface-control) 48%,var(--pa-surface-card));
+  box-shadow:none
+}
+body.pa-internal-mode[data-pa-page="settings"] :is(
+  .maintenance-card .data-box,
+  #account .data-box,
+  #backup .data-box,
+  .sync-observability .status-card,
+  #layers .status-card
+){
+  border-radius:var(--pa-radius-control)
+}
+
+/* Textos técnicos longos usam largura de leitura sem estreitar o shell. */
+body.pa-internal-mode[data-pa-page="settings"] :is(
+  .hero-main>p,.row p,.cloud-project-head p,.drive-box>p,.drive-note,
+  .security-intro p,.automation-copy p,.automation-source-copy p,
+  .security-note,.advanced-hint,.info,.warn
+){
+  max-width:var(--pa-reading-measure)
+}
+
+/* Empty states: proporcionais ao conteúdo, sem grandes caixas vazias. */
+body.pa-internal-mode[data-pa-page="errors"] .empty-state{
+  min-height:0;padding:16px 15px;gap:4px;
+  background:color-mix(in srgb,var(--pa-surface-card) 86%,transparent);
+  box-shadow:none
+}
+body.pa-internal-mode[data-pa-page="errors"] .empty-state .empty-icon{
+  width:28px;height:28px;margin:0 auto 2px;border-radius:var(--pa-radius-micro);
+  font-size:10px
+}
+body.pa-internal-mode[data-pa-page="errors"] .empty-state strong{
+  font-size:12.5px
+}
+body.pa-internal-mode[data-pa-page="errors"] .empty-state p{
+  max-width:58ch;margin-top:2px
+}
+body.pa-internal-mode[data-pa-page="errors"] .empty-state .empty-actions{
+  margin-top:7px
+}
+
+body.pa-internal-mode[data-pa-page="settings"] .snapshot-empty{
+  min-height:0;padding:14px 12px;gap:4px;
+  border-color:rgba(239,233,221,.055);
+  background:rgba(255,255,255,.003)
+}
+body.pa-internal-mode[data-pa-page="settings"] .snapshot-empty::before{
+  width:22px;height:22px;margin-bottom:1px;border-radius:var(--pa-radius-micro)
+}
+body.pa-internal-mode[data-pa-page="settings"] .automation-preview{
+  padding:7px;background:color-mix(in srgb,var(--pa-surface-control) 38%,var(--pa-surface-card))
+}
+body.pa-internal-mode[data-pa-page="settings"] .automation-preview-empty{
+  min-height:0;padding:9px 10px;border-color:transparent;background:transparent
+}
+
+/* Mobile/touch: mantém hierarquia sem acrescentar altura artificial. */
+@media(pointer:coarse){
+  body.pa-internal-mode[data-pa-page="settings"] .pa-content>.section{
+    width:100%
+  }
+  body.pa-internal-mode[data-pa-page="settings"] :is(#cloud,#drive,#automation,#backup),
+  body.pa-internal-mode[data-pa-page="settings"] .section:has(#density){
+    margin-top:24px
+  }
+  body.pa-internal-mode[data-pa-page="errors"] .empty-state{
+    padding:14px 12px
+  }
+}
+
