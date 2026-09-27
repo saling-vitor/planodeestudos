@@ -1065,10 +1065,9 @@ body.pa-internal-mode[data-pa-page="settings"] .automation-preview-empty{
 }
 
 /* ===== V3.8 · SECTION HEADERS + MÉTRICAS + LARGURA DE LEITURA ===== */
-/* Consolida ritmo editorial sem alterar estrutura, ordem, dados ou comportamento das páginas. */
+/* Consolida ritmo editorial sem alterar a densidade já definida por cada página. */
 body.pa-internal-mode:not([data-pa-page="settings"]) .section-head{
-  box-sizing:border-box;min-width:0;max-width:100%;
-  padding-bottom:8px;border-bottom:1px solid rgba(239,233,221,.045)
+  box-sizing:border-box;min-width:0;max-width:100%
 }
 body.pa-internal-mode:not([data-pa-page="settings"]) .section-head h2{
   min-width:0;max-width:var(--pa-reading-measure);
@@ -1079,53 +1078,41 @@ body.pa-internal-mode:not([data-pa-page="settings"]) .section-head>span{
   overflow-wrap:anywhere
 }
 
-/* Métricas: número é protagonista; rótulo e contexto ficam em nível secundário. */
-body.pa-internal-mode :is(
+/* Métricas: estabilidade numérica sem estreitar artificialmente rótulos e contexto. */
+body.pa-internal-mode:not([data-pa-page="settings"]) :is(
   .metric,.stat,.plan-stat,.mini-stat,.official-stat,.q-stat,.error-stat,.diag-stat,
   .chart-summary-box,.adaptive-metric,.post-sim-metric
 ){
   box-sizing:border-box;min-width:0
 }
-body.pa-internal-mode :is(
+body.pa-internal-mode:not([data-pa-page="settings"]) :is(
   .metric,.stat,.plan-stat,.mini-stat,.official-stat,.q-stat,.error-stat,.diag-stat,
   .chart-summary-box,.adaptive-metric,.post-sim-metric
 ) :is(strong,b){
   font-variant-numeric:tabular-nums;
-  font-feature-settings:"tnum" 1;
   line-height:1.08
 }
-body.pa-internal-mode :is(
+body.pa-internal-mode:not([data-pa-page="settings"]) :is(
   .metric,.stat,.plan-stat,.mini-stat,.official-stat,.q-stat,.error-stat,.diag-stat,
   .chart-summary-box,.adaptive-metric,.post-sim-metric
 )>:is(span,small){
-  max-width:28ch;line-height:1.38
+  min-width:0;max-width:100%;line-height:1.38;overflow-wrap:anywhere
 }
 
-/* O shell pode permanecer amplo; texto corrido não precisa percorrer toda a largura. */
-body.pa-internal-mode :is(
-  .section,.panel,.analysis-card,.review-card,.priority-card,.diag-card,.exam-card,
-  .settings-card,.automation-card,.maintenance-card,.pwa-card,.security-card
+/* O shell pode permanecer amplo; apenas texto corrido recebe medida de leitura. */
+body.pa-internal-mode:not([data-pa-page="settings"]) :is(
+  .section,.panel,.analysis-card,.review-card,.priority-card,.diag-card,.exam-card
 )>:is(p,.sub,.description,.help,.hint,.info,.warn,.note){
   max-width:var(--pa-reading-measure)
 }
-body.pa-internal-mode :is(
-  .topic,.session-name,.official-main,.post-sim-head,.automation-copy,
-  .cloud-project-head,.security-intro
+body.pa-internal-mode:not([data-pa-page="settings"]) :is(
+  .topic,.session-name,.official-main,.post-sim-head
 )>:is(p,span,small){
   max-width:var(--pa-reading-measure-compact)
 }
 
 @media(max-width:600px){
-  body.pa-internal-mode:not([data-pa-page="settings"]) .section-head{
-    padding-bottom:7px
-  }
   body.pa-internal-mode:not([data-pa-page="settings"]) .section-head>span{
-    max-width:100%
-  }
-  body.pa-internal-mode :is(
-    .metric,.stat,.plan-stat,.mini-stat,.official-stat,.q-stat,.error-stat,.diag-stat,
-    .chart-summary-box,.adaptive-metric,.post-sim-metric
-  )>:is(span,small){
     max-width:100%
   }
 }
