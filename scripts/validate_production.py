@@ -469,7 +469,7 @@ def main():
             if not (ROOT/path).exists():
                 errors.append(f"Novo Concurso: arquivo obrigatório ausente: {path}")
         import_js=(ROOT/"assets/js/pa-contest-import-v01.js").read_text("utf-8",errors="ignore")
-        for token in ("renderExamReview","data-review-section","data-review-event","renderContentReview"):
+        for token in ("renderExamReview","data-review-section","renderContentReview","renderReviewIssues","data-add-review-section","data-remove-review-section","sourceRefsLabel"):
             if token not in import_js:
                 errors.append(f"Novo Concurso: revisão estruturada ausente: {token}")
         for token in ("saveExamSchema","upsertContestFile","storeContestBlob","examSchemaId","importedEdict"):
