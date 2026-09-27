@@ -16,13 +16,13 @@ const schema1={notice:'Edital 01/2026',position:'Arquiteto',stages:[{id:'objecti
  {id:'b',label:'Conhecimentos Específicos',questions:30,totalPoints:60,planWeight:30,sourceRefs:['p1:l2']},
  {id:'c',label:'Legislação',questions:10,totalPoints:10,planWeight:10,sourceRefs:['p1:l3']}
 ]}],content:[
- {sectionId:'a',label:'Conhecimentos Gerais',text:'Português; Raciocínio Lógico',sourceRefs:['p2:l1'],status:'confirmed'},
+ {sectionId:'a',label:'Português e Raciocínio',text:'Português; Raciocínio Lógico',sourceRefs:['p2:l1'],status:'confirmed'},
  {sectionId:'b',label:'Conhecimentos Específicos',text:'Projeto arquitetônico; Conforto ambiental',sourceRefs:['p2:l2'],status:'confirmed'}
 ]};
 let a=B.allocationForSchema(schema1);
 assert.equal(a.mode,'planWeight');assert.equal(a.fractions.a,.6);assert.equal(a.fractions.b,.3);assert.equal(a.fractions.c,.1);assert.equal(a.unallocatedWeight,0);
 let bp=B.buildAndSave('c1',schema1,{title:'Concurso A',position:'Arquiteto'});
-assert.equal(bp.sections.find(x=>x.id==='a').weightPct,60);assert.equal(bp.maps.find(x=>x.sectionId==='c').status,'awaiting-content');assert.ok(bp.maps.find(x=>x.sectionId==='a').sourceRefs.includes('p2:l1'));
+assert.equal(bp.sections.find(x=>x.id==='a').weightPct,60);assert.equal(bp.maps.find(x=>x.sectionId==='c').status,'awaiting-content');assert.equal(bp.maps.find(x=>x.sourceLabel==='Português e Raciocínio').sectionId,'a');assert.ok(bp.maps.find(x=>x.sectionId==='a').sourceRefs.includes('p2:l1'));
 const mapA=bp.maps.find(x=>x.sectionId==='a');B.linkMaterial('c1',mapA.id,{id:'material-a'});
 const schema2=structuredClone(schema1);schema2.stages[0].sections[0].planWeight=50;schema2.stages[0].sections[2].planWeight=20;
 bp=B.loadOrBuild('c1',schema2,{title:'Concurso A'});

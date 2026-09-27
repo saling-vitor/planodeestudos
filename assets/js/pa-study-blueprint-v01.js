@@ -53,7 +53,7 @@ function build(cid,schema,contest={},previous=load(cid)){
  const obj=objective(schema),sections=Array.isArray(obj?.sections)?obj.sections:[],content=Array.isArray(schema?.content)?schema.content:[],prevBy=new Map((previous?.maps||[]).map(x=>[x.id,x])),covered=new Set(),maps=[],sourceBlocks=[],allocation=allocationForSections(sections);
  const weights=new Map(Object.entries(allocation.percentages));
  for(const block of content){
-  const label=clean(block?.label)||'Conteúdo do edital',text=clean(block?.text),sec=matchSection(label,sections),sectionId=sec?.id||slug(sec?.label||label),sectionLabel=clean(sec?.label)||label,topics=splitTopics(text),max=10,parts=Math.max(1,Math.ceil(Math.max(1,topics.length)/max));
+  const label=clean(block?.label)||'Conteúdo do edital',text=clean(block?.text),explicitSectionId=clean(block?.sectionId),sec=(explicitSectionId?sections.find(s=>sectionKey(s)===explicitSectionId):null)||matchSection(label,sections),sectionId=sectionKey(sec)||explicitSectionId||slug(label),sectionLabel=clean(sec?.label)||label,topics=splitTopics(text),max=10,parts=Math.max(1,Math.ceil(Math.max(1,topics.length)/max));
   if(sec)covered.add(sec.id||slug(sec.label));
   const sourceRefs=[...new Set((Array.isArray(block?.sourceRefs)?block.sourceRefs:[]).filter(Boolean))];sourceBlocks.push({label,sectionId,sectionLabel,text,topics,source:block?.source||'edital',sourceRefs,status:block?.status||''});
   for(let i=0;i<parts;i++){
