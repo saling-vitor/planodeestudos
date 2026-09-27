@@ -131,9 +131,9 @@ def main():
             if text.count("localStorage.setItem") != 1:
                 raise RuntimeError("pa-actions-v01.js: focus/build/audit não podem introduzir novas escritas; apenas saveSettings é permitido")
         if path.name == "pa-replan-v01.js":
-            for token in ("const VERSION='1.0'","function propose(","function inspect(","function apply(","function touchedDates(","function compareFuture(","createRecoveryPoint","meaningful?'ready':'no-change'","readOnly:true","adaptive-replan","planningSignals","postSimulationFactor","post-sim","postSimulation"):
+            for token in ("const VERSION='1.0'","function propose(","function inspect(","function apply(","function touchedDates(","function compareFuture(","createRecoveryPoint","meaningful?'ready':'no-change'","readOnly:true","adaptive-replan","planningSignals","postSimulationFactor","post-sim","postSimulation","PLANO_ARQ_HEALTH?.guard","Health Check bloqueou a aplicação"):
                 if token not in text:
-                    raise RuntimeError(f"pa-replan-v01.js: contrato AUT-02/AUT-03 ausente: {token}")
+                    raise RuntimeError(f"pa-replan-v01.js: contrato AUT-02/AUT-03/AUT-04 ausente: {token}")
             if text.count("localStorage.setItem") != 1:
                 raise RuntimeError("pa-replan-v01.js: somente apply pode gravar o plano futuro")
         if path.name == "pa-post-sim-v01.js":
@@ -142,6 +142,16 @@ def main():
                     raise RuntimeError(f"pa-post-sim-v01.js: contrato AUT-03 ausente: {token}")
             if text.count("localStorage.setItem") != 1:
                 raise RuntimeError("pa-post-sim-v01.js: somente record pode gravar o snapshot derivado do diagnóstico")
+        if path.name == "pa-health-v01.js":
+            for token in ("const VERSION='1.0'","function scanSync(","async function scan(","function guard(","function schedule(","function fileBlobHealth(","function environmentHealth(","blocksMutation:true","planoarq:health-check","readOnly:true"):
+                if token not in text:
+                    raise RuntimeError(f"pa-health-v01.js: contrato AUT-04 ausente: {token}")
+            if text.count("localStorage.setItem") != 0 or text.count("localStorage.removeItem") != 0:
+                raise RuntimeError("pa-health-v01.js: Health Check deve permanecer estritamente read-only")
+        if path.name == "pa-data-v03.js":
+            for token in ("loadHealthRuntime","pa-health-v01.js","data-pa-health"):
+                if token not in text:
+                    raise RuntimeError(f"pa-data-v03.js: carregamento AUT-04 ausente: {token}")
         check_node(path, str(path.relative_to(ROOT)))
         checked_external += 1
 
