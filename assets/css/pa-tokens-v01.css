@@ -1,6 +1,7 @@
 :root{
  --pa-bg:#030406;
  --pa-surface:#080a0d;--pa-surface-2:#0c0f13;--pa-surface-3:#12161b;
+ --pa-surface-0:var(--pa-bg);--pa-surface-1:var(--pa-surface);--pa-surface-control:var(--pa-surface-3);
  --pa-surface-warm:#0d0c0b;--pa-surface-cool:#090d12;
  --pa-text:#f2efe8;--pa-text-2:#cbc9c4;--pa-muted:#8f9298;--pa-muted-2:#676b73;
  --pa-champagne:#d8c59e;--pa-champagne-2:#b99c68;--pa-blue:#6d8298;--pa-green:#62a978;
@@ -15,7 +16,7 @@
  --pa-shadow-panel:0 18px 44px rgba(0,0,0,.30),inset 0 1px rgba(255,255,255,.026);
  --pa-shadow-raised:0 26px 72px rgba(0,0,0,.44),inset 0 1px rgba(255,255,255,.035);
  /* ETAPA E1 · aliases semânticos — reutilizam os primitivos acima */
- --pa-surface-base:var(--pa-bg);--pa-surface-panel:var(--pa-surface);--pa-surface-card:var(--pa-surface-2);--pa-surface-raised:var(--pa-surface-3);
+ --pa-surface-base:var(--pa-surface-0);--pa-surface-panel:var(--pa-surface-1);--pa-surface-card:var(--pa-surface-2);--pa-surface-raised:var(--pa-surface-3);
  --pa-border-soft:var(--pa-line-2);--pa-border-medium:var(--pa-line);
  --pa-accent-gold:var(--pa-champagne-2);--pa-accent-blue:var(--pa-blue);--pa-accent-purple:var(--pa-violet);--pa-accent-red:var(--pa-red);--pa-accent-green:var(--pa-green);
  --pa-text-primary:var(--pa-text);--pa-text-secondary:var(--pa-text-2);--pa-text-muted:var(--pa-muted);
@@ -25,6 +26,7 @@
  --pa-condensed:"Bahnschrift Condensed","Arial Narrow","Aptos Narrow","Segoe UI",sans-serif;
  --pa-mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
  --pa-radius-xs:8px;--pa-radius-sm:11px;--pa-radius-md:15px;--pa-radius-lg:18px;
+ --pa-radius-panel:16px;--pa-radius-card:12px;--pa-radius-control:9px;--pa-radius-micro:7px;
  --pa-control-h:44px;--pa-control-h-touch:48px;--pa-shell-sidebar:264px;--pa-shell-topbar:76px;
  --pa-shell-content-max:1420px;--pa-shell-content-x:34px;--pa-shell-content-top:30px;
 
