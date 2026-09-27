@@ -84,6 +84,10 @@ jobs:
         if: steps.package.outputs.ready == 'true'
         run: python3 scripts/validate_javascript.py
 
+      - name: Validar importador de edital · OBJ-01
+        if: steps.package.outputs.ready == 'true'
+        run: node scripts/test_edict_document_map.mjs
+
       - name: Validar PWA e cache
         if: steps.package.outputs.ready == 'true'
         run: python3 scripts/validate_pwa_cache.py

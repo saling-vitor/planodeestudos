@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.0';
+const VERSION='1.1';
 function analysisHtml(){return'<div class="review-section"><div class="review-section-head"><h3>Analisando edital</h3><span id="edictProgressMeta">Preparando PDF</span></div><div class="analysis-list"><div class="analysis-row done" data-a="file"><b>Arquivo carregado</b><span>✓</span></div><div class="analysis-row" data-a="text"><b>Texto do PDF</b><span>○</span></div><div class="analysis-row" data-a="contest"><b>Concurso e cargos</b><span>○</span></div><div class="analysis-row" data-a="exam"><b>Estrutura da prova</b><span>○</span></div><div class="analysis-row" data-a="content"><b>Conteúdo e cronograma</b><span>○</span></div></div></div>'}
 function setAnalysis(key,state,label){const row=document.querySelector('[data-a="'+key+'"]');if(row){row.classList.toggle('done',state==='done');row.classList.toggle('active',state==='active');const s=row.querySelector('span');if(s)s.textContent=state==='done'?'✓':state==='active'?'→':'○'}const m=document.getElementById('edictProgressMeta');if(label&&m)m.textContent=label}
 function chooseCargo(list){
@@ -19,13 +19,16 @@ async function analyzeIntoWizard(state){
  try{
   setAnalysis('text','active','Lendo texto nativo do PDF');
   const doc=await Reader.read(file,p=>{const el=document.getElementById('edictProgressMeta');if(!el)return;if(p.kind==='read')el.textContent='Lendo página '+p.current+' de '+p.total;else if(p.kind==='ocr-start')el.textContent='PDF digitalizado · preparando OCR';else if(p.kind==='ocr')el.textContent='OCR · página '+p.current+' de '+p.total});
-  setAnalysis('text','done',doc.ocr?'Texto identificado por OCR':'Texto identificado');
+  const validation=doc.validation||Reader.validateDocument?.(doc.documentMap||doc);
+  if(validation?.status==='rejected')throw new Error(validation.message||'Este PDF não parece ser um edital de concurso.');
+  state.documentMap=doc.documentMap||null;state.documentValidation=validation||null;
+  setAnalysis('text','done',doc.ocr?'Texto identificado por OCR':validation?.status==='review'?'Texto identificado · documento requer revisão':'Texto e documento validados');
   setAnalysis('contest','active','Identificando concurso e cargos');
   const preliminary=Parser.parseDocument(doc,null);let selected=preliminary.cargos.length===1?preliminary.cargos[0]:null;
   if(preliminary.cargos.length>1)selected=await chooseCargo(preliminary.cargos);
   if(!selected&&preliminary.cargos.length===0)throw new Error('Nenhum cargo foi identificado automaticamente. Continue manualmente e revise os dados.');
   setAnalysis('contest','done','Cargo selecionado');setAnalysis('exam','active','Extraindo prova e critérios');await new Promise(r=>setTimeout(r,0));
-  const result=Parser.parseDocument(doc,selected);setAnalysis('exam','done','Estrutura da prova organizada');setAnalysis('content','done','Conteúdo e cronograma organizados');
+  const result=Parser.parseDocument(doc,selected);result.documentMap=doc.documentMap||null;result.documentValidation=validation||null;setAnalysis('exam','done','Estrutura da prova organizada');setAnalysis('content','done','Conteúdo e cronograma organizados');
   state.draft=result.draft;state.analysis=result;state.step=2;panel.hidden=true;W.renderReview();document.getElementById('nextStep').hidden=false;W.updateSteps();document.getElementById('reviewForm')?.scrollIntoView({block:'start'});
  }catch(e){
   panel.hidden=true;document.getElementById('cargoPanel').hidden=true;document.getElementById('importChoice').hidden=false;W.showMessage(e?.message||'Falha no processamento do edital.',true);
