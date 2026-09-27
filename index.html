@@ -661,6 +661,105 @@ body:not(.pa-internal-mode) .dialog-foot{
 @media(pointer:coarse){
   body:not(.pa-internal-mode) .page .contest-card:hover{transform:none}
 }
+
+
+/* ===== ETAPA E3.1 · HOJE · hierarquia funcional ===== */
+/* Abertura → recomendação → execução → suporte. Somente estrutura visual. */
+body.pa-internal-mode[data-pa-page="today"] .today-hero{
+  align-items:stretch
+}
+body.pa-internal-mode[data-pa-page="today"] .today-main-card{
+  border-color:color-mix(in srgb,var(--pa-accent-blue) 24%,var(--pa-border-medium));
+  background:
+    radial-gradient(520px 240px at -4% -10%,rgba(109,130,152,.095),transparent 70%),
+    radial-gradient(340px 190px at 104% 0,rgba(216,197,158,.026),transparent 72%),
+    linear-gradient(145deg,rgba(13,17,21,.95),rgba(8,10,13,.98));
+  box-shadow:0 20px 48px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.026)
+}
+body.pa-internal-mode[data-pa-page="today"] .today-metric{
+  border-color:var(--pa-border-soft);
+  background:linear-gradient(145deg,rgba(11,14,17,.80),rgba(7,9,12,.91));
+  box-shadow:inset 0 1px rgba(255,255,255,.012)
+}
+body.pa-internal-mode[data-pa-page="today"] .today-metric>strong{
+  color:#e8e5df
+}
+
+/* Foco automático é a recomendação ativa do dia. */
+body.pa-internal-mode[data-pa-page="today"] .auto-section{
+  margin-top:16px
+}
+body.pa-internal-mode[data-pa-page="today"] .auto-section .today-section-head h2::before{
+  width:25px;background:linear-gradient(90deg,var(--pa-accent-gold),transparent)
+}
+body.pa-internal-mode[data-pa-page="today"] .auto-main{
+  min-height:132px;padding:19px 20px;
+  border-color:color-mix(in srgb,var(--pa-accent-gold) 34%,var(--pa-border-soft));
+  background:
+    radial-gradient(460px 210px at -5% -12%,rgba(185,156,104,.085),transparent 72%),
+    linear-gradient(112deg,rgba(15,14,12,.96),rgba(8,10,13,.98) 52%,rgba(7,9,12,.99));
+  box-shadow:0 20px 46px rgba(0,0,0,.27),inset 0 1px rgba(255,255,255,.024)
+}
+body.pa-internal-mode[data-pa-page="today"] .auto-main::after{
+  width:96px;opacity:.9
+}
+body.pa-internal-mode[data-pa-page="today"] .auto-main h3{
+  font-size:18px;line-height:1.15
+}
+body.pa-internal-mode[data-pa-page="today"] .auto-list{
+  border-color:rgba(239,233,221,.045);
+  background:rgba(8,10,13,.56);box-shadow:none
+}
+body.pa-internal-mode[data-pa-page="today"] .auto-row{
+  min-height:54px
+}
+
+/* Meta diária contextualiza; Agenda executa. */
+body.pa-internal-mode[data-pa-page="today"] .auto-section + .today-section{
+  margin-top:19px
+}
+body.pa-internal-mode[data-pa-page="today"] .today-grid{
+  gap:16px
+}
+body.pa-internal-mode[data-pa-page="today"] .today-grid>div>.today-section-head h2::before{
+  background:linear-gradient(90deg,var(--pa-accent-blue),transparent)
+}
+body.pa-internal-mode[data-pa-page="today"] .featured-session{
+  border-color:color-mix(in srgb,var(--pa-accent-blue) 48%,var(--pa-border-soft));
+  box-shadow:0 20px 44px rgba(0,0,0,.26),inset 0 1px rgba(255,255,255,.025)
+}
+body.pa-internal-mode[data-pa-page="today"] .featured-session .featured-primary{
+  border-color:color-mix(in srgb,var(--pa-accent-blue) 62%,rgba(239,233,221,.10))
+}
+
+/* Hoje em números e comparação são suporte, não protagonistas. */
+body.pa-internal-mode[data-pa-page="today"] .today-grid>aside .today-section-head{
+  opacity:.88
+}
+body.pa-internal-mode[data-pa-page="today"] .today-grid>aside .today-panel{
+  border-color:rgba(239,233,221,.045);
+  background:rgba(8,10,13,.52);
+  box-shadow:inset 0 1px rgba(255,255,255,.010)
+}
+body.pa-internal-mode[data-pa-page="today"] .today-grid>aside .today-number{
+  border-color:transparent;background:rgba(255,255,255,.006);box-shadow:none
+}
+body.pa-internal-mode[data-pa-page="today"] .today-grid>aside .today-number>b{
+  font-size:18px;color:#d8d7d2
+}
+body.pa-internal-mode[data-pa-page="today"] .today-grid>aside .summary-row{
+  border-color:rgba(239,233,221,.04)
+}
+@media(max-width:1180px){
+  body.pa-internal-mode[data-pa-page="today"] .auto-main{min-height:0}
+  body.pa-internal-mode[data-pa-page="today"] .today-grid>aside{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  body.pa-internal-mode[data-pa-page="today"] .today-grid>aside>.today-section-head{grid-column:span 1;margin:0}
+  body.pa-internal-mode[data-pa-page="today"] .today-grid>aside>.today-panel{min-width:0}
+}
+@media(max-width:700px){
+  body.pa-internal-mode[data-pa-page="today"] .today-grid>aside{display:block}
+  body.pa-internal-mode[data-pa-page="today"] .today-grid>aside>.today-section-head{margin-top:18px}
+}
 </style>
 <script src="data/navigation.js"></script>
 <link rel="stylesheet" href="assets/css/pa-tokens-v01.css"><link rel="stylesheet" href="assets/css/pa-shell-v16.css">
