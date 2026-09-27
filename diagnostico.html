@@ -327,12 +327,17 @@ body.pa-internal-mode[data-pa-page="diagnostic"] .empty.soft strong{
 body.pa-internal-mode[data-pa-page="diagnostic"] :is(
   .priority-card,.diag-list,.topic-list,.diagnostic-analysis-grid,.data-method
 ){
-  width:min(100%,1120px)
+  box-sizing:border-box;min-width:0;max-width:100%;width:auto
+}
+body.pa-internal-mode[data-pa-page="diagnostic"] :is(
+  .priority-card,.diag-list,.topic-list,.diagnostic-analysis-grid,.data-method
+){
+  max-width:1120px
 }
 body.pa-internal-mode[data-pa-page="diagnostic"] .diag-card :is(
   .diag-head,.diag-grid,.diag-signals,.evidence-line,.diag-actions,.measure-line
 ){
-  width:min(100%,980px)
+  box-sizing:border-box;min-width:0;max-width:980px;width:auto
 }
 body.pa-internal-mode[data-pa-page="diagnostic"] .diag-card .diag-head{
   align-items:start
