@@ -8,7 +8,7 @@ vm.createContext(context);
 vm.runInContext(source,context,{filename:'pa-edict-parser-v01.js'});
 const P=context.window.PLANO_ARQ_EDICT_PARSER;
 assert.ok(P,'Parser não exportado');
-assert.equal(P.version,'1.1');
+assert.ok(P.cargos&&P.resolveCargoGroup,'Exports da OBJ-02 ausentes');
 
 function list(text,doc=null){return P.cargos(text,text.split(/\n/),doc)}
 
