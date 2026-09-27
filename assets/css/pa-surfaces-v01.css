@@ -806,3 +806,15 @@ html.pa-reduce-motion body.pa-internal-mode .next-panel.is-loading .next-k::befo
   animation:none;border-top-color:rgba(109,130,152,.75)
 }
 
+/* ===== V3.1 · GRID SAFETY ===== */
+/* Contrato shrink-safe do Portal: não esconde overflow; evita min-content forçando o shell. */
+body.pa-internal-mode :is(.pa-content,.section,.panel,.field,.tools,.toolbar){
+  min-width:0;max-width:100%
+}
+body.pa-internal-mode :is(input,select,textarea,button){
+  box-sizing:border-box
+}
+body.pa-internal-mode :is(input,select,textarea){
+  min-width:0;max-width:100%
+}
+
