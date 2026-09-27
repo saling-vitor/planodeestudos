@@ -761,6 +761,10 @@ body.pa-internal-mode :is(
   font-family:var(--pa-mono);font-size:7.2px;font-weight:800;line-height:1;
   letter-spacing:.025em;text-transform:uppercase
 }
+/* Biblioteca mantém chips internos retangulares; status semântico não vira pill global. */
+body.pa-internal-mode[data-pa-page="maps"] .library-card .chip{
+  border-radius:8px
+}
 body.pa-internal-mode :is(.chip-count,button.chip>b,button.filter>i,.auto-count){
   box-sizing:border-box;min-width:20px;height:20px;padding:0 5px;display:inline-grid;place-items:center;
   margin-left:3px;border:1px solid rgba(239,233,221,.055);border-radius:999px;
