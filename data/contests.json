@@ -133,6 +133,87 @@
       },
       "examSchemaId": "casan-arquiteto-urbanista-2026",
       "editalCenterVersion": "1.0"
+    },
+    {
+      "id": "cangucu-arquiteto-2026",
+      "title": "Prefeitura de Canguçu",
+      "organization": "Município de Canguçu/RS",
+      "position": "Arquiteto",
+      "board": "Instituto Objetiva",
+      "notice": "Concurso Público nº 001/2026 · Edital nº 001/2026",
+      "city": "Canguçu/RS",
+      "examDate": "2026-11-01",
+      "status": "active",
+      "createdAt": "2026-09-27",
+      "source": "seed",
+      "publicationDate": "2026-09-04",
+      "examDateLabel": "01/11/2026",
+      "examDateStatus": "estimada",
+      "examDateSource": "Edital 001/2026 · Anexo IV · Grupo G04",
+      "group": "G04",
+      "vacancies": {
+        "open": 1,
+        "reserve": "CR",
+        "totalNumeric": 1
+      },
+      "workloadHours": 30,
+      "remuneration": "R$ 7.470,46",
+      "registrationFee": "R$ 140,80",
+      "requirements": "Ensino Superior completo e habilitação legal para o exercício da profissão de Arquiteto.",
+      "examBlueprint": {
+        "totalQuestions": 50,
+        "totalPoints": 100,
+        "durationMinutes": 240,
+        "categories": [
+          {
+            "id": "portuguese",
+            "group": "Língua Portuguesa",
+            "label": "Língua Portuguesa",
+            "questions": 12,
+            "questionWeight": 1.5,
+            "points": 18,
+            "planWeight": 18
+          },
+          {
+            "id": "logic",
+            "group": "Raciocínio Lógico",
+            "label": "Raciocínio Lógico",
+            "questions": 8,
+            "questionWeight": 1,
+            "points": 8,
+            "planWeight": 8
+          },
+          {
+            "id": "general",
+            "group": "Conhecimentos Gerais",
+            "label": "Conhecimentos Gerais",
+            "questions": 6,
+            "questionWeight": 1,
+            "points": 6,
+            "planWeight": 6
+          },
+          {
+            "id": "legislation",
+            "group": "Legislação",
+            "label": "Legislação",
+            "questions": 8,
+            "questionWeight": 1.5,
+            "points": 12,
+            "planWeight": 12
+          },
+          {
+            "id": "specific",
+            "group": "Conhecimentos Específicos",
+            "label": "Conhecimentos Específicos",
+            "questions": 16,
+            "questionWeight": 3.5,
+            "points": 56,
+            "planWeight": 56
+          }
+        ]
+      },
+      "examSchemaId": "cangucu-arquiteto-2026",
+      "editalCenterVersion": "1.0"
     }
   ]
 }
