@@ -53,6 +53,48 @@ body:not(.pa-internal-mode) :is(.today-empty,.auto-empty){border-color:rgba(216,
 
 
 /* ===== ETAPA E1 · Gramática visual global ===== */
+/* Atmosfera do mapa, centralizada nesta camada visual para manter shell/componentes dentro do contrato canônico. */
+body.pa-internal-mode,
+body:not(.pa-internal-mode){
+  background:
+    radial-gradient(1000px 650px at 7% 0%,rgba(14,26,41,.30),transparent 60%),
+    radial-gradient(720px 520px at 93% 18%,rgba(216,197,158,.032),transparent 64%),
+    linear-gradient(var(--pa-grid-line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--pa-grid-line) 1px,transparent 1px),
+    linear-gradient(180deg,var(--pa-surface-base),#040507 44%,#020304);
+  background-size:auto,auto,var(--pa-grid-size) var(--pa-grid-size),var(--pa-grid-size) var(--pa-grid-size),auto
+}
+body.pa-internal-mode .pa-content :is(.hero-main,.today-main-card,.metric,.stat){border-color:var(--pa-border-medium)}
+body.pa-internal-mode .pa-content :is(.hero-main,.today-main-card)>p{max-width:var(--pa-reading-measure)}
+@media(max-width:1199px), (pointer:coarse){
+  body.pa-internal-mode,body:not(.pa-internal-mode){
+    background:
+      radial-gradient(760px 520px at 2% -6%,rgba(14,26,41,.22),transparent 62%),
+      radial-gradient(560px 420px at 100% 10%,rgba(216,197,158,.024),transparent 67%),
+      linear-gradient(180deg,var(--pa-surface-base),#040507 48%,#020304);
+    background-size:auto
+  }
+}
+@media(max-width:600px){
+  body.pa-internal-mode,body:not(.pa-internal-mode){
+    background:radial-gradient(520px 380px at 0 -4%,rgba(14,26,41,.17),transparent 64%),linear-gradient(180deg,var(--pa-surface-base),#030406 58%,#020304)
+  }
+}
+
+/* Hierarquia editorial/técnica e largura de leitura, sem nova estrutura HTML. */
+body.pa-internal-mode .section-head{margin-bottom:var(--pa-space-internal);gap:var(--pa-space-internal)}
+body.pa-internal-mode .section-head h2{color:var(--pa-text-secondary);letter-spacing:.14em}
+body.pa-internal-mode .section-head>span{max-width:var(--pa-reading-measure-compact);color:var(--pa-text-muted);line-height:1.4}
+body.pa-internal-mode .empty span{max-width:var(--pa-reading-measure-compact)}
+body.pa-internal-mode :is(.review-row,.q-row,.error-row,.topic-row,.file-row,.history-row,.priority-row,.stats-row){
+  border-color:rgba(239,233,221,.045);background:rgba(255,255,255,.008)
+}
+body.pa-internal-mode :is(.q-row,.review-row)::before{
+  box-shadow:0 0 9px color-mix(in srgb,var(--accent,var(--pa-accent-blue)) 15%,transparent)
+}
+body.pa-internal-mode .q-row{--accent:var(--pa-accent-blue)}
+body.pa-internal-mode .review-row{--accent:var(--pa-accent-purple)}
+
 /* Três níveis: estrutural, funcional e silencioso. Mantém classes existentes e semântica das páginas. */
 body.pa-internal-mode :is(.panel,.today-panel,.settings-card,.analysis-card,.automation-card,.maintenance-card,.pwa-card,.cloud-project-card,.drive-auth-box,.drive-box,.folder-card,.security-card){
   border-color:var(--pa-border-medium);
