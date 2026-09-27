@@ -48,11 +48,11 @@ function matchSection(label,sections){
  return score>=.2?best:null
 }
 function objectiveContent(schema){
- const obj=objective(schema),sectionIds=new Set((obj?.sections||[]).map(sectionKey)),nonObjective=/(?:TITLE|TITUL|PRACT|PRATIC|PSYCH|PSICO|TAF|PHYSICAL|FISIC|ORAL|FORMATION|FORMACAO|MEDICAL|MEDIC|HETEROIDENT|SOCIAL)/;
+ const obj=objective(schema),sectionIds=new Set((obj?.sections||[]).map(sectionKey)),nonObjective=/(?:title|titul|pract|pratic|psych|psico|taf|physical|fisic|oral|formation|formacao|medical|medic|heteroident|social)/i;
  return (Array.isArray(schema?.content)?schema.content:[]).filter(block=>{
   const sectionId=clean(block?.sectionId);if(sectionId&&sectionIds.has(sectionId))return true;
   const marker=fold(block?.stageType||block?.stage||block?.stageId||block?.scope||block?.type||'');
-  if(!marker)return true;if(/OBJECTIVE|OBJETIV|TEORICO-OBJETIV/.test(marker))return true;if(nonObjective.test(marker))return false;return true
+  if(!marker)return true;if(/objective|objetiv|teorico-objetiv/i.test(marker))return true;if(nonObjective.test(marker))return false;return true
  })
 }
 function signature(schema){const obj=objective(schema);return hash(JSON.stringify({sections:obj?.sections||[],content:objectiveContent(schema),notice:schema?.notice||'',position:schema?.position||''}))}
