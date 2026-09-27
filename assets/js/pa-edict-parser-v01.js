@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.3';
+const VERSION='1.4';
 const UF={"acre":"AC","alagoas":"AL","amapa":"AP","amazonas":"AM","bahia":"BA","ceara":"CE","distrito federal":"DF","espirito santo":"ES","goias":"GO","maranhao":"MA","mato grosso":"MT","mato grosso do sul":"MS","minas gerais":"MG","para":"PA","paraiba":"PB","parana":"PR","pernambuco":"PE","piaui":"PI","rio de janeiro":"RJ","rio grande do norte":"RN","rio grande do sul":"RS","rondonia":"RO","roraima":"RR","santa catarina":"SC","sao paulo":"SP","sergipe":"SE","tocantins":"TO"};
 const BOARDS=[['FUNDATEC','FUNDATEC'],['CEBRASPE','CEBRASPE'],['CESPE','CEBRASPE'],['FUNDAÇÃO GETULIO VARGAS','FGV'],['FGV','FGV'],['FUNDAÇÃO CARLOS CHAGAS','FCC'],['FCC','FCC'],['VUNESP','VUNESP'],['INSTITUTO AOCP','Instituto AOCP'],['LEGALLE','Legalle Concursos'],['INSTITUTO OBJETIVA','Instituto Objetiva'],['INSTITUTO AVALIA','Instituto Avalia']];
 const escRe=s=>String(s||'').replace(/[.*+?^$(){}|[\]\\]/g,'\\$&');
@@ -283,21 +283,68 @@ function schedule(lines){
  for(let i=0;i<lines.length;i++){const dates=[...lines[i].matchAll(/\b\d{2}\/\d{2}\/20\d{2}\b/g)].map(x=>x[0]);if(!dates.length)continue;let label=lines[i].replace(/\b\d{2}\/\d{2}\/20\d{2}\b/g,'').replace(/[-–—|]+$/,'').trim();if(label.length<7)label=[lines[i-1]||'',label,lines[i+1]||''].join(' ').replace(/\b\d{2}\/\d{2}\/20\d{2}\b/g,'').replace(/\s+/g,' ').trim();if(!keywords.test(label))continue;const date=isoDate(dates[0]),key=date+'|'+fold(label).slice(0,80);if(seen.has(key))continue;seen.add(key);const f=fold(label);let kind='event';if(/APLICA.*PROVA|REALIZA.*PROVA/.test(f))kind='exam';else if(/GABARITO/.test(f))kind='answer-key';else if(/INSCRI/.test(f))kind='registration';else if(/ISEN/.test(f))kind='exemption';else if(/RECURSO/.test(f))kind='appeal';else if(/RESULTADO/.test(f))kind='result';else if(/TITUL/.test(f))kind='titles';out.push({date,label:clean(label).slice(0,220),kind,status:/PROV[AÁ]VEL/i.test(label)?'provável':'edital'})}
  return out.sort((a,b)=>a.date.localeCompare(b.date));
 }
-function program(text,cargo){
- const out=[],capture=(label,start,end)=>{const m=text.match(new RegExp(start+'\\s*PROGRAMA\\s*:\\s*([\\s\\S]*?)(?='+end+'|$)','i'));if(m){const body=clean(m[1]).replace(/\n+/g,' ');if(body.length>20)out.push({label,text:body,source:'edital'})}};
+const PROGRAM_START=/^(?:(?:ANEXO\s+[A-Z0-9IVXLCDM.-]+\s*[-–—:]?\s*)?)(?:CONTEUDOS?\s+PROGRAMATICOS?|PROGRAMA\s+(?:DAS?|DE)\s+PROVAS?|PROGRAMA\s+DE\s+CONHECIMENTOS)\b/i;
+const PROGRAM_STOP=/^(?:CRONOGRAMA|CALENDARIO|QUADRO\s+DE\s+VAGAS|REQUISITOS?\s+(?:DOS?\s+)?CARGOS?|ATRIBUICOES?\s+(?:DOS?\s+)?CARGOS?|DAS?\s+INSCRICOES|DA\s+AVALIACAO\s+DE\s+TITULOS|PROVA\s+DE\s+TITULOS|PROVA\s+PRATICA|CURSO\s+DE\s+FORMACAO)\b/i;
+const PROGRAM_SCOPE_WORDS=/\b(?:CARGO|CARGOS|FUNCAO|FUNCOES|EMPREGO|EMPREGOS|ESPECIALIDADE|ESPECIALIDADES|GRUPO|TIPO\s+DE\s+PROVA|AREA|NIVEL)\b/i;
+function programRows(doc){
+ if(doc&&typeof doc==='object')return objectiveRows(doc);
+ return String(doc||'').split(/\r?\n/).map((text,i)=>({text:clean(text),ref:'text:l'+(i+1),page:1,order:i+1,items:[]})).filter(x=>x.text)
+}
+function programRegions(rows){
+ const starts=[];for(let i=0;i<rows.length;i++)if(PROGRAM_START.test(fold(rows[i].text)))starts.push(i);
+ const regions=[];for(let s=0;s<starts.length;s++){const start=starts[s],next=starts[s+1]??rows.length;let end=Math.min(next-1,start+700);
+  for(let i=start+1;i<=end;i++){const f=fold(rows[i].text);if(i>start+2&&PROGRAM_STOP.test(f)){end=i-1;break}if(i>start+2&&/^ANEXO\s+[A-Z0-9IVXLCDM.-]+\b/.test(f)&&!PROGRAM_START.test(f)){end=i-1;break}}
+  if(end>start)regions.push({start,end,startRef:rows[start].ref,endRef:rows[end]?.ref||rows[start].ref})
+ }
+ return regions
+}
+function sectionMatchLine(text,sections=[]){
+ const raw=clean(text);if(!raw)return null;const f=fold(raw),ordered=(sections||[]).filter(x=>clean(x?.label)).sort((a,b)=>clean(b.label).length-clean(a.label).length);
+ for(const sec of ordered){const label=clean(sec.label),sf=fold(label),at=f.indexOf(sf);if(at<0||at>45)continue;const before=f.slice(0,at).trim();if(before&&!/^(?:NIVEL\s+(?:SUPERIOR|MEDIO|FUNDAMENTAL)(?:\s+COMPLETO)?|PROGRAMA|CONTEUDO\s+PROGRAMATICO)\s*[-–—:]?$/.test(before))continue;
+  const rest=raw.slice(at+label.length);let body='';const pm=rest.match(/\bPROGRAMA\s*:\s*(.+)$/i);if(pm)body=clean(pm[1]);else{const m=rest.match(/^\s*[:–—-]\s*(.+)$/);if(m&&!PROGRAM_SCOPE_WORDS.test(fold(m[1])))body=clean(m[1])}
+  return{label,sectionId:sec.id||'',body,matched:true}
+ }
+ const inline=raw.match(/^([^:]{3,100})\s*:\s*(.{12,})$/);if(inline&&!PROGRAM_SCOPE_WORDS.test(fold(inline[1]))&&!PROGRAM_START.test(fold(inline[1]))&&!PROGRAM_STOP.test(fold(inline[1]))&&!/\b(?:EDITAL|ANEXO|CAPITULO|TITULO)\b/.test(fold(inline[1])))return{label:clean(inline[1]),sectionId:'',body:clean(inline[2]),matched:false};
+ const short=raw.length<=90&&raw.split(/\s+/).length<=10&&!/[.;]$/.test(raw)&&!PROGRAM_SCOPE_WORDS.test(f)&&!PROGRAM_START.test(f)&&!PROGRAM_STOP.test(f)&&!/^ANEXO\b/.test(f);
+ if(short&&/^[A-ZÀ-Ü0-9 ()/&.-]+$/.test(raw)&&/[A-ZÀ-Ü]{3}/.test(raw))return{label:titleCase(raw),sectionId:'',body:'',matched:false};
+ return null
+}
+function programScopeDecision(text,cargo,available=[]){
+ const raw=clean(text),f=fold(raw);if(!raw)return null;
+ if(/\b(?:CARGOS?|FUNCOES?|EMPREGOS?|ESPECIALIDADES?)\s*:\s*(?:TODOS|TODAS)|\bTODOS\s+OS\s+CARGOS\b/.test(f))return{kind:'common',allowed:true,association:'common'};
+ const selectedGroup=groupKey(cargo?.group||''),lineGroup=groupKey(groupValue(raw));if(lineGroup&&/\b(?:GRUPO|TIPO\s+DE\s+PROVA|AREA|NIVEL)\b/.test(f))return{kind:'group',allowed:!selectedGroup||lineGroup===selectedGroup,association:lineGroup===selectedGroup?'group':'foreign-group'};
+ if(/\b(?:CARGO|FUNCAO|EMPREGO|ESPECIALIDADE)\b/.test(f)){const own=!!cargo&&((cargo.code&&tokenMatch(raw,cargo.code))||(cargo.name&&tokenMatch(raw,cargo.name))),other=(available||[]).find(x=>x&&((x.code&&tokenMatch(raw,x.code))||(x.name&&tokenMatch(raw,x.name)))&&!((cargo?.code&&fold(x.code)===fold(cargo.code))||(cargo?.name&&fold(x.name)===fold(cargo.name))));if(own)return{kind:'cargo',allowed:true,association:'cargo'};if(other)return{kind:'cargo',allowed:false,association:'foreign-cargo'}}
+ return null
+}
+function cleanProgramBody(lines){return clean((lines||[]).map(x=>clean(x)).filter(Boolean).join(' ')).replace(/\s+([,.;:])/g,'$1')}
+function legacyProgram(text,cargo){
+ const out=[],capture=(label,start,end)=>{const m=text.match(new RegExp(start+'\\s*PROGRAMA\\s*:\\s*([\\s\\S]*?)(?='+end+'|$)','i'));if(m){const body=clean(m[1]).replace(/\n+/g,' ');if(body.length>20)out.push({label,text:body,source:'edital',sourceRefs:[],scope:'legacy',association:'legacy',status:'review'})}};
  capture('Língua Portuguesa','(?:N[ÍI]VEL\\s+SUPERIOR\\s+COMPLETO\\s+)?L[ÍI]NGUA\\s+PORTUGUESA(?:\\s+CARGOS?\\s*:\\s*TODOS)?','(?:N[ÍI]VEL\\s+SUPERIOR\\s+COMPLETO\\s+)?LEGISLA[CÇ][AÃ]O');
  capture('Legislação','(?:N[ÍI]VEL\\s+SUPERIOR\\s+COMPLETO\\s+)?LEGISLA[CÇ][AÃ]O(?:\\s+CARGOS?\\s*:\\s*TODOS)?','(?:N[ÍI]VEL\\s+(?:SUPERIOR|M[EÉ]DIO)\\s+COMPLETO\\s+)?CONHECIMENTOS\\s+ESPEC[ÍI]FICOS');
  if(cargo?.name){const code=cargo.code?escRe(cargo.code).replace(/\s+/g,'\\s*'):'(?:CP\\s*\\d+)',name=escRe(cargo.name).replace(/\s+/g,'\\s+');capture('Conhecimentos Específicos','CONHECIMENTOS\\s+ESPEC[ÍI]FICOS\\s+CARGO\\s+'+code+'\\s*:\\s*'+name,'(?:N[ÍI]VEL\\s+(?:SUPERIOR|M[EÉ]DIO)\\s+COMPLETO\\s+)?CONHECIMENTOS\\s+ESPEC[ÍI]FICOS\\s+CARGO|ANEXO\\s+V|$')}
- return out;
+ return out
 }
+function extractProgram(doc,cargo,sections=[],available=[]){
+ const rows=programRows(doc),regions=programRegions(rows),blocks=[],seen=new Set();let genericHeadings=0,excludedScopes=0;
+ for(const region of regions){let allowed=true,scope='common',association='common',current=null;
+  const flush=()=>{if(!current)return;const body=cleanProgramBody(current.body),key=fold(current.label)+'|'+fold(body);if(body.length>=8&&!seen.has(key)){seen.add(key);blocks.push({label:current.label,text:body,source:'edital',sourceRefs:[...new Set(current.refs)],scope:current.scope,association:current.association,sectionId:current.sectionId||'',status:current.matched?'confirmed':'review'})}current=null};
+  for(let i=region.start+1;i<=region.end;i++){const row=rows[i],scopeInfo=programScopeDecision(row.text,cargo,available),heading=sectionMatchLine(row.text,sections);if(scopeInfo){if(!heading)flush();allowed=scopeInfo.allowed;scope=scopeInfo.kind;association=scopeInfo.association;if(!allowed)excludedScopes++}if(heading){flush();if(!allowed)continue;if(!heading.matched)genericHeadings++;current={label:heading.label,sectionId:heading.sectionId,matched:heading.matched,body:heading.body?[heading.body]:[],refs:[row.ref],scope,association};continue}if(current&&allowed){current.body.push(row.text);current.refs.push(row.ref)}}
+  flush()
+ }
+ if(!blocks.length){const fallback=legacyProgram(clean(doc?.text??doc),cargo);if(fallback.length)return{status:'review',mode:'legacy',blocks:fallback,regions:regions.length,excludedScopes,sourceRefs:[]}}
+ const matched=blocks.filter(x=>x.status==='confirmed').length,status=blocks.length?(genericHeadings||matched<blocks.length?'review':'parsed'):'missing';
+ return{status,mode:blocks.length?'document-map':'none',blocks,regions:regions.length,excludedScopes,sourceRefs:[...new Set(blocks.flatMap(x=>x.sourceRefs||[]))]}
+}
+function program(input,cargo,sections=[],available=[]){return extractProgram(input,cargo,sections,available).blocks}
+
 function parseDocument(doc,cargo){
- const text=clean(doc.text),lines=doc.pages.flatMap(p=>p.lines||String(p.text||'').split(/\r?\n/)).map(x=>typeof x==='string'?clean(x):clean(x?.text)).filter(Boolean),loc=locality(text),org=organization(lines,text),nt=notice(text),bd=board(text),available=cargos(text,lines,doc),picked=cargo||available[0]||null,selected=picked?{...picked,group:resolveCargoGroup(picked,text,lines)}:null,objectiveLocation=locateObjective(doc,selected,available),objectiveTable=parseObjectiveTable(doc,objectiveLocation),objectiveText=objectiveRegionRows(doc,objectiveLocation).map(x=>x.text).join('\n'),exam=objectiveTable.sections.length?objectiveTable:examSections(objectiveText||text),sched=schedule(lines),examEvent=sched.find(e=>e.kind==='exam')||null,min=minimumTotal(text),dur=duration(text),pub=publicationDate(text),details=cargoDetails(text,lines,selected);
+ const text=clean(doc.text),lines=doc.pages.flatMap(p=>p.lines||String(p.text||'').split(/\r?\n/)).map(x=>typeof x==='string'?clean(x):clean(x?.text)).filter(Boolean),loc=locality(text),org=organization(lines,text),nt=notice(text),bd=board(text),available=cargos(text,lines,doc),picked=cargo||available[0]||null,selected=picked?{...picked,group:resolveCargoGroup(picked,text,lines)}:null,objectiveLocation=locateObjective(doc,selected,available),objectiveTable=parseObjectiveTable(doc,objectiveLocation),objectiveText=objectiveRegionRows(doc,objectiveLocation).map(x=>x.text).join('\n'),exam=objectiveTable.sections.length?objectiveTable:examSections(objectiveText||text),programExtraction=extractProgram(doc,selected,exam.sections,available),sched=schedule(lines),examEvent=sched.find(e=>e.kind==='exam')||null,min=minimumTotal(text),dur=duration(text),pub=publicationDate(text),details=cargoDetails(text,lines,selected);
  const objective=exam.sections.length?{id:'objective',type:'objective',label:/Te[oó]rico-Objetiva/i.test(text)?'Prova Teórico-Objetiva':'Prova Objetiva',character:/eliminat[oó]ria e classificat[oó]ria/i.test(text)?'Eliminatório e classificatório':'',planningMode:'weighted-sections',date:examEvent?.date||'',dateStatus:examEvent?.status||'',durationMinutes:dur,totalQuestions:exam.totalQuestions,totalPoints:exam.totalPoints,minimum:min!==null?{kind:'points',value:min,label:'mínimo geral de '+String(min).replace('.',',')+' pontos'}:null,sections:exam.sections}:null;
- const content=program(text,selected),officialName=org.organization,title=org.acronym?(org.acronym+(loc.cityName?' '+loc.cityName:'')):officialName,rules=[];
+ const content=programExtraction.blocks,officialName=org.organization,title=org.acronym?(org.acronym+(loc.cityName?' '+loc.cityName:'')):officialName,rules=[];
  if(objective?.character)rules.push(objective.label+' de caráter '+objective.character.toLowerCase()+'.');if(min!==null)rules.push('Pontuação mínima geral: '+String(min).replace('.',',')+' pontos.');for(const s of exam.sections)if(s.minimumPoints!==null&&s.minimumPoints!==undefined)rules.push('Mínimo em '+s.label+': '+String(s.minimumPoints).replace('.',',')+' pontos.');
  const schema={id:'',kind:'user',status:'reviewed',board:bd,organization:officialName,position:selected?.name||'',positionCode:selected?.code||'',examGroup:selected?.group||'',notice:nt,examDate:{date:examEvent?.date||'',status:examEvent?.status||''},stages:objective?[objective]:[],schedule:sched,rules,content,documents:[],sourceNote:'Extraído localmente do PDF; revisar antes de criar.'};
  const draft={title:title||officialName,officialName,organization:officialName,position:selected?.name||'',positionCode:selected?.code||'',examGroup:selected?.group||'',board:bd,city:loc.city,cityName:loc.cityName,uf:loc.uf,notice:nt,publicationDate:pub,examDate:examEvent?.date||'',examDateStatus:examEvent?.status||'',durationMinutes:dur,vacancies:details.vacancies,reserve:details.reserve,workloadHours:details.workloadHours,remuneration:details.remuneration,requirements:details.requirements,stages:schema.stages,sections:exam.sections,schedule:sched,rules,content,schema,source:'pdf-import',_status:{title:title?'confirmed':'missing',organization:officialName?'confirmed':'missing',position:selected?.name?'confirmed':'missing',board:bd?'confirmed':'missing',city:loc.city?'review':'missing',notice:nt?'confirmed':'missing',examDate:examEvent?.date?'review':'missing'}};
- return{draft,schema,cargos:available,selectedCargo:selected,objectiveLocation,objectiveTable,meta:{pages:doc.numPages,nativeChars:doc.nativeChars||0,ocr:!!doc.ocr,ocrPartial:!!doc.ocrPartial,examGroup:selected?.group||'',objectiveLocationStatus:objectiveLocation.status,objectiveTableStatus:objectiveTable.status,objectiveTableMode:objectiveTable.mode}};
+ return{draft,schema,cargos:available,selectedCargo:selected,objectiveLocation,objectiveTable,programExtraction,meta:{pages:doc.numPages,nativeChars:doc.nativeChars||0,ocr:!!doc.ocr,ocrPartial:!!doc.ocrPartial,examGroup:selected?.group||'',objectiveLocationStatus:objectiveLocation.status,objectiveTableStatus:objectiveTable.status,objectiveTableMode:objectiveTable.mode,programStatus:programExtraction.status,programMode:programExtraction.mode}};
 }
-window.PLANO_ARQ_EDICT_PARSER={version:VERSION,parseDocument,cargos,resolveCargoGroup,locateObjective,objectiveHeading,parseObjectiveTable,examSections,schedule,program};
+window.PLANO_ARQ_EDICT_PARSER={version:VERSION,parseDocument,cargos,resolveCargoGroup,locateObjective,objectiveHeading,parseObjectiveTable,extractProgram,program,examSections,schedule};
 })();
