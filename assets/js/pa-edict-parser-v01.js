@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.1';
+const VERSION='1.2';
 const UF={"acre":"AC","alagoas":"AL","amapa":"AP","amazonas":"AM","bahia":"BA","ceara":"CE","distrito federal":"DF","espirito santo":"ES","goias":"GO","maranhao":"MA","mato grosso":"MT","mato grosso do sul":"MS","minas gerais":"MG","para":"PA","paraiba":"PB","parana":"PR","pernambuco":"PE","piaui":"PI","rio de janeiro":"RJ","rio grande do norte":"RN","rio grande do sul":"RS","rondonia":"RO","roraima":"RR","santa catarina":"SC","sao paulo":"SP","sergipe":"SE","tocantins":"TO"};
 const BOARDS=[['FUNDATEC','FUNDATEC'],['CEBRASPE','CEBRASPE'],['CESPE','CEBRASPE'],['FUNDAÇÃO GETULIO VARGAS','FGV'],['FGV','FGV'],['FUNDAÇÃO CARLOS CHAGAS','FCC'],['FCC','FCC'],['VUNESP','VUNESP'],['INSTITUTO AOCP','Instituto AOCP'],['LEGALLE','Legalle Concursos'],['INSTITUTO OBJETIVA','Instituto Objetiva'],['INSTITUTO AVALIA','Instituto Avalia']];
 const escRe=s=>String(s||'').replace(/[.*+?^$(){}|[\]\\]/g,'\\$&');
@@ -117,6 +117,66 @@ function cargoDetails(text,lines,cargo){
  const wh=block.match(/carga hor[aá]ria de\s+(\d{1,2})\s*\([^)]*\)\s*horas semanais/i)||block.match(/(\d{1,2})\s*horas semanais/i),sal=block.match(/R\$\s*([\d.]+,\d{2})/);
  return{vacancies,reserve,workloadHours:wh?Number(wh[1]):null,remuneration:sal?'R$ '+sal[1]:'',requirements};
 }
+const OBJECTIVE_HEADINGS=[
+ ['theoretical-objective','Prova Teórico-Objetiva',/\bPROVA\s+TEORICO(?:\s*[-–—]\s*|\s+)OBJETIVA\b/],
+ ['written-objective','Prova Escrita Objetiva',/\bPROVA\s+ESCRITA\s+OBJETIVA\b/],
+ ['objective','Prova Objetiva',/\bPROVA\s+OBJETIVA\b/],
+ ['knowledge','Prova de Conhecimentos',/\bPROVA\s+DE\s+CONHECIMENTOS\b/],
+ ['multiple-choice','Prova de Múltipla Escolha',/\bPROVA\s+DE\s+MULTIPLA\s+ESCOLHA\b/]
+];
+const NON_OBJECTIVE_STAGE=/\b(?:PROVA\s+PRATICA|AVALIACAO\s+PRATICA|PROVA\s+ORAL|AVALIACAO\s+PSICOLOGICA|EXAME\s+PSICOLOGICO|TESTE\s+DE\s+APTIDAO\s+FISICA|TAF|PROVA\s+DE\s+TITULOS|AVALIACAO\s+DE\s+TITULOS|CURSO\s+DE\s+FORMACAO)\b/;
+const OBJECTIVE_SCHEDULE=/\b(?:APLICACAO|REALIZACAO|DATA|HORARIO|LOCAL|CONVOCACAO|GABARITO|RECURSO|RESULTADO|CRONOGRAMA)\b/;
+const SECTION_STOP=/\b(?:PROVA\s+PRATICA|AVALIACAO\s+PRATICA|PROVA\s+ORAL|AVALIACAO\s+PSICOLOGICA|EXAME\s+PSICOLOGICO|TESTE\s+DE\s+APTIDAO\s+FISICA|TAF|PROVA\s+DE\s+TITULOS|AVALIACAO\s+DE\s+TITULOS|CURSO\s+DE\s+FORMACAO|CONTEUDO\s+PROGRAMATICO|PROGRAMA\s+DAS\s+PROVAS)\b/;
+function objectiveHeading(text){
+ const raw=clean(text),f=fold(raw);if(!raw||raw.length>180||NON_OBJECTIVE_STAGE.test(f))return null;
+ for(const [kind,label,rx] of OBJECTIVE_HEADINGS)if(rx.test(f)){
+  if(OBJECTIVE_SCHEDULE.test(f)&&(/\b\d{1,2}[\/.-]\d{1,2}(?:[\/.-]\d{2,4})?\b/.test(raw)||f.length>70))return null;
+  return{type:'objective',kind,label,sourceLabel:raw}
+ }
+ return null
+}
+function objectiveRows(doc){
+ const mapped=doc?.documentMap?.pages;if(Array.isArray(mapped)&&mapped.length){
+  const out=[];for(const page of mapped)for(let i=0;i<(page?.lines||[]).length;i++){const line=page.lines[i],text=clean(typeof line==='string'?line:line?.text);if(text)out.push({text,ref:typeof line==='string'?('p'+page.number+':l'+(i+1)):(line.ref||('p'+page.number+':l'+(i+1))),page:Number(page.number)||1,order:Number(line?.order)||i+1,bbox:typeof line==='string'?null:(line.bbox||null)})}return out
+ }
+ const out=[];for(let p=0;p<(doc?.pages||[]).length;p++){const page=doc.pages[p],lines=page?.lines||String(page?.text||'').split(/\r?\n/);for(let i=0;i<lines.length;i++){const line=lines[i],text=clean(typeof line==='string'?line:line?.text);if(text)out.push({text,ref:typeof line==='string'?('p'+(page?.number||p+1)+':l'+(i+1)):(line.ref||('p'+(page?.number||p+1)+':l'+(i+1))),page:Number(page?.number)||p+1,order:Number(line?.order)||i+1,bbox:typeof line==='string'?null:(line.bbox||null)})}}return out
+}
+function groupKey(value){
+ const raw=fold(groupValue(value)||clean(value));if(!raw)return'';
+ let m=raw.match(/^G\s*0*(\d+)$/);if(m)return'GROUP:'+Number(m[1]);
+ m=raw.match(/^GRUPO\s+0*(\d+)$/);if(m)return'GROUP:'+Number(m[1]);
+ m=raw.match(/^GRUPO\s+(.+)$/);if(m)return'GROUP:'+m[1].trim();
+ m=raw.match(/^TIPO\s+(.+)$/);if(m)return'TYPE:'+m[1].trim();
+ m=raw.match(/^AREA\s+(.+)$/);if(m)return'AREA:'+m[1].trim();
+ m=raw.match(/^NIVEL\s+(.+)$/);if(m)return'LEVEL:'+m[1].trim();
+ return raw
+}
+function contextGroupKeys(rows){
+ const out=[];for(const row of rows){const value=groupValue(row.text),key=groupKey(value);if(key&&!out.some(x=>x.key===key))out.push({key,value,ref:row.ref})}return out
+}
+function tokenMatch(text,value){
+ const needle=fold(value);if(!needle)return false;const hay=fold(text),pattern=escRe(needle).replace(/\\\s+/g,'\\s+');return new RegExp('(?:^|[^A-Z0-9])'+pattern+'(?=$|[^A-Z0-9])','i').test(hay)
+}
+function stageBoundary(text){const f=fold(text);return SECTION_STOP.test(f)&&!objectiveHeading(text)}
+function locateObjective(doc,cargo,availableCargos=[]){
+ const rows=objectiveRows(doc),selected=cargo?{...cargo,group:cargo.group||''}:null,selectedGroupKey=groupKey(selected?.group||''),candidates=[];
+ for(let i=0;i<rows.length;i++){
+  const heading=objectiveHeading(rows[i].text);if(!heading)continue;
+  let end=i;for(let j=i+1;j<Math.min(rows.length,i+150);j++){if(objectiveHeading(rows[j].text)||stageBoundary(rows[j].text))break;end=j}
+  const context=rows.slice(Math.max(0,i-12),Math.min(rows.length,Math.max(end+1,i+34))),contextText=context.map(x=>x.text).join('\n'),groups=contextGroupKeys(context),groupMatch=selectedGroupKey?groups.some(x=>x.key===selectedGroupKey):false,foreignGroups=selectedGroupKey?groups.filter(x=>x.key!==selectedGroupKey):[],cargoNameMatch=!!selected?.name&&tokenMatch(contextText,selected.name),cargoCodeMatch=!!selected?.code&&tokenMatch(contextText,selected.code),cargoMatch=cargoNameMatch||cargoCodeMatch;
+  const otherCargo=Array.isArray(availableCargos)?availableCargos.find(x=>x&&x!==cargo&&((x.name&&tokenMatch(contextText,x.name))||(x.code&&tokenMatch(contextText,x.code)))&&!((selected?.name&&fold(x.name)===fold(selected.name))||(selected?.code&&fold(x.code)===fold(selected.code)))):null;
+  const explicitGroupMismatch=!!selectedGroupKey&&groups.length>0&&!groupMatch;
+  if(explicitGroupMismatch)continue;
+  let score=10;if(groupMatch)score+=12;if(cargoMatch)score+=8;if(selectedGroupKey&&!groups.length)score+=1;if(otherCargo&&!cargoMatch)score-=7;
+  const association=groupMatch?'group':cargoMatch?'cargo':'generic',mixedGroups=groupMatch&&foreignGroups.length>0,mixedCargo=!!otherCargo&&cargoMatch,evidence=[rows[i].ref];
+  for(const row of context){if((selected?.group&&groupKey(groupValue(row.text))===selectedGroupKey)||(selected?.name&&tokenMatch(row.text,selected.name))||(selected?.code&&tokenMatch(row.text,selected.code)))evidence.push(row.ref)}
+  candidates.push({type:'objective',kind:heading.kind,label:'Prova Objetiva',sourceLabel:heading.sourceLabel,page:rows[i].page,headingRef:rows[i].ref,startRef:rows[i].ref,endRef:rows[end]?.ref||rows[i].ref,startIndex:i,endIndex:end,association,score,mixedGroups,mixedCargo,group:selected?.group||'',cargoCode:selected?.code||'',cargoName:selected?.name||'',sourceRefs:[...new Set(evidence)],region:{pageStart:rows[i].page,pageEnd:rows[end]?.page||rows[i].page,startRef:rows[i].ref,endRef:rows[end]?.ref||rows[i].ref,lineCount:end-i+1}})
+ }
+ if(!candidates.length)return{type:'objective',status:'missing',label:'Prova Objetiva',selectedCargo:selected||null,sourceRefs:[],reason:'objective-heading-not-found',alternatives:[]};
+ candidates.sort((a,b)=>b.score-a.score||a.page-b.page||a.startIndex-b.startIndex);
+ const top=candidates[0],second=candidates[1],ambiguous=!!second&&(second.score===top.score||Math.abs(second.score-top.score)<=1),strongAssociation=selectedGroupKey?top.association==='group':selected?.name||selected?.code?top.association==='cargo':candidates.length===1,status=!ambiguous&&strongAssociation&&!top.mixedGroups&&!top.mixedCargo?'confirmed':'review';
+ return{...top,status,selectedCargo:selected||null,reason:status==='confirmed'?'matched-selected-cargo-or-group':ambiguous?'multiple-plausible-objective-regions':top.association==='generic'?'objective-region-needs-association-review':'objective-region-needs-review',alternatives:candidates.slice(1,5).map(x=>({page:x.page,headingRef:x.headingRef,sourceLabel:x.sourceLabel,association:x.association,score:x.score,sourceRefs:x.sourceRefs}))}
+}
 function duration(text){const area=text.match(/Tempo para realiza[cç][aã]o da Prova[\s\S]{0,700}/i)?.[0]||text.match(/dura[cç][aã]o da prova[\s\S]{0,500}/i)?.[0]||'',m=area.match(/(\d{1,2})\s*\([^)]*\)\s*horas?(?:\s*e?\s*(\d{1,2})\s*\([^)]*\)\s*minutos?)?/i)||area.match(/(\d{1,2})\s*h(?:oras?)?\s*(?:e\s*)?(\d{1,2})?\s*min?/i);return m?(Number(m[1])*60+Number(m[2]||0)):null}
 function examSections(text){
  const i=text.search(/\bDisciplinas\b/i),area=i>=0?text.slice(i,i+5000):text,defs=[['portuguese','Língua Portuguesa','L[íi]ngua[\\s]+Portuguesa'],['legislation','Legislação','Legisla[cç][aã]o'],['specific','Conhecimentos Específicos','Conhecimentos[\\s]+Espec[íi]ficos'],['informatics','Informática','Inform[aá]tica'],['logic','Raciocínio Lógico','Racioc[íi]nio[\\s]+L[oó]gico(?:-Matem[aá]tico)?'],['general','Conhecimentos Gerais','Conhecimentos[\\s]+Gerais'],['current','Atualidades','Atualidades']],out=[];
@@ -139,13 +199,13 @@ function program(text,cargo){
  return out;
 }
 function parseDocument(doc,cargo){
- const text=clean(doc.text),lines=doc.pages.flatMap(p=>p.lines||String(p.text||'').split(/\r?\n/)).map(x=>typeof x==='string'?clean(x):clean(x?.text)).filter(Boolean),loc=locality(text),org=organization(lines,text),nt=notice(text),bd=board(text),available=cargos(text,lines,doc),picked=cargo||available[0]||null,selected=picked?{...picked,group:resolveCargoGroup(picked,text,lines)}:null,details=cargoDetails(text,lines,selected),exam=examSections(text),sched=schedule(lines),examEvent=sched.find(e=>e.kind==='exam')||null,min=minimumTotal(text),dur=duration(text),pub=publicationDate(text);
+ const text=clean(doc.text),lines=doc.pages.flatMap(p=>p.lines||String(p.text||'').split(/\r?\n/)).map(x=>typeof x==='string'?clean(x):clean(x?.text)).filter(Boolean),loc=locality(text),org=organization(lines,text),nt=notice(text),bd=board(text),available=cargos(text,lines,doc),picked=cargo||available[0]||null,selected=picked?{...picked,group:resolveCargoGroup(picked,text,lines)}:null,objectiveLocation=locateObjective(doc,selected,available),details=cargoDetails(text,lines,selected),exam=examSections(text),sched=schedule(lines),examEvent=sched.find(e=>e.kind==='exam')||null,min=minimumTotal(text),dur=duration(text),pub=publicationDate(text);
  const objective=exam.sections.length?{id:'objective',type:'objective',label:/Te[oó]rico-Objetiva/i.test(text)?'Prova Teórico-Objetiva':'Prova Objetiva',character:/eliminat[oó]ria e classificat[oó]ria/i.test(text)?'Eliminatório e classificatório':'',planningMode:'weighted-sections',date:examEvent?.date||'',dateStatus:examEvent?.status||'',durationMinutes:dur,totalQuestions:exam.totalQuestions,totalPoints:exam.totalPoints,minimum:min!==null?{kind:'points',value:min,label:'mínimo geral de '+String(min).replace('.',',')+' pontos'}:null,sections:exam.sections}:null;
  const content=program(text,selected),officialName=org.organization,title=org.acronym?(org.acronym+(loc.cityName?' '+loc.cityName:'')):officialName,rules=[];
  if(objective?.character)rules.push(objective.label+' de caráter '+objective.character.toLowerCase()+'.');if(min!==null)rules.push('Pontuação mínima geral: '+String(min).replace('.',',')+' pontos.');for(const s of exam.sections)if(s.minimumPoints!==null&&s.minimumPoints!==undefined)rules.push('Mínimo em '+s.label+': '+String(s.minimumPoints).replace('.',',')+' pontos.');
  const schema={id:'',kind:'user',status:'reviewed',board:bd,organization:officialName,position:selected?.name||'',positionCode:selected?.code||'',examGroup:selected?.group||'',notice:nt,examDate:{date:examEvent?.date||'',status:examEvent?.status||''},stages:objective?[objective]:[],schedule:sched,rules,content,documents:[],sourceNote:'Extraído localmente do PDF; revisar antes de criar.'};
  const draft={title:title||officialName,officialName,organization:officialName,position:selected?.name||'',positionCode:selected?.code||'',examGroup:selected?.group||'',board:bd,city:loc.city,cityName:loc.cityName,uf:loc.uf,notice:nt,publicationDate:pub,examDate:examEvent?.date||'',examDateStatus:examEvent?.status||'',durationMinutes:dur,vacancies:details.vacancies,reserve:details.reserve,workloadHours:details.workloadHours,remuneration:details.remuneration,requirements:details.requirements,stages:schema.stages,sections:exam.sections,schedule:sched,rules,content,schema,source:'pdf-import',_status:{title:title?'confirmed':'missing',organization:officialName?'confirmed':'missing',position:selected?.name?'confirmed':'missing',board:bd?'confirmed':'missing',city:loc.city?'review':'missing',notice:nt?'confirmed':'missing',examDate:examEvent?.date?'review':'missing'}};
- return{draft,schema,cargos:available,selectedCargo:selected,meta:{pages:doc.numPages,nativeChars:doc.nativeChars||0,ocr:!!doc.ocr,ocrPartial:!!doc.ocrPartial,examGroup:selected?.group||''}};
+ return{draft,schema,cargos:available,selectedCargo:selected,objectiveLocation,meta:{pages:doc.numPages,nativeChars:doc.nativeChars||0,ocr:!!doc.ocr,ocrPartial:!!doc.ocrPartial,examGroup:selected?.group||'',objectiveLocationStatus:objectiveLocation.status}};
 }
-window.PLANO_ARQ_EDICT_PARSER={version:VERSION,parseDocument,cargos,resolveCargoGroup,examSections,schedule,program};
+window.PLANO_ARQ_EDICT_PARSER={version:VERSION,parseDocument,cargos,resolveCargoGroup,locateObjective,objectiveHeading,examSections,schedule,program};
 })();
