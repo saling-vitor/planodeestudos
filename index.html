@@ -33,7 +33,10 @@ body:not(.pa-internal-mode) .empty{padding:28px;border:1px dashed var(--line);bo
 .review-evidence{display:flex;gap:7px;flex-wrap:wrap;margin-top:5px;color:#707780;font:700 7.5px var(--mono);line-height:1.35}.review-evidence.confirmed{color:#829d89}.review-evidence.review{color:#b49e68}.review-evidence.missing{color:#aa7d82}.review-inline-meta .review-evidence{margin-top:4px}.review-unit-field{display:grid;grid-template-columns:minmax(0,1fr) 90px;gap:6px}.review-unit-field select{min-width:0}.review-table-head,.review-table-row{grid-template-columns:minmax(150px,1.8fr) 76px 76px 76px 76px 34px}.review-row-evidence{grid-column:1/-1;padding:0 3px}.review-remove{width:34px;height:34px;padding:0}.review-section-actions{display:flex;justify-content:flex-end;margin-top:9px}.review-add{min-height:34px}.review-program-list,.review-conflict-list,.review-attention-list{display:grid;gap:7px}.review-program-card{padding:9px;border:1px solid var(--line2);border-radius:9px;background:rgba(255,255,255,.008)}.review-program-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:start}.review-program-head input,.review-program-card textarea{width:100%;min-width:0;border:1px solid rgba(255,255,255,.06);border-radius:7px;background:#0f1115;color:#d9dbdf;font-size:9px}.review-program-head input{height:34px;padding:0 8px}.review-program-card textarea{margin-top:7px;padding:9px;line-height:1.55;resize:vertical}.review-conflict{padding:10px 11px;border:1px solid rgba(183,88,96,.22);border-radius:9px;background:rgba(183,88,96,.035)}.review-conflict strong,.review-conflict span,.review-conflict small{display:block}.review-conflict strong{color:#d6a3a8;font-size:9.5px}.review-conflict span{margin-top:4px;color:#9c898c;font-size:8.7px;line-height:1.45}.review-conflict small{margin-top:5px;color:#806f72;font:700 7.5px var(--mono)}.review-attention{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start;padding:9px 10px;border:1px solid rgba(216,184,88,.18);border-radius:9px;background:rgba(216,184,88,.025)}.review-attention strong,.review-attention span{display:block}.review-attention strong{font-size:9.5px}.review-attention span{margin-top:3px;color:#858078;font-size:8.7px}.review-attention .review-evidence{justify-content:flex-end;margin-top:0}.review-ok{border-color:rgba(98,169,120,.20);background:rgba(98,169,120,.025);color:#91ad98}
 .toast{position:fixed;right:18px;bottom:18px;z-index:200;opacity:0;transform:translateY(8px);padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:#0b0d10;color:#d6d7da;font-size:10.5px;transition:.18s;pointer-events:none}.toast.show{opacity:1;transform:none}
 
-.home-menu{position:fixed;z-index:120;min-width:220px;padding:8px;border:1px solid var(--line);border-radius:14px;background:rgba(10,12,16,.98);box-shadow:0 24px 56px rgba(0,0,0,.5);display:none}.home-menu.open{display:block}.home-menu-head{padding:8px 10px 10px;border-bottom:1px solid var(--line2)}.home-menu-head strong{display:block;font-size:11px}.home-menu-head span{display:block;margin-top:3px;color:#7f838a;font-size:9.5px}.home-menu-list{display:grid;gap:4px;padding-top:8px}.home-menu-item{width:100%;min-height:38px;padding:0 11px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid transparent;border-radius:10px;background:transparent;color:#d3d6db;font-size:10.5px;font-weight:760;text-align:left}.home-menu-item:hover{border-color:var(--line);background:rgba(255,255,255,.03)}.home-menu-item.danger{color:#e6afb5}.home-menu-item .meta{color:#72777f;font:700 8px var(--mono);letter-spacing:.08em;text-transform:uppercase}.summary-row>div,.day-progress-top>div{display:grid;gap:4px;min-width:0}.summary-row strong{display:block;line-height:1.1}.summary-row span{display:block}.summary-row .summary-number{white-space:nowrap;flex:0 0 auto}.day-progress-top .active-note{margin-left:0;display:block}.today-panel .summary-row{align-items:center}.contest-card .primary-btn,.contest-card .ghost-btn,.contest-card .icon-btn{white-space:nowrap}
+.home-menu{position:fixed;z-index:120;min-width:220px;padding:8px;border:1px solid var(--line);border-radius:14px;background:rgba(10,12,16,.98);box-shadow:0 24px 56px rgba(0,0,0,.5);display:none}.home-menu.open{display:block}.home-menu-head{padding:8px 10px 10px;border-bottom:1px solid var(--line2)}.home-menu-head strong{display:block;font-size:11px}.home-menu-head span{display:block;margin-top:3px;color:#7f838a;font-size:9.5px}.home-menu-list{display:grid;gap:4px;padding-top:8px}.home-menu-item{width:100%;min-height:38px;padding:0 11px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid transparent;border-radius:10px;background:transparent;color:#d3d6db;font-size:10.5px;font-weight:760;text-align:left}.home-menu-item:hover{border-color:var(--line);background:rgba(255,255,255,.03)}.home-menu-item.danger{color:#e6afb5}.home-menu-item.delete-action{color:#efaeb5}.home-menu-item.delete-action:hover{border-color:rgba(217,103,115,.24);background:rgba(217,103,115,.055)}.home-menu-sep{height:1px;margin:4px 5px;background:rgba(217,103,115,.14)}.home-menu-item .meta{color:#72777f;font:700 8px var(--mono);letter-spacing:.08em;text-transform:uppercase}.delete-contest-dialog{width:min(560px,100%)}.delete-contest-copy{margin:0;color:#a0a3a9;font-size:11px;line-height:1.65}.delete-contest-copy strong{color:#ece7de}.delete-contest-warning{margin:15px 0 0;padding:12px 13px;border:1px solid rgba(217,103,115,.20);border-radius:10px;background:rgba(217,103,115,.035);color:#c99ba1;font-size:10px;line-height:1.55}.danger-btn{min-height:44px;padding:0 15px;border:1px solid rgba(217,103,115,.42);border-radius:10px;background:linear-gradient(180deg,rgba(217,103,115,.16),rgba(217,103,115,.07));color:#f0bcc2;font-size:10.5px;font-weight:780}.danger-btn:hover{border-color:rgba(217,103,115,.62);background:rgba(217,103,115,.13)}.danger-btn:disabled{opacity:.46;cursor:not-allowed}.delete-contest-foot{justify-content:flex-end}.summary-row>div,.day-progress-top>div{display:grid;gap:4px;min-width:0}.summary-row strong{display:block;line-height:1.1}.summary-row span{display:block}.summary-row .summary-number{white-space:nowrap;flex:0 0 auto}.day-progress-top .active-note{margin-left:0;display:block}.today-panel .summary-row{align-items:center}.contest-card .primary-btn,.contest-card .ghost-btn,.contest-card .icon-btn{white-space:nowrap}
+
+@media(max-width:900px){.home-menu-sep,.home-menu-item.delete-action{grid-column:1/-1}}
+@media(max-width:620px){.delete-contest-foot{display:grid;grid-template-columns:1fr 1fr}.delete-contest-foot button{width:100%;min-width:0}}
 
 @media(min-width:1051px){.contest-data{grid-template-columns:repeat(4,minmax(0,1fr))}.contest-card{min-height:255px}}
 @media(max-width:1050px){.contests-grid{grid-template-columns:repeat(2,minmax(0,1fr))}body:not(.pa-internal-mode) .hero{grid-template-columns:1fr}}
@@ -876,6 +879,23 @@ body:not(.pa-internal-mode) .page .contest-card.new-card p{
   <div class="home-menu-head" id="homeMenuHead"><strong>Concurso</strong><span>Ações do ambiente</span></div>
   <div class="home-menu-list" id="homeMenuList"></div>
 </div>
+<div class="modal" id="deleteContestModal" aria-hidden="true">
+  <div class="dialog delete-contest-dialog" role="dialog" aria-modal="true" aria-labelledby="deleteContestTitle">
+    <div class="dialog-head">
+      <div><span class="eyebrow">Ação permanente</span><h2 id="deleteContestTitle">Excluir concurso?</h2></div>
+      <button type="button" class="icon-btn" id="deleteContestClose" aria-label="Fechar">×</button>
+    </div>
+    <div class="dialog-body">
+      <p class="delete-contest-copy">Você está prestes a excluir permanentemente <strong id="deleteContestName">este concurso</strong>.</p>
+      <p class="delete-contest-copy" style="margin-top:10px">Serão removidos planejamento, progresso, sessões, revisões, questões, mapas importados, arquivos locais e demais dados associados a este ambiente neste dispositivo.</p>
+      <p class="delete-contest-warning">Esta ação não poderá ser desfeita.</p>
+    </div>
+    <div class="dialog-foot delete-contest-foot">
+      <button type="button" class="ghost-btn" id="deleteContestCancel">Cancelar</button>
+      <button type="button" class="danger-btn" id="deleteContestConfirm">Excluir concurso</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 <script src="assets/js/pa-edict-pdf-v01.js"></script>
 <script src="assets/js/pa-edict-parser-v01.js"></script>
@@ -893,6 +913,7 @@ const ACTIVE='planoarq:active-contest:v1';
 const $=id=>document.getElementById(id);
 let wizardStep=1;
 let contestRenderController=null,contestTimerHandle=null;
+let deleteContestState={id:'',title:'',returnFocus:null,busy:false};
 function cleanupContestRender(){
  contestRenderController?.abort();contestRenderController=null;
  if(contestTimerHandle){clearInterval(contestTimerHandle);contestTimerHandle=null}
@@ -901,16 +922,21 @@ function cleanupContestRender(){
 function slug(v){return String(v||'').trim().toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
 function readContests(){
  let local=[];try{local=JSON.parse(localStorage.getItem(KEY)||'[]')||[]}catch(_){}
- const by=new Map(SEED.map(x=>[x.id,{...x}]));
- local.forEach(x=>by.set(x.id,{...(by.get(x.id)||{}),...x}));
- const out=[...by.values()];
+ if(!Array.isArray(local))local=[];
+ const by=new Map(SEED.filter(x=>x?.id).map(x=>[x.id,{...x}]));
+ local.filter(x=>x?.id).forEach(x=>by.set(x.id,{...(by.get(x.id)||{}),...x}));
+ const out=[...by.values()].filter(c=>c.status!=='deleted');
  out.forEach(c=>{const seed=SEED.find(s=>s.id===c.id);if(!c.examDate&&seed?.examDate){c.examDate=seed.examDate;c.examDateLabel=seed.examDateLabel;c.examDateStatus=seed.examDateStatus;c.examDateSource=seed.examDateSource;c.examBlueprint=seed.examBlueprint}});
- try{localStorage.setItem(KEY,JSON.stringify(out))}catch(_){}
  return out;
 }
-function saveContests(v){try{localStorage.setItem(KEY,JSON.stringify(v))}catch(_){}} 
+function saveContests(v){
+ let current=[];try{current=JSON.parse(localStorage.getItem(KEY)||'[]')||[]}catch(_){}
+ const tombstones=(Array.isArray(current)?current:[]).filter(x=>x?.id&&x.status==='deleted');
+ const incoming=(Array.isArray(v)?v:[]).filter(x=>x?.id&&x.status!=='deleted'),ids=new Set(incoming.map(x=>x.id));
+ try{localStorage.setItem(KEY,JSON.stringify([...incoming,...tombstones.filter(x=>!ids.has(x.id))]))}catch(_){}
+}
 function setActive(id){try{localStorage.setItem(ACTIVE,id)}catch(_){}}
-function getActive(){try{return localStorage.getItem(ACTIVE)||''}catch(_){return''}}
+function getActive(){try{const id=localStorage.getItem(ACTIVE)||'';return readContests().some(c=>c.id===id&&c.status!=='archived')?id:''}catch(_){return''}}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function toast(t){const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(window.__to);window.__to=setTimeout(()=>el.classList.remove('show'),1800)}
 function contestMaterials(id){let local=[];try{local=JSON.parse(localStorage.getItem('planoarq:contest-materials::'+id)||'[]')||[]}catch(_){}const by=new Map(MATERIALS.filter(m=>!m.contestId||m.contestId===id).filter(m=>m?.id).map(m=>[m.id,{...m}]));(Array.isArray(local)?local:[]).forEach(m=>{if(m?.id)by.set(m.id,{...(by.get(m.id)||{}),...m,contestId:id,dynamic:true})});return[...by.values()]}
@@ -958,11 +984,42 @@ function renderHome(){
  document.querySelectorAll('[data-menu]').forEach(b=>b.addEventListener('click',ev=>{ev.stopPropagation();contestMenu(b.dataset.menu,b)}));
 }
 function closeHomeMenu(){const m=$('homeMenu');if(!m)return;m.classList.remove('open');m.setAttribute('aria-hidden','true');m.style.left='-9999px';m.style.top='-9999px';window.__homeMenuContest='';window.__homeMenuBtn=null}
+function openDeleteContest(c,returnFocus){
+ if(!c?.id)return;
+ deleteContestState={id:c.id,title:c.title||c.organization||'Concurso',returnFocus:returnFocus||null,busy:false};
+ $('deleteContestName').textContent=`“${deleteContestState.title}”`;
+ const modal=$('deleteContestModal'),confirm=$('deleteContestConfirm'),cancel=$('deleteContestCancel');
+ confirm.disabled=false;confirm.textContent='Excluir concurso';cancel.disabled=false;
+ modal.classList.add('open');modal.setAttribute('aria-hidden','false');closeHomeMenu();
+ requestAnimationFrame(()=>cancel.focus())
+}
+function closeDeleteContest({restore=true,force=false}={}){
+ if(deleteContestState.busy&&!force)return;
+ const focus=deleteContestState.returnFocus,modal=$('deleteContestModal');
+ modal.classList.remove('open');modal.setAttribute('aria-hidden','true');
+ deleteContestState={id:'',title:'',returnFocus:null,busy:false};
+ if(restore&&focus?.isConnected)requestAnimationFrame(()=>focus.focus())
+}
+async function confirmDeleteContest(){
+ if(deleteContestState.busy||!deleteContestState.id)return;
+ const api=window.PLANO_ARQ_DATA;
+ if(!api?.deleteContest){toast('Exclusão indisponível. Recarregue a página.');return}
+ const id=deleteContestState.id,title=deleteContestState.title,confirm=$('deleteContestConfirm'),cancel=$('deleteContestCancel');
+ deleteContestState.busy=true;confirm.disabled=true;cancel.disabled=true;confirm.textContent='Excluindo…';
+ try{
+  await api.deleteContest(id);
+  deleteContestState.busy=false;closeDeleteContest({restore:false,force:true});closeHomeMenu();renderHome();toast(`Concurso excluído: ${title}`)
+ }catch(err){
+  deleteContestState.busy=false;confirm.disabled=false;cancel.disabled=false;confirm.textContent='Excluir concurso';
+  toast(err?.message||'Não foi possível excluir o concurso')
+ }
+}
 function performContestAction(id,action){
  const list=readContests(),c=list.find(x=>x.id===id);if(!c)return;
  if(action==='enter'){closeHomeMenu();goContest(id);return}
  if(action==='set-active'){setActive(id);closeHomeMenu();toast(`Concurso ativo: ${c.title}`);return}
  if(action==='toggle-archive'){c.status=c.status==='archived'?'active':'archived';saveContests(list);if(c.status==='active')setActive(c.id);closeHomeMenu();render();toast(c.status==='archived'?`Concurso arquivado: ${c.title}`:`Concurso reativado: ${c.title}`);return}
+ if(action==='delete'){openDeleteContest(c,window.__homeMenuBtn);return}
 }
 function contestMenu(id,btn){
  const list=readContests(),c=list.find(x=>x.id===id);if(!c)return;
@@ -975,9 +1032,11 @@ function contestMenu(id,btn){
  listEl.innerHTML=`
    <button type="button" class="home-menu-item" data-home-action="enter"><span>Abrir ambiente</span><span class="meta">entrar</span></button>
    <button type="button" class="home-menu-item" data-home-action="set-active"><span>${activeStored?'Já é o concurso ativo':'Definir como concurso ativo'}</span><span class="meta">${activeStored?'ativo':'fixar'}</span></button>
-   <button type="button" class="home-menu-item ${c.status==='archived'?'':'danger'}" data-home-action="toggle-archive"><span>${c.status==='archived'?'Reativar concurso':'Arquivar concurso'}</span><span class="meta">${c.status==='archived'?'reativar':'arquivar'}</span></button>`;
+   <button type="button" class="home-menu-item ${c.status==='archived'?'':'danger'}" data-home-action="toggle-archive"><span>${c.status==='archived'?'Reativar concurso':'Arquivar concurso'}</span><span class="meta">${c.status==='archived'?'reativar':'arquivar'}</span></button>
+   <div class="home-menu-sep" role="separator"></div>
+   <button type="button" class="home-menu-item delete-action" data-home-action="delete"><span>Excluir concurso</span><span class="meta">excluir</span></button>`;
  listEl.querySelectorAll('[data-home-action]').forEach(el=>el.addEventListener('click',()=>performContestAction(id,el.dataset.homeAction)));
- positionHomeMenu(btn||window.__homeMenuBtn,140);
+ positionHomeMenu(btn||window.__homeMenuBtn,190);
 }
 function positionHomeMenu(btn,minHeight=140){
  const menu=$('homeMenu'),anchor=btn||document.body,rect=anchor.getBoundingClientRect();
@@ -990,7 +1049,11 @@ function positionHomeMenu(btn,minHeight=140){
 }
 function goContest(id){setActive(id);location.hash='contest/'+id}
 document.addEventListener('click',e=>{const menu=$('homeMenu');if(!menu||!menu.classList.contains('open'))return;if(e.target.closest('#homeMenu')||e.target.closest('[data-menu]'))return;closeHomeMenu()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHomeMenu()});
+$('deleteContestClose').addEventListener('click',()=>closeDeleteContest());
+$('deleteContestCancel').addEventListener('click',()=>closeDeleteContest());
+$('deleteContestConfirm').addEventListener('click',confirmDeleteContest);
+$('deleteContestModal').addEventListener('click',e=>{if(e.target===$('deleteContestModal'))closeDeleteContest()});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($('deleteContestModal')?.classList.contains('open')){e.preventDefault();closeDeleteContest();return}closeHomeMenu()});
 
 function safeJSON(v,f){try{return JSON.parse(v)??f}catch(_){return f}}
 function localISODate(d=new Date()){const x=new Date(d);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`}
