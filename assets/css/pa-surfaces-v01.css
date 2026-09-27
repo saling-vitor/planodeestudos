@@ -462,7 +462,7 @@ body.pa-internal-mode .pa-sticky-controls>.tools{
   margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none
 }
 body.pa-internal-mode .pa-sticky-controls>:is(.chips,.filters){
-  margin-top:var(--pa-ui-filter-row-gap)
+  margin-top:var(--pa-ui-filter-gap)
 }
 body.pa-internal-mode .pa-sticky-controls :is(.tools,.chips,.filters){
   min-width:0;max-width:100%
@@ -539,7 +539,7 @@ body.pa-internal-mode .pa-mobile-nav :is(a,button).active{
   body.pa-internal-mode .pa-sticky-controls{top:76px;padding:6px}
   body.pa-internal-mode .pa-sticky-controls>.tools>*{flex-basis:176px}
   body.pa-internal-mode .pa-sticky-controls>.tools>:first-child{flex-basis:min(74vw,300px)}
-  body.pa-internal-mode .pa-sticky-controls>:is(.chips,.filters){margin-top:var(--pa-ui-filter-row-gap)}
+  body.pa-internal-mode .pa-sticky-controls>:is(.chips,.filters){margin-top:var(--pa-ui-filter-gap)}
 }
 
 /* Preferência de movimento: estados mudam sem animação. */
