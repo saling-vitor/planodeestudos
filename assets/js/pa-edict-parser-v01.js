@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.2';
+const VERSION='1.3';
 const UF={"acre":"AC","alagoas":"AL","amapa":"AP","amazonas":"AM","bahia":"BA","ceara":"CE","distrito federal":"DF","espirito santo":"ES","goias":"GO","maranhao":"MA","mato grosso":"MT","mato grosso do sul":"MS","minas gerais":"MG","para":"PA","paraiba":"PB","parana":"PR","pernambuco":"PE","piaui":"PI","rio de janeiro":"RJ","rio grande do norte":"RN","rio grande do sul":"RS","rondonia":"RO","roraima":"RR","santa catarina":"SC","sao paulo":"SP","sergipe":"SE","tocantins":"TO"};
 const BOARDS=[['FUNDATEC','FUNDATEC'],['CEBRASPE','CEBRASPE'],['CESPE','CEBRASPE'],['FUNDAÇÃO GETULIO VARGAS','FGV'],['FGV','FGV'],['FUNDAÇÃO CARLOS CHAGAS','FCC'],['FCC','FCC'],['VUNESP','VUNESP'],['INSTITUTO AOCP','Instituto AOCP'],['LEGALLE','Legalle Concursos'],['INSTITUTO OBJETIVA','Instituto Objetiva'],['INSTITUTO AVALIA','Instituto Avalia']];
 const escRe=s=>String(s||'').replace(/[.*+?^$(){}|[\]\\]/g,'\\$&');
@@ -137,9 +137,9 @@ function objectiveHeading(text){
 }
 function objectiveRows(doc){
  const mapped=doc?.documentMap?.pages;if(Array.isArray(mapped)&&mapped.length){
-  const out=[];for(const page of mapped)for(let i=0;i<(page?.lines||[]).length;i++){const line=page.lines[i],text=clean(typeof line==='string'?line:line?.text);if(text)out.push({text,ref:typeof line==='string'?('p'+page.number+':l'+(i+1)):(line.ref||('p'+page.number+':l'+(i+1))),page:Number(page.number)||1,order:Number(line?.order)||i+1,bbox:typeof line==='string'?null:(line.bbox||null)})}return out
+  const out=[];for(const page of mapped)for(let i=0;i<(page?.lines||[]).length;i++){const line=page.lines[i],text=clean(typeof line==='string'?line:line?.text);if(text)out.push({text,ref:typeof line==='string'?('p'+page.number+':l'+(i+1)):(line.ref||('p'+page.number+':l'+(i+1))),page:Number(page.number)||1,order:Number(line?.order)||i+1,bbox:typeof line==='string'?null:(line.bbox||null),items:typeof line==='string'?[]:(Array.isArray(line.items)?line.items:[])})}return out
  }
- const out=[];for(let p=0;p<(doc?.pages||[]).length;p++){const page=doc.pages[p],lines=page?.lines||String(page?.text||'').split(/\r?\n/);for(let i=0;i<lines.length;i++){const line=lines[i],text=clean(typeof line==='string'?line:line?.text);if(text)out.push({text,ref:typeof line==='string'?('p'+(page?.number||p+1)+':l'+(i+1)):(line.ref||('p'+(page?.number||p+1)+':l'+(i+1))),page:Number(page?.number)||p+1,order:Number(line?.order)||i+1,bbox:typeof line==='string'?null:(line.bbox||null)})}}return out
+ const out=[];for(let p=0;p<(doc?.pages||[]).length;p++){const page=doc.pages[p],lines=page?.lines||String(page?.text||'').split(/\r?\n/);for(let i=0;i<lines.length;i++){const line=lines[i],text=clean(typeof line==='string'?line:line?.text);if(text)out.push({text,ref:typeof line==='string'?('p'+(page?.number||p+1)+':l'+(i+1)):(line.ref||('p'+(page?.number||p+1)+':l'+(i+1))),page:Number(page?.number)||p+1,order:Number(line?.order)||i+1,bbox:typeof line==='string'?null:(line.bbox||null),items:typeof line==='string'?[]:(Array.isArray(line.items)?line.items:[])})}}return out
 }
 function groupKey(value){
  const raw=fold(groupValue(value)||clean(value));if(!raw)return'';
@@ -177,6 +177,98 @@ function locateObjective(doc,cargo,availableCargos=[]){
  const top=candidates[0],second=candidates[1],ambiguous=!!second&&(second.score===top.score||Math.abs(second.score-top.score)<=1),strongAssociation=selectedGroupKey?top.association==='group':selected?.name||selected?.code?top.association==='cargo':candidates.length===1,status=!ambiguous&&strongAssociation&&!top.mixedGroups&&!top.mixedCargo?'confirmed':'review';
  return{...top,status,selectedCargo:selected||null,reason:status==='confirmed'?'matched-selected-cargo-or-group':ambiguous?'multiple-plausible-objective-regions':top.association==='generic'?'objective-region-needs-association-review':'objective-region-needs-review',alternatives:candidates.slice(1,5).map(x=>({page:x.page,headingRef:x.headingRef,sourceLabel:x.sourceLabel,association:x.association,score:x.score,sourceRefs:x.sourceRefs}))}
 }
+const OBJECTIVE_TABLE_HEADER_PATTERNS=[
+ ['label',/\b(?:DISCIPLINA|DISCIPLINAS|MATERIA|MATERIAS|COMPONENTE\s+CURRICULAR|COMPONENTES\s+CURRICULARES|AREA\s+DE\s+CONHECIMENTO|AREAS\s+DE\s+CONHECIMENTO|CONHECIMENTOS)\b/],
+ ['questions',/\b(?:(?:N|NUMERO|QTD|QUANTIDADE)(?:\s+DE)?\s+)?(?:QUESTAO|QUESTOES|ITENS?)\b/],
+ ['weight',/\b(?:PESO|VALOR\s+(?:DA|DE\s+CADA|POR)\s+QUESTAO|PONTOS?\s+POR\s+QUESTAO|PONTUACAO\s+POR\s+QUESTAO)\b/],
+ ['minimum',/\b(?:MINIMO|MINIMA|PONTUACAO\s+MINIMA|PONTOS?\s+MINIMOS?|NOTA\s+MINIMA)\b/],
+ ['total',/\b(?:PONTUACAO\s+MAXIMA|TOTAL\s+DE\s+PONTOS|PONTOS\s+TOTAIS|VALOR\s+TOTAL|PONTUACAO|PONTOS|TOTAL)\b/]
+];
+function tableHeaderKind(value){
+ const n=fold(value).replace(/[º°ª]/g,' ').replace(/[^A-Z0-9]+/g,' ').replace(/\s+/g,' ').trim();if(!n)return'';
+ if(/^(?:DISCIPLINA|DISCIPLINAS|MATERIA|MATERIAS|COMPONENTE CURRICULAR|COMPONENTES CURRICULARES|AREA DE CONHECIMENTO|AREAS DE CONHECIMENTO|CONHECIMENTOS)$/.test(n))return'label';
+ if(/^(?:(?:N|NUMERO|QTD|QUANTIDADE)(?: DE)? )?(?:QUESTAO|QUESTOES|ITENS?)$/.test(n))return'questions';
+ if(/^(?:PESO|VALOR (?:DA|DE CADA|POR) QUESTAO|PONTOS? POR QUESTAO|PONTUACAO POR QUESTAO)$/.test(n))return'weight';
+ if(/^(?:MINIMO|MINIMA|PONTUACAO MINIMA|PONTOS? MINIMOS?|NOTA MINIMA)$/.test(n))return'minimum';
+ if(/^(?:PONTUACAO MAXIMA|TOTAL DE PONTOS|PONTOS TOTAIS|VALOR TOTAL|PONTUACAO|PONTOS|TOTAL)$/.test(n))return'total';
+ return''
+}
+function tableHeaderKindsFromText(value){
+ const f=fold(value),out=[];for(const [kind,rx] of OBJECTIVE_TABLE_HEADER_PATTERNS){const m=rx.exec(f);if(m)out.push({kind,index:m.index,text:m[0]})}
+ return out.sort((a,b)=>a.index-b.index).filter((x,i,a)=>a.findIndex(y=>y.kind===x.kind)===i)
+}
+function objectiveRegionRows(doc,location){
+ if(!location||location.status==='missing')return[];const rows=objectiveRows(doc),start=Number.isInteger(location.startIndex)?location.startIndex:rows.findIndex(x=>x.ref===location.startRef),end=Number.isInteger(location.endIndex)?location.endIndex:rows.findIndex(x=>x.ref===location.endRef);
+ if(start<0)return[];return rows.slice(start,Math.max(start+1,(end>=start?end:Math.min(rows.length-1,start+149))+1))
+}
+function tableHeaderAnchors(items){
+ const arr=(items||[]).filter(x=>clean(x?.text)).sort((a,b)=>(Number(a.x)||0)-(Number(b.x)||0)),candidates=[];
+ for(let i=0;i<arr.length;i++)for(let len=1;len<=Math.min(5,arr.length-i);len++){const part=arr.slice(i,i+len),kind=tableHeaderKind(part.map(x=>x.text).join(' '));if(kind)candidates.push({kind,x:Math.min(...part.map(x=>Number(x.x)||0)),span:len,text:part.map(x=>x.text).join(' ')})}
+ const chosen=[];for(const kind of ['label','questions','weight','total','minimum']){const hits=candidates.filter(x=>x.kind===kind).sort((a,b)=>b.span-a.span||a.x-b.x);if(hits[0])chosen.push(hits[0])}
+ return chosen.sort((a,b)=>a.x-b.x)
+}
+function validSectionLabel(value){
+ const label=clean(value).replace(/^[\s:;|–—-]+|[\s:;|–—-]+$/g,'');if(!label||label.length>140||/^\d+(?:[.,]\d+)?$/.test(label))return false;
+ const f=fold(label);if(/^(?:TOTAL|TOTAL GERAL|TOTAL DA PROVA|PONTUACAO TOTAL|PONTOS TOTAIS)$/.test(f)||tableHeaderKind(label))return false;
+ return /[A-ZÀ-ÿ]/i.test(label)
+}
+function tableValue(value,kind){
+ const raw=clean(value).replace(/[^\d,.-]+/g,'');if(!raw)return null;const n=num(raw);if(n===null||n<0)return null;
+ if(kind==='questions')return Number.isInteger(n)&&n>0&&n<=500?n:null;
+ return n<=100000?n:null
+}
+function sectionId(label,used){
+ let base=fold(label).toLocaleLowerCase('pt-BR').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')||'secao',id=base,n=2;while(used.has(id))id=base+'-'+n++;used.add(id);return id
+}
+function sectionFromCells(cells,sourceRef,mode,used){
+ const label=clean(cells.label||'');if(!validSectionLabel(label))return null;
+ const questions=tableValue(cells.questions,'questions'),givenWeight=tableValue(cells.weight,'weight'),givenTotal=tableValue(cells.total,'total');
+ if(questions===null&&givenTotal===null)return null;
+ let pointsPerQuestion=givenWeight,totalPoints=givenTotal,pointsPerQuestionSource=givenWeight!==null?'edital':null,totalPointsSource=givenTotal!==null?'edital':null;
+ if(totalPoints===null&&questions!==null&&pointsPerQuestion!==null){totalPoints=Math.round(questions*pointsPerQuestion*10000)/10000;totalPointsSource='calculated'}
+ if(pointsPerQuestion===null&&questions&&totalPoints!==null){pointsPerQuestion=Math.round(totalPoints/questions*10000)/10000;pointsPerQuestionSource='calculated'}
+ return{id:sectionId(label,used),label,questions,pointsPerQuestion,totalPoints,minimumPoints:null,mapGroups:[label],sourceRefs:sourceRef?[sourceRef]:[],extractionMode:mode,pointsPerQuestionSource,totalPointsSource}
+}
+function finalizeObjectiveSections(sections,meta={}){
+ const unique=[];for(const s of sections||[]){const key=fold(s.label)+'|'+String(s.questions??'')+'|'+String(s.totalPoints??'');if(!unique.some(x=>x._key===key))unique.push({...s,_key:key})}
+ unique.forEach(x=>delete x._key);const allQ=unique.length&&unique.every(x=>Number.isFinite(x.questions)),allP=unique.length&&unique.every(x=>Number.isFinite(x.totalPoints)),totalQuestions=allQ?unique.reduce((a,x)=>a+x.questions,0):null,totalPoints=allP?Math.round(unique.reduce((a,x)=>a+x.totalPoints,0)*10000)/10000:null;
+ unique.forEach(s=>{s.planWeight=totalPoints?Math.round((s.totalPoints||0)*10000/totalPoints)/100:null;s.planWeightSource=s.planWeight===null?null:'calculated'});
+ return{status:unique.length?(meta.locationStatus==='confirmed'&&allQ?'parsed':'review'):'missing',mode:meta.mode||'none',headerRef:meta.headerRef||'',columns:meta.columns||[],sections:unique,totalQuestions,totalPoints,sourceRefs:[...new Set([meta.headerRef,...unique.flatMap(x=>x.sourceRefs||[])].filter(Boolean))]}
+}
+function parseGeometryObjectiveTable(rows,locationStatus){
+ for(let i=0;i<Math.min(rows.length,18);i++){const anchors=tableHeaderAnchors(rows[i].items);if(!anchors.some(x=>x.kind==='label')||!anchors.some(x=>['questions','weight','total'].includes(x.kind)))continue;
+  const used=new Set(),sections=[],columns=anchors.map(x=>x.kind),headerRef=rows[i].ref;let pending='',misses=0;
+  for(let r=i+1;r<rows.length;r++){const row=rows[r];if(objectiveHeading(row.text)||stageBoundary(row.text))break;const repeated=tableHeaderAnchors(row.items);if(repeated.some(x=>x.kind==='label')&&repeated.some(x=>['questions','weight','total'].includes(x.kind)))continue;
+   const cells={label:'',questions:'',weight:'',total:'',minimum:''};for(const item of row.items||[]){if(!clean(item.text))continue;let chosen=anchors[0];for(const a of anchors)if(Math.abs((Number(item.x)||0)-a.x)<Math.abs((Number(item.x)||0)-chosen.x))chosen=a;cells[chosen.kind]+=(cells[chosen.kind]?' ':'')+clean(item.text)}
+   const hasNumeric=['questions','weight','total'].some(k=>tableValue(cells[k],k)!==null),label=clean(cells.label);
+   if(!hasNumeric&&validSectionLabel(label)){pending=label;continue}
+   if(hasNumeric&&!label&&pending)cells.label=pending;
+   const section=sectionFromCells(cells,row.ref,'geometry',used);if(section){sections.push(section);pending='';misses=0}else if(clean(row.text)){misses++;if(sections.length&&misses>=8)break}
+  }
+  if(sections.length)return finalizeObjectiveSections(sections,{mode:'geometry',headerRef,columns,locationStatus})
+ }
+ return finalizeObjectiveSections([],{locationStatus})
+}
+function parseDelimitedObjectiveTable(rows,locationStatus){
+ const sep=/\s*[|;\t]\s*/;for(let i=0;i<Math.min(rows.length,20);i++){if(!/[|;\t]/.test(rows[i].text))continue;const heads=rows[i].text.split(sep).map(clean),kinds=heads.map(tableHeaderKind),labelIndex=kinds.indexOf('label');if(labelIndex<0||!kinds.some(x=>['questions','weight','total'].includes(x)))continue;
+  const used=new Set(),sections=[];let misses=0;for(let r=i+1;r<rows.length;r++){if(objectiveHeading(rows[r].text)||stageBoundary(rows[r].text))break;if(!/[|;\t]/.test(rows[r].text)){if(sections.length&&++misses>=4)break;continue}const cols=rows[r].text.split(sep).map(clean),cells={};for(let c=0;c<kinds.length;c++)if(kinds[c])cells[kinds[c]]=cols[c]||'';const s=sectionFromCells(cells,rows[r].ref,'delimited',used);if(s){sections.push(s);misses=0}}
+  if(sections.length)return finalizeObjectiveSections(sections,{mode:'delimited',headerRef:rows[i].ref,columns:kinds.filter(Boolean),locationStatus})
+ }
+ return finalizeObjectiveSections([],{locationStatus})
+}
+function parseTextObjectiveTable(rows,locationStatus){
+ for(let i=0;i<Math.min(rows.length,20);i++){const kinds=tableHeaderKindsFromText(rows[i].text),numeric=kinds.filter(x=>x.kind!=='label').map(x=>x.kind);if(!kinds.some(x=>x.kind==='label')||!numeric.some(x=>['questions','weight','total'].includes(x)))continue;
+  const used=new Set(),sections=[];let misses=0;for(let r=i+1;r<rows.length;r++){const row=rows[r];if(objectiveHeading(row.text)||stageBoundary(row.text))break;const tokens=[...row.text.matchAll(/\d{1,5}(?:[.,]\d+)?/g)];if(!tokens.length){if(sections.length&&++misses>=7)break;continue}const take=Math.min(tokens.length,numeric.length),selected=tokens.slice(-take),suffix=row.text.slice(selected[0].index);if(!/^[\d\s,.;]+$/.test(suffix)){if(sections.length&&++misses>=7)break;continue}const label=clean(row.text.slice(0,selected[0].index)),cells={label};for(let k=0;k<take;k++)cells[numeric[k]]=selected[k][0];const s=sectionFromCells(cells,row.ref,'text',used);if(s){sections.push(s);misses=0}else if(sections.length&&++misses>=7)break}
+  if(sections.length)return finalizeObjectiveSections(sections,{mode:'text',headerRef:rows[i].ref,columns:kinds.map(x=>x.kind),locationStatus})
+ }
+ return finalizeObjectiveSections([],{locationStatus})
+}
+function parseObjectiveTable(doc,location){
+ const rows=objectiveRegionRows(doc,location);if(!rows.length)return finalizeObjectiveSections([],{locationStatus:location?.status||'missing'});
+ const geometry=parseGeometryObjectiveTable(rows,location?.status);if(geometry.sections.length)return geometry;
+ const delimited=parseDelimitedObjectiveTable(rows,location?.status);if(delimited.sections.length)return delimited;
+ return parseTextObjectiveTable(rows,location?.status)
+}
 function duration(text){const area=text.match(/Tempo para realiza[cç][aã]o da Prova[\s\S]{0,700}/i)?.[0]||text.match(/dura[cç][aã]o da prova[\s\S]{0,500}/i)?.[0]||'',m=area.match(/(\d{1,2})\s*\([^)]*\)\s*horas?(?:\s*e?\s*(\d{1,2})\s*\([^)]*\)\s*minutos?)?/i)||area.match(/(\d{1,2})\s*h(?:oras?)?\s*(?:e\s*)?(\d{1,2})?\s*min?/i);return m?(Number(m[1])*60+Number(m[2]||0)):null}
 function examSections(text){
  const i=text.search(/\bDisciplinas\b/i),area=i>=0?text.slice(i,i+5000):text,defs=[['portuguese','Língua Portuguesa','L[íi]ngua[\\s]+Portuguesa'],['legislation','Legislação','Legisla[cç][aã]o'],['specific','Conhecimentos Específicos','Conhecimentos[\\s]+Espec[íi]ficos'],['informatics','Informática','Inform[aá]tica'],['logic','Raciocínio Lógico','Racioc[íi]nio[\\s]+L[oó]gico(?:-Matem[aá]tico)?'],['general','Conhecimentos Gerais','Conhecimentos[\\s]+Gerais'],['current','Atualidades','Atualidades']],out=[];
@@ -199,13 +291,13 @@ function program(text,cargo){
  return out;
 }
 function parseDocument(doc,cargo){
- const text=clean(doc.text),lines=doc.pages.flatMap(p=>p.lines||String(p.text||'').split(/\r?\n/)).map(x=>typeof x==='string'?clean(x):clean(x?.text)).filter(Boolean),loc=locality(text),org=organization(lines,text),nt=notice(text),bd=board(text),available=cargos(text,lines,doc),picked=cargo||available[0]||null,selected=picked?{...picked,group:resolveCargoGroup(picked,text,lines)}:null,objectiveLocation=locateObjective(doc,selected,available),details=cargoDetails(text,lines,selected),exam=examSections(text),sched=schedule(lines),examEvent=sched.find(e=>e.kind==='exam')||null,min=minimumTotal(text),dur=duration(text),pub=publicationDate(text);
+ const text=clean(doc.text),lines=doc.pages.flatMap(p=>p.lines||String(p.text||'').split(/\r?\n/)).map(x=>typeof x==='string'?clean(x):clean(x?.text)).filter(Boolean),loc=locality(text),org=organization(lines,text),nt=notice(text),bd=board(text),available=cargos(text,lines,doc),picked=cargo||available[0]||null,selected=picked?{...picked,group:resolveCargoGroup(picked,text,lines)}:null,objectiveLocation=locateObjective(doc,selected,available),objectiveTable=parseObjectiveTable(doc,objectiveLocation),objectiveText=objectiveRegionRows(doc,objectiveLocation).map(x=>x.text).join('\n'),exam=objectiveTable.sections.length?objectiveTable:examSections(objectiveText||text),sched=schedule(lines),examEvent=sched.find(e=>e.kind==='exam')||null,min=minimumTotal(text),dur=duration(text),pub=publicationDate(text),details=cargoDetails(text,lines,selected);
  const objective=exam.sections.length?{id:'objective',type:'objective',label:/Te[oó]rico-Objetiva/i.test(text)?'Prova Teórico-Objetiva':'Prova Objetiva',character:/eliminat[oó]ria e classificat[oó]ria/i.test(text)?'Eliminatório e classificatório':'',planningMode:'weighted-sections',date:examEvent?.date||'',dateStatus:examEvent?.status||'',durationMinutes:dur,totalQuestions:exam.totalQuestions,totalPoints:exam.totalPoints,minimum:min!==null?{kind:'points',value:min,label:'mínimo geral de '+String(min).replace('.',',')+' pontos'}:null,sections:exam.sections}:null;
  const content=program(text,selected),officialName=org.organization,title=org.acronym?(org.acronym+(loc.cityName?' '+loc.cityName:'')):officialName,rules=[];
  if(objective?.character)rules.push(objective.label+' de caráter '+objective.character.toLowerCase()+'.');if(min!==null)rules.push('Pontuação mínima geral: '+String(min).replace('.',',')+' pontos.');for(const s of exam.sections)if(s.minimumPoints!==null&&s.minimumPoints!==undefined)rules.push('Mínimo em '+s.label+': '+String(s.minimumPoints).replace('.',',')+' pontos.');
  const schema={id:'',kind:'user',status:'reviewed',board:bd,organization:officialName,position:selected?.name||'',positionCode:selected?.code||'',examGroup:selected?.group||'',notice:nt,examDate:{date:examEvent?.date||'',status:examEvent?.status||''},stages:objective?[objective]:[],schedule:sched,rules,content,documents:[],sourceNote:'Extraído localmente do PDF; revisar antes de criar.'};
  const draft={title:title||officialName,officialName,organization:officialName,position:selected?.name||'',positionCode:selected?.code||'',examGroup:selected?.group||'',board:bd,city:loc.city,cityName:loc.cityName,uf:loc.uf,notice:nt,publicationDate:pub,examDate:examEvent?.date||'',examDateStatus:examEvent?.status||'',durationMinutes:dur,vacancies:details.vacancies,reserve:details.reserve,workloadHours:details.workloadHours,remuneration:details.remuneration,requirements:details.requirements,stages:schema.stages,sections:exam.sections,schedule:sched,rules,content,schema,source:'pdf-import',_status:{title:title?'confirmed':'missing',organization:officialName?'confirmed':'missing',position:selected?.name?'confirmed':'missing',board:bd?'confirmed':'missing',city:loc.city?'review':'missing',notice:nt?'confirmed':'missing',examDate:examEvent?.date?'review':'missing'}};
- return{draft,schema,cargos:available,selectedCargo:selected,objectiveLocation,meta:{pages:doc.numPages,nativeChars:doc.nativeChars||0,ocr:!!doc.ocr,ocrPartial:!!doc.ocrPartial,examGroup:selected?.group||'',objectiveLocationStatus:objectiveLocation.status}};
+ return{draft,schema,cargos:available,selectedCargo:selected,objectiveLocation,objectiveTable,meta:{pages:doc.numPages,nativeChars:doc.nativeChars||0,ocr:!!doc.ocr,ocrPartial:!!doc.ocrPartial,examGroup:selected?.group||'',objectiveLocationStatus:objectiveLocation.status,objectiveTableStatus:objectiveTable.status,objectiveTableMode:objectiveTable.mode}};
 }
-window.PLANO_ARQ_EDICT_PARSER={version:VERSION,parseDocument,cargos,resolveCargoGroup,locateObjective,objectiveHeading,examSections,schedule,program};
+window.PLANO_ARQ_EDICT_PARSER={version:VERSION,parseDocument,cargos,resolveCargoGroup,locateObjective,objectiveHeading,parseObjectiveTable,examSections,schedule,program};
 })();

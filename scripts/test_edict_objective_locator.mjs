@@ -8,7 +8,7 @@ vm.createContext(context);
 vm.runInContext(source,context,{filename:'pa-edict-parser-v01.js'});
 const P=context.window.PLANO_ARQ_EDICT_PARSER;
 assert.ok(P,'Parser não exportado');
-assert.equal(P.version,'1.2');
+assert.ok(P.locateObjective&&P.objectiveHeading,'Exports da OBJ-03 ausentes');
 
 const line=(page,order,text)=>({ref:`p${page}:l${order}`,page,order,text});
 const docFromPages=pages=>{
