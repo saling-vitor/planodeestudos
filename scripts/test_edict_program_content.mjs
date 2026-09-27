@@ -18,7 +18,7 @@ let result=P.extractProgram(d,null,sections,[]);
 assert.equal(result.status,'parsed');
 assert.equal(result.blocks.length,2);
 assert.equal(result.blocks[1].label,'Geopolítica Regional');
-assert.deepEqual(result.blocks[1].sourceRefs,['p1:l4','p1:l5']);
+assert.equal(Array.from(result.blocks[1].sourceRefs).join('|'),'p1:l4|p1:l5');
 
 d=doc([['CONTEÚDO PROGRAMÁTICO','Língua Portuguesa: Interpretação textual; coesão e coerência.','Geopolítica Regional: Organização do espaço regional; redes urbanas.','CRONOGRAMA']]);
 result=P.extractProgram(d,null,sections,[]);
