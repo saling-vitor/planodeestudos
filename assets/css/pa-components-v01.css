@@ -5,7 +5,9 @@ body.pa-internal-mode{
   --pa-ui-control-radius:9px;
   --pa-ui-panel-radius:16px;
   --pa-ui-row-radius:11px;
-  --pa-ui-toolbar-gap:10px;
+  --pa-ui-toolbar-gap:12px;
+  --pa-ui-filter-gap:10px;
+  --pa-ui-filter-row-gap:10px;
 }
 body.pa-internal-mode button{font:inherit;cursor:pointer}
 body.pa-internal-mode :is(button,a){touch-action:manipulation}
@@ -94,6 +96,7 @@ body.pa-internal-mode .field select{
 
 /* ===== Campos / toolbars ===== */
 body.pa-internal-mode :is(.tools,.toolbar){
+  display:flex;align-items:center;flex-wrap:wrap;
   margin-top:16px;gap:var(--pa-ui-toolbar-gap);padding:9px;
   border:1px solid rgba(255,255,255,.09);border-radius:13px;
   background:rgba(8,10,13,.82);box-shadow:inset 0 1px rgba(255,255,255,.014)
@@ -108,9 +111,16 @@ body.pa-internal-mode :is(input,select,textarea)::placeholder{color:#6f747c;opac
 
 /* ===== Filtros / chips / tabs ===== */
 body.pa-internal-mode :is(.chips,.filters,.period-tabs,.map-toolbar-left){
-  gap:8px;scrollbar-width:none
+  display:flex;align-items:center;flex-wrap:wrap;
+  gap:var(--pa-ui-filter-gap);scrollbar-width:none
 }
 body.pa-internal-mode :is(.chips,.filters,.period-tabs,.map-toolbar-left)::-webkit-scrollbar{display:none}
+body.pa-internal-mode :is(.tools,.toolbar)+:is(.chips,.filters,.period-tabs,.map-toolbar-left){
+  margin-top:var(--pa-ui-filter-row-gap)
+}
+body.pa-internal-mode .filters>.filter-explain{
+  min-width:0;margin-left:auto;padding-left:4px
+}
 body.pa-internal-mode :is(button.chip,button.filter,button.map-filter,.period-tabs button){
   min-height:34px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
   border:1px solid rgba(255,255,255,.09);border-radius:8px;background:#090b0e;
@@ -279,7 +289,7 @@ body.pa-internal-mode .table-wrap th{position:sticky;top:0;z-index:1}
 /* ===== Tablet / iPad ===== */
 @media(max-width:1199px), (pointer:coarse){
   body.pa-internal-mode :is(.tools,.toolbar){
-    grid-template-columns:repeat(2,minmax(0,1fr));gap:8px
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--pa-ui-filter-gap)
   }
   body.pa-internal-mode :is(.tools,.toolbar)>:first-child{grid-column:1/-1}
   body.pa-internal-mode :is(.chips,.filters,.period-tabs,.map-toolbar-left){
@@ -301,7 +311,9 @@ body.pa-internal-mode .table-wrap th{position:sticky;top:0;z-index:1}
   }
 }
 @media(max-width:600px){
-  body.pa-internal-mode :is(.tools,.toolbar){grid-template-columns:1fr}
+  body.pa-internal-mode :is(.tools,.toolbar){
+    display:grid;grid-template-columns:1fr;gap:var(--pa-ui-filter-row-gap)
+  }
   body.pa-internal-mode :is(.tools,.toolbar)>*{grid-column:1;width:100%}
 }
 @media(pointer:coarse){
