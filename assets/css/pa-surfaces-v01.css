@@ -369,3 +369,181 @@ body:not(.pa-internal-mode) :is(.field input,.field select,.field textarea,.extr
     transform:none
   }
 }
+
+/* ===== ETAPA E2 · Navegação e controles persistentes ===== */
+:root{--pa-page-accent:var(--pa-accent-blue)}
+body.pa-internal-mode[data-pa-page="planning"]{--pa-page-accent:var(--pa-accent-gold)}
+body.pa-internal-mode[data-pa-page="reviews"]{--pa-page-accent:var(--pa-accent-purple)}
+body.pa-internal-mode[data-pa-page="questions"]{--pa-page-accent:var(--pa-accent-blue)}
+body.pa-internal-mode[data-pa-page="errors"]{--pa-page-accent:var(--pa-accent-red)}
+
+/* Topbar: plana no topo, mais material somente após scroll. */
+body.pa-internal-mode .pa-topbar{
+  border-bottom-color:rgba(239,233,221,.055);
+  background:
+    linear-gradient(90deg,color-mix(in srgb,var(--pa-page-accent) 2.5%,transparent),transparent 32%),
+    rgba(5,7,10,.72);
+  box-shadow:inset 0 -1px rgba(255,255,255,.008);
+  -webkit-backdrop-filter:blur(6px) saturate(104%);backdrop-filter:blur(6px) saturate(104%);
+  transition:background .16s ease,border-color .16s ease,box-shadow .16s ease,backdrop-filter .16s ease
+}
+body.pa-internal-mode .pa-topbar.is-scrolled{
+  border-bottom-color:color-mix(in srgb,var(--pa-page-accent) 18%,rgba(239,233,221,.075));
+  background:
+    linear-gradient(90deg,color-mix(in srgb,var(--pa-page-accent) 4%,transparent),transparent 34%),
+    rgba(6,8,11,.94);
+  box-shadow:0 9px 24px rgba(0,0,0,.16),inset 0 -1px rgba(255,255,255,.012);
+  -webkit-backdrop-filter:blur(14px) saturate(110%);backdrop-filter:blur(14px) saturate(110%)
+}
+
+/* Sidebar: accent só no contexto ativo; hover permanece neutro. */
+body.pa-internal-mode .pa-nav-group+.pa-nav-group{
+  border-top-color:rgba(239,233,221,.045)
+}
+body.pa-internal-mode .pa-nav-label{
+  color:#777a7f;letter-spacing:.175em
+}
+body.pa-internal-mode :is(.pa-nav-item,.pa-nav-link){
+  transition:background .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease,opacity .15s ease
+}
+body.pa-internal-mode :is(.pa-nav-item,.pa-nav-link):hover{
+  color:#dddcd8;
+  border-color:rgba(239,233,221,.075);
+  background:linear-gradient(90deg,rgba(255,255,255,.022),rgba(255,255,255,.006))
+}
+body.pa-internal-mode :is(.pa-nav-item,.pa-nav-link).active{
+  color:#f1efea;
+  border-color:color-mix(in srgb,var(--pa-page-accent) 32%,rgba(239,233,221,.075));
+  background:
+    radial-gradient(180px 72px at 0 50%,color-mix(in srgb,var(--pa-page-accent) 10%,transparent),transparent 76%),
+    linear-gradient(90deg,rgba(255,255,255,.020),rgba(255,255,255,.006));
+  box-shadow:inset 0 1px rgba(255,255,255,.020),0 6px 16px rgba(0,0,0,.10)
+}
+body.pa-internal-mode :is(.pa-nav-item,.pa-nav-link).active::after{
+  background:var(--pa-page-accent);
+  box-shadow:0 0 9px color-mix(in srgb,var(--pa-page-accent) 22%,transparent)
+}
+body.pa-internal-mode :is(.pa-nav-item,.pa-nav-link):hover .pa-nav-icon{
+  opacity:.96;filter:brightness(0) invert(.78)
+}
+body.pa-internal-mode :is(.pa-nav-item,.pa-nav-link).active .pa-nav-icon{
+  opacity:1;filter:brightness(0) invert(.94)
+}
+body.pa-internal-mode .pa-sidebar-footer{
+  border-top-color:rgba(239,233,221,.045)
+}
+
+/* Toolbars coordenadas: uma única superfície persistente nas páginas longas. */
+body.pa-internal-mode .pa-sticky-controls{
+  position:sticky;top:calc(var(--pa-shell-topbar) + 8px);z-index:18;
+  box-sizing:border-box;width:100%;min-width:0;max-width:100%;
+  margin-top:16px;padding:8px;
+  border:1px solid color-mix(in srgb,var(--pa-page-accent) 13%,rgba(239,233,221,.075));
+  border-radius:14px;
+  background:
+    radial-gradient(420px 130px at 0 0,color-mix(in srgb,var(--pa-page-accent) 4%,transparent),transparent 72%),
+    rgba(8,10,13,.88);
+  box-shadow:0 10px 26px rgba(0,0,0,.15),inset 0 1px rgba(255,255,255,.018);
+  -webkit-backdrop-filter:blur(12px) saturate(108%);backdrop-filter:blur(12px) saturate(108%);
+  transition:border-color .16s ease,background .16s ease,box-shadow .16s ease
+}
+body.pa-internal-mode .pa-sticky-controls>.tools{
+  margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none
+}
+body.pa-internal-mode .pa-sticky-controls>:is(.chips,.filters){
+  margin-top:8px
+}
+body.pa-internal-mode .pa-sticky-controls :is(.tools,.chips,.filters){
+  min-width:0;max-width:100%
+}
+body.pa-internal-mode .pa-sticky-controls :is(.tools,.chips,.filters)::-webkit-scrollbar{
+  height:0
+}
+
+/* Estados coerentes de inputs, selects, chips, filtros, tabs e botões. */
+body.pa-internal-mode :is(
+  .primary-btn,.ghost-btn,.icon-btn,.small-btn,.mini,.mini-btn,.small,
+  button.chip,button.filter,button.map-filter,.period-tabs button,.tab,
+  input,select,textarea
+){
+  transition:background .15s ease,border-color .15s ease,box-shadow .15s ease,color .15s ease,opacity .15s ease
+}
+body.pa-internal-mode :is(
+  .primary-btn,.ghost-btn,.icon-btn,.small-btn,.mini,.mini-btn,.small,
+  button.chip,button.filter,button.map-filter,.period-tabs button,.tab
+):active{transform:none}
+body:not(.pa-internal-mode) :is(.primary-btn,.ghost-btn,.icon-btn,.small-btn,.session-btn,.featured-primary,.featured-pause):active{transform:none}
+body.pa-internal-mode :is(button.chip,button.filter,button.map-filter,.period-tabs button,.tab).active{
+  border-color:color-mix(in srgb,var(--pa-page-accent) 50%,rgba(239,233,221,.08));
+  background:
+    radial-gradient(120px 52px at 0 50%,color-mix(in srgb,var(--pa-page-accent) 12%,transparent),transparent 78%),
+    linear-gradient(180deg,color-mix(in srgb,var(--pa-page-accent) 11%,rgba(13,16,20,.92)),rgba(9,11,14,.94));
+  color:#e0e6e9;
+  box-shadow:inset 0 1px rgba(255,255,255,.022),inset 0 -2px color-mix(in srgb,var(--pa-page-accent) 24%,transparent)
+}
+body.pa-internal-mode :is(
+  .field input,.field select,.field textarea,
+  input[type="search"],input.search,
+  .tools input,.tools select,.toolbar input,.toolbar select
+):focus-visible{
+  border-color:color-mix(in srgb,var(--pa-page-accent) 58%,rgba(239,233,221,.10));
+  box-shadow:inset 0 1px rgba(255,255,255,.018),0 0 0 3px color-mix(in srgb,var(--pa-page-accent) 9%,transparent)
+}
+body.pa-internal-mode :is(button,a,input,select,textarea):focus-visible{
+  outline-color:color-mix(in srgb,var(--pa-page-accent) 76%,#d7e3eb)
+}
+body.pa-internal-mode :is(button,input,select,textarea):disabled{
+  opacity:.42;cursor:not-allowed;box-shadow:none
+}
+body.pa-internal-mode .pa-mobile-nav :is(a,button).active{
+  color:#e0e5e8;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--pa-page-accent) 10%,transparent),color-mix(in srgb,var(--pa-page-accent) 4%,transparent));
+  box-shadow:inset 0 1px color-mix(in srgb,var(--pa-page-accent) 20%,transparent)
+}
+
+/* Tablet/touch: controles em trilho horizontal para o sticky não dominar a viewport. */
+@media(max-width:1199px), (pointer:coarse){
+  body.pa-internal-mode .pa-topbar{
+    -webkit-backdrop-filter:blur(5px) saturate(102%);backdrop-filter:blur(5px) saturate(102%)
+  }
+  body.pa-internal-mode .pa-topbar.is-scrolled{
+    -webkit-backdrop-filter:blur(9px) saturate(106%);backdrop-filter:blur(9px) saturate(106%)
+  }
+  body.pa-internal-mode .pa-sticky-controls{
+    top:78px;padding:7px;
+    -webkit-backdrop-filter:blur(8px) saturate(104%);backdrop-filter:blur(8px) saturate(104%)
+  }
+  body.pa-internal-mode .pa-sticky-controls>.tools{
+    display:flex;grid-template-columns:none;flex-wrap:nowrap;gap:8px;
+    overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scrollbar-width:none
+  }
+  body.pa-internal-mode .pa-sticky-controls>.tools>*{
+    grid-column:auto!important;width:auto!important;min-width:0;flex:0 0 220px
+  }
+  body.pa-internal-mode .pa-sticky-controls>.tools>:first-child{
+    flex-basis:min(58vw,420px)
+  }
+}
+@media(max-width:600px){
+  body.pa-internal-mode .pa-sticky-controls{top:76px;padding:6px}
+  body.pa-internal-mode .pa-sticky-controls>.tools>*{flex-basis:176px}
+  body.pa-internal-mode .pa-sticky-controls>.tools>:first-child{flex-basis:min(74vw,300px)}
+  body.pa-internal-mode .pa-sticky-controls>:is(.chips,.filters){margin-top:7px}
+}
+
+/* Preferência de movimento: estados mudam sem animação. */
+@media(prefers-reduced-motion:reduce){
+  body.pa-internal-mode :is(
+    .pa-topbar,.pa-nav-item,.pa-nav-link,.pa-nav-icon,.pa-sticky-controls,
+    .primary-btn,.ghost-btn,.icon-btn,.small-btn,.mini,.mini-btn,.small,
+    button.chip,button.filter,button.map-filter,.period-tabs button,.tab,
+    input,select,textarea
+  ){transition:none!important}
+}
+html.pa-reduce-motion body.pa-internal-mode :is(
+  .pa-topbar,.pa-nav-item,.pa-nav-link,.pa-nav-icon,.pa-sticky-controls,
+  .primary-btn,.ghost-btn,.icon-btn,.small-btn,.mini,.mini-btn,.small,
+  button.chip,button.filter,button.map-filter,.period-tabs button,.tab,
+  input,select,textarea
+){transition:none!important}
+
