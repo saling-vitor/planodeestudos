@@ -12,6 +12,13 @@
  --pa-shadow:0 24px 68px rgba(0,0,0,.56);--pa-shadow-soft:0 14px 34px rgba(0,0,0,.28);
  --pa-shadow-panel:0 18px 44px rgba(0,0,0,.30),inset 0 1px rgba(255,255,255,.026);
  --pa-shadow-raised:0 26px 72px rgba(0,0,0,.44),inset 0 1px rgba(255,255,255,.035);
+ /* ETAPA E1 · aliases semânticos — reutilizam os primitivos acima */
+ --pa-surface-base:var(--pa-bg);--pa-surface-panel:var(--pa-surface);--pa-surface-card:var(--pa-surface-2);--pa-surface-raised:var(--pa-surface-3);
+ --pa-border-soft:var(--pa-line-2);--pa-border-medium:var(--pa-line);
+ --pa-accent-gold:var(--pa-champagne-2);--pa-accent-blue:var(--pa-blue);--pa-accent-purple:var(--pa-violet);--pa-accent-red:var(--pa-red);--pa-accent-green:var(--pa-green);
+ --pa-text-primary:var(--pa-text);--pa-text-secondary:var(--pa-text-2);--pa-text-muted:var(--pa-muted);
+ --pa-space-micro:7px;--pa-space-internal:11px;--pa-space-component:16px;--pa-space-block:24px;--pa-space-section:30px;
+ --pa-reading-measure:68ch;--pa-reading-measure-compact:58ch;
  --pa-sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
  --pa-condensed:"Bahnschrift Condensed","Arial Narrow","Aptos Narrow","Segoe UI",sans-serif;
  --pa-mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
@@ -28,12 +35,5 @@
 }
 html{background:var(--pa-bg)}
 body.pa-internal-mode{
- background:
-  radial-gradient(1050px 680px at 5% -4%,var(--pa-glow-cool),transparent 60%),
-  radial-gradient(760px 560px at 98% 16%,var(--pa-glow-warm),transparent 65%),
-  linear-gradient(var(--pa-grid-line) 1px,transparent 1px),
-  linear-gradient(90deg,var(--pa-grid-line) 1px,transparent 1px),
-  linear-gradient(180deg,#030406,#040507 44%,#020304);
- background-size:auto,auto,var(--pa-grid-size) var(--pa-grid-size),var(--pa-grid-size) var(--pa-grid-size),auto;
- color:var(--pa-text);font-family:var(--pa-sans);-webkit-font-smoothing:antialiased
+ color:var(--pa-text-primary);font-family:var(--pa-sans);-webkit-font-smoothing:antialiased
 }
