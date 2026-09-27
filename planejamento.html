@@ -401,6 +401,41 @@ body.pa-internal-mode[data-pa-page="planning"] .plan-stat{
 }
 
 
+/* ===== V3.9 · RESPONSIVE FINAL · Planejamento ===== */
+/* V3.5 é posterior aos breakpoints-base; reafirma aqui a grade responsiva para não reabrir overflow. */
+@media(max-width:900px){
+  body.pa-internal-mode[data-pa-page="planning"] .day-row{
+    grid-template-columns:minmax(82px,1fr) minmax(92px,.75fr) auto
+  }
+  body.pa-internal-mode[data-pa-page="planning"] .windows{
+    grid-column:1/-1
+  }
+}
+@media(max-width:560px){
+  body.pa-internal-mode[data-pa-page="planning"] .day-row{
+    grid-template-columns:minmax(0,1fr) auto;gap:9px
+  }
+  body.pa-internal-mode[data-pa-page="planning"] .day-name{
+    grid-column:1;grid-row:1
+  }
+  body.pa-internal-mode[data-pa-page="planning"] .schedule-toggle{
+    grid-column:2;grid-row:1;justify-self:end
+  }
+  body.pa-internal-mode[data-pa-page="planning"] .hours-wrap{
+    grid-column:1;grid-row:2
+  }
+  body.pa-internal-mode[data-pa-page="planning"] .windows{
+    grid-column:1/-1;grid-row:3
+  }
+  body.pa-internal-mode[data-pa-page="planning"] .config-grid>.panel:first-child>.section-head{
+    align-items:flex-start;flex-wrap:wrap;gap:6px 10px
+  }
+  body.pa-internal-mode[data-pa-page="planning"] .config-grid>.panel:first-child>.section-head>span{
+    flex:1 1 100%;max-width:100%
+  }
+}
+
+
 </style>
 <script src="data/contests.js"></script>
 <script src="assets/js/pa-contest-context-v01.js"></script>
