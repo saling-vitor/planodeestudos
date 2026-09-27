@@ -752,7 +752,8 @@ body.pa-internal-mode[data-pa-page="today"] .today-grid>aside .summary-row{
 }
 @media(max-width:1180px){
   body.pa-internal-mode[data-pa-page="today"] .auto-main{min-height:0}
-  body.pa-internal-mode[data-pa-page="today"] .today-grid>aside{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  body.pa-internal-mode[data-pa-page="today"] .today-grid{grid-template-columns:minmax(0,1fr)}
+  body.pa-internal-mode[data-pa-page="today"] .today-grid>aside{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
   body.pa-internal-mode[data-pa-page="today"] .today-grid>aside>.today-section-head{grid-column:span 1;margin:0}
   body.pa-internal-mode[data-pa-page="today"] .today-grid>aside>.today-panel{min-width:0}
 }
