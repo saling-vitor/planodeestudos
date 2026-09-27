@@ -110,4 +110,12 @@ function resetContest(cid){const ks=contestKeys(cid);ks.forEach(k=>localStorage.
 function resetDeviceId(){const id=uuid();localStorage.setItem('planoarq:device-id:v1',id);return id}
 Object.assign(API,{RELEASE,BUILD_MAINTENANCE,RUNTIME_KEY,EXAM_SCHEMA_PREFIX,CONTEST_FILES_PREFIX,CONTEST_MATERIALS_PREFIX,IMPORT_DRAFT_PREFIX,RECOVERY_PREFIX,RECOVERY_LAST_KEY,runtimeFlags,isMaintenanceMode,isBuildMaintenance,canRunBackgroundServices,setMaintenanceMode,deviceId,deviceName,setDeviceName,keys,tracked,privateKey,contestKeys,collect,buildBackup,exportBackup,inspect,readFile,importEntries,dataHealth,createRecoveryPoint,listRecoveryPoints,lastRecoveryPoint,restoreRecoveryPoint,pruneRecoveryPoints,resetContest,resetDeviceId,materialsForContest,contestMaterialsKey,localMaterialsForContest,saveContestMaterials,upsertContestMaterial,removeContestMaterial,localContests,contests,contestById,saveContest,examSchemaKey,examSchemaForContest,saveExamSchema,contestFilesKey,contestFiles,saveContestFiles,upsertContestFile,importDraftKey,loadImportDraft,saveImportDraft,clearImportDraft,LOCAL_FILE_DB,LOCAL_FILE_STORE,storeContestBlob,contestBlob,deleteContestBlob,hasContestBlob,contestBundle});
 window.PLANO_ARQ_DATA=API;
+(function loadHealthRuntime(){
+ try{
+  if(window.PLANO_ARQ_HEALTH||document.querySelector('script[data-pa-health="1"],script[src*="pa-health-v01.js"]'))return;
+  const own=document.currentScript?.src||document.querySelector('script[src*="pa-data-v03.js"]')?.src||'';
+  if(!own)return;
+  const s=document.createElement('script');s.src=new URL('pa-health-v01.js',own).href;s.dataset.paHealth='1';s.async=true;(document.head||document.documentElement).appendChild(s);
+ }catch(_){}
+})();
 })();
