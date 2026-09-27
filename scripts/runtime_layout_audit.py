@@ -461,8 +461,8 @@ try:
         add_functional(f"{page}-filtros",1440,1000,{
             "temFiltro":info.get("hasButton"),
             "raio8px":info.get("radius")=="8px",
-            "gapFiltros8px":info.get("filterGap")=="8px",
-            "gapToolbar10px":not info.get("toolbarGap") or info.get("toolbarGap")=="10px",
+            "gapFiltros10px":info.get("filterGap")=="10px",
+            "gapToolbar12px":not info.get("toolbarGap") or info.get("toolbarGap")=="12px",
             "ativoPreservado":info.get("activeExists") and info.get("activeDistinct"),
             "hoverFocusSemSalto":stable,
             "contadorPillPreservado":not info.get("counterRadius") or info.get("counterRadius")=="999px",
@@ -480,7 +480,7 @@ try:
             info=filter_contract()
             add_functional(f"{page}-filtros-touch",width,height,{
                 "raio8px":info.get("radius")=="8px",
-                "gapFiltros8px":info.get("filterGap")=="8px",
+                "gapFiltros10px":info.get("filterGap")=="10px",
                 "alturaToque42":float(info.get("height") or 0)>=41.5,
                 "nowrapPreservado":info.get("flexWrap")=="nowrap",
                 "scrollHorizontalPreservado":info.get("overflowX") in ("auto","scroll"),
