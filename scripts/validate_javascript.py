@@ -75,6 +75,19 @@ def check_invalid_dataset_notation(text: str, label: str):
         )
 
 
+def check_visible_literal_newline(text: str, label: str):
+    # Remove conteúdos de script/style: "\\n" dentro de strings JS/CSS pode ser legítimo.
+    visible = re.sub(r"(?is)<script\\b[^>]*>.*?</script>", "<script></script>", text)
+    visible = re.sub(r"(?is)<style\\b[^>]*>.*?</style>", "<style></style>", visible)
+    match = re.search(r"\\\\n", visible)
+    if match:
+        line = visible.count("\n", 0, match.start()) + 1
+        snippet = visible[max(0, match.start()-48):match.start()+64].replace("\n", " ")
+        raise RuntimeError(
+            f"{label}: sequência literal \\n visível no HTML na linha {line}: {snippet!r}"
+        )
+
+
 def main():
     if not shutil.which("node"):
         raise SystemExit("Node.js não encontrado; validação JavaScript indisponível.")
@@ -142,6 +155,7 @@ def main():
         for html in html_files:
             html_text = html.read_text("utf-8", errors="replace")
             check_invalid_dataset_notation(html_text, str(html.relative_to(ROOT)))
+            check_visible_literal_newline(html_text, str(html.relative_to(ROOT)))
             if "simulation-runtime-v01.js" in html_text and "pa-post-sim-v01.js" not in html_text:
                 raise RuntimeError(f"{html.relative_to(ROOT)}: simulado sem integração AUT-03 antes do runtime")
             parser = ScriptParser()
