@@ -36,7 +36,9 @@
               "pointsPerQuestion": 2,
               "totalPoints": 80,
               "minimumCorrect": null,
-              "mapGroups": ["Conhecimentos Específicos"]
+              "mapGroups": [
+                "Conhecimentos Específicos"
+              ]
             },
             {
               "id": "legislation",
@@ -45,7 +47,9 @@
               "pointsPerQuestion": 1,
               "totalPoints": 10,
               "minimumCorrect": null,
-              "mapGroups": ["Legislação"]
+              "mapGroups": [
+                "Legislação"
+              ]
             },
             {
               "id": "portuguese",
@@ -54,13 +58,20 @@
               "pointsPerQuestion": 1,
               "totalPoints": 10,
               "minimumCorrect": null,
-              "mapGroups": ["Língua Portuguesa"]
+              "mapGroups": [
+                "Língua Portuguesa"
+              ]
             }
           ]
         }
       ],
       "schedule": [
-        {"date":"2026-10-18","label":"Aplicação da Prova Teórico-Objetiva","kind":"exam","status":"provável"}
+        {
+          "date": "2026-10-18",
+          "label": "Aplicação da Prova Teórico-Objetiva",
+          "kind": "exam",
+          "status": "provável"
+        }
       ],
       "rules": [
         "A distribuição do planejamento é calculada pela pontuação de cada componente da prova.",
@@ -68,124 +79,390 @@
       ],
       "documents": [
         {
-          "id":"opening","type":"opening","label":"Edital de Abertura 001/2026",
-          "file":"edital/edital_abertura_001_2026_DEMHAB.pdf","status":"vigente","publicationDate":"2026-07-21"
+          "id": "opening",
+          "type": "opening",
+          "label": "Edital de Abertura 001/2026",
+          "file": "edital/edital_abertura_001_2026_DEMHAB.pdf",
+          "status": "vigente",
+          "publicationDate": "2026-07-21"
         }
       ],
-      "sourceNote":"Perfil ativo do concurso DEMHAB usado pelo Portal."
+      "sourceNote": "Perfil ativo do concurso DEMHAB usado pelo Portal."
     },
     {
-      "id":"fixture-casan-aocp-arquiteto-2026",
-      "kind":"compatibility-fixture",
-      "status":"verified",
-      "board":"Instituto AOCP",
-      "organization":"CASAN",
-      "position":"Arquiteto e Urbanista",
-      "notice":"Edital 003/2026",
-      "examDate":{"date":"2026-11-22","status":"prevista"},
-      "stages":[
+      "id": "fixture-casan-aocp-arquiteto-2026",
+      "kind": "compatibility-fixture",
+      "status": "verified",
+      "board": "Instituto AOCP",
+      "organization": "CASAN",
+      "position": "Arquiteto e Urbanista",
+      "notice": "Edital 003/2026",
+      "examDate": {
+        "date": "2026-11-22",
+        "status": "prevista"
+      },
+      "stages": [
         {
-          "id":"objective","type":"objective","label":"Prova Objetiva","character":"Eliminatório e classificatório",
-          "planningMode":"weighted-sections","date":"2026-11-22","dateStatus":"prevista","durationMinutes":null,
-          "totalQuestions":50,"totalPoints":50,"alternatives":5,
-          "minimum":{"kind":"points","value":25,"label":"mínimo de 25 pontos (50%)"},
-          "sections":[
-            {"id":"portuguese","label":"Língua Portuguesa","questions":10,"pointsPerQuestion":1,"totalPoints":10,"mapGroups":["Língua Portuguesa"]},
-            {"id":"logic","label":"Raciocínio Lógico-Matemático","questions":7,"pointsPerQuestion":1,"totalPoints":7,"mapGroups":["Raciocínio Lógico"]},
-            {"id":"general","label":"Conhecimentos Gerais - Atualidades","questions":3,"pointsPerQuestion":1,"totalPoints":3,"mapGroups":["Conhecimentos Gerais"]},
-            {"id":"legislation","label":"Legislação","questions":5,"pointsPerQuestion":1,"totalPoints":5,"mapGroups":["Legislação"]},
-            {"id":"specific","label":"Conhecimentos Específicos","questions":25,"pointsPerQuestion":1,"totalPoints":25,"mapGroups":["Conhecimentos Específicos"]}
+          "id": "objective",
+          "type": "objective",
+          "label": "Prova Objetiva",
+          "character": "Eliminatório e classificatório",
+          "planningMode": "weighted-sections",
+          "date": "2026-11-22",
+          "dateStatus": "prevista",
+          "durationMinutes": null,
+          "totalQuestions": 50,
+          "totalPoints": 50,
+          "alternatives": 5,
+          "minimum": {
+            "kind": "points",
+            "value": 25,
+            "label": "mínimo de 25 pontos (50%)"
+          },
+          "sections": [
+            {
+              "id": "portuguese",
+              "label": "Língua Portuguesa",
+              "questions": 10,
+              "pointsPerQuestion": 1,
+              "totalPoints": 10,
+              "mapGroups": [
+                "Língua Portuguesa"
+              ]
+            },
+            {
+              "id": "logic",
+              "label": "Raciocínio Lógico-Matemático",
+              "questions": 7,
+              "pointsPerQuestion": 1,
+              "totalPoints": 7,
+              "mapGroups": [
+                "Raciocínio Lógico"
+              ]
+            },
+            {
+              "id": "general",
+              "label": "Conhecimentos Gerais - Atualidades",
+              "questions": 3,
+              "pointsPerQuestion": 1,
+              "totalPoints": 3,
+              "mapGroups": [
+                "Conhecimentos Gerais"
+              ]
+            },
+            {
+              "id": "legislation",
+              "label": "Legislação",
+              "questions": 5,
+              "pointsPerQuestion": 1,
+              "totalPoints": 5,
+              "mapGroups": [
+                "Legislação"
+              ]
+            },
+            {
+              "id": "specific",
+              "label": "Conhecimentos Específicos",
+              "questions": 25,
+              "pointsPerQuestion": 1,
+              "totalPoints": 25,
+              "mapGroups": [
+                "Conhecimentos Específicos"
+              ]
+            }
           ]
         },
-        {"id":"titles","type":"titles","label":"Prova de Títulos","character":"Classificatório","planningMode":"administrative","maxPoints":10}
+        {
+          "id": "titles",
+          "type": "titles",
+          "label": "Prova de Títulos",
+          "character": "Classificatório",
+          "planningMode": "administrative",
+          "maxPoints": 10
+        }
       ],
-      "schedule":[
-        {"date":"2026-11-22","label":"Aplicação da Prova Objetiva","kind":"exam","status":"prevista"},
-        {"date":"2026-12-22","label":"Convocação dos habilitados para a Prova de Títulos","kind":"titles","status":"prevista"}
+      "schedule": [
+        {
+          "date": "2026-11-22",
+          "label": "Aplicação da Prova Objetiva",
+          "kind": "exam",
+          "status": "prevista"
+        },
+        {
+          "date": "2026-12-22",
+          "label": "Convocação dos habilitados para a Prova de Títulos",
+          "kind": "titles",
+          "status": "prevista"
+        }
       ],
-      "rules":[
+      "rules": [
         "Prova objetiva com 50 questões e 5 alternativas; mínimo de 25 pontos.",
         "Títulos valem até 10 pontos e compõem a nota final."
       ],
-      "documents":[],
-      "sourceNote":"Fixture de compatibilidade extraído do edital CASAN/AOCP anexado pelo usuário."
+      "documents": [],
+      "sourceNote": "Fixture de compatibilidade extraído do edital CASAN/AOCP anexado pelo usuário."
     },
     {
-      "id":"fixture-tapera-fundatec-arquiteto-2026",
-      "kind":"compatibility-fixture",
-      "status":"verified",
-      "board":"FUNDATEC",
-      "organization":"Prefeitura Municipal de Tapera/RS",
-      "position":"Arquiteto",
-      "notice":"Concurso Público 01/2026 · Edital 217/2026",
-      "examDate":{"date":"2026-10-11","status":"provável"},
-      "stages":[
+      "id": "fixture-tapera-fundatec-arquiteto-2026",
+      "kind": "compatibility-fixture",
+      "status": "verified",
+      "board": "FUNDATEC",
+      "organization": "Prefeitura Municipal de Tapera/RS",
+      "position": "Arquiteto",
+      "notice": "Concurso Público 01/2026 · Edital 217/2026",
+      "examDate": {
+        "date": "2026-10-11",
+        "status": "provável"
+      },
+      "stages": [
         {
-          "id":"objective","type":"objective","label":"Prova Teórico-Objetiva","character":"Eliminatório e classificatório",
-          "planningMode":"weighted-sections","date":"2026-10-11","dateStatus":"provável","durationMinutes":null,
-          "totalQuestions":45,"totalPoints":90,"alternatives":null,
-          "minimum":{"kind":"points","value":45,"label":"mínimo de 45 pontos no total"},
-          "sections":[
-            {"id":"portuguese","label":"Língua Portuguesa","questions":10,"pointsPerQuestion":2,"totalPoints":20,"minimumCorrect":1,"mapGroups":["Língua Portuguesa"]},
-            {"id":"logic","label":"Matemática/Raciocínio Lógico","questions":5,"pointsPerQuestion":2,"totalPoints":10,"minimumCorrect":1,"mapGroups":["Matemática/Raciocínio Lógico"]},
-            {"id":"general","label":"Conhecimentos Gerais","questions":5,"pointsPerQuestion":2,"totalPoints":10,"minimumCorrect":1,"mapGroups":["Conhecimentos Gerais"]},
-            {"id":"legislation","label":"Legislação","questions":10,"pointsPerQuestion":2,"totalPoints":20,"minimumCorrect":1,"mapGroups":["Legislação"]},
-            {"id":"specific","label":"Conhecimentos Específicos","questions":10,"pointsPerQuestion":2,"totalPoints":20,"minimumCorrect":5,"mapGroups":["Conhecimentos Específicos"]},
-            {"id":"informatics","label":"Informática","questions":5,"pointsPerQuestion":2,"totalPoints":10,"minimumCorrect":1,"mapGroups":["Informática"]}
+          "id": "objective",
+          "type": "objective",
+          "label": "Prova Teórico-Objetiva",
+          "character": "Eliminatório e classificatório",
+          "planningMode": "weighted-sections",
+          "date": "2026-10-11",
+          "dateStatus": "provável",
+          "durationMinutes": null,
+          "totalQuestions": 45,
+          "totalPoints": 90,
+          "alternatives": null,
+          "minimum": {
+            "kind": "points",
+            "value": 45,
+            "label": "mínimo de 45 pontos no total"
+          },
+          "sections": [
+            {
+              "id": "portuguese",
+              "label": "Língua Portuguesa",
+              "questions": 10,
+              "pointsPerQuestion": 2,
+              "totalPoints": 20,
+              "minimumCorrect": 1,
+              "mapGroups": [
+                "Língua Portuguesa"
+              ]
+            },
+            {
+              "id": "logic",
+              "label": "Matemática/Raciocínio Lógico",
+              "questions": 5,
+              "pointsPerQuestion": 2,
+              "totalPoints": 10,
+              "minimumCorrect": 1,
+              "mapGroups": [
+                "Matemática/Raciocínio Lógico"
+              ]
+            },
+            {
+              "id": "general",
+              "label": "Conhecimentos Gerais",
+              "questions": 5,
+              "pointsPerQuestion": 2,
+              "totalPoints": 10,
+              "minimumCorrect": 1,
+              "mapGroups": [
+                "Conhecimentos Gerais"
+              ]
+            },
+            {
+              "id": "legislation",
+              "label": "Legislação",
+              "questions": 10,
+              "pointsPerQuestion": 2,
+              "totalPoints": 20,
+              "minimumCorrect": 1,
+              "mapGroups": [
+                "Legislação"
+              ]
+            },
+            {
+              "id": "specific",
+              "label": "Conhecimentos Específicos",
+              "questions": 10,
+              "pointsPerQuestion": 2,
+              "totalPoints": 20,
+              "minimumCorrect": 5,
+              "mapGroups": [
+                "Conhecimentos Específicos"
+              ]
+            },
+            {
+              "id": "informatics",
+              "label": "Informática",
+              "questions": 5,
+              "pointsPerQuestion": 2,
+              "totalPoints": 10,
+              "minimumCorrect": 1,
+              "mapGroups": [
+                "Informática"
+              ]
+            }
           ]
         },
-        {"id":"titles","type":"titles","label":"Prova de Títulos","character":"Classificatório","planningMode":"administrative","maxPoints":10},
-        {"id":"psych","type":"psychological","label":"Avaliação Psicológica","character":"Eliminatório","planningMode":"none","resultType":"apto/inapto"}
+        {
+          "id": "titles",
+          "type": "titles",
+          "label": "Prova de Títulos",
+          "character": "Classificatório",
+          "planningMode": "administrative",
+          "maxPoints": 10
+        },
+        {
+          "id": "psych",
+          "type": "psychological",
+          "label": "Avaliação Psicológica",
+          "character": "Eliminatório",
+          "planningMode": "none",
+          "resultType": "apto/inapto"
+        }
       ],
-      "schedule":[
-        {"date":"2026-10-02","label":"Divulgação da data, hora e local da prova","kind":"notice","status":"prevista"},
-        {"date":"2026-10-11","label":"Aplicação da Prova Teórico-Objetiva","kind":"exam","status":"provável"},
-        {"date":"2026-11-23","endDate":"2026-11-24","label":"Período para entrega de títulos","kind":"titles","status":"prevista"}
+      "schedule": [
+        {
+          "date": "2026-10-02",
+          "label": "Divulgação da data, hora e local da prova",
+          "kind": "notice",
+          "status": "prevista"
+        },
+        {
+          "date": "2026-10-11",
+          "label": "Aplicação da Prova Teórico-Objetiva",
+          "kind": "exam",
+          "status": "provável"
+        },
+        {
+          "date": "2026-11-23",
+          "endDate": "2026-11-24",
+          "label": "Período para entrega de títulos",
+          "kind": "titles",
+          "status": "prevista"
+        }
       ],
-      "rules":[
+      "rules": [
         "A prova de nível superior possui 45 questões, todas de 2 pontos, totalizando 90 pontos.",
         "Há mínimos por componente e mínimo total de 45 pontos.",
         "Títulos valem até 10 pontos."
       ],
-      "documents":[],
-      "sourceNote":"Fixture de compatibilidade extraído do edital Tapera/FUNDATEC anexado pelo usuário."
+      "documents": [],
+      "sourceNote": "Fixture de compatibilidade extraído do edital Tapera/FUNDATEC anexado pelo usuário."
     },
     {
-      "id":"fixture-cangucu-objetiva-arquiteto-2026",
-      "kind":"compatibility-fixture",
-      "status":"verified",
-      "board":"Instituto Objetiva",
-      "organization":"Município de Canguçu/RS",
-      "position":"Arquiteto",
-      "notice":"Concurso Público 001/2026",
-      "examDate":{"date":"2026-11-01","status":"estimada"},
-      "stages":[
+      "id": "fixture-cangucu-objetiva-arquiteto-2026",
+      "kind": "compatibility-fixture",
+      "status": "verified",
+      "board": "Instituto Objetiva",
+      "organization": "Município de Canguçu/RS",
+      "position": "Arquiteto",
+      "notice": "Concurso Público 001/2026",
+      "examDate": {
+        "date": "2026-11-01",
+        "status": "estimada"
+      },
+      "stages": [
         {
-          "id":"objective","type":"objective","label":"Prova Objetiva","character":"Eliminatório e classificatório",
-          "planningMode":"weighted-sections","date":"2026-11-01","dateStatus":"estimada","durationMinutes":null,
-          "totalQuestions":50,"totalPoints":100,"alternatives":"até 4","minimum":null,
-          "sections":[
-            {"id":"portuguese","label":"Língua Portuguesa","questions":12,"pointsPerQuestion":1.5,"totalPoints":18,"mapGroups":["Língua Portuguesa"]},
-            {"id":"logic","label":"Raciocínio Lógico","questions":8,"pointsPerQuestion":1,"totalPoints":8,"mapGroups":["Raciocínio Lógico"]},
-            {"id":"general","label":"Conhecimentos Gerais","questions":6,"pointsPerQuestion":1,"totalPoints":6,"mapGroups":["Conhecimentos Gerais"]},
-            {"id":"legislation","label":"Legislação","questions":8,"pointsPerQuestion":1.5,"totalPoints":12,"mapGroups":["Legislação"]},
-            {"id":"specific","label":"Conhecimentos Específicos","questions":16,"pointsPerQuestion":3.5,"totalPoints":56,"mapGroups":["Conhecimentos Específicos"]}
+          "id": "objective",
+          "type": "objective",
+          "label": "Prova Objetiva",
+          "character": "Eliminatório e classificatório",
+          "planningMode": "weighted-sections",
+          "date": "2026-11-01",
+          "dateStatus": "estimada",
+          "durationMinutes": null,
+          "totalQuestions": 50,
+          "totalPoints": 100,
+          "alternatives": "até 4",
+          "minimum": null,
+          "sections": [
+            {
+              "id": "portuguese",
+              "label": "Língua Portuguesa",
+              "questions": 12,
+              "pointsPerQuestion": 1.5,
+              "totalPoints": 18,
+              "mapGroups": [
+                "Língua Portuguesa"
+              ]
+            },
+            {
+              "id": "logic",
+              "label": "Raciocínio Lógico",
+              "questions": 8,
+              "pointsPerQuestion": 1,
+              "totalPoints": 8,
+              "mapGroups": [
+                "Raciocínio Lógico"
+              ]
+            },
+            {
+              "id": "general",
+              "label": "Conhecimentos Gerais",
+              "questions": 6,
+              "pointsPerQuestion": 1,
+              "totalPoints": 6,
+              "mapGroups": [
+                "Conhecimentos Gerais"
+              ]
+            },
+            {
+              "id": "legislation",
+              "label": "Legislação",
+              "questions": 8,
+              "pointsPerQuestion": 1.5,
+              "totalPoints": 12,
+              "mapGroups": [
+                "Legislação"
+              ]
+            },
+            {
+              "id": "specific",
+              "label": "Conhecimentos Específicos",
+              "questions": 16,
+              "pointsPerQuestion": 3.5,
+              "totalPoints": 56,
+              "mapGroups": [
+                "Conhecimentos Específicos"
+              ]
+            }
           ]
         },
-        {"id":"titles","type":"titles","label":"Prova de Títulos","character":"Classificatório","planningMode":"administrative","maxPoints":null}
+        {
+          "id": "titles",
+          "type": "titles",
+          "label": "Prova de Títulos",
+          "character": "Classificatório",
+          "planningMode": "administrative",
+          "maxPoints": null
+        }
       ],
-      "schedule":[
-        {"date":"2026-10-23","label":"Convocação para a prova objetiva","kind":"notice","status":"prevista"},
-        {"date":"2026-11-01","label":"Aplicação da Prova Objetiva — Grupos 03 e 04","kind":"exam","status":"estimada"},
-        {"date":"2027-01-07","endDate":"2027-01-11","label":"Período para apresentação de títulos","kind":"titles","status":"prevista"}
+      "schedule": [
+        {
+          "date": "2026-10-23",
+          "label": "Convocação para a prova objetiva",
+          "kind": "notice",
+          "status": "prevista"
+        },
+        {
+          "date": "2026-11-01",
+          "label": "Aplicação da Prova Objetiva — Grupos 03 e 04",
+          "kind": "exam",
+          "status": "estimada"
+        },
+        {
+          "date": "2027-01-07",
+          "endDate": "2027-01-11",
+          "label": "Período para apresentação de títulos",
+          "kind": "titles",
+          "status": "prevista"
+        }
       ],
-      "rules":[
+      "rules": [
         "Arquiteto pertence ao grupo de prova G04.",
         "A prova objetiva da Tabela A totaliza 50 questões e 100 pontos, com pesos diferentes por disciplina.",
         "Para Arquiteto há Prova de Títulos como etapa classificatória."
       ],
-      "documents":[],
-      "sourceNote":"Fixture de compatibilidade extraído do edital Canguçu/Objetiva anexado pelo usuário."
+      "documents": [],
+      "sourceNote": "Fixture de compatibilidade extraído do edital Canguçu/Objetiva anexado pelo usuário."
     },
     {
       "id": "casan-arquiteto-urbanista-2026",
@@ -661,6 +938,411 @@
         "content": "Anexo III · p. 28 e pp. 32–33"
       },
       "sourceNote": "Perfil ativo CASAN/AOCP para Arquiteto e Urbanista, extraído e conferido contra o Edital 003/2026."
+    },
+    {
+      "id": "cangucu-arquiteto-2026",
+      "kind": "active",
+      "status": "verified",
+      "board": "Instituto Objetiva",
+      "organization": "Município de Canguçu/RS",
+      "position": "Arquiteto",
+      "notice": "Concurso Público nº 001/2026 · Edital nº 001/2026",
+      "publicationDate": "2026-09-04",
+      "examDate": {
+        "date": "2026-11-01",
+        "status": "estimada"
+      },
+      "stages": [
+        {
+          "id": "objective",
+          "type": "objective",
+          "label": "Prova Objetiva",
+          "character": "Eliminatório e classificatório",
+          "planningMode": "weighted-sections",
+          "date": "2026-11-01",
+          "dateStatus": "estimada",
+          "durationMinutes": 240,
+          "totalQuestions": 50,
+          "totalPoints": 100,
+          "alternatives": "até 4",
+          "answerModel": "multiple-choice",
+          "scoringModel": "weighted-standard",
+          "scoringRuleRaw": "Questões de múltipla escolha com até 4 alternativas e apenas uma correta. A nota por disciplina é o número de acertos multiplicado pelo peso da questão. Aprovação com 60% ou mais da nota final e sem zerar nenhuma disciplina.",
+          "minimum": {
+            "kind": "points",
+            "value": 60,
+            "label": "mínimo de 60 pontos (60%) e não zerar nenhuma disciplina"
+          },
+          "sections": [
+            {
+              "id": "portuguese",
+              "label": "Língua Portuguesa",
+              "questions": 12,
+              "pointsPerQuestion": 1.5,
+              "totalPoints": 18,
+              "minimumCorrect": 1,
+              "minimumPoints": null,
+              "mapGroups": [
+                "Língua Portuguesa"
+              ]
+            },
+            {
+              "id": "logic",
+              "label": "Raciocínio Lógico",
+              "questions": 8,
+              "pointsPerQuestion": 1,
+              "totalPoints": 8,
+              "minimumCorrect": 1,
+              "minimumPoints": null,
+              "mapGroups": [
+                "Raciocínio Lógico"
+              ]
+            },
+            {
+              "id": "general",
+              "label": "Conhecimentos Gerais",
+              "questions": 6,
+              "pointsPerQuestion": 1,
+              "totalPoints": 6,
+              "minimumCorrect": 1,
+              "minimumPoints": null,
+              "mapGroups": [
+                "Conhecimentos Gerais"
+              ]
+            },
+            {
+              "id": "legislation",
+              "label": "Legislação",
+              "questions": 8,
+              "pointsPerQuestion": 1.5,
+              "totalPoints": 12,
+              "minimumCorrect": 1,
+              "minimumPoints": null,
+              "mapGroups": [
+                "Legislação"
+              ]
+            },
+            {
+              "id": "specific",
+              "label": "Conhecimentos Específicos",
+              "questions": 16,
+              "pointsPerQuestion": 3.5,
+              "totalPoints": 56,
+              "minimumCorrect": 1,
+              "minimumPoints": null,
+              "mapGroups": [
+                "Conhecimentos Específicos"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "titles",
+          "type": "titles",
+          "label": "Prova de Títulos",
+          "character": "Classificatório",
+          "planningMode": "administrative",
+          "maxPoints": 10,
+          "criteria": [
+            {
+              "id": "doctorate",
+              "label": "Doutorado (stricto sensu) relacionado às atribuições do cargo",
+              "pointsPerTitle": 10,
+              "maxPoints": 10
+            },
+            {
+              "id": "masters",
+              "label": "Mestrado (stricto sensu) relacionado às atribuições do cargo",
+              "pointsPerTitle": 6,
+              "maxPoints": 6
+            },
+            {
+              "id": "specialization",
+              "label": "Especialização/MBA/Residência (lato sensu) relacionada às atribuições do cargo",
+              "pointsPerTitle": 3,
+              "maxPoints": 3
+            }
+          ],
+          "rule": "É aceito no máximo um título de formação acadêmica, somente a titulação de maior valoração; pontuação não cumulativa."
+        },
+        {
+          "id": "affirmative-action-validation",
+          "type": "affirmative-action-validation",
+          "label": "Avaliação complementar à autodeclaração",
+          "character": "Eliminatório para vagas reservadas",
+          "planningMode": "administrative",
+          "appliesTo": "Candidatos aprovados com solicitação deferida para PQ, PN ou PI",
+          "resultType": "ratificada/não ratificada"
+        }
+      ],
+      "schedule": [
+        {
+          "date": "2026-09-04",
+          "label": "Publicação do extrato e do edital",
+          "kind": "notice",
+          "status": "confirmada"
+        },
+        {
+          "date": "2026-09-10",
+          "label": "Abertura do período para solicitação de inscrição",
+          "kind": "registration",
+          "status": "prevista"
+        },
+        {
+          "date": "2026-09-10",
+          "endDate": "2026-09-14",
+          "label": "Inscrição e solicitação de isenção para interessados no benefício",
+          "kind": "registration",
+          "status": "prevista"
+        },
+        {
+          "date": "2026-09-22",
+          "label": "Resultado preliminar das solicitações de isenção",
+          "kind": "result",
+          "status": "prevista"
+        },
+        {
+          "date": "2026-09-23",
+          "endDate": "2026-09-25",
+          "label": "Recursos contra o resultado preliminar das solicitações de isenção",
+          "kind": "appeal",
+          "status": "prevista"
+        },
+        {
+          "date": "2026-09-30",
+          "label": "Resultado definitivo das solicitações de isenção",
+          "kind": "result",
+          "status": "prevista"
+        },
+        {
+          "date": "2026-10-02",
+          "label": "Encerramento das inscrições e último dia para pagamento da taxa",
+          "kind": "registration",
+          "status": "prevista"
+        },
+        {
+          "date": "2026-10-09",
+          "label": "Homologação preliminar das inscrições",
+          "kind": "notice",
+          "status": "prevista"
+        },
+        {
+          "date": "2026-10-13",
+          "endDate": "2026-10-15",
+          "label": "Recursos contra a homologação preliminar das inscrições",
+          "kind": "appeal",
+          "status": "prevista"
+        },
+        {
+          "date": "2026-10-23",
+          "label": "Homologação definitiva das inscrições e convocação para a prova objetiva",
+          "kind": "notice",
+          "status": "prevista"
+        },
+        {
+          "date": "2026-11-01",
+          "label": "Aplicação da Prova Objetiva — Grupos 03 e 04",
+          "kind": "exam",
+          "status": "estimada"
+        },
+        {
+          "date": "2026-11-03",
+          "label": "Divulgação do gabarito preliminar — Grupos 03 e 04",
+          "kind": "answer-key",
+          "status": "prevista"
+        },
+        {
+          "date": "2026-11-04",
+          "endDate": "2026-11-06",
+          "label": "Recursos e vista online da prova padrão — Grupos 03 e 04",
+          "kind": "appeal",
+          "status": "prevista"
+        },
+        {
+          "date": "2026-11-24",
+          "label": "Gabarito definitivo e resultado preliminar da prova objetiva — Grupos 03 e 04",
+          "kind": "result",
+          "status": "prevista"
+        },
+        {
+          "date": "2026-11-25",
+          "endDate": "2026-11-27",
+          "label": "Recursos e vista digitalizada do cartão de respostas — Grupos 03 e 04",
+          "kind": "appeal",
+          "status": "prevista"
+        },
+        {
+          "date": "2026-12-03",
+          "label": "Resultado definitivo da prova objetiva — Grupos 03 e 04",
+          "kind": "result",
+          "status": "prevista"
+        },
+        {
+          "date": "2027-01-06",
+          "label": "Convocação para a prova de títulos e para avaliação complementar à autodeclaração",
+          "kind": "titles",
+          "status": "prevista"
+        },
+        {
+          "date": "2027-01-07",
+          "endDate": "2027-01-11",
+          "label": "Período para apresentação de títulos",
+          "kind": "titles",
+          "status": "prevista"
+        },
+        {
+          "date": null,
+          "label": "Realização da avaliação complementar à autodeclaração (PN, PI e PQ)",
+          "kind": "affirmative-action-validation",
+          "status": "a definir"
+        },
+        {
+          "date": "2027-01-26",
+          "label": "Resultado preliminar da avaliação complementar à autodeclaração e da prova de títulos",
+          "kind": "result",
+          "status": "prevista"
+        },
+        {
+          "date": "2027-01-27",
+          "endDate": "2027-01-29",
+          "label": "Recursos e vista online do parecer e da prova de títulos",
+          "kind": "appeal",
+          "status": "prevista"
+        },
+        {
+          "date": "2027-02-05",
+          "label": "Resultado definitivo da avaliação complementar à autodeclaração e da prova de títulos",
+          "kind": "result",
+          "status": "prevista"
+        },
+        {
+          "date": null,
+          "label": "Classificação final",
+          "kind": "result",
+          "status": "a definir"
+        },
+        {
+          "date": null,
+          "label": "Homologação final",
+          "kind": "result",
+          "status": "a definir"
+        }
+      ],
+      "rules": [
+        "Arquiteto pertence ao Grupo de Prova G04; a aplicação da objetiva para os Grupos 03 e 04 está estimada para 01/11/2026.",
+        "A prova objetiva tem 50 questões de múltipla escolha, com até 4 alternativas e somente uma correta, totalizando 100 pontos.",
+        "Para aprovação na objetiva é necessário obter 60% ou mais na nota final e não zerar nenhuma disciplina.",
+        "A duração da prova objetiva é de até 4 horas, incluído o preenchimento do cartão de respostas.",
+        "A Prova de Títulos é exclusivamente classificatória, aplica-se aos aprovados nas etapas anteriores e admite no máximo um título, não cumulativo, de até 10 pontos.",
+        "O cronograma é orientador e pode ser alterado por motivo de força maior ou necessidade operacional."
+      ],
+      "content": [
+        {
+          "sectionId": "portuguese",
+          "group": "Conhecimentos Gerais da Prova",
+          "label": "Língua Portuguesa",
+          "discipline": "Língua Portuguesa",
+          "text": "1. Textos: Leitura, compreensão e interpretação de textos. Vocabulário: significado e substituição contextual. Reorganização da estrutura de orações e períodos do texto. Mecanismos de coesão e coerência textual. Tipos e gêneros textuais. 2. Fono-ortografia: Relações entre fonemas e grafemas no português. Estrutura, divisão e classificação silábica. Processos fonológicos. 3. Morfossintaxe: Classes de palavras: classificação e uso. Processos de formação de palavras. Flexão nominal: gênero, número e grau. Flexão verbal: pessoas, tempos, número, modos, vozes e aspectos. Concordância nominal e verbal. Regência nominal e verbal. Relação entre classes de palavras e funções sintáticas. 4. Sintaxe: Funções sintáticas: sujeito, predicado, objeto, complementos, modificadores. Período simples e composto: relações de coordenação e subordinação. Análise sintática completa. Correlação entre concordância, regência e retomada. Organização sintática canônica e variações estilísticas. Emprego do sinal indicativo de crase. Colocação pronominal. 5. Semântica: Sinonímia, antonímia, polissemia. Homônimos e parônimos. Denotação e conotação. Figuras de linguagem (metáfora, comparação, metonímia, ironia, eufemismo, hipérbole, personificação etc.). Efeitos de sentido em textos argumentativos, literários e multimodais. 6. Variação Linguística: Variedades regionais, sociais, históricas e situacionais da língua portuguesa. Norma-padrão e usos sociais da língua. 7. Elementos Notacionais da Escrita: Ortografia oficial. Acentuação gráfica. Sinais de pontuação. Recursos gráficos e estilísticos: aspas, parênteses, travessão, negrito, itálico. Regularidades e irregularidades ortográficas na produção textual.",
+          "topics": [
+            "1. Textos: Leitura, compreensão e interpretação de textos. Vocabulário: significado e substituição contextual. Reorganização da estrutura de orações e períodos do texto. Mecanismos de coesão e coerência textual. Tipos e gêneros textuais.",
+            "2. Fono-ortografia: Relações entre fonemas e grafemas no português. Estrutura, divisão e classificação silábica. Processos fonológicos.",
+            "3. Morfossintaxe: Classes de palavras: classificação e uso. Processos de formação de palavras. Flexão nominal: gênero, número e grau. Flexão verbal: pessoas, tempos, número, modos, vozes e aspectos. Concordância nominal e verbal. Regência nominal e verbal. Relação entre classes de palavras e funções sintáticas.",
+            "4. Sintaxe: Funções sintáticas: sujeito, predicado, objeto, complementos, modificadores. Período simples e composto: relações de coordenação e subordinação. Análise sintática completa. Correlação entre concordância, regência e retomada. Organização sintática canônica e variações estilísticas. Emprego do sinal indicativo de crase. Colocação pronominal.",
+            "5. Semântica: Sinonímia, antonímia, polissemia. Homônimos e parônimos. Denotação e conotação. Figuras de linguagem (metáfora, comparação, metonímia, ironia, eufemismo, hipérbole, personificação etc.). Efeitos de sentido em textos argumentativos, literários e multimodais.",
+            "6. Variação Linguística: Variedades regionais, sociais, históricas e situacionais da língua portuguesa. Norma-padrão e usos sociais da língua.",
+            "7. Elementos Notacionais da Escrita: Ortografia oficial. Acentuação gráfica. Sinais de pontuação. Recursos gráficos e estilísticos: aspas, parênteses, travessão, negrito, itálico. Regularidades e irregularidades ortográficas na produção textual."
+          ],
+          "source": "Edital 001/2026 · Anexo III · pp. 42–43",
+          "sourceRefs": [
+            "Anexo III · pp. 42–43"
+          ],
+          "status": "confirmed"
+        },
+        {
+          "sectionId": "logic",
+          "group": "Conhecimentos Gerais da Prova",
+          "label": "Raciocínio Lógico",
+          "discipline": "Raciocínio Lógico",
+          "text": "1. Raciocínio Numérico: Teoria dos conjuntos: operações, diagramas e subconjuntos. Sistemas de numeração. Conjuntos numéricos: naturais, inteiros, racionais, irracionais e reais: operações e propriedades. Expressões numéricas. Reta numérica, desigualdades e valor absoluto. Divisibilidade, múltiplos, divisores, MDC e MMC. Fatoração e produtos notáveis. Agrupamentos usuais (dúzia, centena, milhar etc.). Numerais multiplicativos. Notação científica e ordens de grandeza. Razões, proporções e regra de três. Porcentagem. Sequências, progressões (PA, PG) e séries. Análise combinatória. 2. Raciocínio Algébrico: Expressões algébricas, polinômios e frações algébricas. Equações e inequações do 1º e 2º graus. Equações polinomiais de grau superior. Sistemas lineares: métodos algébricos, matrizes e determinantes. Funções: afim, quadrática, polinomiais, racionais, exponenciais, logarítmicas e trigonométricas. Logaritmos: propriedades, equações e aplicações. Gráficos e transformações de funções. 3. Raciocínio com Formas e Medidas: Geometria Plana: polígonos, circunferência e círculo; perímetro, área e ângulos. Relações métricas em triângulos: semelhança, Teorema de Tales, Teorema de Pitágoras. Trigonometria básica: razões trigonométricas, ciclo trigonométrico. Escalas, ângulos e proporcionalidade. Geometria Espacial: prismas, pirâmides, cilindros, cones e esferas; áreas, volumes e planificações. Geometria analítica: plano cartesiano, ponto, distância, ponto médio, equação da reta, circunferência, parábola. Transformações geométricas: translação, rotação, reflexão. Unidades de medida e conversões. 4. Raciocínio Quantitativo Aplicado ao Cotidiano: Sistema monetário brasileiro. Operações de compra e venda. Juros simples e compostos. Descontos, lucro, perda, taxas e equivalência de taxas. Inflação, amortizações, financiamentos e aplicações financeiras. 5. Análise de Dados e Interpretação Lógica: Representação e análise de dados. Variáveis estatísticas, distribuição de frequência e intervalos de classe. Medidas de tendência central (média, moda, mediana) e de dispersão (amplitude, variância, desvio padrão). Probabilidade simples, composta e condicional. Noções de distribuições binomial e normal. 6. Lógica e Resolução de Problemas: Fundamentos de lógica. Estruturas lógicas: sequências, séries, padrões, analogias, relações e classificações. Identificação de padrões e regularidades. Resolução de problemas lógico-matemáticos em contextos diversos.",
+          "topics": [
+            "1. Raciocínio Numérico: Teoria dos conjuntos: operações, diagramas e subconjuntos. Sistemas de numeração. Conjuntos numéricos: naturais, inteiros, racionais, irracionais e reais: operações e propriedades. Expressões numéricas. Reta numérica, desigualdades e valor absoluto. Divisibilidade, múltiplos, divisores, MDC e MMC. Fatoração e produtos notáveis. Agrupamentos usuais (dúzia, centena, milhar etc.). Numerais multiplicativos. Notação científica e ordens de grandeza. Razões, proporções e regra de três. Porcentagem. Sequências, progressões (PA, PG) e séries. Análise combinatória.",
+            "2. Raciocínio Algébrico: Expressões algébricas, polinômios e frações algébricas. Equações e inequações do 1º e 2º graus. Equações polinomiais de grau superior. Sistemas lineares: métodos algébricos, matrizes e determinantes. Funções: afim, quadrática, polinomiais, racionais, exponenciais, logarítmicas e trigonométricas. Logaritmos: propriedades, equações e aplicações. Gráficos e transformações de funções.",
+            "3. Raciocínio com Formas e Medidas: Geometria Plana: polígonos, circunferência e círculo; perímetro, área e ângulos. Relações métricas em triângulos: semelhança, Teorema de Tales, Teorema de Pitágoras. Trigonometria básica: razões trigonométricas, ciclo trigonométrico. Escalas, ângulos e proporcionalidade. Geometria Espacial: prismas, pirâmides, cilindros, cones e esferas; áreas, volumes e planificações. Geometria analítica: plano cartesiano, ponto, distância, ponto médio, equação da reta, circunferência, parábola. Transformações geométricas: translação, rotação, reflexão. Unidades de medida e conversões.",
+            "4. Raciocínio Quantitativo Aplicado ao Cotidiano: Sistema monetário brasileiro. Operações de compra e venda. Juros simples e compostos. Descontos, lucro, perda, taxas e equivalência de taxas. Inflação, amortizações, financiamentos e aplicações financeiras.",
+            "5. Análise de Dados e Interpretação Lógica: Representação e análise de dados. Variáveis estatísticas, distribuição de frequência e intervalos de classe. Medidas de tendência central (média, moda, mediana) e de dispersão (amplitude, variância, desvio padrão). Probabilidade simples, composta e condicional. Noções de distribuições binomial e normal.",
+            "6. Lógica e Resolução de Problemas: Fundamentos de lógica. Estruturas lógicas: sequências, séries, padrões, analogias, relações e classificações. Identificação de padrões e regularidades. Resolução de problemas lógico-matemáticos em contextos diversos."
+          ],
+          "source": "Edital 001/2026 · Anexo III · pp. 43–44",
+          "sourceRefs": [
+            "Anexo III · pp. 43–44"
+          ],
+          "status": "confirmed"
+        },
+        {
+          "sectionId": "general",
+          "group": "Conhecimentos Gerais da Prova",
+          "label": "Conhecimentos Gerais",
+          "discipline": "Conhecimentos Gerais",
+          "text": "1. Tópicos relevantes e/ou atuais, suas inter-relações e vinculações históricas, nas áreas de: Segurança, transportes, política, economia, sociedade, educação, saúde, cultura, tecnologia, energia, relações internacionais, meio ambiente, desenvolvimento sustentável e ecologia. 2. Serviço Público: Ética e serviço público. Segurança do trabalho, higiene e organização. 3. Informática Básica: Conceitos fundamentais de Tecnologia da Informação (TI). Hardware e software: conceitos e características. Internet e redes: funcionamento básico de redes de computadores; navegadores e mecanismos de busca; protocolos de acesso; downloads, uploads e serviços online; noções de armazenamento em nuvem. Segurança da informação: noções de privacidade, confidencialidade e integridade de dados; ameaças digitais: vírus, malwares, phishing, engenharia social, links suspeitos, downloads e páginas falsas; boas práticas de segurança: senhas seguras, backups, atualização de softwares; proteção: senhas seguras, criptografia, antivírus, firewalls e boas práticas de uso. Correio eletrônico (e-mail): conceitos e funcionalidades; envio e recebimento de mensagens; anexos; organização de caixas postais; filtros e regras de mensagens; etiqueta digital e uso institucional do e-mail. Recursos digitais no ambiente de trabalho: digitalização e conversão de documentos, assinaturas digitais, utilização de plataformas virtuais em ambientes de trabalho (ex: Google Meet, Zoom, Microsoft Teams). Inteligência artificial aplicada ao cotidiano profissional. Características, funcionalidades, operação e configuração: Sistema operacional Windows 10 ou superior; Word, Excel e Outlook 2016 ou superior, inclusive Microsoft 365.",
+          "topics": [
+            "1. Tópicos relevantes e/ou atuais, suas inter-relações e vinculações históricas, nas áreas de: Segurança, transportes, política, economia, sociedade, educação, saúde, cultura, tecnologia, energia, relações internacionais, meio ambiente, desenvolvimento sustentável e ecologia.",
+            "2. Serviço Público: Ética e serviço público. Segurança do trabalho, higiene e organização.",
+            "3. Informática Básica: Conceitos fundamentais de Tecnologia da Informação (TI). Hardware e software: conceitos e características. Internet e redes: funcionamento básico de redes de computadores; navegadores e mecanismos de busca; protocolos de acesso; downloads, uploads e serviços online; noções de armazenamento em nuvem. Segurança da informação: noções de privacidade, confidencialidade e integridade de dados; ameaças digitais: vírus, malwares, phishing, engenharia social, links suspeitos, downloads e páginas falsas; boas práticas de segurança: senhas seguras, backups, atualização de softwares; proteção: senhas seguras, criptografia, antivírus, firewalls e boas práticas de uso. Correio eletrônico (e-mail): conceitos e funcionalidades; envio e recebimento de mensagens; anexos; organização de caixas postais; filtros e regras de mensagens; etiqueta digital e uso institucional do e-mail. Recursos digitais no ambiente de trabalho: digitalização e conversão de documentos, assinaturas digitais, utilização de plataformas virtuais em ambientes de trabalho (ex: Google Meet, Zoom, Microsoft Teams). Inteligência artificial aplicada ao cotidiano profissional. Características, funcionalidades, operação e configuração: Sistema operacional Windows 10 ou superior; Word, Excel e Outlook 2016 ou superior, inclusive Microsoft 365."
+          ],
+          "source": "Edital 001/2026 · Anexo III · p. 44",
+          "sourceRefs": [
+            "Anexo III · p. 44"
+          ],
+          "status": "confirmed"
+        },
+        {
+          "sectionId": "legislation",
+          "group": "Conhecimentos Gerais da Prova",
+          "label": "Legislação",
+          "discipline": "Legislação",
+          "text": "1. Normas Legais: BRASIL. Constituição da República Federativa do Brasil (Art. 1º a 69; Art. 76 a 92; Art. 101 e 102; Art. 127 a 129). CANGUÇU. Lei Orgânica do Município. CANGUÇU. Lei Municipal nº 2.239/2003. Estatuto dos Servidores Públicos do Município.",
+          "topics": [
+            "1. Normas Legais: BRASIL. Constituição da República Federativa do Brasil (Art. 1º a 69; Art. 76 a 92; Art. 101 e 102; Art. 127 a 129). CANGUÇU. Lei Orgânica do Município. CANGUÇU. Lei Municipal nº 2.239/2003. Estatuto dos Servidores Públicos do Município."
+          ],
+          "source": "Edital 001/2026 · Anexo III · p. 44",
+          "sourceRefs": [
+            "Anexo III · p. 44"
+          ],
+          "status": "confirmed"
+        },
+        {
+          "sectionId": "specific",
+          "group": "Conhecimentos Específicos",
+          "label": "Conhecimentos Específicos",
+          "discipline": "Arquiteto",
+          "text": "1. Arquitetura: 1. História e Teoria da Arquitetura e da Arte. 2. Projeto e Desenho Arquitetônico. 3. Teoria e estética da Arquitetura. 4. Teorias sobre o espaço urbano. 5. Projeto de arquitetura: Métodos e técnicas de desenho e projeto. 6. Projetos complementares em edificações: especificação técnica de materiais e serviços e dimensionamento básico. 7. Estruturas, Materiais, Topografia e Técnicas de Construção. 8. Resistência dos materiais para Arquitetos. Conceitos básicos: equilíbrio, barra, estruturas isostáticas, esforços solicitantes. Comportamento básico dos materiais (elasticidade linear). Tensão e deformação. Tração e Compressão. Torção. Flexão simples e composta. Cisalhamento na flexão. Linha elástica. Flambagem. 9. Conforto Ambiental. 10. Habitabilidade, desempenho e estabilidade das edificações. 11. Paisagem e Espaço Urbanos. 12. Projeto de urbanismo. Métodos e técnicas de desenho e projeto urbano. Noções de sistema cartográfico e de geoprocessamento. Dimensionamento e programação dos equipamentos públicos e comunitários. Sistema viário (hierarquização, dimensionamento e geometria). Sistemas de infraestrutura de parcelamentos urbanos: energia, pavimentação e saneamento ambiental (drenagem, abastecimento, coleta e tratamento de esgotos, coleta e destinação de resíduos sólidos). 13. Eficiência energética, variáveis climáticas, humanas e arquitetônicas, bioclimatologia, o uso racional da energia, tabela de condutividades, unidades e conceitos físicos. 14. Iluminação do Espaço Urbano. 15. Vegetação Urbana. Importância e funções da vegetação. Arborização. Critérios para a escolha e localização da vegetação urbana. Características morfológicas da vegetação. Plantio e manutenção da vegetação. Paisagismo. 16. Acústica em Arquitetura. 17. Planejamento e gestão urbana. 18. Climatização Artificial; conforto ambiental; Arquitetura e clima; geometria solar; iluminação natural; ventilação natural; propriedades térmicas dos elementos construtivos. 19. Edificações Sustentáveis. 20. Paisagismo e meio ambiente. Projeto Paisagístico. Licenças Ambientais. Outorgas para uso de recursos hídricos. Áreas de proteção permanente e de proteção ambiental. 21. Acompanhamento e fiscalização de obras: implantação de projetos urbanísticos e de edificações. Cronograma físico-financeiro. Acompanhamento e aplicação de recursos. 2. Licitações: Projeto Básico. Orçamento de referência para licitação. Contratos e Aditivos. 3. Normas ABNT NBRs em suas versões vigentes, atualizadas ou corrigidas: NBR 9050:2020 (Acessibilidade a edificações, mobiliário, espaços e equipamentos urbanos); NBR 9077:2025 (Projeto de saídas de emergência); NBR 15575-1:2021, NBR 15575-2:2013, NBR 15575-3:2021, NBR 15575-4:2021, NBR 15575-5:2021 e NBR 15575-6:2021 (Desempenho de edificações habitacionais); NBR 16636-1:2017, NBR 16636-2:2017 e NBR 16636-3:2020 (Elaboração e desenvolvimento de serviços técnicos especializados de projetos arquitetônicos e urbanísticos); NBR 16820:2022 (Sistemas de sinalização de emergência). Outras NBRs relacionadas ao conteúdo programático. 4. Softwares CAD: Autocad Autodesk, Revit Autodesk, Civil 3D Autodesk. 5. Código de Código de Ética Profissional. 6. Normas Legais: BRASIL. Constituição da República Federativa do Brasil (Art. 225). BRASIL. Lei nº 10.406/2002 - Código Civil (Art. 1277 a 1313). BRASIL. Lei nº 14.133/2021 - Lei de Licitações e Contratos Administrativos. BRASIL. Lei nº 10.257/2001 - Estatuto da Cidade. BRASIL. Lei nº 10.098/2000 - Promoção da Acessibilidade das Pessoas com Deficiência ou com Mobilidade Reduzida. CANGUÇU. Lei Municipal nº 1.760/1997 - Código de Obras do Município. CANGUÇU. Lei Municipal nº 796/1982 - Código de Posturas do Município.",
+          "topics": [
+            "1. Arquitetura: 1. História e Teoria da Arquitetura e da Arte. 2. Projeto e Desenho Arquitetônico. 3. Teoria e estética da Arquitetura. 4. Teorias sobre o espaço urbano. 5. Projeto de arquitetura: Métodos e técnicas de desenho e projeto. 6. Projetos complementares em edificações: especificação técnica de materiais e serviços e dimensionamento básico. 7. Estruturas, Materiais, Topografia e Técnicas de Construção. 8. Resistência dos materiais para Arquitetos. Conceitos básicos: equilíbrio, barra, estruturas isostáticas, esforços solicitantes. Comportamento básico dos materiais (elasticidade linear). Tensão e deformação. Tração e Compressão. Torção. Flexão simples e composta. Cisalhamento na flexão. Linha elástica. Flambagem. 9. Conforto Ambiental. 10. Habitabilidade, desempenho e estabilidade das edificações. 11. Paisagem e Espaço Urbanos. 12. Projeto de urbanismo. Métodos e técnicas de desenho e projeto urbano. Noções de sistema cartográfico e de geoprocessamento. Dimensionamento e programação dos equipamentos públicos e comunitários. Sistema viário (hierarquização, dimensionamento e geometria). Sistemas de infraestrutura de parcelamentos urbanos: energia, pavimentação e saneamento ambiental (drenagem, abastecimento, coleta e tratamento de esgotos, coleta e destinação de resíduos sólidos). 13. Eficiência energética, variáveis climáticas, humanas e arquitetônicas, bioclimatologia, o uso racional da energia, tabela de condutividades, unidades e conceitos físicos. 14. Iluminação do Espaço Urbano. 15. Vegetação Urbana. Importância e funções da vegetação. Arborização. Critérios para a escolha e localização da vegetação urbana. Características morfológicas da vegetação. Plantio e manutenção da vegetação. Paisagismo. 16. Acústica em Arquitetura. 17. Planejamento e gestão urbana. 18. Climatização Artificial; conforto ambiental; Arquitetura e clima; geometria solar; iluminação natural; ventilação natural; propriedades térmicas dos elementos construtivos. 19. Edificações Sustentáveis. 20. Paisagismo e meio ambiente. Projeto Paisagístico. Licenças Ambientais. Outorgas para uso de recursos hídricos. Áreas de proteção permanente e de proteção ambiental. 21. Acompanhamento e fiscalização de obras: implantação de projetos urbanísticos e de edificações. Cronograma físico-financeiro. Acompanhamento e aplicação de recursos.",
+            "2. Licitações: Projeto Básico. Orçamento de referência para licitação. Contratos e Aditivos.",
+            "3. Normas ABNT NBRs em suas versões vigentes, atualizadas ou corrigidas: NBR 9050:2020 (Acessibilidade a edificações, mobiliário, espaços e equipamentos urbanos); NBR 9077:2025 (Projeto de saídas de emergência); NBR 15575-1:2021, NBR 15575-2:2013, NBR 15575-3:2021, NBR 15575-4:2021, NBR 15575-5:2021 e NBR 15575-6:2021 (Desempenho de edificações habitacionais); NBR 16636-1:2017, NBR 16636-2:2017 e NBR 16636-3:2020 (Elaboração e desenvolvimento de serviços técnicos especializados de projetos arquitetônicos e urbanísticos); NBR 16820:2022 (Sistemas de sinalização de emergência). Outras NBRs relacionadas ao conteúdo programático.",
+            "4. Softwares CAD: Autocad Autodesk, Revit Autodesk, Civil 3D Autodesk.",
+            "5. Código de Código de Ética Profissional.",
+            "6. Normas Legais: BRASIL. Constituição da República Federativa do Brasil (Art. 225). BRASIL. Lei nº 10.406/2002 - Código Civil (Art. 1277 a 1313). BRASIL. Lei nº 14.133/2021 - Lei de Licitações e Contratos Administrativos. BRASIL. Lei nº 10.257/2001 - Estatuto da Cidade. BRASIL. Lei nº 10.098/2000 - Promoção da Acessibilidade das Pessoas com Deficiência ou com Mobilidade Reduzida. CANGUÇU. Lei Municipal nº 1.760/1997 - Código de Obras do Município. CANGUÇU. Lei Municipal nº 796/1982 - Código de Posturas do Município."
+          ],
+          "source": "Edital 001/2026 · Anexo III · pp. 45–46",
+          "sourceRefs": [
+            "Anexo III · pp. 45–46"
+          ],
+          "status": "confirmed"
+        }
+      ],
+      "documents": [],
+      "sourceEvidence": {
+        "identification": "Capítulo II · Tabela de especificações · p. 2",
+        "attributes": "Anexo I · Atribuições do cargo · p. 30",
+        "objective": "Capítulo VI · item 6.2.1.1 · Tabela A · pp. 17–18",
+        "approval": "Capítulo VI · item 6.2.2 · p. 18",
+        "duration": "Capítulo VI · item 6.2.9 · p. 18",
+        "titles": "Capítulo VI · item 6.4 · Tabela 6.4.9.1 · pp. 21–23",
+        "content": "Anexo III · pp. 42–46",
+        "schedule": "Anexo IV · p. 72"
+      },
+      "sourceNote": "Perfil ativo do Município de Canguçu/RS para Arquiteto, extraído e conferido contra o Edital nº 001/2026 anexado pelo usuário."
     }
   ]
 }
