@@ -25,7 +25,8 @@ strict=os.environ.get("LAYOUT_AUDIT_STRICT","0")=="1"
 contest="demhab-poa-arquiteto-2026"
 
 pages=[
-    ("hoje","index.html#home"),
+    ("portal","index.html#home"),
+    ("hoje",f"index.html#contest/{contest}"),
     ("planejamento",f"planejamento.html?contest={contest}"),
     ("edital",f"edital.html?contest={contest}"),
     ("mapas",f"biblioteca.html?contest={contest}"),
@@ -40,14 +41,18 @@ pages=[
     ("configuracoes",f"configuracoes.html?contest={contest}"),
 ]
 
-# Matriz pedida + larguras intermediárias + rotações landscape.
-viewports=[
-    (1920,1080),(1600,1000),(1440,1000),(1366,900),(1280,900),
-    (1180,900),(1100,900),(1024,900),(950,900),
-    (834,1112),(820,1180),(768,1024),(720,900),(540,900),
-    (430,932),(390,844),(375,812),
-    (1180,820),(1024,768),(932,430),(844,390),(812,375)
+# ETAPA E5 · matriz final pedida + larguras intermediárias/landscape.
+required_viewports=[
+    (1920,1080),(1440,900),(1366,768),(1024,768),
+    (768,1024),(430,932),(390,844),(360,800)
 ]
+extra_viewports=[
+    (1600,1000),(1440,1000),(1366,900),(1280,900),
+    (1180,900),(1100,900),(1024,900),(950,900),
+    (834,1112),(820,1180),(720,900),(540,900),(375,812),
+    (1180,820),(932,430),(844,390),(812,375)
+]
+viewports=required_viewports+[x for x in extra_viewports if x not in required_viewports]
 
 options=Options()
 options.add_argument("--headless=new")
@@ -200,7 +205,7 @@ def append_errors(data,label,errors):
         errors.append(f"{label}: grafico fora da viewport")
     if float(data.get("layoutShiftScore") or 0)>0.25:
         errors.append(f"{label}: layout shift alto ({data['layoutShiftScore']:.3f})")
-    if data.get("page")!="hoje":
+    if data.get("page")!="portal":
         nav=data.get("navigation") or {}
         for key,expected in (
             ("sidebarCount",1),("mobileNavCount",1),("mobileMoreCount",1),("legacyMobileCount",0)
@@ -273,7 +278,7 @@ try:
         driver.save_screenshot(str(out_dir/f"responsive-nav-{width}x{height}.png"))
 
     # Interação real por toque em iPad/celular: bottom navigation + Mais como único sistema compacto.
-    for width,height in ((834,1112),(390,844)):
+    for width,height in ((834,1112),(430,932),(390,844),(360,800)):
         driver.execute_cdp_cmd("Emulation.setDeviceMetricsOverride",{"width":width,"height":height,"deviceScaleFactor":2,"mobile":False})
         driver.execute_cdp_cmd("Emulation.setTouchEmulationEnabled",{"enabled":True,"maxTouchPoints":5})
         for page,rel in (
@@ -926,9 +931,9 @@ try:
             ActionChains(driver).key_down(Keys.CONTROL).send_keys(key).key_up(Keys.CONTROL).perform()
             time.sleep(.18)
 
-    zoom_map=[(80,-2),(100,0),(110,1),(125,2),(150,3)]
-    driver.set_window_size(1440,1000)
-    for page,rel in (("mapas",f"biblioteca.html?contest={contest}"),("configuracoes",f"configuracoes.html?contest={contest}")):
+    zoom_map=[(80,-2),(100,0),(125,2),(150,3)]
+    driver.set_window_size(1440,900)
+    for page,rel in pages:
         driver.get(urljoin(base,rel));wait_ready();reset_zoom()
         baseline=driver.execute_script("return {innerWidth:innerWidth,dpr:devicePixelRatio}")
         for pct,steps in zoom_map:
@@ -943,27 +948,32 @@ try:
         reset_zoom()
     zoom_effective=any(c["requestedZoom"]!=100 and c["state"]["innerWidth"]!=c["baseline"]["innerWidth"] for c in zoom_cases)
 
-    # Planejamento: equivalente determinístico do zoom do navegador.
-    # O Chrome headless pode ignorar Ctrl +/-; aqui preservamos a área física de 1440x1000
+    # ETAPA E5 · equivalente determinístico do zoom para toda a template.
+    # O Chrome headless pode ignorar Ctrl +/-; preservamos a área física de 1440x900
     # e variamos viewport CSS + DPR como ocorreria em 80/100/125/150%.
-    for pct,scale in ((80,.8),(100,1.0),(125,1.25),(150,1.5)):
-        css_w=max(320,round(1440/scale));css_h=max(480,round(1000/scale))
-        driver.execute_cdp_cmd("Emulation.setDeviceMetricsOverride",{"width":css_w,"height":css_h,"deviceScaleFactor":scale,"mobile":False})
-        driver.get(urljoin(base,f"planejamento.html?contest={contest}"));wait_ready()
-        diag=driver.execute_script(planning_fields_js)
-        data=measure("planejamento")
-        add_functional(f"planejamento-zoom-{pct}",css_w,css_h,{
-            "todosCampos":diag.get("allFields"),
-            "dentroDasColunas":diag.get("after",{}).get("inside"),
-            "semSobreposicao":not bool(diag.get("after",{}).get("overlaps")),
-            "semOverflowHorizontal":not bool(diag.get("after",{}).get("horizontalOverflow")),
-            "gapConsistente":diag.get("after",{}).get("gapConsistent"),
-            "colunasEquilibradas":diag.get("after",{}).get("equalColumns"),
-            "focoSemSalto":diag.get("focusStable"),
-            "paginaSemOverflow":not bool(data.get("horizontalOverflow")),
-            "controlesNaoCortados":not bool(data.get("clippedControls"))
-        })
-        driver.save_screenshot(str(out_dir/f"zoom-equivalente-planejamento-{pct}.png"))
+    zoom_equivalent_cases=[]
+    for page,rel in pages:
+        for pct,scale in ((80,.8),(100,1.0),(125,1.25),(150,1.5)):
+            css_w=max(320,round(1440/scale));css_h=max(480,round(900/scale))
+            driver.execute_cdp_cmd("Emulation.setDeviceMetricsOverride",{"width":css_w,"height":css_h,"deviceScaleFactor":scale,"mobile":False})
+            driver.get(urljoin(base,rel));wait_ready()
+            data=measure(page)
+            zoom_equivalent_cases.append({"page":page,"requestedZoom":pct,"viewport":{"width":css_w,"height":css_h},"diagnostics":data})
+            append_errors(data,f"zoom-equivalente-{page}@{pct}%",errors)
+            if page=="planejamento":
+                diag=driver.execute_script(planning_fields_js)
+                add_functional(f"planejamento-zoom-{pct}",css_w,css_h,{
+                    "todosCampos":diag.get("allFields"),
+                    "dentroDasColunas":diag.get("after",{}).get("inside"),
+                    "semSobreposicao":not bool(diag.get("after",{}).get("overlaps")),
+                    "semOverflowHorizontal":not bool(diag.get("after",{}).get("horizontalOverflow")),
+                    "gapConsistente":diag.get("after",{}).get("gapConsistent"),
+                    "colunasEquilibradas":diag.get("after",{}).get("equalColumns"),
+                    "focoSemSalto":diag.get("focusStable"),
+                    "paginaSemOverflow":not bool(data.get("horizontalOverflow")),
+                    "controlesNaoCortados":not bool(data.get("clippedControls"))
+                })
+            driver.save_screenshot(str(out_dir/f"zoom-equivalente-{page}-{pct}.png"))
     driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride",{})
 
     # Escala de renderização (DPR) para simular 100/125/150% de escala de tela.
@@ -977,7 +987,7 @@ try:
             append_errors(data,f"escala-{page}@{dpr}",errors)
     driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride",{})
 
-    report={"base":base,"rows":rows,"modalCases":modal_cases,"responsiveNavCases":responsive_nav_cases,"touchCases":touch_cases,"functionalCases":functional_cases,"longTextCases":long_text_cases,"zoomCases":zoom_cases,"zoomEffective":zoom_effective,"scaleCases":scale_cases,"interactiveCases":interactive_cases,"errors":errors}
+    report={"base":base,"rows":rows,"modalCases":modal_cases,"responsiveNavCases":responsive_nav_cases,"touchCases":touch_cases,"functionalCases":functional_cases,"longTextCases":long_text_cases,"zoomCases":zoom_cases,"zoomEquivalentCases":zoom_equivalent_cases,"zoomEffective":zoom_effective,"scaleCases":scale_cases,"interactiveCases":interactive_cases,"errors":errors}
     (out_dir/"report.json").write_text(json.dumps(report,ensure_ascii=False,indent=2),"utf-8")
     summary={
         "base":base,
@@ -993,6 +1003,7 @@ try:
         "navigationFailures":[{"page":r["page"],"viewport":r["requestedViewport"],"navigation":r.get("navigation")} for r in rows if any("navegação" in e and f"{r['page']}@{r['requestedViewport']['width']}x{r['requestedViewport']['height']}" in e for e in errors)],
         "longTextCases":len(long_text_cases),
         "zoomCases":len(zoom_cases),
+        "zoomEquivalentCases":len(zoom_equivalent_cases),
         "zoomEffective":zoom_effective,
         "scaleCases":len(scale_cases),
         "interactiveCases":len(interactive_cases),

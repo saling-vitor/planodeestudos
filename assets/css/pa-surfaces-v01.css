@@ -492,9 +492,6 @@ body.pa-internal-mode :is(
 body.pa-internal-mode :is(button,a,input,select,textarea):focus-visible{
   outline-color:color-mix(in srgb,var(--pa-page-accent) 76%,#d7e3eb)
 }
-body.pa-internal-mode :is(button,input,select,textarea):disabled{
-  opacity:.42;cursor:not-allowed;box-shadow:none
-}
 body.pa-internal-mode .pa-mobile-nav :is(a,button).active{
   color:#e0e5e8;
   background:linear-gradient(180deg,color-mix(in srgb,var(--pa-page-accent) 10%,transparent),color-mix(in srgb,var(--pa-page-accent) 4%,transparent));
