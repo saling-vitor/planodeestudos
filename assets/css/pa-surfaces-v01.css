@@ -54,30 +54,49 @@ body:not(.pa-internal-mode) :is(.today-empty,.auto-empty){border-color:rgba(216,
 
 /* ===== ETAPA E1 · Gramática visual global ===== */
 /* Atmosfera do mapa, centralizada nesta camada visual para manter shell/componentes dentro do contrato canônico. */
+/* V3.2: Onyx + malha técnica PONTILHADA fixa + halos ambientais estáticos. */
 body.pa-internal-mode,
 body:not(.pa-internal-mode){
-  background:
+  --pa-bg-dot-color:var(--pa-dot-color);
+  --pa-bg-dot-space:var(--pa-dot-space);
+  background-color:var(--pa-surface-base);
+  background-image:
+    radial-gradient(circle at 1px 1px,var(--pa-bg-dot-color) 0 var(--pa-dot-radius),transparent calc(var(--pa-dot-radius) + .35px)),
     radial-gradient(1000px 650px at 7% 0%,rgba(14,26,41,.30),transparent 60%),
-    radial-gradient(720px 520px at 93% 18%,rgba(216,197,158,.032),transparent 64%),
-    linear-gradient(var(--pa-grid-line) 1px,transparent 1px),
-    linear-gradient(90deg,var(--pa-grid-line) 1px,transparent 1px),
+    radial-gradient(720px 520px at 93% 18%,color-mix(in srgb,var(--pa-page-accent,var(--pa-accent-blue)) 4%,transparent),transparent 66%),
     linear-gradient(180deg,var(--pa-surface-base),#040507 44%,#020304);
-  background-size:auto,auto,var(--pa-grid-size) var(--pa-grid-size),var(--pa-grid-size) var(--pa-grid-size),auto
+  background-size:var(--pa-bg-dot-space) var(--pa-bg-dot-space),auto,auto,auto;
+  background-repeat:repeat,no-repeat,no-repeat,no-repeat;
+  background-position:0 0,0 0,0 0,0 0;
+  background-attachment:fixed,scroll,scroll,scroll
 }
 body.pa-internal-mode .pa-content :is(.hero-main,.today-main-card,.metric,.stat){border-color:var(--pa-border-medium)}
 body.pa-internal-mode .pa-content :is(.hero-main,.today-main-card)>p{max-width:var(--pa-reading-measure)}
 @media(max-width:1199px), (pointer:coarse){
   body.pa-internal-mode,body:not(.pa-internal-mode){
-    background:
-      radial-gradient(760px 520px at 2% -6%,rgba(14,26,41,.22),transparent 62%),
-      radial-gradient(560px 420px at 100% 10%,rgba(216,197,158,.024),transparent 67%),
+    --pa-bg-dot-color:var(--pa-dot-color-touch);
+    --pa-bg-dot-space:var(--pa-dot-space-touch);
+    background-image:
+      radial-gradient(circle at 1px 1px,var(--pa-bg-dot-color) 0 var(--pa-dot-radius),transparent calc(var(--pa-dot-radius) + .35px)),
+      radial-gradient(760px 520px at 2% -6%,rgba(14,26,41,.20),transparent 62%),
+      radial-gradient(560px 420px at 100% 10%,color-mix(in srgb,var(--pa-page-accent,var(--pa-accent-blue)) 3%,transparent),transparent 68%),
       linear-gradient(180deg,var(--pa-surface-base),#040507 48%,#020304);
-    background-size:auto
+    background-size:var(--pa-bg-dot-space) var(--pa-bg-dot-space),auto,auto,auto;
+    background-repeat:repeat,no-repeat,no-repeat,no-repeat;
+    background-attachment:fixed,scroll,scroll,scroll
   }
 }
 @media(max-width:600px){
   body.pa-internal-mode,body:not(.pa-internal-mode){
-    background:radial-gradient(520px 380px at 0 -4%,rgba(14,26,41,.17),transparent 64%),linear-gradient(180deg,var(--pa-surface-base),#030406 58%,#020304)
+    --pa-bg-dot-space:58px;
+    background-image:
+      radial-gradient(circle at 1px 1px,var(--pa-bg-dot-color) 0 var(--pa-dot-radius),transparent calc(var(--pa-dot-radius) + .35px)),
+      radial-gradient(520px 380px at 0 -4%,rgba(14,26,41,.15),transparent 64%),
+      radial-gradient(420px 320px at 100% 8%,color-mix(in srgb,var(--pa-page-accent,var(--pa-accent-blue)) 2.5%,transparent),transparent 70%),
+      linear-gradient(180deg,var(--pa-surface-base),#030406 58%,#020304);
+    background-size:var(--pa-bg-dot-space) var(--pa-bg-dot-space),auto,auto,auto;
+    background-repeat:repeat,no-repeat,no-repeat,no-repeat;
+    background-attachment:fixed,scroll,scroll,scroll
   }
 }
 

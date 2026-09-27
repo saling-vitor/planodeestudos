@@ -7,7 +7,9 @@
  --pa-red:#d96773;--pa-yellow:#d8b858;--pa-violet:#9a70b3;--pa-cyan:#5ea7bb;
  --pa-line:rgba(239,233,221,.105);--pa-line-2:rgba(239,233,221,.055);
  --pa-line-warm:rgba(216,197,158,.19);--pa-line-blue:rgba(109,130,152,.34);
- --pa-grid-line:rgba(216,197,158,.014);--pa-grid-size:76px;
+ --pa-dot-color:rgba(216,197,158,.050);--pa-dot-color-touch:rgba(216,197,158,.040);
+ --pa-dot-space:52px;--pa-dot-space-touch:56px;--pa-dot-radius:.8px;
+ --pa-grid-line:var(--pa-dot-color);--pa-grid-size:var(--pa-dot-space);
  --pa-glow-warm:rgba(216,197,158,.045);--pa-glow-cool:rgba(14,26,41,.34);
  --pa-shadow:0 24px 68px rgba(0,0,0,.56);--pa-shadow-soft:0 14px 34px rgba(0,0,0,.28);
  --pa-shadow-panel:0 18px 44px rgba(0,0,0,.30),inset 0 1px rgba(255,255,255,.026);
