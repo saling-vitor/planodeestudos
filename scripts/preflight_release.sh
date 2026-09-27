@@ -70,4 +70,10 @@ python3 scripts/runtime_replan_v01.py http://127.0.0.1:8765/
 python3 scripts/runtime_post_sim_v01.py http://127.0.0.1:8765/
 python3 scripts/runtime_health_v01.py http://127.0.0.1:8765/
 
+say "Auditoria visual local estrita"
+LAYOUT_AUDIT_STRICT=1 LAYOUT_AUDIT_DIR=/tmp/plano-arq-preflight-layout python3 scripts/runtime_layout_audit.py http://127.0.0.1:8765/
+
+say "Fluxo operacional do concurso novo"
+python3 scripts/runtime_stage_i.py http://127.0.0.1:8765/
+
 say "PREFLIGHT OK"
