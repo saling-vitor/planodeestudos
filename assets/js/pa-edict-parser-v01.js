@@ -163,7 +163,7 @@ function locateObjective(doc,cargo,availableCargos=[]){
  for(let i=0;i<rows.length;i++){
   const heading=objectiveHeading(rows[i].text);if(!heading)continue;
   let end=i;for(let j=i+1;j<Math.min(rows.length,i+150);j++){if(objectiveHeading(rows[j].text)||stageBoundary(rows[j].text))break;end=j}
-  const context=rows.slice(Math.max(0,i-12),Math.min(rows.length,Math.max(end+1,i+34))),contextText=context.map(x=>x.text).join('\n'),groups=contextGroupKeys(context),groupMatch=selectedGroupKey?groups.some(x=>x.key===selectedGroupKey):false,foreignGroups=selectedGroupKey?groups.filter(x=>x.key!==selectedGroupKey):[],cargoNameMatch=!!selected?.name&&tokenMatch(contextText,selected.name),cargoCodeMatch=!!selected?.code&&tokenMatch(contextText,selected.code),cargoMatch=cargoNameMatch||cargoCodeMatch;
+  const context=rows.slice(Math.max(0,i-12),Math.min(rows.length,Math.max(end+1,i+34))).filter(x=>x.page===rows[i].page),contextText=context.map(x=>x.text).join('\n'),groups=contextGroupKeys(context),groupMatch=selectedGroupKey?groups.some(x=>x.key===selectedGroupKey):false,foreignGroups=selectedGroupKey?groups.filter(x=>x.key!==selectedGroupKey):[],cargoNameMatch=!!selected?.name&&tokenMatch(contextText,selected.name),cargoCodeMatch=!!selected?.code&&tokenMatch(contextText,selected.code),cargoMatch=cargoNameMatch||cargoCodeMatch;
   const otherCargo=Array.isArray(availableCargos)?availableCargos.find(x=>x&&x!==cargo&&((x.name&&tokenMatch(contextText,x.name))||(x.code&&tokenMatch(contextText,x.code)))&&!((selected?.name&&fold(x.name)===fold(selected.name))||(selected?.code&&fold(x.code)===fold(selected.code)))):null;
   const explicitGroupMismatch=!!selectedGroupKey&&groups.length>0&&!groupMatch;
   if(explicitGroupMismatch)continue;
