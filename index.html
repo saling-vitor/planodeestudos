@@ -761,6 +761,64 @@ body.pa-internal-mode[data-pa-page="today"] .today-grid>aside .summary-row{
   body.pa-internal-mode[data-pa-page="today"] .today-grid>aside{display:block}
   body.pa-internal-mode[data-pa-page="today"] .today-grid>aside>.today-section-head{margin-top:18px}
 }
+
+/* ===== V3.5 · HOJE + PORTAL DE CONCURSOS · refinamento pontual ===== */
+/* Hoje já é referência aprovada: somente densidade, leitura, métricas e Foco Automático. */
+body.pa-internal-mode[data-pa-page="today"] :is(.featured-title p,.auto-main p,.today-empty p,.next-day span){
+  max-width:60ch
+}
+body.pa-internal-mode[data-pa-page="today"] .today-empty{
+  min-height:0;padding:18px 16px
+}
+body.pa-internal-mode[data-pa-page="today"] .today-empty p{
+  margin-inline:auto
+}
+body.pa-internal-mode[data-pa-page="today"] :is(.daily-split,.today-numbers){
+  align-items:stretch
+}
+body.pa-internal-mode[data-pa-page="today"] :is(.daily-box,.today-number){
+  display:grid;align-content:start;min-width:0
+}
+body.pa-internal-mode[data-pa-page="today"] :is(.daily-box,.today-number)>b{
+  line-height:1;font-variant-numeric:tabular-nums
+}
+body.pa-internal-mode[data-pa-page="today"] .auto-main{
+  position:relative;overflow:hidden;
+  border-color:color-mix(in srgb,var(--pa-accent-gold) 22%,var(--pa-border-soft));
+  box-shadow:
+    inset 3px 0 color-mix(in srgb,var(--pa-accent-gold) 52%,transparent),
+    0 14px 32px rgba(0,0,0,.18),
+    inset 0 1px rgba(255,255,255,.014)
+}
+body.pa-internal-mode[data-pa-page="today"] .today-section-head{
+  min-width:0
+}
+body.pa-internal-mode[data-pa-page="today"] .today-section-head :is(h2,.head-actions,span){
+  min-width:0
+}
+@media(max-width:560px){
+  body.pa-internal-mode[data-pa-page="today"] .today-empty{
+    padding:15px 13px
+  }
+}
+
+/* Portal geral: concurso ativo permanece intocado; Novo concurso passa a medir pelo conteúdo. */
+body:not(.pa-internal-mode) .page .contests-grid{
+  align-items:start
+}
+body:not(.pa-internal-mode) .page .contest-card.new-card{
+  min-height:0;align-self:start;justify-content:flex-start;
+  padding:20px
+}
+body:not(.pa-internal-mode) .page .contest-card.new-card p{
+  max-width:260px;margin:4px auto 14px
+}
+@media(max-width:620px){
+  body:not(.pa-internal-mode) .page .contest-card.new-card{
+    padding:18px
+  }
+}
+
 </style>
 <script src="data/navigation.js"></script>
 <link rel="stylesheet" href="assets/css/pa-tokens-v01.css"><link rel="stylesheet" href="assets/css/pa-shell-v16.css">

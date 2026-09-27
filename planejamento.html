@@ -343,6 +343,86 @@ body.pa-internal-mode[data-pa-page="planning"] #adaptivePlanning>.section-head{
   body.pa-internal-mode[data-pa-page="planning"] .config-grid>.panel:nth-child(2){order:1}
   body.pa-internal-mode[data-pa-page="planning"] .config-grid>.panel:first-child{order:2}
 }
+
+/* ===== V3.5 · PLANEJAMENTO · sequência e densidade ===== */
+/* Mantém a estrutura atual; apenas reforça 01 Estratégia → 02 Disponibilidade → 03 Prioridades → 04 Plano. */
+body.pa-internal-mode[data-pa-page="planning"] .config-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start
+}
+body.pa-internal-mode[data-pa-page="planning"] .config-grid>.panel{
+  padding:15px
+}
+body.pa-internal-mode[data-pa-page="planning"] .config-grid>.panel:nth-child(2) .section-head h2::after{
+  color:#cbb783;border-color:color-mix(in srgb,var(--pa-accent-gold) 24%,rgba(239,233,221,.07))
+}
+body.pa-internal-mode[data-pa-page="planning"] .config-grid>.panel:first-child .section-head h2::after{
+  color:#9db2c0;border-color:color-mix(in srgb,var(--pa-accent-blue) 22%,rgba(239,233,221,.07))
+}
+body.pa-internal-mode[data-pa-page="planning"] .config-grid + .section,
+body.pa-internal-mode[data-pa-page="planning"] .config-grid + .section + .section{
+  margin-top:26px
+}
+body.pa-internal-mode[data-pa-page="planning"] .config-grid + .section .section-head h2::after,
+body.pa-internal-mode[data-pa-page="planning"] .config-grid + .section + .section .section-head h2::after{
+  color:#a9a59c
+}
+
+/* Disponibilidade: tracks flexíveis, compactos no desktop e realmente reorganizados em tablet/mobile. */
+body.pa-internal-mode[data-pa-page="planning"] .day-row{
+  grid-template-columns:minmax(82px,.9fr) minmax(92px,.72fr) max-content minmax(0,2.3fr);
+  gap:8px;padding:10px 11px
+}
+body.pa-internal-mode[data-pa-page="planning"] .hours-wrap{
+  justify-self:start
+}
+body.pa-internal-mode[data-pa-page="planning"] .windows{
+  width:100%;align-items:center
+}
+body.pa-internal-mode[data-pa-page="planning"] .priority-groups{
+  gap:14px
+}
+body.pa-internal-mode[data-pa-page="planning"] .priority-row{
+  min-height:56px
+}
+
+/* Plano = saída da jornada; mantém accent sem transformar o painel em glow decorativo. */
+body.pa-internal-mode[data-pa-page="planning"] .config-grid + .section + .section>.panel{
+  background:var(--pa-surface-panel);
+  box-shadow:0 14px 32px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.014)
+}
+body.pa-internal-mode[data-pa-page="planning"] .plan-actions{
+  align-items:center
+}
+body.pa-internal-mode[data-pa-page="planning"] .plan-summary{
+  align-items:stretch
+}
+body.pa-internal-mode[data-pa-page="planning"] .plan-stat{
+  display:grid;align-content:start;min-width:0
+}
+
+@media(max-width:1180px){
+  body.pa-internal-mode[data-pa-page="planning"] .config-grid{
+    grid-template-columns:minmax(0,1fr)
+  }
+}
+@media(max-width:900px){
+  body.pa-internal-mode[data-pa-page="planning"] .day-row{
+    grid-template-columns:minmax(82px,1fr) minmax(92px,.75fr) auto
+  }
+  body.pa-internal-mode[data-pa-page="planning"] .windows{
+    grid-column:1/-1
+  }
+}
+@media(max-width:560px){
+  body.pa-internal-mode[data-pa-page="planning"] .day-row{
+    grid-template-columns:minmax(0,1fr) auto;gap:9px
+  }
+  body.pa-internal-mode[data-pa-page="planning"] .day-name{grid-column:1;grid-row:1}
+  body.pa-internal-mode[data-pa-page="planning"] .schedule-toggle{grid-column:2;grid-row:1;justify-self:end}
+  body.pa-internal-mode[data-pa-page="planning"] .hours-wrap{grid-column:1;grid-row:2}
+  body.pa-internal-mode[data-pa-page="planning"] .windows{grid-column:1/-1;grid-row:3}
+}
+
 </style>
 <script src="data/contests.js"></script>
 <script src="assets/js/pa-contest-context-v01.js"></script>
