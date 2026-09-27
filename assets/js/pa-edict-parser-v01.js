@@ -301,7 +301,7 @@ function objectiveCharacter(rows,localRows){
 function objectiveMinimum(rows,localRows){
  const candidates=[...(localRows||[]),...rows.filter(x=>/MINIM|APROVAD|ELIMINAD/.test(fold(x.text)))],seen=new Set();
  for(const row of candidates){if(!row||seen.has(row.ref))continue;seen.add(row.ref);const text=clean(row.text),f=fold(text);if(!/MINIM|APROVAD|ELIMINAD/.test(f))continue;
-  let m=text.match(/(?:pontua[cç][aã]o|nota)?\s*m[ií]nima(?:\s+geral)?(?:\s+de)?\s*(\d{1,3}(?:[.,]\d+)?)\s*(%|pontos?)/i)||text.match(/(?:obter|alcan[cç]ar|atingir)[^\d%]{0,60}(?:no\s+m[ií]nimo\s+)?(\d{1,3}(?:[.,]\d+)?)\s*(%|pontos?)/i)||text.match(/(\d{1,3}(?:[.,]\d+)?)\s*(%|pontos?)[^\n]{0,80}(?:m[ií]nimo|m[ií]nima|aprova[cç][aã]o)/i);
+  let m=text.match(/(?:pontua[cç][aã]o|nota)?\s*m[ií]nima(?:\s+geral)?(?:\s+de)?\s*(\d{1,3}(?:[.,]\d+)?)\s*(%|pontos?)/i)||text.match(/(?:obter|obtiver(?:em)?|alcan[cç]ar|atingir)[^\d%]{0,60}(?:no\s+m[ií]nimo\s+)?(\d{1,3}(?:[.,]\d+)?)\s*(%|pontos?)/i)||text.match(/(?:aprovad[oa]s?|classificad[oa]s?)[^\d%]{0,120}(\d{1,3}(?:[.,]\d+)?)\s*(%|pontos?)/i)||text.match(/(\d{1,3}(?:[.,]\d+)?)\s*(%|pontos?)[^\n]{0,80}(?:m[ií]nimo|m[ií]nima|aprova[cç][aã]o)/i);
   if(!m)continue;const value=num(m[1]);if(value===null)continue;const unit=m[2]==='%'?'percentage':'points';return{kind:unit,value,label:unit==='percentage'?'mínimo geral de '+String(value).replace('.',',')+'%':'mínimo geral de '+String(value).replace('.',',')+' pontos',sourceRef:row.ref}
  }
  return null
