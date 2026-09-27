@@ -75,6 +75,34 @@ assert.equal(table.totalPoints,35);
 assert.equal(table.sections[0].totalPoints,15);
 assert.equal(table.sections[0].totalPointsSource,'calculated');
 
+
+const multilineRows=[
+ line(1,1,'13. DA PROVA TEÓRICO-OBJETIVA',[item('13.',60),item('DA',80),item('PROVA',100),item('TEÓRICO-OBJETIVA',140)]),
+ line(1,2,'13.1. A Prova Teórico-Objetiva será composta de 60 questões objetivas.'),
+ line(1,3,'Pontuação',[item('Pontuação',398)]),
+ line(1,4,'Nº Total de Pontuação',[item('Nº',244),item('Total',290),item('de',312),item('Pontuação',337)]),
+ line(1,5,'Disciplinas Peso Mínima',[item('Disciplinas',171),item('Peso',269),item('Mínima',405)]),
+ line(1,6,'Questões Pontos Mínima/Disciplina',[item('Questões',230),item('Pontos',292),item('Mínima/Disciplina',323)]),
+ line(1,7,'Geral',[item('Geral',409)]),
+ line(1,8,'Língua Portuguesa 10 1,00 10,00 4,00',[item('Língua',158),item('Portuguesa',186),item('10',244),item('1,00',271),item('10,00',296),item('4,00',350)]),
+ line(1,9,'Legislação 10 1,00 10,00 4,00',[item('Legislação',158),item('10',244),item('1,00',271),item('10,00',296),item('4,00',350)]),
+ line(1,10,'Conhecimentos',[item('Conhecimentos',158)]),
+ line(1,11,'40 2,00 80,00 40,00',[item('40',244),item('2,00',271),item('80,00',296),item('40,00',348)]),
+ line(1,12,'Específicos',[item('Específicos',158)]),
+ line(1,13,'TOTAL 60 - 100,00 - -',[item('TOTAL',158),item('60',244),item('-',278),item('100,00',293),item('-',357),item('-',418)]),
+ line(1,14,'CONTEÚDO PROGRAMÁTICO')
+];
+location=loc(multilineRows);table=P.parseObjectiveTable(doc(multilineRows),location);
+assert.equal(location.sourceLabel,'13. DA PROVA TEÓRICO-OBJETIVA');
+assert.equal(table.mode,'geometry');
+assert.equal(table.sections.length,3,'cabeçalho geométrico em múltiplas linhas precisa preservar todos os componentes');
+assert.equal(table.totalQuestions,60);
+assert.equal(table.totalPoints,100);
+assert.equal(table.sections[0].totalPoints,10);
+assert.equal(table.sections[2].questions,40);
+assert.equal(table.sections[2].totalPoints,80);
+assert.equal(table.sections[2].minimum.value,40);
+
 const missing=P.parseObjectiveTable(doc([line(1,1,'PROVA DE TÍTULOS'),line(1,2,'Experiência profissional')]),{status:'missing'});
 assert.equal(missing.status,'missing');
 assert.equal(missing.sections.length,0);

@@ -71,6 +71,23 @@ const scheduleOnly=docFromPages([['Cronograma','Aplicação da Prova Objetiva 18
 found=P.locateObjective(scheduleOnly,null,[]);
 assert.equal(found.status,'missing','evento de cronograma não pode ser confundido com heading da estrutura');
 
+
+const incidentalHeading=docFromPages([[
+ 'III) Auxílio preenchimento da Folha Definitiva de Respostas da Prova Teórico-Objetiva: será oferecido auxílio ao candidato.',
+ '13. DA PROVA TEÓRICO-OBJETIVA',
+ '13.1. O Concurso Público será composto de Prova Teórico-Objetiva para todos os cargos.',
+ '13.1.1. A Prova Teórico-Objetiva será composta de 60 questões objetivas.',
+ 'Disciplina | Questões | Pontuação',
+ 'Arquitetura | 10 | 10',
+ 'Prova Teórico-Objetiva com caneta esferográfica de tinta preta.',
+ 'CONTEÚDO PROGRAMÁTICO'
+]]);
+found=P.locateObjective(incidentalHeading,null,[]);
+assert.equal(found.sourceLabel,'13. DA PROVA TEÓRICO-OBJETIVA','menção incidental não pode vencer o cabeçalho estrutural numerado');
+assert.ok(found.endIndex>=5,'frases descritivas não podem encerrar a região objetiva');
+assert.equal(P.objectiveHeading('III) Auxílio preenchimento da Folha Definitiva de Respostas da Prova Teórico-Objetiva: será oferecido auxílio.'),null);
+assert.equal(P.objectiveHeading('13.1.1. A Prova Teórico-Objetiva será composta de 60 questões objetivas.'),null);
+
 const parsed=P.parseDocument(grouped,cargos[0]);
 assert.equal(parsed.objectiveLocation.status,'confirmed');
 assert.equal(parsed.objectiveLocation.page,1);

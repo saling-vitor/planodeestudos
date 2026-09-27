@@ -127,11 +127,21 @@ const OBJECTIVE_HEADINGS=[
 const NON_OBJECTIVE_STAGE=/\b(?:PROVA\s+PRATICA|AVALIACAO\s+PRATICA|PROVA\s+ORAL|AVALIACAO\s+PSICOLOGICA|EXAME\s+PSICOLOGICO|TESTE\s+DE\s+APTIDAO\s+FISICA|TAF|PROVA\s+DE\s+TITULOS|AVALIACAO\s+DE\s+TITULOS|CURSO\s+DE\s+FORMACAO)\b/;
 const OBJECTIVE_SCHEDULE=/\b(?:APLICACAO|REALIZACAO|DATA|HORARIO|LOCAL|CONVOCACAO|GABARITO|RECURSO|RESULTADO|CRONOGRAMA)\b/;
 const SECTION_STOP=/\b(?:PROVA\s+PRATICA|AVALIACAO\s+PRATICA|PROVA\s+ORAL|AVALIACAO\s+PSICOLOGICA|EXAME\s+PSICOLOGICO|TESTE\s+DE\s+APTIDAO\s+FISICA|TAF|PROVA\s+DE\s+TITULOS|AVALIACAO\s+DE\s+TITULOS|CURSO\s+DE\s+FORMACAO|CONTEUDO\s+PROGRAMATICO|PROGRAMA\s+DAS\s+PROVAS)\b/;
+function headingPrefixLooksStructural(prefix){
+ let p=clean(fold(prefix));if(!p)return true;
+ p=p.replace(/^(?:(?:CAPITULO|SECAO|TITULO)\s+(?:\d+(?:\.\d+)*|[IVXLCDM]+)\s*[-–—:.)]?\s*)/,'');
+ p=p.replace(/^(?:(?:\d+(?:\.\d+)*|[IVXLCDM]+)(?:[ªº°])?\s*[.)-]?\s*)/,'');
+ p=p.replace(/^(?:(?:(?:\d+|[IVXLCDM]+)(?:[ªº°])?\s+)?(?:ETAPA|FASE)\s*(?:\d+|[IVXLCDM]+)?(?:[ªº°])?\s*[-–—:.)]?\s*)/,'');
+ return /^(?:(?:DA|DO|DAS|DOS|DE|A|O|AS|OS)\s*)?$/.test(p)
+}
 function objectiveHeading(text){
- const raw=clean(text),f=fold(raw);if(!raw||raw.length>180||NON_OBJECTIVE_STAGE.test(f)||(/^A\s+PROVA\b/.test(f)&&/\b(?:TERA|SERA|DEVERA|CARATER|DURACAO|PONTUACAO|CANDIDATO)\b/.test(f)))return null;
- for(const [kind,label,rx] of OBJECTIVE_HEADINGS)if(rx.test(f)){
-  if(OBJECTIVE_SCHEDULE.test(f)&&(/\b\d{1,2}[\/.-]\d{1,2}(?:[\/.-]\d{2,4})?\b/.test(raw)||f.length>70))return null;
-  return{type:'objective',kind,label,sourceLabel:raw}
+ const raw=clean(text),f=fold(raw);if(!raw||raw.length>180||NON_OBJECTIVE_STAGE.test(f))return null;
+ for(const [kind,label,rx] of OBJECTIVE_HEADINGS){const m=rx.exec(f);if(!m)continue;
+  const prefix=f.slice(0,m.index),suffix=f.slice(m.index+m[0].length);
+  if(!headingPrefixLooksStructural(prefix))continue;
+  if(/\b(?:SERA|TERA|DEVERA|PODERA|COMPOSTA|COMPOSTO|CONSTITUIDA|CONSTITUIDO|CONTARA|APLICADA|APLICADO|REALIZADA|REALIZADO|DESTINADA|DESTINADO|CANDIDATO|CANDIDATOS|QUESTOES|ITENS)\b/.test(suffix))continue;
+  if(OBJECTIVE_SCHEDULE.test(f)&&(/\b\d{1,2}[\/.-]\d{1,2}(?:[\/.-]\d{2,4})?\b/.test(raw)||f.length>70))continue;
+  const numbered=/^\s*(?:(?:CAPITULO|SECAO|TITULO)\s+)?(?:\d+(?:\.\d+)*|[IVXLCDM]+)(?:[ªº°])?\s*[.)-]?/i.test(f),standalone=!clean(prefix)&&/^[\s.:;–—-]*$/.test(suffix);return{type:'objective',kind,label,sourceLabel:raw,headingScore:numbered?5:standalone?2:0}
  }
  return null
 }
@@ -167,7 +177,7 @@ function locateObjective(doc,cargo,availableCargos=[]){
   const otherCargo=Array.isArray(availableCargos)?availableCargos.find(x=>x&&x!==cargo&&((x.name&&tokenMatch(contextText,x.name))||(x.code&&tokenMatch(contextText,x.code)))&&!((selected?.name&&fold(x.name)===fold(selected.name))||(selected?.code&&fold(x.code)===fold(selected.code)))):null;
   const explicitGroupMismatch=!!selectedGroupKey&&groups.length>0&&!groupMatch;
   if(explicitGroupMismatch)continue;
-  let score=10;if(groupMatch)score+=12;if(cargoMatch)score+=8;if(selectedGroupKey&&!groups.length)score+=1;if(otherCargo&&!cargoMatch)score-=7;
+  let score=10+Number(heading.headingScore||0);if(groupMatch)score+=12;if(cargoMatch)score+=8;if(selectedGroupKey&&!groups.length)score+=1;if(otherCargo&&!cargoMatch)score-=7;
   const association=groupMatch?'group':cargoMatch?'cargo':'generic',mixedGroups=groupMatch&&foreignGroups.length>0,mixedCargo=!!otherCargo&&cargoMatch,evidence=[rows[i].ref];
   for(const row of context){if((selected?.group&&groupKey(groupValue(row.text))===selectedGroupKey)||(selected?.name&&tokenMatch(row.text,selected.name))||(selected?.code&&tokenMatch(row.text,selected.code)))evidence.push(row.ref)}
   candidates.push({type:'objective',kind:heading.kind,label:'Prova Objetiva',sourceLabel:heading.sourceLabel,page:rows[i].page,headingRef:rows[i].ref,startRef:rows[i].ref,endRef:rows[end]?.ref||rows[i].ref,startIndex:i,endIndex:end,association,score,mixedGroups,mixedCargo,group:selected?.group||'',cargoCode:selected?.code||'',cargoName:selected?.name||'',sourceRefs:[...new Set(evidence)],region:{pageStart:rows[i].page,pageEnd:rows[end]?.page||rows[i].page,startRef:rows[i].ref,endRef:rows[end]?.ref||rows[i].ref,lineCount:end-i+1}})
@@ -181,7 +191,7 @@ const OBJECTIVE_TABLE_HEADER_PATTERNS=[
  ['label',/\b(?:DISCIPLINA|DISCIPLINAS|MATERIA|MATERIAS|COMPONENTE\s+CURRICULAR|COMPONENTES\s+CURRICULARES|AREA\s+DE\s+CONHECIMENTO|AREAS\s+DE\s+CONHECIMENTO|CONHECIMENTOS)\b/],
  ['questions',/\b(?:(?:N|NUMERO|QTD|QUANTIDADE)(?:\s+DE)?\s+)?(?:QUESTAO|QUESTOES|ITENS?)\b/],
  ['weight',/\b(?:PESO(?:\s+(?:POR|DA|DE\s+CADA)\s+QUESTAO)?|VALOR\s+(?:DA|DE\s+CADA|POR)\s+QUESTAO|PONTOS?\s+POR\s+QUESTAO|PONTUACAO\s+POR\s+QUESTAO)\b/],
- ['minimum',/\b(?:MINIMO|MINIMA|PONTUACAO\s+MINIMA|PONTOS?\s+MINIMOS?|NOTA\s+MINIMA|ACERTOS?\s+MINIMOS?|MINIMO\s+DE\s+ACERTOS?|QUESTOES?\s+MINIMAS?)\b/],
+ ['minimum',/\b(?:MINIM[AO](?:\s*[/.-]?\s*(?:POR\s+)?DISCIPLINA)?|PONTUACAO\s+MINIMA|PONTOS?\s+MINIMOS?|NOTA\s+MINIMA|ACERTOS?\s+MINIMOS?|MINIMO\s+DE\s+ACERTOS?|QUESTOES?\s+MINIMAS?)\b/],
  ['total',/\b(?:PESO\s+TOTAL(?:\s+DE\s+CADA\s+DISCIPLINA)?|PONTUACAO\s+MAXIMA|TOTAL\s+DE\s+PONTOS|PONTOS\s+TOTAIS|VALOR\s+TOTAL|PONTUACAO|PONTOS|TOTAL)\b/]
 ];
 function tableHeaderKind(value){
@@ -189,7 +199,7 @@ function tableHeaderKind(value){
  if(/^(?:DISCIPLINA|DISCIPLINAS|MATERIA|MATERIAS|COMPONENTE CURRICULAR|COMPONENTES CURRICULARES|AREA DE CONHECIMENTO|AREAS DE CONHECIMENTO|CONHECIMENTOS)$/.test(n))return'label';
  if(/^(?:(?:N|NUMERO|QTD|QUANTIDADE)(?: DE)? )?(?:QUESTAO|QUESTOES|ITENS?)$/.test(n))return'questions';
  if(/^(?:PESO(?: (?:POR|DA|DE CADA) QUESTAO)?|VALOR (?:DA|DE CADA|POR) QUESTAO|PONTOS? POR QUESTAO|PONTUACAO POR QUESTAO)$/.test(n))return'weight';
- if(/^(?:MINIMO|MINIMA|PONTUACAO MINIMA|PONTOS? MINIMOS?|NOTA MINIMA|ACERTOS? MINIMOS?|MINIMO DE ACERTOS?|QUESTOES? MINIMAS?)$/.test(n))return'minimum';
+ if(/^(?:MINIM[AO](?: (?:POR )?DISCIPLINA)?|PONTUACAO MINIMA|PONTOS? MINIMOS?|NOTA MINIMA|ACERTOS? MINIMOS?|MINIMO DE ACERTOS?|QUESTOES? MINIMAS?)$/.test(n))return'minimum';
  if(/^(?:PESO TOTAL(?: DE CADA DISCIPLINA)?|PONTUACAO MAXIMA|TOTAL DE PONTOS|PONTOS TOTAIS|VALOR TOTAL|PONTUACAO|PONTOS|TOTAL)$/.test(n))return'total';
  return''
 }
@@ -209,7 +219,7 @@ function tableHeaderAnchors(items){
 }
 function validSectionLabel(value){
  const label=clean(value).replace(/^[\s:;|–—-]+|[\s:;|–—-]+$/g,'');if(!label||label.length>140||/^\d+(?:[.,]\d+)?$/.test(label))return false;
- const f=fold(label);if(/^(?:TOTAL|TOTAL GERAL|TOTAL DA PROVA|PONTUACAO TOTAL|PONTOS TOTAIS)$/.test(f)||tableHeaderKind(label))return false;
+ const f=fold(label);if(/^(?:TOTAL|TOTAL GERAL|TOTAL DA PROVA|PONTUACAO TOTAL|PONTOS TOTAIS)$/.test(f))return false;
  return /[A-ZÀ-ÿ]/i.test(label)
 }
 function tableValue(value,kind){
@@ -239,10 +249,16 @@ function finalizeObjectiveSections(sections,meta={}){
  unique.forEach(s=>{s.planWeight=totalPoints?Math.round((s.totalPoints||0)*10000/totalPoints)/100:null;s.planWeightSource=s.planWeight===null?null:'calculated'});
  return{status:unique.length?(meta.locationStatus==='confirmed'&&allQ?'parsed':'review'):'missing',mode:meta.mode||'none',headerRef:meta.headerRef||'',columns:meta.columns||[],sections:unique,totalQuestions,totalPoints,sourceRefs:[...new Set([meta.headerRef,...unique.flatMap(x=>x.sourceRefs||[])].filter(Boolean))]}
 }
+function geometryHeaderWindow(rows,start){
+ const byKind=new Map();let end=start-1;
+ for(let r=start;r<Math.min(rows.length,start+4);r++)for(const a of tableHeaderAnchors(rows[r].items)){byKind.set(a.kind,a);end=Math.max(end,r)}
+ const anchors=[...byKind.values()].sort((a,b)=>a.x-b.x),kinds=new Set(anchors.map(x=>x.kind));
+ return kinds.has('label')&&kinds.has('questions')&&(kinds.has('weight')||kinds.has('total'))?{anchors,end,columns:anchors.map(x=>x.kind)}:null
+}
 function parseGeometryObjectiveTable(rows,locationStatus){
- for(let i=0;i<Math.min(rows.length,18);i++){const anchors=tableHeaderAnchors(rows[i].items);if(!anchors.some(x=>x.kind==='label')||!anchors.some(x=>['questions','weight','total'].includes(x.kind)))continue;
-  const used=new Set(),sections=[],columns=anchors.map(x=>x.kind),headerRef=rows[i].ref;let pending='',misses=0;
-  for(let r=i+1;r<rows.length;r++){const row=rows[r];if(objectiveHeading(row.text)||stageBoundary(row.text))break;const repeated=tableHeaderAnchors(row.items);if(repeated.some(x=>x.kind==='label')&&repeated.some(x=>['questions','weight','total'].includes(x.kind)))continue;
+ for(let i=0;i<Math.min(rows.length,18);i++){const header=geometryHeaderWindow(rows,i);if(!header)continue;const {anchors,end:headerEnd,columns}=header;
+  const used=new Set(),sections=[],headerRef=rows[i].ref;let pending='',misses=0;
+  for(let r=headerEnd+1;r<rows.length;r++){const row=rows[r];if(objectiveHeading(row.text)||stageBoundary(row.text))break;const repeated=geometryHeaderWindow(rows,r);if(repeated&&repeated.end<=r+3){r=repeated.end;continue}
    const cells={label:'',questions:'',weight:'',total:'',minimum:'',minimumKind:minimumKindFromHeader(anchors.find(x=>x.kind==='minimum')?.text||'')};for(const item of row.items||[]){if(!clean(item.text))continue;let chosen=anchors[0];for(const a of anchors)if(Math.abs((Number(item.x)||0)-a.x)<Math.abs((Number(item.x)||0)-chosen.x))chosen=a;cells[chosen.kind]+=(cells[chosen.kind]?' ':'')+clean(item.text)}
    const hasNumeric=['questions','weight','total'].some(k=>tableValue(cells[k],k)!==null),label=clean(cells.label);
    if(!hasNumeric&&validSectionLabel(label)){pending=label;continue}
