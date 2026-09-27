@@ -38,15 +38,21 @@
 .mini-stats{margin-top:4px}
 
 .activity-chart.is-empty{
-  display:grid;place-items:center;
+  display:grid;grid-template-columns:minmax(0,1fr);place-items:center;
   height:150px;padding:0;
   border:1px dashed var(--line2);
   border-radius:12px;
   background:rgba(255,255,255,.006)
 }
-.chart-empty{text-align:center;max-width:360px;padding:20px;color:#7b8087}
+.activity-chart.is-empty .chart-empty{
+  grid-column:1 / -1;
+  width:min(100%,420px);min-width:0;max-width:420px;
+  margin:auto;padding:20px;box-sizing:border-box;
+  text-align:center;color:#7b8087
+}
 .chart-empty strong{display:block;color:#c8b98f;font-size:11px;margin-bottom:5px}
-.chart-empty span{font-size:9.5px;line-height:1.5}
+.chart-empty span{display:block;font-size:9.5px;line-height:1.5}
+.chart-legend[hidden]{display:none !important}
 .bar-slot{position:relative}
 .bar-study.zero{min-height:0;height:0 !important}
 .bar-plan-abs{
