@@ -74,6 +74,7 @@ jobs:
           python3 scripts/runtime_automation_v11.py http://127.0.0.1:8765/
           python3 scripts/runtime_replan_v01.py http://127.0.0.1:8765/
           python3 scripts/runtime_post_sim_v01.py http://127.0.0.1:8765/
+          python3 scripts/runtime_health_v01.py http://127.0.0.1:8765/
           STUDY_MAP_AUDIT_DIR=${{ runner.temp }}/study-map-audit python3 scripts/runtime_study_map_audit.py http://127.0.0.1:8765/
           python3 scripts/runtime_offline_reliability.py http://127.0.0.1:8765/
           LAYOUT_AUDIT_DIR=${{ runner.temp }}/layout-audit LAYOUT_AUDIT_STRICT=1 python3 scripts/runtime_layout_audit.py http://127.0.0.1:8765/
