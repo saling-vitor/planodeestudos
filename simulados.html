@@ -235,8 +235,9 @@ body.pa-internal-mode[data-pa-page="simulations"] .hero>.summary-grid .metric{
 }
 
 /* Estrutura oficial = referência técnica compacta. */
-body.pa-internal-mode[data-pa-page="simulations"] .section:nth-of-type(2)>.section-head{
-  opacity:.9
+body.pa-internal-mode[data-pa-page="simulations"] #postSimSection + .section>.section-head{
+  opacity:.9;
+  border-bottom-color:color-mix(in srgb,var(--pa-accent-gold) 16%,rgba(239,233,221,.05))
 }
 body.pa-internal-mode[data-pa-page="simulations"] .official{
   border-color:color-mix(in srgb,var(--pa-accent-gold) 16%,var(--pa-border-soft));
@@ -263,7 +264,7 @@ body.pa-internal-mode[data-pa-page="simulations"] .official-section{
 }
 
 /* Simulados disponíveis = camada principal de ação. */
-body.pa-internal-mode[data-pa-page="simulations"] .section:nth-of-type(3)>.section-head{
+body.pa-internal-mode[data-pa-page="simulations"] #postSimSection + .section + .section>.section-head{
   border-bottom-color:color-mix(in srgb,var(--pa-accent-blue) 18%,rgba(239,233,221,.05))
 }
 body.pa-internal-mode[data-pa-page="simulations"] .simulation-grid{
