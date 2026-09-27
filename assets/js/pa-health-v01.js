@@ -74,7 +74,7 @@ function scanSync(contestId=''){
 }
 async function fileBlobHealth(result){
  const data=D();if(!data?.hasContestBlob)return result;const issues=[...(result.issues||[])],targets=result.contestId?[data.contestById?.(result.contestId)].filter(Boolean):(data.contests?.()||[]);
- for(const contest of targets){const cid=contest.id;for(const f of data.contestFiles?.(cid)||[]){if(f?.storage!=='indexeddb'||!f?.id)continue;try{const exists=await data.hasContestBlob(cid,f.id);if(!exists)issues.push(issue('file-blob-missing',f.localOnly===true?'critical':'error','PDF local não encontrado',`${f.filename||f.title||f.id} possui metadados, mas o arquivo não existe no IndexedDB deste dispositivo.`,{contestId:cid,fileId:f.id,blocksMutation:f.localOnly===true}))}catch(err){issues.push(issue('file-blob-check-failed','warning','Não foi possível verificar um PDF local',err?.message||String(err),{contestId:cid,fileId:f.id}))}}
+ for(const contest of targets){const cid=contest.id;for(const f of data.contestFiles?.(cid)||[]){if(f?.storage!=='indexeddb'||!f?.id)continue;try{const exists=await data.hasContestBlob(cid,f.id);if(!exists)issues.push(issue('file-blob-missing',f.localOnly===true?'critical':'error','PDF local não encontrado',`${f.filename||f.title||f.id} possui metadados, mas o arquivo não existe no IndexedDB deste dispositivo.`,{contestId:cid,fileId:f.id,blocksMutation:f.localOnly===true}))}catch(err){issues.push(issue('file-blob-check-failed','warning','Não foi possível verificar um PDF local',err?.message||String(err),{contestId:cid,fileId:f.id}))}}}
  return finalize({...result,issues,coverage:{...(result.coverage||{}),indexedDb:true}})
 }
 async function environmentHealth(result){
