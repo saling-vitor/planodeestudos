@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='1.3',PREFIX='planoarq:study-blueprint::',GENERATION_CONTRACT='H1',IMPORT_CONTRACT='H2',AUDIT_CONTRACT='H3';
+const VERSION='1.4',PREFIX='planoarq:study-blueprint::',GENERATION_CONTRACT='H1',IMPORT_CONTRACT='H2',AUDIT_CONTRACT='H3';
 const safeJSON=(v,f)=>{try{return JSON.parse(v)??f}catch(_){return f}};
 const clean=v=>String(v??'').replace(/\s+/g,' ').trim();
 const fold=v=>clean(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
@@ -14,14 +14,30 @@ function splitTopics(text){
  return parts.length?parts:[src]
 }
 function objective(schema){return (schema?.stages||[]).find(s=>s?.type==='objective')||null}
-function sectionWeight(sec,sections){
- const explicit=Number(sec?.planWeight);if(Number.isFinite(explicit)&&explicit>=0)return explicit;
- const pts=sections.map(s=>Number.isFinite(Number(s?.totalPoints))?Number(s.totalPoints):null),allPts=pts.length&&pts.every(v=>v!==null),denPts=allPts?pts.reduce((a,b)=>a+b,0):0;
- if(allPts&&denPts>0)return Math.round((Number(sec.totalPoints)||0)*10000/denPts)/100;
- const qs=sections.map(s=>Number.isFinite(Number(s?.questions))?Number(s.questions):null),allQ=qs.length&&qs.every(v=>v!==null),denQ=allQ?qs.reduce((a,b)=>a+b,0):0;
- if(allQ&&denQ>0)return Math.round((Number(sec.questions)||0)*10000/denQ)/100;
- return sections.length?Math.round(10000/sections.length)/100:0
+const finiteNumber=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v));
+const sectionKey=sec=>sec?.id||slug(sec?.label);
+function sectionPoints(sec){
+ if(finiteNumber(sec?.totalPoints))return Number(sec.totalPoints);
+ if(finiteNumber(sec?.questions)&&finiteNumber(sec?.pointsPerQuestion))return Number(sec.questions)*Number(sec.pointsPerQuestion);
+ return null
 }
+function allocationForSections(input){
+ const sections=Array.isArray(input)?input.filter(Boolean):[],percentages={},fractions={};
+ if(!sections.length)return{mode:'empty',percentages,fractions,totalPct:0,unallocatedWeight:1,overallocatedWeight:0};
+ const explicit=sections.map(s=>finiteNumber(s?.planWeight)&&Number(s.planWeight)>=0?Number(s.planWeight):null),allExplicit=explicit.every(v=>v!==null);
+ const points=sections.map(sectionPoints),allPoints=points.every(v=>v!==null),pointTotal=allPoints?points.reduce((a,b)=>a+b,0):0;
+ const questions=sections.map(s=>finiteNumber(s?.questions)?Number(s.questions):null),allQuestions=questions.every(v=>v!==null),questionTotal=allQuestions?questions.reduce((a,b)=>a+b,0):0;
+ let mode='equal',values;
+ if(allExplicit){mode='planWeight';values=explicit}
+ else if(allPoints&&pointTotal>0){mode='points';values=points.map(v=>v*100/pointTotal)}
+ else if(allQuestions&&questionTotal>0){mode='questions';values=questions.map(v=>v*100/questionTotal)}
+ else values=sections.map(()=>100/sections.length);
+ sections.forEach((s,i)=>{const k=sectionKey(s),pct=Math.round(Number(values[i]||0)*10000)/10000;percentages[k]=pct;fractions[k]=pct/100});
+ const totalPct=Math.round(Object.values(percentages).reduce((a,b)=>a+b,0)*10000)/10000;
+ return{mode,percentages,fractions,totalPct,unallocatedWeight:Math.max(0,(100-totalPct)/100),overallocatedWeight:Math.max(0,(totalPct-100)/100)}
+}
+function allocationForSchema(schema){return allocationForSections(objective(schema)?.sections||[])}
+function sectionWeight(sec,sections){return allocationForSections(sections).percentages[sectionKey(sec)]||0}
 function matchSection(label,sections){
  const target=fold(label);if(!target)return null;
  let exact=sections.find(s=>fold(s.label)===target);if(exact)return exact;
@@ -34,15 +50,15 @@ function signature(schema){const obj=objective(schema);return hash(JSON.stringif
 function load(cid){return safeJSON(localStorage.getItem(key(cid)),null)}
 function save(cid,blueprint){const next={...blueprint,contestId:cid,updatedAt:new Date().toISOString()};localStorage.setItem(key(cid),JSON.stringify(next));window.dispatchEvent(new CustomEvent('planoarq:study-blueprint',{detail:{contestId:cid,blueprint:next}}));return next}
 function build(cid,schema,contest={},previous=load(cid)){
- const obj=objective(schema),sections=Array.isArray(obj?.sections)?obj.sections:[],content=Array.isArray(schema?.content)?schema.content:[],prevBy=new Map((previous?.maps||[]).map(x=>[x.id,x])),covered=new Set(),maps=[],sourceBlocks=[];
- const weights=new Map(sections.map(s=>[s.id||slug(s.label),sectionWeight(s,sections)]));
+ const obj=objective(schema),sections=Array.isArray(obj?.sections)?obj.sections:[],content=Array.isArray(schema?.content)?schema.content:[],prevBy=new Map((previous?.maps||[]).map(x=>[x.id,x])),covered=new Set(),maps=[],sourceBlocks=[],allocation=allocationForSections(sections);
+ const weights=new Map(Object.entries(allocation.percentages));
  for(const block of content){
   const label=clean(block?.label)||'Conteúdo do edital',text=clean(block?.text),sec=matchSection(label,sections),sectionId=sec?.id||slug(sec?.label||label),sectionLabel=clean(sec?.label)||label,topics=splitTopics(text),max=10,parts=Math.max(1,Math.ceil(Math.max(1,topics.length)/max));
   if(sec)covered.add(sec.id||slug(sec.label));
-  sourceBlocks.push({label,sectionId,sectionLabel,text,topics,source:block?.source||'edital'});
+  const sourceRefs=[...new Set((Array.isArray(block?.sourceRefs)?block.sourceRefs:[]).filter(Boolean))];sourceBlocks.push({label,sectionId,sectionLabel,text,topics,source:block?.source||'edital',sourceRefs,status:block?.status||''});
   for(let i=0;i<parts;i++){
    const slice=topics.slice(i*max,(i+1)*max),id='map-'+slug(sectionId)+'-'+hash(label)+'-'+(i+1),old=prevBy.get(id)||{},title=parts>1?label+' · Parte '+(i+1):label;
-   maps.push({id,sectionId,sectionLabel,group:sectionLabel,title,part:i+1,parts,topics:slice,topicCount:slice.length,source:'edital',sourceLabel:label,sourceText:text,weightPct:weights.get(sectionId)||0,status:old.materialId?'active':old.import?.stored?'imported-pending-audit':'ready-to-generate',materialId:old.materialId||'',generation:old.generation||null,import:old.import||null,createdFrom:'programa-do-edital'})
+   maps.push({id,sectionId,sectionLabel,group:sectionLabel,title,part:i+1,parts,topics:slice,topicCount:slice.length,source:'edital',sourceLabel:label,sourceText:text,sourceRefs,weightPct:weights.get(sectionId)||0,status:old.materialId?'active':old.import?.stored?'imported-pending-audit':'ready-to-generate',materialId:old.materialId||'',generation:old.generation||null,import:old.import||null,createdFrom:'programa-do-edital'})
   }
  }
  for(const sec of sections){
@@ -51,10 +67,10 @@ function build(cid,schema,contest={},previous=load(cid)){
   maps.push({id,sectionId,sectionLabel:clean(sec.label)||sectionId,group:clean(sec.label)||sectionId,title:clean(sec.label)||'Componente da prova',part:1,parts:1,topics:[],topicCount:0,source:'estrutura-da-prova',sourceLabel:clean(sec.label),sourceText:'',weightPct:weights.get(sectionId)||0,status:old.materialId?'active':'awaiting-content',materialId:old.materialId||'',generation:old.generation||null,import:old.import||null,createdFrom:'estrutura-da-prova'})
  }
  const linked=maps.filter(x=>x.materialId).length,awaiting=maps.filter(x=>x.status==='awaiting-content').length,totalTopics=maps.reduce((a,x)=>a+x.topicCount,0);
- return {schema:1,version:VERSION,contestId:cid,sourceSignature:signature(schema),source:'post-import-edital',contest:{title:contest?.title||'',position:contest?.position||schema?.position||'',board:contest?.board||schema?.board||''},sections:sections.map(s=>({id:s.id||slug(s.label),label:s.label||'',weightPct:weights.get(s.id||slug(s.label))||0,questions:s.questions??null,totalPoints:s.totalPoints??null})),sourceBlocks,maps,summary:{sections:sections.length,sectionsWithProgram:covered.size,maps:maps.length,topics:totalTopics,linked,awaiting,coveragePct:sections.length?Math.round(covered.size*100/sections.length):0},createdAt:previous?.createdAt||new Date().toISOString()}
+ return {schema:1,version:VERSION,contestId:cid,sourceSignature:signature(schema),source:'post-import-edital',contest:{title:contest?.title||'',position:contest?.position||schema?.position||'',board:contest?.board||schema?.board||''},sections:sections.map(s=>({id:s.id||slug(s.label),label:s.label||'',weightPct:weights.get(s.id||slug(s.label))||0,questions:s.questions??null,totalPoints:s.totalPoints??null})),sourceBlocks,maps,summary:{sections:sections.length,sectionsWithProgram:covered.size,maps:maps.length,topics:totalTopics,linked,awaiting,coveragePct:sections.length?Math.round(covered.size*100/sections.length):0,allocationMode:allocation.mode,unallocatedWeightPct:Math.round(allocation.unallocatedWeight*10000)/100,overallocatedWeightPct:Math.round(allocation.overallocatedWeight*10000)/100},createdAt:previous?.createdAt||new Date().toISOString()}
 }
 function buildAndSave(cid,schema,contest={}){return save(cid,build(cid,schema,contest,load(cid)))}
-function loadOrBuild(cid){const existing=load(cid);if(existing)return existing;const schema=safeJSON(localStorage.getItem('planoarq:exam-schema::'+cid),null);return schema?buildAndSave(cid,schema,{id:cid}):null}
+function loadOrBuild(cid,schema=null,contest={}){const source=schema||safeJSON(localStorage.getItem('planoarq:exam-schema::'+cid),null),existing=load(cid);if(!source)return existing;if(existing?.sourceSignature===signature(source))return existing;return buildAndSave(cid,source,{id:cid,...contest})}
 function mapsForSection(blueprint,section){const id=section?.id||slug(section?.label);return (blueprint?.maps||[]).filter(m=>m.sectionId===id||fold(m.sectionLabel)===fold(section?.label))}
 function generationPackage(cid,mapId,contest={},schema=null){
  const blueprint=load(cid),map=(blueprint?.maps||[]).find(x=>x.id===mapId);if(!blueprint||!map)throw new Error('Mapa preparado não encontrado');
@@ -63,8 +79,8 @@ function generationPackage(cid,mapId,contest={},schema=null){
  return{
   contract:'plano-arq-map-generation',contractVersion:GENERATION_CONTRACT,contractId,createdAt:new Date().toISOString(),
   contest:{id:cid,title:contest?.title||blueprint.contest?.title||'',organization:contest?.organization||'',position:contest?.position||blueprint.contest?.position||'',board:contest?.board||blueprint.contest?.board||'',notice:contest?.notice||schema?.notice||'',examDate:contest?.examDate||schema?.examDate?.date||''},
-  map:{id:map.id,title:map.title,group:map.group||map.sectionLabel||'',sectionId:map.sectionId,sectionLabel:map.sectionLabel||'',part:map.part||1,parts:map.parts||1,weightPct:Number(map.weightPct||0),topicCount:topics.length,status:map.status,topics,sourceText:map.sourceText||'',sourceLabel:map.sourceLabel||'',createdFrom:map.createdFrom||'programa-do-edital'},
-  section:section?{id:section.id||map.sectionId,label:section.label||map.sectionLabel||'',questions:section.questions??null,totalPoints:section.totalPoints??null,minimumPoints:section.minimumPoints??null,planWeight:section.planWeight??map.weightPct}:null,
+  map:{id:map.id,title:map.title,group:map.group||map.sectionLabel||'',sectionId:map.sectionId,sectionLabel:map.sectionLabel||'',part:map.part||1,parts:map.parts||1,weightPct:Number(map.weightPct||0),topicCount:topics.length,status:map.status,topics,sourceText:map.sourceText||'',sourceLabel:map.sourceLabel||'',sourceRefs:map.sourceRefs||[],createdFrom:map.createdFrom||'programa-do-edital'},
+  section:section?{id:section.id||map.sectionId,label:section.label||map.sectionLabel||'',questions:section.questions??null,totalPoints:section.totalPoints??null,minimumPoints:section.minimumPoints??null,minimumQuestions:section.minimumQuestions??null,planWeight:section.planWeight??map.weightPct,sourceRefs:section.sourceRefs||[]}:null,
   integration:{contestId:cid,mapId:map.id,blueprintSignature:signature,requiredMeta:{'plano-arq-contest-id':cid,'plano-arq-map-id':map.id,'plano-arq-blueprint-signature':signature}}
  }
 }
@@ -248,5 +264,5 @@ async function activateImportedMap(cid,mapId){
  return{report,material,blueprint:final}
 }
 function linkMaterial(cid,mapId,material){const b=load(cid);if(!b)return null;const maps=(b.maps||[]).map(m=>m.id===mapId?{...m,materialId:material?.id||'',status:material?.id?'active':'planned',linkedAt:material?.id?new Date().toISOString():null}:m);return save(cid,{...b,maps,summary:{...b.summary,linked:maps.filter(x=>x.materialId).length,active:maps.filter(x=>x.status==='active').length}})}
-window.PLANO_ARQ_STUDY_BLUEPRINT={version:VERSION,PREFIX,GENERATION_CONTRACT,IMPORT_CONTRACT,AUDIT_CONTRACT,key,splitTopics,matchSection,signature,load,save,build,buildAndSave,loadOrBuild,mapsForSection,generationPackage,generationCommand,markCommandCopied,inspectGeneratedHtml,importGeneratedHtml,importedHtml,clearImportedHtmlState,auditImportedMap,activateImportedMap,linkMaterial};
+window.PLANO_ARQ_STUDY_BLUEPRINT={version:VERSION,PREFIX,GENERATION_CONTRACT,IMPORT_CONTRACT,AUDIT_CONTRACT,key,splitTopics,matchSection,signature,allocationForSections,allocationForSchema,load,save,build,buildAndSave,loadOrBuild,mapsForSection,generationPackage,generationCommand,markCommandCopied,inspectGeneratedHtml,importGeneratedHtml,importedHtml,clearImportedHtmlState,auditImportedMap,activateImportedMap,linkMaterial};
 })();
